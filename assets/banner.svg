@@ -85,7 +85,7 @@
     <text x="440" y="215.5" class="muted" text-anchor="middle">long-form</text>
   </g>
 
-  <text class="mono soft" x="48" y="256" font-size="10.5" letter-spacing="0.4">one token contract  ·  three themes  ·  print + a11y by default</text>
+  <text class="mono soft" x="48" y="256" font-size="10.5" letter-spacing="0.4">one token contract  ·  four themes  ·  print + a11y by default</text>
 
   <!-- ================= right: a miniature of the system's output ================= -->
   <!-- Built from the same primitives the skills produce: a ranked bar chart with
