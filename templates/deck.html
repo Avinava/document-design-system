@@ -1,0 +1,178 @@
+<!doctype html>
+<!--
+  16:9 deck skeleton. One <section class="slide"> per slide.
+
+  Assemble with:
+      python scripts/build_document.py templates/deck.html \
+             --theme executive-navy --out deck.html
+
+  Authoring unit is 1280 x 720 CSS pixels with a 64px safe margin. The deck
+  scales to any display; nothing meaningful goes outside the safe area because
+  projectors and video conferencing crop differently.
+
+  No JavaScript. A deck that renders blank without JS is not a deliverable.
+-->
+<html lang="en" data-theme="executive-navy">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where our capacity goes</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* @@INLINE core/themes/${THEME}.css @@ */
+/* @@INLINE core/base.css @@ */
+
+/* ---- deck layout (not part of core) ---- */
+
+body { background: var(--surface-muted); }
+
+.deck {
+  /* Slides scale with the viewport but keep 16:9. The custom property is the
+     single place the authoring scale is defined. */
+  --slide-w: 1280;
+  --slide-h: 720;
+  scroll-snap-type: y mandatory;
+  overflow-y: auto;
+  height: 100vh;
+}
+
+.slide {
+  position: relative;
+  box-sizing: border-box;
+  width: min(100vw, calc(100vh * var(--slide-w) / var(--slide-h)));
+  aspect-ratio: var(--slide-w) / var(--slide-h);
+  margin: 0 auto 24px;
+  padding: 64px;                 /* the safe margin */
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  scroll-snap-align: center;
+  display: flex;
+  flex-direction: column;
+  container-type: inline-size;
+}
+
+/* Type scales with slide width so a projected slide and an authored slide
+   agree. 1cqw is one percent of the slide's own width. */
+.slide            { font-size: clamp(14px, 1.875cqw, 26px); }
+.slide-title      { font-family: var(--display); font-size: 3.4cqw; line-height: 1.15; margin: 0 0 0.6em; }
+.slide-statement  { font-family: var(--display); font-size: 5cqw; line-height: 1.2; margin: auto 0; max-width: 20ch; }
+.slide-note       { font-family: var(--mono); font-size: 1.3cqw; color: var(--muted); margin-top: auto; }
+.slide-visual     { flex: 1; display: flex; align-items: center; justify-content: center; margin: 0; }
+.slide-visual svg { width: 100%; height: auto; }
+
+.slide-metrics { display: flex; gap: 4cqw; margin: auto 0; }
+.slide-metric-value { font-family: var(--display); font-size: 6cqw; line-height: 1; font-variant-numeric: tabular-nums; }
+.slide-metric-label { color: var(--muted); font-size: 1.7cqw; margin-top: 0.4em; }
+.slide-metric-denom { font-family: var(--mono); font-size: 1.3cqw; color: var(--soft); margin-top: 0.3em; }
+
+/* Section dividers: accent field, few words, nothing else. */
+.slide.divider { background: var(--accent); color: var(--accent-ink); justify-content: center; }
+.slide.divider .slide-title { font-size: 4cqw; margin: 0; }
+
+/* Hairlines vanish when projected — 2px at slide scale. */
+.slide table th { border-bottom-width: 2px; }
+
+/* ---- print: one slide per page ---- */
+@media print {
+  @page { size: 1280px 720px landscape; margin: 0; }
+
+  body { background: #fff; }
+
+  .deck { height: auto; overflow: visible; }
+
+  .slide {
+    width: 1280px;
+    height: 720px;
+    margin: 0;
+    border: 0;
+    break-after: page;
+    page-break-after: always;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .slide:last-child { break-after: auto; page-break-after: auto; }
+
+  /* Backgrounds need "Background graphics" enabled in the print dialog. Say so
+     on handover, and make sure the deck still reads if it is disabled. */
+  .slide.divider { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+
+<body>
+<div class="deck">
+
+  <!-- title ---------------------------------------------------------- -->
+  <section class="slide" aria-label="Slide 1: Where our capacity goes">
+    <h1 class="slide-title">Where our capacity goes</h1>
+    <p>How the current footprint is distributed, and the one concentration worth acting on.</p>
+    <p class="slide-note">Presenter · Team · 2026-08-12</p>
+  </section>
+
+  <!-- agenda --------------------------------------------------------- -->
+  <section class="slide" aria-label="Slide 2: What we will cover">
+    <h2 class="slide-title">What we will cover</h2>
+    <ol>
+      <li>Where the footprint sits today</li>
+      <li>Why ingestion is the concentration risk</li>
+      <li>What we are asking for</li>
+    </ol>
+    <p class="slide-note">Wording matches the section dividers exactly.</p>
+  </section>
+
+  <!-- divider -------------------------------------------------------- -->
+  <section class="slide divider" aria-label="Slide 3: Where the footprint sits today">
+    <h2 class="slide-title">Where the footprint sits today</h2>
+  </section>
+
+  <!-- metric --------------------------------------------------------- -->
+  <section class="slide" aria-label="Slide 4: Three quarters of capacity is committed">
+    <h2 class="slide-title">Three quarters of capacity is committed</h2>
+    <div class="slide-metrics">
+      <div>
+        <div class="slide-metric-value focal-value">74%</div>
+        <div class="slide-metric-label">Of limit consumed</div>
+        <div class="slide-metric-denom">1.84M of 2.50M units</div>
+      </div>
+      <div>
+        <div class="slide-metric-value">660K</div>
+        <div class="slide-metric-label">Units remaining</div>
+        <div class="slide-metric-denom">as of 2026-08-12</div>
+      </div>
+    </div>
+    <p class="slide-note">Source: normalized inventory export</p>
+  </section>
+
+  <!-- chart: title states the finding, not the variables -------------- -->
+  <section class="slide" aria-label="Slide 5: Ingestion holds 41% of the footprint">
+    <h2 class="slide-title">Ingestion holds 41% of the footprint</h2>
+    <figure class="slide-visual">
+      <!-- inline the full-width SVG from scripts/render_chart.mjs here -->
+    </figure>
+    <p class="slide-note">Denominator: 1,842,110 included units · as of 2026-08-12</p>
+  </section>
+
+  <!-- statement ------------------------------------------------------- -->
+  <section class="slide" aria-label="Slide 6: One component holds more than the next three combined">
+    <p class="slide-statement">One component holds more than the next three combined.</p>
+    <p class="slide-note">And it is the only one without a failover.</p>
+  </section>
+
+  <!-- closing: the ask, never "Questions?" ---------------------------- -->
+  <section class="slide" aria-label="Slide 7: What we are asking for">
+    <h2 class="slide-title">What we are asking for</h2>
+    <ol>
+      <li>Approve two engineers for one quarter</li>
+      <li>Owner: Platform · Decision needed by 2026-09-01</li>
+    </ol>
+    <p class="slide-note">presenter@example.com</p>
+  </section>
+
+</div>
+</body>
+</html>

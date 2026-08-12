@@ -1,0 +1,81 @@
+/* brand-template — the slot for your own brand.
+ *
+ * Copy this file to core/themes/<your-brand>.css, replace every TODO, and rename
+ * the selector. Then use it with:
+ *
+ *     <html lang="en" data-theme="your-brand">
+ *
+ * The values below are deliberately neutral greys so an unfilled template still
+ * produces a legible document rather than a broken one. They are placeholders,
+ * not a design — a theme that only changes --accent is not a theme.
+ *
+ * Before shipping a brand theme, check the list at the bottom of this file.
+ */
+
+[data-theme="brand-template"] {
+  /* --- Surfaces -------------------------------------------------------
+   * --paper is the page. --surface is what sits on it (cards, tables).
+   * --surface-muted is the recessed layer (chart frames, alternate rows).
+   * Keep these close in value; large jumps read as stacked UI panels. */
+  --paper: #f6f6f6;          /* TODO: brand page background */
+  --surface: #ffffff;        /* TODO: brand card surface */
+  --surface-muted: #eeeeee;  /* TODO: brand recessed surface */
+
+  /* --- Ink ------------------------------------------------------------
+   * --ink must meet WCAG AA on --surface. --muted must stay genuinely
+   * readable; do not use low contrast merely to look refined. */
+  --ink: #23262b;            /* TODO: brand primary text */
+  --muted: #55595f;          /* TODO: brand secondary text */
+  --soft: #83878d;           /* TODO: brand tertiary/metadata text */
+
+  /* --- Structure ------------------------------------------------------
+   * Hierarchy comes from these plus spacing — not from shadows. */
+  --rule: rgba(35, 38, 43, 0.12);
+  --rule-strong: rgba(35, 38, 43, 0.32);
+
+  /* --- Accent ---------------------------------------------------------
+   * ONE accent. This is the focal signal, not the brand's whole palette.
+   * --accent-ink must be readable on --accent. */
+  --accent: #4a5568;         /* TODO: brand primary accent */
+  --accent-tint: rgba(74, 85, 104, 0.10); /* TODO: same hue at ~10% */
+  --accent-ink: #ffffff;     /* TODO: text color on --accent */
+
+  /* --- Status ---------------------------------------------------------
+   * Only used when the data genuinely contains status states. Never as a
+   * categorical chart palette. */
+  --positive: #34735b;       /* TODO: brand positive */
+  --warning: #a76620;        /* TODO: brand warning */
+  --critical: #a94141;       /* TODO: brand critical */
+
+  /* --- Methodology ----------------------------------------------------
+   * Usually inverted on screen, normalized to white in print. */
+  --method-bg: #23262b;      /* TODO: brand methodology background */
+  --method-ink: #f6f6f6;     /* TODO: text on --method-bg */
+  --method-muted: #c8cace;   /* TODO: secondary text on --method-bg */
+
+  /* --- Typography -----------------------------------------------------
+   * Always keep the system fallbacks. Font availability must never decide
+   * whether the document is usable. */
+  --display: system-ui, sans-serif;              /* TODO: brand display face */
+  --sans: system-ui, sans-serif;                 /* TODO: brand body face */
+  --mono: ui-monospace, SFMono-Regular, monospace; /* TODO: brand mono face */
+
+  /* --- Geometry -------------------------------------------------------
+   * Keep between 0 and 8px. */
+  --radius-sm: 3px;
+  --radius-md: 5px;
+}
+
+/* Before shipping a brand theme:
+ *
+ *  [ ] Every TODO above is replaced.
+ *  [ ] --ink on --surface meets WCAG AA for body text.
+ *  [ ] --muted on --surface is still comfortably readable.
+ *  [ ] --accent-ink on --accent meets WCAG AA.
+ *  [ ] --method-ink and --method-muted are readable on --method-bg.
+ *  [ ] Exactly one accent is used; brand secondary colors are NOT wired in
+ *      as extra chart colors.
+ *  [ ] Every chart still parses in grayscale.
+ *  [ ] Print normalization (core/print.css) still produces a clean PDF.
+ *  [ ] Checked at desktop, mobile, and print widths.
+ */

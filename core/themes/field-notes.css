@@ -1,0 +1,41 @@
+/* field-notes — research findings, audits, operational workshops.
+ *
+ * Tactile but still professional. Warm paper, near-zero radii, a rust accent.
+ *
+ * This theme may use a very subtle paper texture, but only when requested.
+ * Texture must disappear in print and must never reduce contrast.
+ *
+ * Fonts: Source Sans 3 (display + sans), Source Code Pro (mono).
+ */
+
+[data-theme="field-notes"] {
+  --paper: #f4f0e7;
+  --surface: #fffdf7;
+  --surface-muted: #ebe5d8;
+
+  --ink: #28312d;
+  --muted: #59665f;
+  --soft: #7b857f;
+
+  --rule: rgba(40, 49, 45, 0.14);
+  --rule-strong: rgba(40, 49, 45, 0.34);
+
+  --accent: #b65332;
+  --accent-tint: rgba(182, 83, 50, 0.10);
+  --accent-ink: #ffffff;
+
+  --positive: #46725a;
+  --warning: #9a681d;
+  --critical: #9b4343;
+
+  --method-bg: #28312d;
+  --method-ink: #f4f0e7;
+  --method-muted: #c7cec8;
+
+  --display: 'Source Sans 3', 'Manrope', system-ui, sans-serif;
+  --sans: 'Source Sans 3', 'Geist', system-ui, sans-serif;
+  --mono: 'Source Code Pro', 'Geist Mono', ui-monospace, monospace;
+
+  --radius-sm: 0;
+  --radius-md: 2px;
+}

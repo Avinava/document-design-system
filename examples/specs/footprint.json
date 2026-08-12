@@ -1,0 +1,13 @@
+{
+  "form": "bars",
+  "id": "fn-footprint",
+  "title": "Ingestion holds 41% of the footprint",
+  "desc": "Five functions ranked by current size. Ingestion holds 41 percent of the 1.8 million unit total, more than the next three combined.",
+  "data": [
+    {"k":"Ingestion","v":41},{"k":"Transform","v":22},
+    {"k":"Serving","v":18},{"k":"Archive","v":12},{"k":"Other","v":7}
+  ],
+  "x": "v", "y": "k", "focal": "Ingestion",
+  "xLabel": "Share of included total (%)",
+  "size": "doc-inline"
+}

@@ -1,0 +1,760 @@
+<!doctype html>
+<!--
+  Document skeleton.
+
+  The <style> block below carries a build marker instead of a copy of core/.
+  Assemble it with:
+
+      python scripts/build_document.py templates/document.html \
+             --theme editorial-coral --out report.html
+
+  or inline core/themes/<theme>.css, core/base.css, and core/print.css by hand,
+  in that order. Print rules must come last so they beat the responsive rules —
+  print rendering can match a narrow-viewport media query, and without that
+  ordering a desktop grid silently collapses to one column in the PDF.
+
+  Delete the sections this document does not need rather than padding them.
+-->
+<html lang="en" data-theme="editorial-coral">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where the work lives</title>
+
+<!-- Fonts for editorial-coral and executive-navy. Swap for the field-notes
+     import when using that theme. System fallbacks are in the token stacks, so
+     the document stays usable if this fails to load. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ---- inlined from core/themes/editorial-coral.css ---- */
+/* editorial-coral — the default theme.
+ *
+ * Warm, precise, suitable for broadly shared analytical reports.
+ * Coral marks the primary measured signal; navy ink stays dominant.
+ *
+ * Fonts: Manrope (display), Geist (sans), Geist Mono (mono).
+ */
+
+:root,
+[data-theme="editorial-coral"] {
+  --paper: #f5f5f5;
+  --surface: #ffffff;
+  --surface-muted: #eeeeef;
+
+  --ink: #2d3142;
+  --muted: #4f5d75;
+  --soft: #7a8399;
+
+  --rule: rgba(45, 49, 66, 0.12);
+  --rule-strong: rgba(45, 49, 66, 0.32);
+
+  --accent: #eb6c36;
+  --accent-tint: rgba(235, 108, 54, 0.10);
+  --accent-ink: #ffffff;
+
+  --positive: #34735b;
+  --warning: #a76620;
+  --critical: #a94141;
+
+  --method-bg: #2d3142;
+  --method-ink: #f5f5f5;
+  --method-muted: #c9cbd2;
+
+  --display: 'Manrope', system-ui, sans-serif;
+  --sans: 'Geist', system-ui, sans-serif;
+  --mono: 'Geist Mono', ui-monospace, monospace;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+}
+/* ---- inlined from core/base.css ---- */
+/* base.css — component-to-token mapping.
+ *
+ * This file contains NO color literals. Every visual decision resolves through
+ * a token defined in core/themes/. That is what makes theme swapping, print
+ * normalization, and grayscale survival work without editing components.
+ *
+ * Load order matters:
+ *   1. a theme from core/themes/
+ *   2. this file
+ *   3. core/print.css   (last, so its overrides beat responsive rules)
+ */
+
+/* ---------------------------------------------------------------- reset */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ----------------------------------------------------------- derived */
+
+/* Derived from the base tokens so themes do not have to restate them.
+ * If color-mix() is unavailable in a target environment, define
+ * --comparison-fill and --track-fill explicitly in the theme instead. */
+:root {
+  --comparison-fill: color-mix(in srgb, var(--muted) 16%, transparent);
+  --track-fill: color-mix(in srgb, var(--muted) 10%, transparent);
+}
+
+/* --- token aliases for embedded renderers ---------------------------
+ *
+ * Third-party renderers set their own theme variables on the element they
+ * emit. beautiful-mermaid, for example, writes --accent, --muted, and
+ * --surface onto its <svg> — names this system already uses.
+ *
+ * Emitting `--accent: var(--accent)` on that <svg> would be a self-reference,
+ * which CSS treats as invalid at computed-value time, so the diagram would
+ * lose its colors. Routing through these aliases breaks the cycle: the
+ * renderer writes `--accent: var(--dds-accent)`, and --dds-accent resolves
+ * here, on :root, where there is no collision.
+ *
+ * Add an alias whenever a renderer's namespace overlaps a token name. */
+:root {
+  --dds-paper: var(--paper);
+  --dds-surface: var(--surface);
+  --dds-surface-muted: var(--surface-muted);
+  --dds-ink: var(--ink);
+  --dds-muted: var(--muted);
+  --dds-soft: var(--soft);
+  --dds-rule: var(--rule);
+  --dds-rule-strong: var(--rule-strong);
+  --dds-accent: var(--accent);
+  --dds-accent-tint: var(--accent-tint);
+}
+
+/* ------------------------------------------------------- typography */
+
+h1, h2, h3,
+.metric-value,
+.focal-value {
+  font-family: var(--display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+h1 { font-size: 2rem; margin: 0 0 0.5rem; }
+h2 { font-size: 1.375rem; margin: 2.5rem 0 0.75rem; }
+h3 { font-size: 1.0625rem; margin: 1.75rem 0 0.5rem; }
+
+p { margin: 0 0 1rem; max-width: 68ch; }
+
+/* Mono is for technical metadata only: dates, versions, identifiers, source
+ * names, compact labels. Body copy in mono is harder to read, not more
+ * credible. */
+.meta,
+.eyebrow,
+time,
+code,
+.identifier,
+.version {
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.01em;
+}
+
+.eyebrow {
+  color: var(--soft);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.subtle { color: var(--muted); }
+
+/* ---------------------------------------------------------- surfaces */
+
+/* Hierarchy comes from borders and spacing, not shadows. */
+.card,
+.table-wrap,
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.375rem;
+}
+
+.chart-frame {
+  background: var(--surface-muted);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+}
+
+.tag {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--rule);
+  padding: 0.125rem 0.4375rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+hr,
+.rule {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 2rem 0;
+}
+
+/* ------------------------------------------------------------ accent */
+
+/* One accent per visual region. Repeating it across every heading and card
+ * destroys the hierarchy it exists to create. */
+.focal-value,
+.focal-label {
+  color: var(--accent);
+}
+
+.accent-surface {
+  background: var(--accent-tint);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+}
+
+.accent-solid {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* ------------------------------------------------------------ status */
+
+/* Color alone never carries meaning — every status element also needs a
+ * written label, so it survives grayscale and color-blind reading. */
+.status-positive { color: var(--positive); }
+.status-warning  { color: var(--warning); }
+.status-critical { color: var(--critical); }
+
+/* ------------------------------------------------------- methodology */
+
+.methodology {
+  background: var(--method-bg);
+  color: var(--method-ink);
+  border-radius: var(--radius-md);
+  padding: 1.5rem 1.625rem;
+}
+
+.methodology h2,
+.methodology h3 { color: var(--method-ink); }
+.methodology .subtle,
+.methodology p { color: var(--method-muted); }
+
+/* ------------------------------------------------------------ tables */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 1px solid var(--rule-strong);
+  padding: 0.5rem 0.625rem;
+}
+
+td {
+  border-bottom: 1px solid var(--rule);
+  padding: 0.5rem 0.625rem;
+}
+
+/* Numbers align right and use tabular figures so columns scan vertically. */
+.num,
+td.num,
+th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+tbody tr:nth-child(even) { background: var(--surface-muted); }
+
+/* On small screens, let wide tables scroll rather than crushing columns.
+ * core/print.css unsets this — a scroll container clips in print. */
+.table-scroll,
+.diagram-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* -------------------------------------------------------------- SVG */
+
+/* Charts and diagrams style through these classes rather than through
+ * presentation attributes, so one stylesheet retheme reaches every figure. */
+.bar-focal      { fill: var(--accent-tint); stroke: var(--accent); }
+.bar-comparison { fill: var(--comparison-fill); stroke: var(--muted); }
+.track          { fill: var(--track-fill); }
+.axis-line      { stroke: var(--rule-strong); }
+.grid-line      { stroke: var(--rule); }
+.chart-label    { fill: var(--muted); font-family: var(--sans); font-size: 12px; }
+.chart-value    { fill: var(--ink); font-family: var(--sans); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+svg { max-width: 100%; height: auto; }
+
+/* --------------------------------------------------------- utilities */
+
+.print-only { display: none; }
+
+a { color: inherit; text-underline-offset: 2px; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---- document layout (not part of core) ---- */
+.report-shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 40px 32px 64px;
+}
+
+.identity-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 32px;
+}
+
+.title-block { margin-bottom: 40px; }
+.title-block p { color: var(--muted); font-size: 1.0625rem; }
+
+.section-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 40px;
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+}
+
+.metric-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.metric-value { font-size: 2.25rem; line-height: 1.1; }
+.metric-label { color: var(--muted); font-size: 0.875rem; margin-top: 4px; }
+.metric-denom { font-family: var(--mono); font-size: 0.75rem; color: var(--soft); margin-top: 4px; }
+
+figure { margin: 0 0 32px; }
+figcaption {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--soft);
+  margin-top: 8px;
+}
+
+section { margin-bottom: 48px; }
+
+@media (max-width: 640px) {
+  .report-shell { padding: 24px 16px 48px; }
+  .identity-bar { flex-direction: column; gap: 4px; }
+}
+
+/* ---- inlined from core/print.css ---- */
+/* print.css — print and PDF as a distinct output mode.
+ *
+ * Load this LAST. Print rendering can match a narrow-viewport media query, so
+ * without explicit overrides a desktop grid collapses to one column in the PDF.
+ * Placing this after the responsive rules is what prevents that.
+ *
+ * Browser-added headers and footers (URL, date, page number) are controlled by
+ * the print dialog, not by CSS. When a clean PDF matters, tell the user to
+ * disable them. Do not claim CSS suppresses them.
+ */
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 14mm 14mm 16mm;
+  }
+
+  /* --- theme normalization ------------------------------------------
+   * Print normalizes to white paper while keeping theme identity through
+   * ink, rules, and the accent. Dark methodology panels invert so they do
+   * not consume ink or reproduce badly in grayscale. */
+  :root,
+  [data-theme] {
+    --paper: #ffffff;
+    --surface: #ffffff;
+    --surface-muted: #f3f3f3;
+    --method-bg: #ffffff;
+    --method-ink: var(--ink);
+    --method-muted: var(--muted);
+  }
+
+  .methodology {
+    border: 1px solid var(--rule-strong);
+  }
+
+  html {
+    font-size: 10pt;
+    background: #fff;
+  }
+
+  body {
+    min-height: auto;
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* --- layout -------------------------------------------------------- */
+
+  .report-shell,
+  main {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .screen-only,
+  nav,
+  button,
+  [role="navigation"] {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  /* --- fragmentation --------------------------------------------------
+   * Protect small self-contained things. Let big things flow. Setting
+   * break-inside: avoid on every section produces half-empty pages when a
+   * section is taller than one page. */
+
+  h1, h2, h3 {
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+
+  p, li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  .metric-card,
+  .chart,
+  figure,
+  blockquote,
+  .callout,
+  .methodology {
+    break-inside: avoid-page;
+    page-break-inside: avoid;
+  }
+
+  section {
+    break-before: auto;
+  }
+
+  .page-break-before {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    break-after: page;
+    page-break-after: always;
+  }
+
+  /* --- tables ---------------------------------------------------------
+   * Long tables span pages with repeating headers. Never break-inside:
+   * avoid a whole table — it overflows or leaves large gaps. */
+
+  table {
+    width: 100%;
+    min-width: 0;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+  }
+
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
+
+  tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  th, td {
+    padding: 2.2mm 1.6mm;
+  }
+
+  /* --- overflow containers --------------------------------------------
+   * Changing overflow alone does not stop an oversized child clipping. The
+   * min-width reset is the part that actually matters. */
+
+  .table-scroll,
+  .diagram-scroll {
+    overflow: visible;
+  }
+
+  .table-scroll table,
+  .diagram-scroll svg {
+    min-width: 0 !important;
+  }
+
+  svg,
+  img,
+  canvas {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* --- compound components --------------------------------------------
+   * Generic structural rules above can strip padding from compound-class
+   * elements such as <section class="section methodology">. Restore it with
+   * a more specific selector, then check all four insets in the PDF. */
+
+  section.methodology {
+    padding: 18px 20px;
+  }
+
+  /* --- links -----------------------------------------------------------
+   * Append URLs only where the destination matters on paper. Never for
+   * fragment-only or javascript: links. */
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  a.external[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-family: ui-monospace, monospace;
+    font-size: 0.82em;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* US Letter alternative — swap the @page block above when the target
+ * organization requires it:
+ *
+ *   @page { size: Letter portrait; margin: 0.55in 0.55in 0.65in; }
+ *
+ * Do not switch the whole document to landscape because one table is wide.
+ * Simplify the printed columns first, or build a separate landscape appendix.
+ */
+</style>
+</head>
+
+<body>
+<div class="report-shell">
+
+  <!-- 1. identity ------------------------------------------------------ -->
+  <div class="identity-bar">
+    <span class="eyebrow">Organization · Portfolio</span>
+    <span class="meta">Current snapshot</span>
+  </div>
+
+  <!-- print-only provenance: navigation disappears in print, but the
+       source must not. .print-only is display:none outside @media print. -->
+  <div class="print-only">
+    <strong>Where the work lives</strong><br>
+    <span class="meta">As of 2026-08-12 · Source: normalized inventory export</span>
+  </div>
+
+  <!-- 2. title block --------------------------------------------------- -->
+  <header class="title-block">
+    <h1>Where the work lives</h1>
+    <p>How the current footprint is distributed across functions, owners, and vintages.</p>
+    <p class="meta">Source: normalized inventory export · As of 2026-08-12</p>
+  </header>
+
+  <!-- 3. section navigation (screen only) ------------------------------ -->
+  <nav class="section-nav screen-only" aria-label="Report sections">
+    <a href="#ledger">Ledger</a>
+    <a href="#concentration">Concentration</a>
+    <a href="#time">Time</a>
+    <a href="#ownership">Ownership</a>
+    <a href="#review">Review</a>
+    <a href="#methodology">Methodology</a>
+  </nav>
+
+  <!-- 4. primary ledger ------------------------------------------------ -->
+  <section id="ledger">
+    <h2>Current footprint against limit</h2>
+    <div class="chart-frame">
+      <!-- limit ledger: one horizontal track, used vs remaining.
+           Needs an aria-label carrying the exact values — the shape alone
+           conveys nothing to a screen reader. -->
+      <svg role="img" aria-label="1.84 million of 2.50 million units used, 74 percent. 660 thousand units remaining."
+           viewBox="0 0 1000 48" width="100%">
+        <rect x="0" y="12" width="1000" height="24" rx="4" fill="var(--track-fill)"/>
+        <rect x="0" y="12" width="736" height="24" rx="4"
+              fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+      </svg>
+    </div>
+    <p class="meta">1.84M of 2.50M units (74%) · 660K remaining</p>
+  </section>
+
+  <!-- 5. decision metrics ---------------------------------------------- -->
+  <div class="metric-row">
+    <div class="card">
+      <div class="metric-value focal-value">41%</div>
+      <div class="metric-label">Held by the largest function</div>
+      <div class="metric-denom">of 1,842,110 included units</div>
+    </div>
+    <div class="card">
+      <div class="metric-value">312</div>
+      <div class="metric-label">No recorded modification in 5+ years</div>
+      <div class="metric-denom">of 4,180 included records</div>
+    </div>
+    <div class="card">
+      <div class="metric-value">88</div>
+      <div class="metric-label">Excluded from the total</div>
+      <div class="metric-denom">shown separately in methodology</div>
+    </div>
+  </div>
+
+  <!-- 6. concentration ------------------------------------------------- -->
+  <section id="concentration">
+    <h2>Where the footprint concentrates</h2>
+    <figure>
+      <div class="chart-frame">
+        <svg class="plot-d6a7b5" fill="currentColor" font-family="var(--sans)" font-size="10" text-anchor="middle" viewBox="0 0 720 320" style="background: transparent;max-width:720px" width="100%" role="img" aria-labelledby="fn-footprint-title fn-footprint-desc">
+  <title id="fn-footprint-title">Ingestion holds 41% of the footprint</title>
+  <desc id="fn-footprint-desc">Five functions ranked by current size. Ingestion holds 41 percent of the 1.8 million unit total, more than the next three combined.</desc><style>:where(.plot-d6a7b5) {
+  --plot-background: transparent;
+  display: block;
+  height: auto;
+  height: intrinsic;
+  max-width: 100%;
+}
+:where(.plot-d6a7b5 text),
+:where(.plot-d6a7b5 tspan) {
+  white-space: pre;
+}</style><g aria-label="y-axis tick" aria-hidden="true" fill="none" stroke="currentColor" transform="translate(0,22.5)"><path transform="translate(130,25)" d="M0,0L-6,0"></path><path transform="translate(130,75)" d="M0,0L-6,0"></path><path transform="translate(130,125)" d="M0,0L-6,0"></path><path transform="translate(130,175)" d="M0,0L-6,0"></path><path transform="translate(130,225)" d="M0,0L-6,0"></path></g><g aria-label="y-axis tick label" text-anchor="end" transform="translate(-9,22.5)"><text y="0.32em" transform="translate(130,25)">Ingestion</text><text y="0.32em" transform="translate(130,75)">Transform</text><text y="0.32em" transform="translate(130,125)">Serving</text><text y="0.32em" transform="translate(130,175)">Archive</text><text y="0.32em" transform="translate(130,225)">Other</text></g><g aria-label="x-axis tick" aria-hidden="true" fill="none" stroke="currentColor"><path transform="translate(130,276)" d="M0,0L0,6"></path><path transform="translate(199.5121951219512,276)" d="M0,0L0,6"></path><path transform="translate(269.0243902439024,276)" d="M0,0L0,6"></path><path transform="translate(338.5365853658536,276)" d="M0,0L0,6"></path><path transform="translate(408.04878048780483,276)" d="M0,0L0,6"></path><path transform="translate(477.5609756097561,276)" d="M0,0L0,6"></path><path transform="translate(547.0731707317073,276)" d="M0,0L0,6"></path><path transform="translate(616.5853658536585,276)" d="M0,0L0,6"></path><path transform="translate(686.0975609756097,276)" d="M0,0L0,6"></path></g><g aria-label="x-axis tick label" font-variant="tabular-nums" transform="translate(0,9)"><text y="0.71em" transform="translate(130,276)">0</text><text y="0.71em" transform="translate(199.5121951219512,276)">5</text><text y="0.71em" transform="translate(269.0243902439024,276)">10</text><text y="0.71em" transform="translate(338.5365853658536,276)">15</text><text y="0.71em" transform="translate(408.04878048780483,276)">20</text><text y="0.71em" transform="translate(477.5609756097561,276)">25</text><text y="0.71em" transform="translate(547.0731707317073,276)">30</text><text y="0.71em" transform="translate(616.5853658536585,276)">35</text><text y="0.71em" transform="translate(686.0975609756097,276)">40</text></g><g aria-label="x-axis label" text-anchor="end" transform="translate(17,41)"><text transform="translate(700,276)">Share of included total (%) →</text></g><g aria-label="bar"><rect x="130" width="570" y="25" height="45" fill="var(--accent-tint)" stroke="var(--accent)"></rect><rect x="130" width="305.8536585365854" y="75" height="45" fill="var(--comparison-fill)" stroke="var(--muted)"></rect><rect x="130" width="250.2439024390244" y="125" height="45" fill="var(--comparison-fill)" stroke="var(--muted)"></rect><rect x="130" width="166.8292682926829" y="175" height="45" fill="var(--comparison-fill)" stroke="var(--muted)"></rect><rect x="130" width="97.3170731707317" y="225" height="45" fill="var(--comparison-fill)" stroke="var(--muted)"></rect></g><g aria-label="rule" stroke="var(--rule-strong)"><line x1="130" x2="130" y1="20" y2="276"></line></g></svg>
+      </div>
+      <figcaption>Source: normalized inventory export, as of 2026-08-12. Denominator: 1,842,110 included units.</figcaption>
+    </figure>
+  </section>
+
+  <!-- 7. time ---------------------------------------------------------- -->
+  <section id="time">
+    <h2>Current size by creation cohort</h2>
+    <!-- "current size by creation cohort" — NOT "amount added per year".
+         Records may have grown, shrunk, or been replaced after creation. -->
+    <figure>
+      <div class="chart-frame"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 240" style="--bg:var(--dds-surface);--fg:var(--dds-ink);--line:var(--dds-rule-strong);--accent:var(--dds-accent);--muted:var(--dds-muted);--surface:var(--dds-surface-muted);--border:var(--dds-rule);max-width:720px" width="100%" role="img" aria-labelledby="ingest-title ingest-desc">
+  <title id="ingest-title">Ingestion path</title>
+  <desc id="ingest-desc">Client posts events to the gateway, which enqueues them; the queue acknowledges.</desc>
+<style>
+  text { font-family: var(--sans); }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 85%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="ingest-seq-arrow" markerWidth="8" markerHeight="5" refX="8" refY="2.5" orient="auto-start-reverse">
+    <polygon points="0 0, 8 2.5, 0 5" fill="var(--_arrow)" />
+  </marker>
+  <marker id="ingest-seq-arrow-open" markerWidth="8" markerHeight="5" refX="8" refY="2.5" orient="auto-start-reverse">
+    <polyline points="0 0, 8 2.5, 0 5" fill="none" stroke="var(--_arrow)" stroke-width="1" />
+  </marker>
+</defs>
+<line class="lifeline" data-actor="Client" x1="70" y1="70" x2="70" y2="210" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line class="lifeline" data-actor="Gateway" x1="210" y1="70" x2="210" y2="210" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line class="lifeline" data-actor="Queue" x1="350" y1="70" x2="350" y2="210" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<g class="message" data-from="Client" data-to="Gateway" data-label="POST /events" data-line-style="solid" data-arrow-head="filled" data-self="false">
+  <line x1="70" y1="90" x2="210" y2="90" stroke="var(--_line)" stroke-width="1" marker-end="url(#ingest-seq-arrow)" />
+  <text x="140" y="80" font-size="11" text-anchor="middle" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">POST /events</text>
+</g>
+<g class="message" data-from="Gateway" data-to="Queue" data-label="enqueue" data-line-style="solid" data-arrow-head="filled" data-self="false">
+  <line x1="210" y1="130" x2="350" y2="130" stroke="var(--_line)" stroke-width="1" marker-end="url(#ingest-seq-arrow)" />
+  <text x="280" y="120" font-size="11" text-anchor="middle" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">enqueue</text>
+</g>
+<g class="message" data-from="Queue" data-to="Gateway" data-label="ack" data-line-style="dashed" data-arrow-head="filled" data-self="false">
+  <line x1="350" y1="170" x2="210" y2="170" stroke="var(--_line)" stroke-width="1" stroke-dasharray="6 4" marker-end="url(#ingest-seq-arrow)" />
+  <text x="280" y="160" font-size="11" text-anchor="middle" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">ack</text>
+</g>
+<g class="actor" data-id="ingest-Client" data-label="Client" data-type="participant">
+  <rect x="30" y="30" width="80" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="70" y="50" font-size="13" text-anchor="middle" font-weight="500" fill="var(--_text)" dy="4.55">Client</text>
+</g>
+<g class="actor" data-id="ingest-Gateway" data-label="Gateway" data-type="participant">
+  <rect x="167.83100000000002" y="30" width="84.338" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="210" y="50" font-size="13" text-anchor="middle" font-weight="500" fill="var(--_text)" dy="4.55">Gateway</text>
+</g>
+<g class="actor" data-id="ingest-Queue" data-label="Queue" data-type="participant">
+  <rect x="310" y="30" width="80" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="350" y="50" font-size="13" text-anchor="middle" font-weight="500" fill="var(--_text)" dy="4.55">Queue</text>
+</g>
+</svg></div>
+      <figcaption>Current footprint of records created in each year. Not a measure of growth — no historical snapshots exist.</figcaption>
+    </figure>
+  </section>
+
+  <!-- 8. ownership ------------------------------------------------------ -->
+  <section id="ownership">
+    <h2>Attribution</h2>
+    <p class="subtle">Attributed by last modifier, which may represent an automation or deployment account rather than a person.</p>
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <caption class="meta">Included records by last modifier</caption>
+          <thead>
+            <tr><th scope="col">Modifier</th><th scope="col" class="num">Records</th><th scope="col" class="num">Units</th><th scope="col" class="num">Share</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. priority review ------------------------------------------------ -->
+  <section id="review">
+    <h2>Review candidates</h2>
+    <div class="callout">
+      <p><strong>Rule:</strong> no recorded modification in 5+ years <em>and</em> below version 50.</p>
+      <p class="subtle">These are candidates for review, not confirmed savings. The rule is a triage heuristic and has not been validated against usage.</p>
+    </div>
+  </section>
+
+  <!-- 10. methodology --------------------------------------------------- -->
+  <section id="methodology" class="section methodology">
+    <h2>Methodology</h2>
+    <p>Definitions, the included and excluded populations, how classifications were inferred and with what confidence, and what the dates mean.</p>
+    <p class="subtle">Limitations: what this report cannot show, and why.</p>
+    <p class="subtle">Generated 2026-08-12 from normalized inventory export.</p>
+  </section>
+
+</div>
+</body>
+</html>

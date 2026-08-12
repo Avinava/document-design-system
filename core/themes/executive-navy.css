@@ -1,0 +1,41 @@
+/* executive-navy — formal governance, financial, board, and leadership reporting.
+ *
+ * Lower-expression and higher-contrast than the default. Tighter radii read as
+ * more institutional.
+ *
+ * Do not add gold as a second decorative accent. Warning amber stays status-only.
+ *
+ * Fonts: Manrope (display), Inter (sans), IBM Plex Mono (mono).
+ */
+
+[data-theme="executive-navy"] {
+  --paper: #f3f6f8;
+  --surface: #ffffff;
+  --surface-muted: #e9eef2;
+
+  --ink: #13293d;
+  --muted: #486174;
+  --soft: #718493;
+
+  --rule: rgba(19, 41, 61, 0.13);
+  --rule-strong: rgba(19, 41, 61, 0.34);
+
+  --accent: #1f6f8b;
+  --accent-tint: rgba(31, 111, 139, 0.10);
+  --accent-ink: #ffffff;
+
+  --positive: #2f7254;
+  --warning: #996319;
+  --critical: #a13f45;
+
+  --method-bg: #13293d;
+  --method-ink: #f5f8fa;
+  --method-muted: #c3ced6;
+
+  --display: 'Manrope', system-ui, sans-serif;
+  --sans: 'Inter', 'Geist', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', 'Geist Mono', ui-monospace, monospace;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+}

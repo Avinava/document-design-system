@@ -1,0 +1,4 @@
+sequenceDiagram
+  Client->>Gateway: POST /events
+  Gateway->>Queue: enqueue
+  Queue-->>Gateway: ack

@@ -1,0 +1,109 @@
+# document-design-system
+
+**A design system for documents.** Five skills over one token contract — analytical reports, diagrams, charts, decks, and long-form specs — producing self-contained HTML that needs no JavaScript to read, no build step to open, and prints properly.
+
+Most document tooling is welded to one output format or one client's brand. This is the discipline itself: what to measure, when a chart earns its place, how to structure an argument, and one shared set of semantic tokens underneath so a report, the diagram inside it, and the deck derived from it all look like one system.
+
+## Install
+
+```
+/plugin marketplace add Avinava/document-design-system
+/plugin install document-design-system@document-design-system
+```
+
+Or use it as a plain skills directory — copy `skills/` and `core/` into `.claude/skills/` or `.agents/skills/`.
+
+## The skills
+
+| Skill | Owns | Does **not** own |
+|---|---|---|
+| **analytical-document-design** | Evidence models, control totals, metric semantics, cohort/time semantics, classification confidence, report architecture, methodology | Prose-first docs, slides, standalone charts |
+| **diagram-design** | When a diagram earns its place, form routing, layout/edge/label rules, Mermaid→SVG prerender, hand-SVG for concept diagrams | Quantitative charts, UI mockups, editable `.drawio` |
+| **chart-design** | Chart-type selection, axis honesty, encoding rules, palettes derived from tokens, grayscale survival | Narrative structure, dashboards-as-applications |
+| **presentation-design** | 16:9 HTML slides, one-idea-per-slide, slide hierarchy, PDF export | Documents meant to be read rather than presented |
+| **longform-document-design** | RFCs, design docs, ADRs, specs, postmortems, runbooks; prose hierarchy, cross-references, footnotes | Metric-led reports |
+
+Each `SKILL.md` is a lean index; the depth lives in `references/` and loads only when relevant. The largest skill body is ~180 lines against ~700 lines of reference material behind it.
+
+## The one idea
+
+> **Everything renders to an SVG string at authoring time. The only thing still live in the shipped HTML is CSS custom properties.**
+
+That single rule is what makes the rest cohere. Diagrams, charts, decks, and reports share one token set, retheme for light/dark or brand with zero JavaScript, survive print, and stay one file.
+
+It also settles the perennial Mermaid question. Mermaid is a fine *notation* and a poor *output format* — its default rendering brings its own fonts, colors, and spacing, none of which know about the document they land in. So Mermaid is an input: prerendered through [`beautiful-mermaid`](https://github.com/lukilabs/beautiful-mermaid) into an SVG whose colors are `var(--…)` references. Change `data-theme` on the document and every diagram follows, with nothing re-rendered.
+
+Try it: open `examples/inventory-report.html`, change `data-theme="editorial-coral"` to `"executive-navy"`, and watch the chart's focal bar and the diagram's arrowheads move with the page.
+
+## Layout
+
+```
+core/            the shared design system — the single source of truth
+  tokens.md        the semantic token contract
+  themes/          editorial-coral · executive-navy · field-notes · brand-template
+  base.css         component→token mapping (contains no color literals)
+  print.css        print as a distinct output mode
+  a11y.md          SVG labelling, contrast, grayscale, focus
+skills/          the five skills, each SKILL.md + references/
+scripts/         authoring-time tooling — never shipped to readers
+templates/       document, deck, and hand-authored diagram skeletons
+examples/        committed outputs, doubling as CI fixtures
+```
+
+## Themes
+
+Three neutral themes plus a documented brand slot:
+
+- `editorial-coral` — general analytical reports. The default.
+- `executive-navy` — board, finance, governance.
+- `field-notes` — research, audit, operational review.
+- `brand-template` — copy it, fill every TODO, rename. There is a pre-ship checklist at the bottom of the file.
+
+A theme changes the visual voice, never the information architecture. It must not change metric definitions, category order, chart scales, included records, or conclusions.
+
+## Tooling
+
+All of it runs on the authoring machine. The delivered artifact is plain HTML and SVG.
+
+```bash
+npm install beautiful-mermaid @observablehq/plot jsdom
+
+node scripts/render_diagram.mjs in.mmd --id x --title "…" --desc "…" --out x.svg
+node scripts/render_chart.mjs spec.json --out chart.svg
+node scripts/export_pdf.mjs report.html --out report.pdf     # needs playwright
+
+python3 scripts/build_document.py templates/document.html --theme field-notes --out report.html
+python3 scripts/inline_fonts.py report.html --font "Geist:400:geist.woff2" --out offline.html
+python3 scripts/validate_repository.py .
+python3 -m unittest discover -s tests
+```
+
+Both renderers wrap their upstream library rather than calling it directly, because raw output is not safe to inline into a designed document. Between them they strip an external Google Fonts request from inside the SVG, namespace generic element IDs that would otherwise collide across two figures on one page, remove fixed pixel dimensions that break print scaling, neutralize a hardcoded white background, and add the accessibility shell. Each of those is a verified upstream behavior, documented at the point it is handled.
+
+## Verification
+
+`.github/workflows/validate.yml` runs the tests, the repository linter, a template assembly check, and renders a diagram and a chart to assert their output contracts.
+
+`scripts/validate_repository.py` reads the same files the skills read — `core/tokens.md` for the required tokens and `core/themes/*.css` for the palette — so the prose rules and the machine check cannot drift apart. It enforces the two-key frontmatter schema, name↔folder agreement, a mandatory `Do not use for …` clause in every description, complete token coverage in every theme, no color literals outside `core/themes/`, and no broken relative links.
+
+## Attribution
+
+- **[cathrynlavery/diagram-design](https://github.com/cathrynlavery/diagram-design)** (MIT, © 2025 Cathryn Lavery) — the editorial standard in `diagram-design` is adapted from it: deletion as the highest-quality move, every node earning its place, one accent for the one or two things that matter, density around 4/10, hairlines over shadows, geometry on a 4px grid, and the position that Mermaid is an input to redraw rather than an output to embed. No code is used; the influence is on judgment, and it is credited in the skill itself.
+- **[lukilabs/beautiful-mermaid](https://github.com/lukilabs/beautiful-mermaid)** (MIT, Craft Docs) — Mermaid parsing and layout to SVG strings. Its CSS-custom-property theming is what makes the zero-JavaScript retheme possible.
+- **[Observable Plot](https://observablehq.com/plot/)** (ISC) — chart scales and layout.
+- Anthropic's **skill-creator** conventions — progressive disclosure and description-writing patterns.
+
+Full dependency licensing, including the MPL-2.0 note on the optional D2 escape hatch, is in [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).
+
+## Contributing
+
+1. Skills live at `skills/<name>/SKILL.md`, frontmatter limited to `name` and `description`.
+2. The description states what it does, when to use it, and an explicit `Do not use for …` — these five skills sit close together and will otherwise compete for the same prompts.
+3. Keep `SKILL.md` under 400 lines; depth goes in `references/`, and every reference file must be named from `SKILL.md` or it will never load.
+4. Adding a token means adding it to every theme, including `brand-template.css`, and documenting it in `core/tokens.md`.
+5. No color literals outside `core/themes/`.
+6. `python3 scripts/validate_repository.py .` and `python3 -m unittest discover -s tests` must pass.
+
+## License
+
+MIT — see [LICENSE](LICENSE).

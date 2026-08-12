@@ -1,0 +1,82 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Validate repository
+        run: python scripts/validate_repository.py .
+
+      - name: Assemble the example document
+        run: |
+          python scripts/build_document.py templates/document.html \
+            --theme editorial-coral --out /tmp/report.html
+          # A leftover build marker means the assembled document is missing a
+          # stylesheet, which renders as an unstyled page rather than an error.
+          ! grep -q '@@INLINE' /tmp/report.html
+
+      - name: Assemble the example deck
+        run: |
+          python scripts/build_document.py templates/deck.html \
+            --theme executive-navy --out /tmp/deck.html
+          ! grep -q '@@INLINE' /tmp/deck.html
+
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install authoring-time renderers
+        run: npm install --no-save beautiful-mermaid @observablehq/plot jsdom
+
+      - name: Render a diagram and check the output contract
+        run: |
+          printf 'sequenceDiagram\n  Client->>Gateway: POST /events\n  Gateway->>Queue: enqueue\n' > /tmp/d.mmd
+          node scripts/render_diagram.mjs /tmp/d.mmd \
+            --id ci --title "Ingestion path" \
+            --desc "Client posts events to the gateway, which enqueues them." \
+            --out /tmp/d.svg
+          # The wrapper exists to guarantee these four properties; if any
+          # regresses, the SVG is not safe to inline into a document.
+          grep -q 'viewBox=' /tmp/d.svg
+          grep -q 'width="100%"' /tmp/d.svg
+          grep -q '<title id="ci-title">' /tmp/d.svg
+          ! grep -q 'googleapis' /tmp/d.svg
+          ! grep -q 'id="arrowhead"' /tmp/d.svg
+
+      - name: Render a chart and check the output contract
+        run: |
+          cat > /tmp/c.json <<'JSON'
+          {"form":"bars","id":"ci-chart",
+           "title":"Ingestion holds 41% of the footprint",
+           "desc":"Three functions ranked by current size.",
+           "data":[{"k":"Ingestion","v":41},{"k":"Transform","v":22},{"k":"Serving","v":18}],
+           "x":"v","y":"k","focal":"Ingestion"}
+          JSON
+          node scripts/render_chart.mjs /tmp/c.json --out /tmp/c.svg
+          grep -q 'viewBox=' /tmp/c.svg
+          grep -q '<title id="ci-chart-title">' /tmp/c.svg
+          grep -q 'var(--accent-tint)' /tmp/c.svg
+          # Plot hardcodes a white plot background; the wrapper must neutralize it.
+          ! grep -q -- '--plot-background: white' /tmp/c.svg
