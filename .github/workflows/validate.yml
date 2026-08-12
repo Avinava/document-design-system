@@ -24,6 +24,11 @@ jobs:
       - name: Validate repository
         run: python scripts/validate_repository.py .
 
+      - name: Audit every theme
+        # Contrast, one-accent, accent hue separation, and the dark-theme print
+        # rule. Non-zero exit on any error.
+        run: python scripts/audit_theme.py --all --quiet
+
       - name: Assemble the example document
         run: |
           python scripts/build_document.py templates/document.html \

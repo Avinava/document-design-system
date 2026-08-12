@@ -2,7 +2,7 @@
      viewBox="0 0 960 300" width="960" height="300"
      role="img" aria-labelledby="banner-title banner-desc">
   <title id="banner-title">document-design-system</title>
-  <desc id="banner-desc">Five Claude Code skills over one semantic token contract — analytical reports, diagrams, charts, decks, and long-form specs, produced as self-contained HTML. The panel on the right is a miniature of the system's own output: a ranked bar chart with one focal bar and a limit ledger.</desc>
+  <desc id="banner-desc">Six Claude Code skills over one semantic token contract — analytical reports, diagrams, charts, decks, and long-form specs, produced as self-contained HTML. The panel on the right is a miniature of the system's own output: a ranked bar chart with one focal bar and a limit ledger.</desc>
 
   <!--
     A banner renders inside <img>, which is an isolated document — the page's
@@ -62,7 +62,7 @@
   <text class="sans muted" x="48" y="146" font-size="14.5">Analytical reports, diagrams, charts, decks, and long-form specs —</text>
   <text class="sans muted" x="48" y="168" font-size="14.5">as self-contained HTML that needs no JavaScript to read.</text>
 
-  <!-- the five skills, as hairline chips on the 4px grid -->
+  <!-- the six skills, as hairline chips on the 4px grid -->
   <g class="mono" font-size="10.5" letter-spacing="0.5">
     <rect x="48"  y="200" width="80" height="24" rx="4" class="surface"/>
     <rect x="48"  y="200" width="80" height="24" rx="4" fill="none" class="rule" stroke-width="1"/>
@@ -83,6 +83,10 @@
     <rect x="400" y="200" width="80" height="24" rx="4" class="surface"/>
     <rect x="400" y="200" width="80" height="24" rx="4" fill="none" class="rule" stroke-width="1"/>
     <text x="440" y="215.5" class="muted" text-anchor="middle">long-form</text>
+
+    <rect x="488" y="200" width="80" height="24" rx="4" class="surface"/>
+    <rect x="488" y="200" width="80" height="24" rx="4" fill="none" class="rule" stroke-width="1"/>
+    <text x="528" y="215.5" class="muted" text-anchor="middle">brand</text>
   </g>
 
   <text class="mono soft" x="48" y="256" font-size="10.5" letter-spacing="0.4">one token contract  ·  four themes  ·  print + a11y by default</text>

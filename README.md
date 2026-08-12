@@ -4,14 +4,14 @@
 
 <p align="center">
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/license-MIT-2d3142"></a>
-  <img alt="5 skills" src="https://img.shields.io/badge/skills-5-eb6c36">
+  <img alt="6 skills" src="https://img.shields.io/badge/skills-6-eb6c36">
   <img alt="no runtime dependencies" src="https://img.shields.io/badge/runtime%20deps-none-2d3142">
   <a href="https://github.com/Avinava/document-design-system/actions/workflows/validate.yml"><img alt="validate" src="https://github.com/Avinava/document-design-system/actions/workflows/validate.yml/badge.svg"></a>
 </p>
 
 ---
 
-**A design system for documents.** Five skills over one token contract — analytical reports, diagrams, charts, decks, and long-form specs — producing self-contained HTML that needs no JavaScript to read, no build step to open, and prints properly.
+**A design system for documents.** Six skills over one token contract — analytical reports, diagrams, charts, decks, long-form specs, and brand theming — producing self-contained HTML that needs no JavaScript to read, no build step to open, and prints properly.
 
 Most document tooling is welded to one output format or one client's brand. This is the discipline itself: what to measure, when a chart earns its place, how to structure an argument, and one shared set of semantic tokens underneath so a report, the diagram inside it, and the deck derived from it all look like one system.
 
@@ -102,6 +102,19 @@ Six forms, one accent, all resolving against the document's tokens at view time.
 | Line | Observable Plot → SVG | Straight segments; a spline invents readings between points |
 | Limit ledger | Hand-authored SVG | A linear track beats a gauge — same value, stated precisely |
 
+### Brand theming — a guide in, a theme out
+
+Point it at a brand guide PDF, a website, a screenshot, or a few hex values. It extracts with provenance, maps to the semantic roles, and audits the result — because brand colors are chosen for logos, and routinely fail contrast for body text.
+
+```bash
+python3 scripts/extract_site_theme.py https://example.com   # computed styles, not pixels
+python3 scripts/audit_theme.py core/themes/acme.css         # every pair, exact thresholds
+```
+
+The auditor is the part that matters. Building it immediately found two defects in this repo's own default theme: `--accent-ink` on `--accent` was **3.12:1**, failing AA, and the accent sat 13° from `--warning`. Both are fixed.
+
+<sub>`brand-theme-design` · [skill](skills/brand-theme-design/SKILL.md)</sub>
+
 ---
 
 ## The one idea
@@ -131,8 +144,9 @@ The page, the chart's focal bar, and the diagram's arrowheads all move together.
 | **chart-design** | Chart-type selection, axis honesty, encoding rules, palettes derived from tokens, grayscale survival | Narrative structure, dashboards-as-applications |
 | **presentation-design** | 16:9 HTML slides, one-idea-per-slide, slide hierarchy, PDF export | Documents meant to be read rather than presented |
 | **longform-document-design** | RFCs, design docs, ADRs, specs, postmortems, runbooks; prose hierarchy, cross-references, footnotes | Metric-led reports |
+| **brand-theme-design** | Turning a brand into a theme — extraction from a guide, site, or screenshot; mapping to semantic roles; contrast auditing | Picking between themes that already ship; restyling one document |
 
-Each `SKILL.md` is a lean index — 117 to 181 lines — with the depth in `references/` loading only when relevant.
+Each `SKILL.md` is a lean index — 110 to 181 lines — with the depth in `references/` loading only when relevant.
 
 ---
 
@@ -145,7 +159,7 @@ core/            the shared design system — the single source of truth
   base.css         component→token mapping (contains no color literals)
   print.css        print as a distinct output mode
   a11y.md          SVG labelling, contrast, grayscale, focus
-skills/          the five skills, each SKILL.md + references/
+skills/          the six skills, each SKILL.md + references/
 scripts/         authoring-time tooling — never shipped to readers
 templates/       document · longform · deck · gallery · themes · diagram
 examples/        committed outputs, doubling as CI fixtures and the shots above
@@ -209,7 +223,7 @@ Full dependency licensing, including the MPL-2.0 note on the optional D2 escape 
 ## Contributing
 
 1. Skills live at `skills/<name>/SKILL.md`, frontmatter limited to `name` and `description`.
-2. The description states what it does, when to use it, and an explicit `Do not use for …` — these five skills sit close together and will otherwise compete for the same prompts.
+2. The description states what it does, when to use it, and an explicit `Do not use for …` — these six skills sit close together and will otherwise compete for the same prompts.
 3. Keep `SKILL.md` under 400 lines; depth goes in `references/`, and every reference file must be named from `SKILL.md` or it will never load.
 4. Adding a token means adding it to every theme, including `brand-template.css`, and documenting it in `core/tokens.md`.
 5. No color literals outside `core/themes/`.

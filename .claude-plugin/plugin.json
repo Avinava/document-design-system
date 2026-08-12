@@ -1,7 +1,7 @@
 {
   "name": "document-design-system",
   "version": "0.1.0",
-  "description": "A design system for documents: evidence-led analytical reports, diagrams, charts, decks, and long-form specs — all sharing one semantic token contract and shipping as self-contained HTML that needs no JavaScript to read.",
+  "description": "A design system for documents: evidence-led analytical reports, diagrams, charts, decks, and long-form specs \u2014 plus guided brand theming \u2014 all sharing one semantic token contract and shipping as self-contained HTML that needs no JavaScript to read.",
   "author": {
     "name": "Avi"
   },

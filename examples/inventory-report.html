@@ -53,10 +53,16 @@
 
   --accent: #eb6c36;
   --accent-tint: rgba(235, 108, 54, 0.10);
-  --accent-ink: #ffffff;
+  /* Dark ink, not white: white on this coral is 3.12:1, which fails AA for
+   * normal text. #1f2230 gives 5.06 and matches what the other themes achieve
+   * on their accents. Found by scripts/audit_theme.py. */
+  --accent-ink: #1f2230;
 
   --positive: #34735b;
-  --warning: #a76620;
+  /* Shifted toward ochre so it clears the accent's hue. At #a76620 it sat 13°
+   * from the coral accent — close enough that a real warning and a focal
+   * highlight read as the same signal. Now 24°. */
+  --warning: #94701c;
   --critical: #a94141;
 
   --method-bg: #2d3142;

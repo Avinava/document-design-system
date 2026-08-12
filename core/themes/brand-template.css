@@ -1,7 +1,8 @@
 /* brand-template — the slot for your own brand.
  *
- * Copy this file to core/themes/<your-brand>.css, replace every TODO, and rename
- * the selector. Then use it with:
+ * The brand-theme-design skill fills this in from a brand guide, website, or
+ * screenshot, and audits the result. To do it by hand: copy this file to
+ * core/themes/<your-brand>.css, replace every TODO, and rename the selector. Then use it with:
  *
  *     <html lang="en" data-theme="your-brand">
  *
@@ -66,15 +67,16 @@
   --radius-md: 5px;
 }
 
-/* Before shipping a brand theme:
+/* Before shipping a brand theme —
+ * the pairs marked [auto] are checked by scripts/audit_theme.py:
  *
  *  [ ] Every TODO above is replaced.
- *  [ ] --ink on --surface meets WCAG AA for body text.
- *  [ ] --muted on --surface is still comfortably readable.
- *  [ ] --accent-ink on --accent meets WCAG AA.
- *  [ ] --method-ink and --method-muted are readable on --method-bg.
+ *  [ ] --ink on --surface meets WCAG AA for body text.  [auto]
+ *  [ ] --muted on --surface is still comfortably readable.  [auto]
+ *  [ ] --accent-ink on --accent meets WCAG AA.  [auto]
+ *  [ ] --method-ink and --method-muted are readable on --method-bg.  [auto]
  *  [ ] Exactly one accent is used; brand secondary colors are NOT wired in
- *      as extra chart colors.
+ *      as extra chart colors.  [auto]
  *  [ ] Every chart still parses in grayscale.
  *  [ ] Print normalization (core/print.css) still produces a clean PDF.
  *  [ ] Checked at desktop, mobile, and print widths.

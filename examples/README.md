@@ -47,6 +47,10 @@ That is the whole architecture in one edit, and it is why figures are prerendere
 
 One caveat: `data-theme` only switches between themes whose tokens are actually inlined. `build_document.py` inlines one theme, so to preview several, inline them all.
 
+## Adding a theme
+
+Use the `brand-theme-design` skill — it extracts from a brand guide, site, or screenshot, maps to the semantic roles, and runs `scripts/audit_theme.py` over the result. Doing it by hand means copying `core/themes/brand-template.css` and filling in every TODO.
+
 ## Print
 
 ```bash

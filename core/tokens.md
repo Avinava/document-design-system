@@ -120,7 +120,7 @@ If the user names a theme, use it. Otherwise:
 - `executive-navy` — board, finance, governance, conservative corporate contexts.
 - `field-notes` — research, audit, workshop, operational-review documents.
 - `console-violet` — **dark.** Engineering readouts, ops reviews, incident write-ups, service inventories; documents read on a screen rather than printed.
-- `brand-template` — a documented slot to fill with your own brand. See `themes/brand-template.css`.
+- `brand-template` — a documented slot to fill with your own brand. See `themes/brand-template.css`, and use the `brand-theme-design` skill to fill it from a brand guide, site, or screenshot.
 
 Ask one short question only when brand fit materially affects the deliverable and context does not imply a choice.
 
@@ -142,6 +142,8 @@ Two traps when choosing the accent, both of which cost a real candidate during `
 And avoid cyan-on-dark: that is the "AI dashboard" look the anti-pattern list already rejects.
 
 ## Adding a theme
+
+The `brand-theme-design` skill walks this whole process, and `scripts/audit_theme.py` mechanizes steps 3, 5, and 6 below.
 
 A real theme is not a new `--accent`. It includes surfaces, typography, border character, methodology treatment, and print behavior.
 

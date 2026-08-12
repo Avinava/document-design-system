@@ -17,33 +17,20 @@ ROOT = Path(__file__).resolve().parent.parent
 SKILLS = ROOT / "skills"
 CORE = ROOT / "core"
 
+# The colour maths lives in scripts/audit_theme.py, which the skill and CI also
+# use. Importing it here rather than keeping a second copy is the point — two
+# implementations of a contrast formula drift, and the drift is invisible.
+sys.path.insert(0, str(ROOT / "scripts"))
+from audit_theme import contrast, relative_luminance, strip_comments  # noqa: E402
+
 EXPECTED_SKILLS = {
     "analytical-document-design",
     "chart-design",
     "diagram-design",
     "longform-document-design",
     "presentation-design",
+    "brand-theme-design",
 }
-
-
-def strip_comments(css: str) -> str:
-    """base.css discusses tokens in prose; those are not declarations."""
-    return re.sub(r"/\*.*?\*/", "", css, flags=re.S)
-
-
-def relative_luminance(hex_color: str) -> float:
-    h = hex_color.lstrip("#")
-    if len(h) == 3:
-        h = "".join(c * 2 for c in h)
-    r, g, b = (int(h[i : i + 2], 16) / 255 for i in (0, 2, 4))
-    f = lambda c: c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
-    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
-
-
-def contrast(a: str, b: str) -> float:
-    la, lb = relative_luminance(a), relative_luminance(b)
-    hi, lo = max(la, lb), min(la, lb)
-    return (hi + 0.05) / (lo + 0.05)
 
 
 def skill_dirs() -> list[Path]:
