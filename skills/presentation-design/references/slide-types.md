@@ -56,7 +56,11 @@ One chart, one takeaway title.
 - Simplify relative to the document version: fewer categories, larger labels, fewer gridlines. A chart that works on paper at reading distance is usually too dense to project.
 - Chart text at slide scale needs to be at least 18px equivalent.
 
-**Failure mode:** reusing a document chart unchanged. Its labels will be roughly half the size the room needs.
+**Failure mode:** reusing a document chart unchanged. Two things go wrong at once, and the result looks merely underwhelming rather than broken, so it survives review.
+
+A chart rendered at `doc-inline` (720px) carries a `max-width` of 720px. Dropped into a 1280px slide it does not stretch — it centers, leaving wide empty margins, and its internal label gutter eats more of what remains. Meanwhile every label inside it was sized for reading distance, not for a room.
+
+Re-render at `full-width` from the same spec. Changing the slide's CSS cannot fix it, because the constraint is baked into the SVG.
 
 ## Diagram
 

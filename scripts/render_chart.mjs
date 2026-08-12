@@ -184,7 +184,18 @@ async function main() {
     );
   }
 
-  const spec = JSON.parse(readFileSync(specPath, 'utf8'));
+  let spec;
+  try {
+    spec = JSON.parse(readFileSync(specPath, 'utf8'));
+  } catch (err) {
+    // Without this, a missing file or a stray comma surfaces as a raw Node
+    // stack trace, which buries the one line that says what to fix.
+    fail(
+      err.code === 'ENOENT'
+        ? `spec not found: ${specPath}`
+        : `${specPath} is not valid JSON: ${err.message}`
+    );
+  }
 
   if (!FORMS.has(spec.form)) {
     fail(

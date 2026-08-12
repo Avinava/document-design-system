@@ -1,4 +1,15 @@
-# document-design-system
+<p align="center">
+  <img src="assets/banner.svg" alt="document-design-system — analytical reports, diagrams, charts, decks, and long-form specs as self-contained HTML" width="960" />
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/license-MIT-2d3142"></a>
+  <img alt="5 skills" src="https://img.shields.io/badge/skills-5-eb6c36">
+  <img alt="no runtime dependencies" src="https://img.shields.io/badge/runtime%20deps-none-2d3142">
+  <a href="https://github.com/Avinava/document-design-system/actions/workflows/validate.yml"><img alt="validate" src="https://github.com/Avinava/document-design-system/actions/workflows/validate.yml/badge.svg"></a>
+</p>
+
+---
 
 **A design system for documents.** Five skills over one token contract — analytical reports, diagrams, charts, decks, and long-form specs — producing self-contained HTML that needs no JavaScript to read, no build step to open, and prints properly.
 
@@ -122,7 +133,9 @@ skills/          the five skills, each SKILL.md + references/
 scripts/         authoring-time tooling — never shipped to readers
 templates/       document · longform · deck · gallery · themes · diagram
 examples/        committed outputs, doubling as CI fixtures and the shots above
+assets/          banner.svg — literal colors, because <img> is an isolated document
 docs/screenshots/
+tests/           standard library only, so CI needs no install step
 ```
 
 ## Themes

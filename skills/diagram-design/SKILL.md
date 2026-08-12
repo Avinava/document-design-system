@@ -60,6 +60,17 @@ Every diagram:
 
 `<title>` first, unique IDs prefixed with the diagram's slug, and a `viewBox` on every SVG. The `<desc>` states what the arrangement shows — including the thing the accent is pointing at. See `core/a11y.md`.
 
+### Inline or `<img>` changes the rules
+
+An SVG referenced through `<img src="…">` — a README banner, an email, an embed on a site you do not control — renders as an **isolated document**. The host page's custom properties never reach it, so `fill="var(--accent)"` resolves to nothing and the shape disappears.
+
+| Destination | Colors | Theming |
+|---|---|---|
+| Inline in the document | `var(--…)` references | Follows the document's `data-theme` |
+| `<img>`, email, external embed | Literal values | Self-contained; use `@media (prefers-color-scheme: dark)` inside the SVG's own `<style>` |
+
+Decide the destination before drawing, because it is not a cosmetic difference — the same file cannot do both. `assets/banner.svg` is the worked example of the second case.
+
 ## Visual rules
 
 The token contract is in `core/tokens.md` and applies in full. Diagram-specific rules:

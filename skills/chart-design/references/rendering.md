@@ -69,6 +69,17 @@ Pie, donut, radar, and dual-axis are not supported forms, and the script says so
 
 If you render charts by some other route, you still owe the document all four.
 
+## Size to the surface, not to the source
+
+`--size` is not a rendering detail; it is baked into the SVG as a `max-width`, and no amount of CSS on the host page undoes it. A `doc-inline` chart placed on a slide centers itself in the middle of the frame with its labels at reading size, which looks like a design failure rather than a sizing mistake.
+
+Render one variant per surface from the same spec:
+
+```bash
+node scripts/render_chart.mjs spec.json --out chart.svg            # doc-inline, 720
+node scripts/render_chart.mjs spec-wide.json --out chart-wide.svg  # full-width, 1100
+```
+
 ## The trap worth knowing about
 
 The obvious way to give one bar the accent is to split the data into two marks — focal and everything else — and style each mark. **This silently breaks the chart.**

@@ -20,6 +20,7 @@ These are not stylistic. Breaking them changes what the reader concludes.
 - **Equal visual weight means equal comparability.** Do not put two different units on one axis.
 - **Time on an axis is continuous.** Missing months appear as zero or as a marked gap, never by silently closing up.
 - **State when a scale is logarithmic**, in the axis label, not the caption.
+- **Categories are categories, even when they look like numbers.** Years, quarters, ports, and version numbers are labels, not measurements. Put them on a categorical (band) scale. Left on a continuous scale, `2020…2025` gets positioned by arithmetic distance, and a missing year silently becomes a gap the data never had.
 
 If the data does not support the chart's implicit claim, change the chart, not the axis.
 

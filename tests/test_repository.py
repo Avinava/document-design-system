@@ -26,6 +26,11 @@ EXPECTED_SKILLS = {
 }
 
 
+def strip_comments(css: str) -> str:
+    """base.css discusses tokens in prose; those are not declarations."""
+    return re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+
+
 def skill_dirs() -> list[Path]:
     return sorted(p for p in SKILLS.iterdir() if p.is_dir())
 
@@ -102,8 +107,8 @@ class TestTokenContract(unittest.TestCase):
         themes = sorted((CORE / "themes").glob("*.css"))
         self.assertTrue(themes, "no themes found")
         for theme in themes:
-            css = theme.read_text(encoding="utf-8")
-            defined = set(re.findall(r"^\s*(--[a-z0-9-]+)\s*:", css, re.MULTILINE))
+            css = strip_comments(theme.read_text(encoding="utf-8"))
+            defined = set(re.findall(r"(--[a-z0-9-]+)\s*:", css))
             with self.subTest(theme=theme.name):
                 self.assertEqual(
                     required - defined,
@@ -124,9 +129,9 @@ class TestTokenContract(unittest.TestCase):
         self-reference, which is invalid at computed-value time and silently
         drops the diagram's colors.
         """
-        css = (CORE / "base.css").read_text(encoding="utf-8")
+        css = strip_comments((CORE / "base.css").read_text(encoding="utf-8"))
         script = (ROOT / "scripts" / "render_diagram.mjs").read_text(encoding="utf-8")
-        defined = set(re.findall(r"^\s*(--dds-[a-z-]+)\s*:", css, re.MULTILINE))
+        defined = set(re.findall(r"(--dds-[a-z-]+)\s*:", css))
         used = set(re.findall(r"var\((--dds-[a-z-]+)\)", script))
         self.assertEqual(
             used - defined,
@@ -154,6 +159,44 @@ class TestPackaging(unittest.TestCase):
         plugin = json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text())
         path = (ROOT / plugin["skills"].lstrip("./")).resolve()
         self.assertTrue(path.is_dir(), f"plugin.json skills path does not exist: {path}")
+
+
+class TestAssets(unittest.TestCase):
+    BANNER = ROOT / "assets" / "banner.svg"
+
+    def test_banner_exists_and_parses(self):
+        self.assertTrue(self.BANNER.is_file(), "assets/banner.svg is missing")
+        import xml.dom.minidom
+
+        xml.dom.minidom.parse(str(self.BANNER))  # raises on malformed XML
+
+    def test_banner_is_accessible_and_scalable(self):
+        svg = self.BANNER.read_text(encoding="utf-8")
+        self.assertIn("<title", svg)
+        self.assertIn("<desc", svg)
+        self.assertIn("viewBox", svg)
+
+    def test_banner_is_self_contained(self):
+        """A banner renders through <img>, an isolated document.
+
+        var() references resolve to nothing there, and an external font or
+        image request fails closed — so it carries literals and handles its own
+        light/dark. See skills/diagram-design/SKILL.md.
+        """
+        svg = self.BANNER.read_text(encoding="utf-8")
+        self.assertNotIn("var(--", svg, "banner cannot use tokens; <img> is isolated")
+        self.assertIn("prefers-color-scheme", svg, "banner needs a dark-mode branch")
+
+        # Check for constructs that actually fetch, rather than for the string
+        # "http" — the xmlns declaration contains a URL and is required.
+        for construct in ("@import", "xlink:href", "<image", "src="):
+            self.assertNotIn(construct, svg, f"banner must not use {construct}")
+        remote = [u for u in re.findall(r"url\(([^)]*)\)", svg) if "http" in u]
+        self.assertEqual(remote, [], "banner must not reference remote urls")
+
+    def test_readme_shows_the_banner(self):
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("assets/banner.svg", readme)
 
 
 class TestTemplates(unittest.TestCase):
@@ -184,6 +227,28 @@ class TestTemplates(unittest.TestCase):
                         "rendering can match a narrow-viewport media query and "
                         "collapse the layout",
                     )
+
+    def test_every_template_assembles(self):
+        """Each template must build under a real theme with nothing unresolved.
+
+        Only document.html was covered before, so a template added later could
+        ship broken — it would assemble into an unstyled page rather than fail.
+        """
+        for tpl in sorted((ROOT / "templates").glob("*.html")):
+            with self.subTest(template=tpl.name):
+                result = subprocess.run(
+                    [
+                        sys.executable,
+                        str(ROOT / "scripts" / "build_document.py"),
+                        str(tpl),
+                        "--theme",
+                        "field-notes",
+                    ],
+                    capture_output=True,
+                    text=True,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertNotIn("@@INLINE", result.stdout)
 
     def test_build_document_produces_clean_output(self):
         result = subprocess.run(

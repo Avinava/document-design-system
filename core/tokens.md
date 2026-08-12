@@ -89,6 +89,23 @@ Keep radii between 0 and 8px. Larger radii read as consumer-app chrome and under
 
 `core/base.css` derives these with `color-mix()`. If a target environment cannot support `color-mix()`, a theme must define them explicitly instead. Never compute colors in JavaScript — that reintroduces the coupling the token contract exists to remove.
 
+Derived tokens are declared on `:root, [data-theme]` rather than `:root` alone. Declared only on `:root` they resolve **once**, against the root theme, so a nested `[data-theme="…"]` section would keep the root's greys while everything around it changed. Any token you add that is computed from another token needs the same treatment.
+
+## Scoped themes
+
+A theme selector matches any element, not just the root. Setting `data-theme` on a section themes that subtree:
+
+```html
+<section data-theme="executive-navy"> … </section>
+```
+
+This is what makes a theme-comparison page possible, and it works for prerendered SVG figures too — a diagram inside a scoped section resolves against that section's tokens.
+
+Two conditions have to hold, and both are easy to break:
+
+1. Every token the subtree uses must be re-derived at the theme boundary, not resolved once at `:root` (see above).
+2. The tokens for that theme must actually be present in the document. `scripts/build_document.py` inlines one theme, so a document built for `editorial-coral` cannot switch to `executive-navy` — the navy tokens are not there. Inline every theme you intend to switch between.
+
 ## Selecting a theme
 
 Set it once, on the root element:

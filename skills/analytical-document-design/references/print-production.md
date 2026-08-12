@@ -188,3 +188,5 @@ These recur, and each survives a casual review:
 | A section heading on one page with its chart on the next | Section-specific page break, or wrap heading and chart in a non-breaking figure |
 | Dark methodology panels consuming ink or reproducing poorly in grayscale | Normalize to white with a strong border (the `core/print.css` default) |
 | Generic structural padding shorthands overriding compound-class card and panel spacing | Reassert component padding with a compound selector, then inspect all four edge insets in the PDF |
+| A `.print-only` provenance block printing on top of a title block that already printed fine, so page one carries the title twice | Add the block only when the screen header genuinely does not survive print. Check page one of the export before keeping it |
+| A chart sized for a document dropped into a wider surface — it centers with its labels shrunk rather than filling the space | Render at the size of the surface it lands on, not the size of the document it came from |

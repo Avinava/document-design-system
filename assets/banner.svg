@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 960 300" width="960" height="300"
+     role="img" aria-labelledby="banner-title banner-desc">
+  <title id="banner-title">document-design-system</title>
+  <desc id="banner-desc">Five Claude Code skills over one semantic token contract — analytical reports, diagrams, charts, decks, and long-form specs, produced as self-contained HTML. The panel on the right is a miniature of the system's own output: a ranked bar chart with one focal bar and a limit ledger.</desc>
+
+  <!--
+    A banner renders inside <img>, which is an isolated document — the page's
+    CSS custom properties do not reach it. So this file carries the
+    editorial-coral palette as literals rather than var() references, and
+    handles light/dark itself. It is the one deliberate exception to the token
+    rule, and scripts/validate_repository.py exempts assets/ for this reason.
+
+    Everything here is built from the system's own primitives: one accent,
+    1px hairlines, no gradients, no shadows, geometry on a 4px grid. System
+    font stacks only — a web font cannot be relied on inside an <img>.
+  -->
+  <style>
+    .bg      { fill: #f5f5f5; }
+    .surface { fill: #ffffff; }
+    .muted-s { fill: #eeeeef; }
+    .ink     { fill: #2d3142; }
+    .muted   { fill: #4f5d75; }
+    .soft    { fill: #7a8399; }
+    .rule    { stroke: #2d3142; stroke-opacity: 0.12; }
+    .rule-st { stroke: #2d3142; stroke-opacity: 0.32; }
+    .accent  { fill: #eb6c36; }
+    .accent-s{ stroke: #eb6c36; }
+    .accent-t{ fill: #eb6c36; fill-opacity: 0.10; }
+    .track   { fill: #4f5d75; fill-opacity: 0.10; }
+    .bar     { fill: #4f5d75; fill-opacity: 0.16; stroke: #4f5d75; stroke-opacity: 0.55; }
+
+    .display { font-family: 'Manrope', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+    .sans    { font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+    .mono    { font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace; }
+
+    @media (prefers-color-scheme: dark) {
+      .bg      { fill: #22252f; }
+      .surface { fill: #2d3142; }
+      .muted-s { fill: #363a4d; }
+      .ink     { fill: #f5f5f5; }
+      .muted   { fill: #c9cbd2; }
+      .soft    { fill: #8e98ac; }
+      .rule    { stroke: #f5f5f5; stroke-opacity: 0.14; }
+      .rule-st { stroke: #f5f5f5; stroke-opacity: 0.30; }
+      .accent  { fill: #f0875a; }
+      .accent-s{ stroke: #f0875a; }
+      .accent-t{ fill: #f0875a; fill-opacity: 0.14; }
+      .track   { fill: #c9cbd2; fill-opacity: 0.12; }
+      .bar     { fill: #c9cbd2; fill-opacity: 0.14; stroke: #c9cbd2; stroke-opacity: 0.45; }
+    }
+  </style>
+
+  <rect class="bg" width="960" height="300"/>
+
+  <!-- ============================ left: identity ============================ -->
+
+  <text class="mono soft" x="48" y="64" font-size="11" letter-spacing="1.6">CLAUDE CODE SKILLS</text>
+
+  <text class="display ink" x="48" y="112" font-size="36" font-weight="600" letter-spacing="-0.8">document-design-system</text>
+
+  <text class="sans muted" x="48" y="146" font-size="14.5">Analytical reports, diagrams, charts, decks, and long-form specs —</text>
+  <text class="sans muted" x="48" y="168" font-size="14.5">as self-contained HTML that needs no JavaScript to read.</text>
+
+  <!-- the five skills, as hairline chips on the 4px grid -->
+  <g class="mono" font-size="10.5" letter-spacing="0.5">
+    <rect x="48"  y="200" width="80" height="24" rx="4" class="surface"/>
+    <rect x="48"  y="200" width="80" height="24" rx="4" fill="none" class="rule" stroke-width="1"/>
+    <text x="88"  y="215.5" class="muted" text-anchor="middle">report</text>
+
+    <rect x="136" y="200" width="80" height="24" rx="4" class="surface"/>
+    <rect x="136" y="200" width="80" height="24" rx="4" fill="none" class="rule" stroke-width="1"/>
+    <text x="176" y="215.5" class="muted" text-anchor="middle">diagram</text>
+
+    <rect x="224" y="200" width="80" height="24" rx="4" class="surface"/>
+    <rect x="224" y="200" width="80" height="24" rx="4" fill="none" class="rule" stroke-width="1"/>
+    <text x="264" y="215.5" class="muted" text-anchor="middle">chart</text>
+
+    <rect x="312" y="200" width="80" height="24" rx="4" class="surface"/>
+    <rect x="312" y="200" width="80" height="24" rx="4" fill="none" class="rule" stroke-width="1"/>
+    <text x="352" y="215.5" class="muted" text-anchor="middle">deck</text>
+
+    <rect x="400" y="200" width="80" height="24" rx="4" class="surface"/>
+    <rect x="400" y="200" width="80" height="24" rx="4" fill="none" class="rule" stroke-width="1"/>
+    <text x="440" y="215.5" class="muted" text-anchor="middle">long-form</text>
+  </g>
+
+  <text class="mono soft" x="48" y="256" font-size="10.5" letter-spacing="0.4">one token contract  ·  three themes  ·  print + a11y by default</text>
+
+  <!-- ================= right: a miniature of the system's output ================= -->
+  <!-- Built from the same primitives the skills produce: a ranked bar chart with
+       exactly one focal bar, and a limit ledger. The banner is the design
+       system demonstrating itself rather than describing itself. -->
+
+  <g>
+    <rect x="608" y="48" width="304" height="204" rx="6" class="surface"/>
+    <rect x="608" y="48" width="304" height="204" rx="6" fill="none" class="rule" stroke-width="1"/>
+
+    <text class="mono soft" x="628" y="74" font-size="9" letter-spacing="1.2">WHERE IT CONCENTRATES</text>
+
+    <!-- ranked bars, descending, zero baseline, one accent -->
+    <rect x="628" y="86"  width="216" height="18" rx="3" class="accent-t"/>
+    <rect x="628" y="86"  width="216" height="18" rx="3" fill="none" class="accent-s" stroke-width="1"/>
+    <text class="mono accent" x="852" y="99" font-size="9">41%</text>
+
+    <rect x="628" y="112" width="116" height="18" rx="3" class="bar" stroke-width="1"/>
+    <rect x="628" y="138" width="95"  height="18" rx="3" class="bar" stroke-width="1"/>
+    <rect x="628" y="164" width="63"  height="18" rx="3" class="bar" stroke-width="1"/>
+
+    <!-- baseline -->
+    <path d="M628 188 H 892" class="rule-st" stroke-width="1" fill="none"/>
+
+    <!-- limit ledger: used against remaining -->
+    <text class="mono soft" x="628" y="212" font-size="9" letter-spacing="1.2">USED AGAINST LIMIT</text>
+    <rect x="628" y="220" width="264" height="12" rx="3" class="track"/>
+    <rect x="628" y="220" width="195" height="12" rx="3" class="accent-t"/>
+    <rect x="628" y="220" width="195" height="12" rx="3" fill="none" class="accent-s" stroke-width="1"/>
+  </g>
+
+  <!-- a single hairline tying the two halves to the same baseline -->
+  <path d="M48 276 H 912" class="rule" stroke-width="1" fill="none"/>
+</svg>

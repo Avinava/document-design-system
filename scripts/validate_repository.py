@@ -160,6 +160,25 @@ def check_skill(skill_dir: Path, root: Path) -> None:
 # --------------------------------------------------------------------------
 
 
+CSS_COMMENT = re.compile(r"/\*.*?\*/", re.S)
+CSS_DECL = re.compile(r"(--[a-z0-9-]+)\s*:")
+
+
+def declared_tokens(css: str) -> set[str]:
+    """Custom properties declared in a stylesheet.
+
+    Comments are stripped first, because core/base.css discusses tokens in
+    prose (`--accent: var(--accent)` as an example of a cycle) and those must
+    not count as declarations.
+
+    Matching is not anchored to line start: a declaration always has a colon
+    after the name and a var() reference never does, so the anchor bought
+    nothing and made a single-line or minified theme report every token as
+    missing.
+    """
+    return set(CSS_DECL.findall(CSS_COMMENT.sub("", css)))
+
+
 def required_tokens(root: Path) -> set[str]:
     """Read the required token list out of core/tokens.md's tables."""
     tokens_md = root / "core" / "tokens.md"
@@ -194,7 +213,7 @@ def check_themes(root: Path) -> set[str]:
     for theme in themes:
         rel = theme.relative_to(root)
         css = theme.read_text(encoding="utf-8")
-        defined = set(re.findall(r"^\s*(--[a-z0-9-]+)\s*:", css, re.MULTILINE))
+        defined = declared_tokens(css)
 
         missing = required - defined
         if missing:
@@ -229,7 +248,12 @@ def check_hex_literals(root: Path, palette: set[str]) -> None:
         # examples/ holds assembled output, which contains the inlined theme by
         # definition. The rule is about sources — a built document is supposed
         # to have the palette in it.
-        if rel.parts[0] == "examples":
+        #
+        # assets/ holds artwork rendered through <img>, which is an isolated
+        # document that the page's custom properties never reach. A banner has
+        # to carry literal colors and do its own light/dark handling; there is
+        # no token to reference from in there.
+        if rel.parts[0] in {"examples", "assets"}:
             continue
         if rel_str in HEX_EXEMPT_FILES:
             continue

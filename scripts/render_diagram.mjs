@@ -193,7 +193,17 @@ async function main() {
     process.exit(1);
   }
 
-  const source = readFileSync(input, 'utf8');
+  let source;
+  try {
+    source = readFileSync(input, 'utf8');
+  } catch (err) {
+    console.error(
+      err.code === 'ENOENT'
+        ? `input not found: ${input}`
+        : `could not read ${input}: ${err.message}`
+    );
+    process.exit(1);
+  }
 
   let svg;
   try {
