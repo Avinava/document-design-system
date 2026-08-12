@@ -227,6 +227,10 @@ async function main() {
       label: spec.xLabel ?? null,
       grid: spec.form !== 'bars',
       ...(isBar && spec.form === 'bars' ? { zero: true } : {}),
+      // For columns the x axis is categories (years, months, buckets), not a
+      // continuous measure. Without this, year labels that look like numbers
+      // get treated as a linear scale and the columns land in the wrong places.
+      ...(spec.form === 'columns' ? { type: 'band' } : {}),
     },
     y: {
       label: spec.yLabel ?? null,

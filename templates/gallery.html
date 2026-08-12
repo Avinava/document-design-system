@@ -1,0 +1,120 @@
+<!doctype html>
+<!--
+  Figure gallery — every diagram and chart form on one page, in one theme.
+
+  Assemble with:
+      python scripts/build_document.py templates/gallery.html \
+             --theme editorial-coral --out gallery.html
+      # then inline each SVG into its figure slot
+
+  Useful for two things: checking that a theme holds together across every
+  figure type, and checking that everything still parses in grayscale.
+-->
+<html lang="en" data-theme="editorial-coral">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Figure gallery</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* @@INLINE core/themes/${THEME}.css @@ */
+/* @@INLINE core/base.css @@ */
+
+.shell { max-width: 1080px; margin: 0 auto; padding: 40px 32px 64px; }
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.fig {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 20px;
+}
+.fig h3 { margin: 0 0 2px; font-size: 0.9375rem; }
+.fig .kind { font-family: var(--mono); font-size: 0.6875rem; color: var(--soft);
+             letter-spacing: 0.06em; text-transform: uppercase; }
+.fig .frame { background: var(--surface-muted); border: 1px solid var(--rule);
+              border-radius: var(--radius-md); padding: 12px; margin-top: 12px; }
+.fig figcaption { font-family: var(--mono); font-size: 0.6875rem;
+                  color: var(--soft); margin-top: 8px; }
+
+@media (max-width: 640px) {
+  .shell { padding: 24px 16px 48px; }
+  .gallery { grid-template-columns: 1fr; }
+}
+
+/* @@INLINE core/print.css @@ */
+</style>
+</head>
+
+<body>
+<div class="shell">
+  <p class="eyebrow">document-design-system</p>
+  <h1>Figure gallery</h1>
+  <p class="subtle">Every figure below consumes the same tokens as the page. Change <code>data-theme</code> on the root element and all of them follow.</p>
+
+  <div class="gallery">
+
+    <figure class="fig">
+      <span class="kind">Diagram · hand-authored SVG</span>
+      <h3>Architecture</h3>
+      <div class="frame"><!-- @FIG platform-architecture --></div>
+      <figcaption>Position carries coupling, so this one is drawn, not laid out.</figcaption>
+    </figure>
+
+    <figure class="fig">
+      <span class="kind">Diagram · Mermaid prerendered</span>
+      <h3>Sequence</h3>
+      <div class="frame"><!-- @FIG ingestion-path --></div>
+      <figcaption>Order is dictated by the protocol, so auto-layout is honest here.</figcaption>
+    </figure>
+
+    <figure class="fig">
+      <span class="kind">Chart · ranked bars</span>
+      <h3>Concentration</h3>
+      <div class="frame"><!-- @FIG footprint-by-function --></div>
+      <figcaption>Sorted descending, zero baseline, one focal bar.</figcaption>
+    </figure>
+
+    <figure class="fig">
+      <span class="kind">Chart · columns</span>
+      <h3>Cohorts</h3>
+      <div class="frame"><!-- @FIG cohorts-by-year --></div>
+      <figcaption>Chronological, never sorted by value — that would destroy the axis.</figcaption>
+    </figure>
+
+    <figure class="fig">
+      <span class="kind">Chart · line</span>
+      <h3>Time series</h3>
+      <div class="frame"><!-- @FIG latency-p99 --></div>
+      <figcaption>Straight segments; a spline would invent readings between points.</figcaption>
+    </figure>
+
+    <figure class="fig">
+      <span class="kind">Ledger · hand-authored SVG</span>
+      <h3>Used against a limit</h3>
+      <div class="frame">
+        <svg role="img" aria-label="1.84 million of 2.50 million units used, 74 percent. 660 thousand units remaining."
+             viewBox="0 0 1000 48" width="100%">
+          <rect x="0" y="12" width="1000" height="24" rx="4" fill="var(--track-fill)"/>
+          <rect x="0" y="12" width="736" height="24" rx="4"
+                fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+        </svg>
+        <p class="meta">1.84M of 2.50M units (74%) · 660K remaining</p>
+      </div>
+      <figcaption>A linear track beats a gauge — same value, stated precisely.</figcaption>
+    </figure>
+
+  </div>
+</div>
+</body>
+</html>

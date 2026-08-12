@@ -1,0 +1,90 @@
+<svg role="img" aria-labelledby="arch-title arch-desc" viewBox="0 0 720 340" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+  <title id="arch-title">Ingestion architecture</title>
+  <desc id="arch-desc">Producers enter through a gateway inside the trust boundary, buffer in a queue, and are consumed into the warehouse. The queue is the only component without a failover, and it carries the whole ingestion path.</desc>
+
+  <defs>
+    <marker id="arch-arrow" viewBox="0 0 8 8" refX="7" refY="4"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arch-arrow-focal" viewBox="0 0 8 8" refX="7" refY="4"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+    </marker>
+  </defs>
+
+  <!-- boundaries -->
+  <g>
+    <rect x="128" y="56" width="404" height="152" rx="6"
+          fill="none" stroke="var(--rule-strong)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="140" y="76" font-family="var(--sans)" font-size="11" fill="var(--soft)"
+          letter-spacing="0.06em">TRUST BOUNDARY</text>
+  </g>
+
+  <!-- edges (drawn before nodes so line ends sit behind the boxes) -->
+  <path d="M104 132 H 152" fill="none" stroke="var(--muted)" stroke-width="1"
+        marker-end="url(#arch-arrow)"/>
+  <path d="M312 132 H 360" fill="none" stroke="var(--accent)" stroke-width="1.5"
+        marker-end="url(#arch-arrow-focal)"/>
+  <path d="M520 132 H 568" fill="none" stroke="var(--muted)" stroke-width="1"
+        marker-end="url(#arch-arrow)"/>
+
+  <!-- edge labels on a paper-colored backing so the line does not strike through -->
+  <rect x="316" y="116" width="40" height="16" fill="var(--paper)"/>
+  <text x="336" y="128" text-anchor="middle" font-family="var(--sans)"
+        font-size="11" fill="var(--muted)">async</text>
+
+  <!-- nodes -->
+  <g>
+    <rect x="24" y="100" width="80" height="64" rx="6"
+          fill="var(--surface)" stroke="var(--rule)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="64" y="136" text-anchor="middle" font-family="var(--sans)"
+          font-size="13" fill="var(--soft)">Producers</text>
+  </g>
+
+  <g>
+    <rect x="152" y="100" width="160" height="64" rx="6"
+          fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="232" y="130" text-anchor="middle" font-family="var(--sans)"
+          font-size="13" fill="var(--ink)">Gateway</text>
+    <text x="232" y="146" text-anchor="middle" font-family="var(--mono)"
+          font-size="11" fill="var(--muted)">:8443</text>
+  </g>
+
+  <!-- focal node: the one thing the diagram is about -->
+  <g>
+    <rect x="360" y="100" width="160" height="64" rx="6"
+          fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="440" y="130" text-anchor="middle" font-family="var(--sans)"
+          font-size="13" fill="var(--ink)">Queue</text>
+    <text x="440" y="146" text-anchor="middle" font-family="var(--mono)"
+          font-size="11" fill="var(--muted)">single instance</text>
+  </g>
+
+  <g>
+    <rect x="568" y="100" width="128" height="64" rx="6"
+          fill="var(--surface)" stroke="var(--rule)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="632" y="136" text-anchor="middle" font-family="var(--sans)"
+          font-size="13" fill="var(--soft)">Warehouse</text>
+  </g>
+
+  <!-- callout: dashed Bezier leader, no arrowhead. At most two per diagram. -->
+  <g>
+    <path d="M440 100 C 440 72, 456 48, 492 48"
+          fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="500" y="52" font-family="var(--sans)" font-size="12"
+          font-style="italic" fill="var(--ink)">no failover</text>
+  </g>
+
+  <!-- legend: inside the viewBox, or it is lost on export and in print -->
+  <g>
+    <path d="M24 268 H 700" stroke="var(--rule)" stroke-width="1"/>
+    <text x="24" y="292" font-family="var(--mono)" font-size="10"
+          fill="var(--soft)" letter-spacing="0.14em">LEGEND</text>
+    <rect x="104" y="282" width="20" height="12" rx="2" fill="var(--surface)"
+          stroke="var(--rule)" stroke-dasharray="4 3"/>
+    <text x="132" y="292" font-family="var(--sans)" font-size="11" fill="var(--muted)">external</text>
+    <rect x="212" y="282" width="20" height="12" rx="2" fill="var(--accent-tint)" stroke="var(--accent)"/>
+    <text x="240" y="292" font-family="var(--sans)" font-size="11" fill="var(--muted)">focal</text>
+  </g>
+</svg>

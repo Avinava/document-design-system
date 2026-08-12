@@ -99,12 +99,11 @@ section { margin-bottom: 48px; }
     <span class="meta">Current snapshot</span>
   </div>
 
-  <!-- print-only provenance: navigation disappears in print, but the
-       source must not. .print-only is display:none outside @media print. -->
-  <div class="print-only">
-    <strong>Where the work lives</strong><br>
-    <span class="meta">As of 2026-08-12 · Source: normalized inventory export</span>
-  </div>
+  <!-- A .print-only provenance block belongs here ONLY when the title block
+       below does not survive print — for example when the title lives inside a
+       sticky header that gets hidden. This template's title block prints fine,
+       so adding one would print the title twice. Verified in the PDF export;
+       see skills/analytical-document-design/references/print-production.md. -->
 
   <!-- 2. title block --------------------------------------------------- -->
   <header class="title-block">

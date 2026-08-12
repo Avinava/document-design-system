@@ -4,14 +4,77 @@
 
 Most document tooling is welded to one output format or one client's brand. This is the discipline itself: what to measure, when a chart earns its place, how to structure an argument, and one shared set of semantic tokens underneath so a report, the diagram inside it, and the deck derived from it all look like one system.
 
-## Install
-
 ```
 /plugin marketplace add Avinava/document-design-system
 /plugin install document-design-system@document-design-system
 ```
 
 Or use it as a plain skills directory — copy `skills/` and `core/` into `.claude/skills/` or `.agents/skills/`.
+
+---
+
+## What it produces
+
+Every image below is a committed example in [`examples/`](examples/), rebuilt by `python scripts/build_examples.py`. Nothing is a mockup.
+
+### Analytical report — evidence-led, reconciled, printable
+
+Metric semantics, named denominators, a limit ledger, and a methodology block. The one that refuses to call a snapshot cohort "growth".
+
+[![Analytical report](docs/screenshots/analytical-report.png)](examples/inventory-report.html)
+
+<sub>`analytical-document-design` · theme `editorial-coral` · [source](examples/inventory-report.html)</sub>
+
+### Long-form document — RFCs, design docs, ADRs, specs, postmortems
+
+Measure held at 62–72 characters, explicit status banner, a change log for reviewers, and non-goals given their own box because it is the section most often skipped and most often needed.
+
+[![Long-form RFC](docs/screenshots/longform-rfc.png)](examples/platform-rfc.html)
+
+<sub>`longform-document-design` · theme `field-notes` · [source](examples/platform-rfc.html)</sub>
+
+### Deck — 16:9 slides that export one-per-page to PDF
+
+Type scales with the slide via container queries, so an authored slide and a projected slide agree. No JavaScript: a deck that renders blank without JS is not a deliverable.
+
+[![Deck](docs/screenshots/deck.png)](examples/capacity-deck.html)
+
+<sub>`presentation-design` · theme `executive-navy` · [source](examples/capacity-deck.html)</sub>
+
+### Figures — diagrams and charts on one token set
+
+[![Figure gallery](docs/screenshots/gallery.png)](examples/gallery.html)
+
+<sub>`diagram-design` + `chart-design` · theme `editorial-coral` · [source](examples/gallery.html)</sub>
+
+| Figure | Path | Why that path |
+|---|---|---|
+| Architecture | Hand-authored SVG | Position carries coupling — auto-layout would assert relationships nobody intended |
+| Sequence | Mermaid → prerendered SVG | Order is dictated by the protocol, so auto-layout is honest |
+| Ranked bars | Observable Plot → SVG | Sorted descending, zero baseline, one focal bar |
+| Columns | Observable Plot → SVG | Chronological, never sorted by value |
+| Line | Observable Plot → SVG | Straight segments; a spline invents readings between points |
+| Limit ledger | Hand-authored SVG | A linear track beats a gauge — same value, stated precisely |
+
+---
+
+## The one idea
+
+> **Everything renders to an SVG string at authoring time. The only thing still live in the shipped HTML is CSS custom properties.**
+
+That single rule is what makes the rest cohere. Diagrams, charts, decks, and reports share one token set, retheme with zero JavaScript, survive print, and stay one file.
+
+It also settles the perennial Mermaid question. Mermaid is a fine *notation* and a poor *output format* — its default rendering brings its own fonts, colors, and spacing, none of which know about the document they land in. So Mermaid is an input: prerendered through [`beautiful-mermaid`](https://github.com/lukilabs/beautiful-mermaid) into an SVG whose colors are `var(--…)` references.
+
+Open any example and change one attribute:
+
+```html
+<html lang="en" data-theme="editorial-coral">   →   data-theme="executive-navy"
+```
+
+The page, the chart's focal bar, and the diagram's arrowheads all move together. Nothing re-renders and no JavaScript runs.
+
+---
 
 ## The skills
 
@@ -23,17 +86,9 @@ Or use it as a plain skills directory — copy `skills/` and `core/` into `.clau
 | **presentation-design** | 16:9 HTML slides, one-idea-per-slide, slide hierarchy, PDF export | Documents meant to be read rather than presented |
 | **longform-document-design** | RFCs, design docs, ADRs, specs, postmortems, runbooks; prose hierarchy, cross-references, footnotes | Metric-led reports |
 
-Each `SKILL.md` is a lean index; the depth lives in `references/` and loads only when relevant. The largest skill body is ~180 lines against ~700 lines of reference material behind it.
+Each `SKILL.md` is a lean index — 117 to 181 lines — with the depth in `references/` loading only when relevant.
 
-## The one idea
-
-> **Everything renders to an SVG string at authoring time. The only thing still live in the shipped HTML is CSS custom properties.**
-
-That single rule is what makes the rest cohere. Diagrams, charts, decks, and reports share one token set, retheme for light/dark or brand with zero JavaScript, survive print, and stay one file.
-
-It also settles the perennial Mermaid question. Mermaid is a fine *notation* and a poor *output format* — its default rendering brings its own fonts, colors, and spacing, none of which know about the document they land in. So Mermaid is an input: prerendered through [`beautiful-mermaid`](https://github.com/lukilabs/beautiful-mermaid) into an SVG whose colors are `var(--…)` references. Change `data-theme` on the document and every diagram follows, with nothing re-rendered.
-
-Try it: open `examples/inventory-report.html`, change `data-theme="editorial-coral"` to `"executive-navy"`, and watch the chart's focal bar and the diagram's arrowheads move with the page.
+---
 
 ## Layout
 
@@ -46,8 +101,9 @@ core/            the shared design system — the single source of truth
   a11y.md          SVG labelling, contrast, grayscale, focus
 skills/          the five skills, each SKILL.md + references/
 scripts/         authoring-time tooling — never shipped to readers
-templates/       document, deck, and hand-authored diagram skeletons
-examples/        committed outputs, doubling as CI fixtures
+templates/       document · longform · deck · gallery · hand-authored diagram
+examples/        committed outputs, doubling as CI fixtures and the shots above
+docs/screenshots/
 ```
 
 ## Themes
@@ -66,25 +122,31 @@ A theme changes the visual voice, never the information architecture. It must no
 All of it runs on the authoring machine. The delivered artifact is plain HTML and SVG.
 
 ```bash
-npm install beautiful-mermaid @observablehq/plot jsdom
+npm install beautiful-mermaid @observablehq/plot jsdom     # renderers
+pip install playwright && playwright install chromium      # PDF + screenshots
+
+python3 scripts/build_examples.py       # rebuild every example from source
+python3 scripts/shoot_examples.py       # refresh the screenshots above
+python3 scripts/build_document.py templates/longform.html --theme field-notes --out rfc.html
+python3 scripts/inline_fonts.py rfc.html --font "Geist:400:geist.woff2" --out offline.html
+python3 scripts/validate_repository.py .
+python3 -m unittest discover -s tests
 
 node scripts/render_diagram.mjs in.mmd --id x --title "…" --desc "…" --out x.svg
 node scripts/render_chart.mjs spec.json --out chart.svg
-node scripts/export_pdf.mjs report.html --out report.pdf     # needs playwright
-
-python3 scripts/build_document.py templates/document.html --theme field-notes --out report.html
-python3 scripts/inline_fonts.py report.html --font "Geist:400:geist.woff2" --out offline.html
-python3 scripts/validate_repository.py .
-python3 -m unittest discover -s tests
+node scripts/export_pdf.mjs report.html --out report.pdf
+node scripts/export_pdf.mjs deck.html --out deck.pdf --preset deck   # one slide per page
 ```
 
-Both renderers wrap their upstream library rather than calling it directly, because raw output is not safe to inline into a designed document. Between them they strip an external Google Fonts request from inside the SVG, namespace generic element IDs that would otherwise collide across two figures on one page, remove fixed pixel dimensions that break print scaling, neutralize a hardcoded white background, and add the accessibility shell. Each of those is a verified upstream behavior, documented at the point it is handled.
+Both renderers wrap their upstream library rather than calling it directly, because raw output is not safe to inline into a designed document. Between them they strip an external Google Fonts request from inside the SVG, namespace generic element IDs that would otherwise collide across two figures on one page, remove fixed pixel dimensions that break print scaling, neutralize a hardcoded white background, and add the accessibility shell. Each is a verified upstream behavior, documented at the point it is handled.
 
 ## Verification
 
 `.github/workflows/validate.yml` runs the tests, the repository linter, a template assembly check, and renders a diagram and a chart to assert their output contracts.
 
 `scripts/validate_repository.py` reads the same files the skills read — `core/tokens.md` for the required tokens and `core/themes/*.css` for the palette — so the prose rules and the machine check cannot drift apart. It enforces the two-key frontmatter schema, name↔folder agreement, a mandatory `Do not use for …` clause in every description, complete token coverage in every theme, no color literals outside `core/themes/`, and no broken relative links.
+
+Print is verified by exporting a PDF and looking at it, not by the presence of `@media print`. That check is what caught the report printing its title twice.
 
 ## Attribution
 

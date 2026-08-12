@@ -1,0 +1,242 @@
+<!doctype html>
+<!--
+  Long-form document skeleton — RFC, design doc, ADR, spec, postmortem.
+
+  Assemble with:
+      python scripts/build_document.py templates/longform.html \
+             --theme field-notes --out rfc.html
+
+  Prose-first, so the measure is the load-bearing decision: 62-72 characters.
+  Full-width text on a wide monitor is the most common readability failure in
+  HTML technical documents, and it is entirely avoidable.
+
+  The section order below is the design-doc / RFC shape. Swap it for the ADR,
+  spec, postmortem, or runbook shape from
+  skills/longform-document-design/references/document-types.md.
+-->
+<html lang="en" data-theme="field-notes">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RFC 014 — Splitting the ingestion path</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* @@INLINE core/themes/${THEME}.css @@ */
+/* @@INLINE core/base.css @@ */
+
+/* ---- long-form layout (not part of core) ---- */
+
+.doc {
+  max-width: 760px;      /* holds the measure near 68ch */
+  margin: 0 auto;
+  padding: 48px 32px 80px;
+}
+
+.status-banner {
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  margin-bottom: 2rem;
+  font-size: 0.9375rem;
+}
+
+.toc {
+  border-left: 2px solid var(--rule-strong);
+  padding-left: 1.25rem;
+  margin: 2rem 0 3rem;
+}
+.toc ol { margin: 0; padding-left: 1.25rem; }
+.toc li { margin: 0.25rem 0; }
+
+/* Non-goals earn a visual box because it is the section most often skipped
+   and most often the one that prevents a sprawling review. */
+.non-goals {
+  background: var(--surface-muted);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: 1rem 1.25rem;
+}
+
+pre {
+  background: var(--surface-muted);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 0.875rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+pre .lang {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--soft);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.changelog { font-size: 0.875rem; margin-bottom: 2.5rem; }
+
+.footnotes {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.9375rem;
+}
+.footnotes ol { padding-left: 1.25rem; }
+
+sup a { text-decoration: none; color: var(--accent); }
+
+@media (max-width: 640px) { .doc { padding: 24px 16px 48px; } }
+
+/* @@INLINE core/print.css @@ */   /* must stay last */
+</style>
+</head>
+
+<body>
+<article class="doc">
+
+  <p class="eyebrow">Design document</p>
+  <h1>RFC 014 — Splitting the ingestion path</h1>
+
+  <!-- Status is explicit. A reader must be able to tell whether they are
+       reading a decision, a proposal, or a sketch. -->
+  <p class="status-banner">
+    <strong>Status:</strong> Proposed ·
+    <strong>Decision needed by:</strong> 2026-09-01 ·
+    <strong>Owner:</strong> Platform
+  </p>
+
+  <table class="changelog">
+    <caption class="meta">Change log</caption>
+    <thead><tr><th scope="col">Date</th><th scope="col">Change</th><th scope="col">By</th></tr></thead>
+    <tbody>
+      <tr><td>2026-08-12</td><td>Added rollback plan after review</td><td>Author</td></tr>
+      <tr><td>2026-08-08</td><td>Initial draft</td><td>Author</td></tr>
+    </tbody>
+  </table>
+
+  <nav class="toc" aria-label="Contents">
+    <p class="eyebrow">Contents</p>
+    <ol>
+      <li><a href="#problem">Problem</a></li>
+      <li><a href="#goals">Goals</a></li>
+      <li><a href="#non-goals">Non-goals</a></li>
+      <li><a href="#proposal">Proposal</a></li>
+      <li><a href="#alternatives-considered">Alternatives considered</a></li>
+      <li><a href="#risks">Risks and mitigations</a></li>
+      <li><a href="#open-questions">Open questions</a></li>
+    </ol>
+  </nav>
+
+  <h2>Summary</h2>
+  <p>
+    The ingestion path holds 41% of the platform footprint behind a single queue
+    with no failover. This proposes splitting it into two independently
+    deployable paths so that a queue failure degrades throughput rather than
+    stopping ingestion. Written last, as a summary should be.
+  </p>
+
+  <h2 id="problem">Problem</h2>
+  <p>
+    Four of the last six incidents traced to the same coupling.<sup><a href="#fn1" id="fnref1">1</a></sup>
+    Each began as queue backpressure and ended as a full ingestion stop, because
+    every producer shares one path.
+  </p>
+  <p>
+    State the evidence, not the feeling. "The current system is hard to maintain"
+    is an opinion; the incident count is a problem.
+  </p>
+
+  <h2 id="goals">Goals</h2>
+  <ul>
+    <li>A queue failure degrades throughput instead of halting ingestion.</li>
+    <li>Recovery without a coordinated redeploy of every producer.</li>
+    <li>No change to the producer-facing API.</li>
+  </ul>
+
+  <h2 id="non-goals">Non-goals</h2>
+  <div class="non-goals">
+    <p>
+      This does <strong>not</strong> propose replacing the queue technology,
+      changing the retention policy, or touching the batch path. Those are real
+      questions and they are not this document's questions.
+    </p>
+  </div>
+  <p>
+    This is the section most often omitted and most often needed. It keeps the
+    review from sprawling into adjacent problems, and it is where a reviewer
+    with a different mental model discovers the mismatch early — while it is
+    still cheap.
+  </p>
+
+  <h2 id="proposal">Proposal</h2>
+  <p>
+    Route producers through a thin dispatcher that writes to one of two queues
+    keyed by partition. Each queue has its own consumer group and its own
+    failover. The dispatcher is stateless and deployable independently.
+  </p>
+  <pre><span class="lang">yaml</span>dispatcher:
+  routes:
+    - match: {partition: even}
+      queue: ingest-a
+    - match: {partition: odd}
+      queue: ingest-b
+  on_queue_unavailable: shed_and_alert</pre>
+  <p>
+    Keep lines under about 80 characters. Long lines force horizontal scrolling
+    on screen and clip in print.
+  </p>
+
+  <h2 id="alternatives-considered">Alternatives considered</h2>
+  <ul>
+    <li>
+      <strong>Do nothing.</strong> Always an option, and often chosen by
+      default. Cost: the incident pattern continues at roughly one per quarter.
+    </li>
+    <li>
+      <strong>Larger single queue.</strong> Raises the backpressure threshold
+      without removing the single point of failure. Rejected because it changes
+      when the incident happens, not whether.
+    </li>
+    <li>
+      <strong>Per-producer queues.</strong> Removes the coupling entirely, but
+      multiplies operational surface by the producer count. Rejected on cost.
+    </li>
+  </ul>
+  <p>
+    An alternatives section listing only strawmen tells the reader the decision
+    was made before the document was written, and they will read the rest
+    accordingly.
+  </p>
+
+  <h2 id="risks">Risks and mitigations</h2>
+  <ul>
+    <li><strong>Partition skew</strong> sends most traffic to one queue. Mitigated by hashing on event ID rather than producer ID.</li>
+    <li><strong>Dispatcher becomes the new single point of failure.</strong> Mitigated by running it stateless behind the existing load balancer.</li>
+  </ul>
+
+  <h2 id="open-questions">Open questions</h2>
+  <ol>
+    <li>Does the consumer group rebalance cleanly under partial failure? — <em>Owner: Platform, by 2026-08-25</em></li>
+    <li>Is shed-and-alert the right behavior, or should the dispatcher block? — <em>Owner: Reliability, by 2026-08-25</em></li>
+  </ol>
+  <p>
+    A document with no open questions is either finished or not being honest.
+  </p>
+
+  <section class="footnotes">
+    <h2>Notes</h2>
+    <ol>
+      <li id="fn1">Incidents 2026-03-14, 2026-04-02, 2026-06-19, 2026-07-30. <a href="#fnref1">↩</a></li>
+    </ol>
+  </section>
+
+</article>
+</body>
+</html>

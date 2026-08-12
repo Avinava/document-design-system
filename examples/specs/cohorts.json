@@ -1,0 +1,14 @@
+{
+  "form": "columns",
+  "id": "cohorts",
+  "title": "Half the footprint was created before 2023",
+  "desc": "Current size of records grouped by the year they were created. The 2022 cohort is the largest at 620 thousand units. This is a snapshot by creation year, not a measure of growth.",
+  "data": [
+    {"year":"2020","units":180},{"year":"2021","units":410},
+    {"year":"2022","units":620},{"year":"2023","units":300},
+    {"year":"2024","units":210},{"year":"2025","units":122}
+  ],
+  "x": "year", "y": "units", "focal": "2022",
+  "yLabel": "Current size (thousand units)",
+  "size": "doc-inline"
+}

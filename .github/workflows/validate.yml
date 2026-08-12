@@ -80,3 +80,30 @@ jobs:
           grep -q 'var(--accent-tint)' /tmp/c.svg
           # Plot hardcodes a white plot background; the wrapper must neutralize it.
           ! grep -q -- '--plot-background: white' /tmp/c.svg
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Rebuild every example from source
+        run: |
+          python scripts/build_examples.py
+          # The committed examples are the README's screenshots and the CI
+          # fixtures. If a figure slot or build marker survives the rebuild,
+          # the document renders unstyled or with a hole in it rather than
+          # failing outright.
+          for f in examples/*.html; do
+            ! grep -q '@@INLINE' "$f" || { echo "unresolved build marker in $f"; exit 1; }
+            ! grep -q '@FIG' "$f"     || { echo "unresolved figure slot in $f";  exit 1; }
+          done
+
+      - name: Examples are in sync with their sources
+        run: |
+          # A committed example that no longer matches what the build produces
+          # means the screenshots in the README are showing something the repo
+          # can no longer generate.
+          git diff --stat -- examples/
+          git diff --exit-code -- examples/ || {
+            echo "examples/ is stale — run 'python scripts/build_examples.py' and commit"
+            exit 1
+          }

@@ -1,0 +1,14 @@
+{
+  "form": "line",
+  "id": "latency",
+  "title": "p99 latency tripled after the June deploy",
+  "desc": "Weekly p99 latency in milliseconds across twelve weeks. Latency holds near 140 milliseconds until week 7, then rises to 410 milliseconds and stays there.",
+  "data": [
+    {"week":1,"ms":138},{"week":2,"ms":142},{"week":3,"ms":139},{"week":4,"ms":145},
+    {"week":5,"ms":141},{"week":6,"ms":150},{"week":7,"ms":268},{"week":8,"ms":392},
+    {"week":9,"ms":405},{"week":10,"ms":398},{"week":11,"ms":412},{"week":12,"ms":410}
+  ],
+  "x": "week", "y": "ms",
+  "xLabel": "Week", "yLabel": "p99 latency (ms)",
+  "size": "doc-inline"
+}
