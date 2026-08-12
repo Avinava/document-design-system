@@ -1,6 +1,6 @@
 <!doctype html>
 <!--
-  Theme comparison — the same content block under all three themes.
+  Theme comparison — the same content block under every theme.
 
   Assemble with:
       python scripts/build_document.py templates/themes.html \
@@ -22,7 +22,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
 /* ---- inlined from core/themes/editorial-coral.css ---- */
@@ -149,6 +149,107 @@
 
   --radius-sm: 0;
   --radius-md: 2px;
+}
+/* ---- inlined from core/themes/console-violet.css ---- */
+/* console-violet — the dark theme.
+ *
+ * Register: engineering readouts, ops reviews, incident write-ups, service
+ * inventories — documents read on a screen rather than printed. That is a
+ * distinct voice, not an inversion of one of the light themes.
+ *
+ * Why violet and not the obvious choices:
+ *
+ *   amber  is 6 degrees from --warning. In a system where status colors are
+ *          load-bearing, an accent that close to a status hue makes every
+ *          genuine warning ambiguous.
+ *   teal   is 4 degrees from executive-navy's accent, so the two themes would
+ *          be hard to tell apart at thumbnail size.
+ *   cyan   on a dark canvas is the "AI dashboard" look that
+ *          analytical-document-design lists as an anti-pattern.
+ *
+ * Violet sits 97 degrees from the nearest status color and more than 60 from
+ * every other theme accent. Kept desaturated and paired with hairlines, it
+ * reads editorial rather than neon.
+ *
+ * Status colors are re-tuned rather than inherited: the light themes' values
+ * (--positive #34735b and friends) fail contrast on a dark surface, so a dark
+ * theme has to restate them regardless.
+ *
+ * Fonts: IBM Plex Sans (display + sans), IBM Plex Mono. A coherent technical
+ * family, distinct from Manrope/Geist and Source Sans.
+ *
+ * Contrast verified against --surface: ink 13.07, muted 6.94, soft 5.55,
+ * accent 5.66, accent-ink on accent 6.63. All clear WCAG AA.
+ */
+
+[data-theme="console-violet"] {
+  --paper: #1a1d26;
+  --surface: #22262f;
+  --surface-muted: #2b303c;
+
+  --ink: #edeef2;
+  --muted: #a8b0bf;
+  --soft: #949dae;
+
+  /* Hairlines invert to light-on-dark at the same opacities the light themes
+   * use, per the inversion convention in core/tokens.md. */
+  --rule: rgba(237, 238, 242, 0.14);
+  --rule-strong: rgba(237, 238, 242, 0.32);
+
+  --accent: #a892e0;
+  --accent-tint: rgba(168, 146, 224, 0.14);
+  --accent-ink: #16181f;
+
+  --positive: #5cb98b;
+  --warning: #f2c14e;
+  --critical: #ec6572;
+
+  /* The methodology block goes deeper than the page rather than lighter — on
+   * dark, recession reads as "supporting material" the way an inverted panel
+   * does on light. */
+  --method-bg: #12141b;
+  --method-ink: #edeef2;
+  --method-muted: #a8b0bf;
+
+  --display: 'IBM Plex Sans', system-ui, sans-serif;
+  --sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --radius-sm: 3px;
+  --radius-md: 5px;
+}
+
+/* --- print ------------------------------------------------------------
+ *
+ * REQUIRED for any dark theme. core/print.css flattens the surfaces to white
+ * but deliberately leaves the ink ramp alone, because for a light theme that
+ * ramp is already dark and carries the theme's identity into print.
+ *
+ * A dark theme inverted onto white paper would print near-white text on white
+ * — invisible — with hairlines to match. So the ink ramp is restored here,
+ * where the knowledge belongs, rather than by making print.css generically
+ * flatten every theme and cost the light themes their per-theme ink.
+ *
+ * This block wins because the theme is inlined before print.css and
+ * [data-theme="console-violet"] outranks [data-theme].
+ *
+ * The accent survives print unchanged: violet on white is 4.0:1, which
+ * carries a focal bar and still reads in grayscale.
+ */
+@media print {
+  [data-theme="console-violet"] {
+    --ink: #24272f;
+    --muted: #4f5560;
+    --soft: #6b7280;
+
+    --rule: rgba(36, 39, 47, 0.14);
+    --rule-strong: rgba(36, 39, 47, 0.34);
+
+    --accent-ink: #ffffff;
+
+    --method-ink: #24272f;
+    --method-muted: #4f5560;
+  }
 }
 /* ---- inlined from core/base.css ---- */
 /* base.css — component-to-token mapping.
@@ -412,7 +513,7 @@ a { color: inherit; text-underline-offset: 2px; }
 
 .themes {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   margin-top: 28px;
 }
@@ -468,7 +569,8 @@ a { color: inherit; text-underline-offset: 2px; }
 .panel .method strong { color: var(--method-ink); }
 .panel .method span { color: var(--method-muted); }
 
-@media (max-width: 900px) { .themes { grid-template-columns: 1fr; } }
+@media (max-width: 1100px) { .themes { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px)  { .themes { grid-template-columns: 1fr; } }
 
 /* ---- inlined from core/print.css ---- */
 /* print.css — print and PDF as a distinct output mode.
@@ -662,8 +764,8 @@ a { color: inherit; text-underline-offset: 2px; }
 <body>
 <div class="page">
   <p class="eyebrow">document-design-system</p>
-  <h1>One contract, three voices</h1>
-  <p class="subtle">Identical markup in all three panels. Only <code>data-theme</code> differs — surfaces, ink, accent, typography, border character, and the methodology treatment all follow from the token contract.</p>
+  <h1>One contract, four voices</h1>
+  <p class="subtle">Identical markup in all four panels. Only <code>data-theme</code> differs — surfaces, ink, accent, typography, border character, and the methodology treatment all follow from the token contract.</p>
 
   <div class="themes">
 
@@ -714,6 +816,28 @@ a { color: inherit; text-underline-offset: 2px; }
     <section class="panel" data-theme="field-notes">
       <p class="name">field-notes</p>
       <h3>Research and audit</h3>
+      <div class="big">41%</div>
+      <div class="lbl">Held by the largest function</div>
+      <div class="den">of 1,842,110 included units</div>
+      <div class="frame">
+        <svg role="img" aria-label="74 percent of the limit consumed." viewBox="0 0 300 20" width="100%">
+          <rect x="0" y="4" width="300" height="12" rx="3" fill="var(--track-fill)"/>
+          <rect x="0" y="4" width="222" height="12" rx="3" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+        </svg>
+      </div>
+      <table>
+        <thead><tr><th scope="col">Function</th><th scope="col" class="num">Units</th></tr></thead>
+        <tbody>
+          <tr><td>Ingestion</td><td class="num">612,400</td></tr>
+          <tr><td>Transform</td><td class="num">388,910</td></tr>
+        </tbody>
+      </table>
+      <div class="method"><strong>Methodology</strong><br><span>Current snapshot, as of 2026-08-12.</span></div>
+    </section>
+
+    <section class="panel" data-theme="console-violet">
+      <p class="name">console-violet</p>
+      <h3>Engineering readouts</h3>
       <div class="big">41%</div>
       <div class="lbl">Held by the largest function</div>
       <div class="den">of 1,842,110 included units</div>

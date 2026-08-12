@@ -45,8 +45,13 @@ DOCUMENTS = {
     "inventory-report.html": ("document.html", "editorial-coral"),
     "platform-rfc.html": ("longform.html", "field-notes"),
     "capacity-deck.html": ("deck.html", "executive-navy"),
-    "gallery.html": ("gallery.html", "editorial-coral"),
-    "themes.html": ("themes.html", "editorial-coral"),
+    # The two images the README swaps with the reader's GitHub theme are built
+    # twice, once under a light root theme and once under the dark one. Only
+    # these two carry the design argument; the rest render once.
+    "gallery-light.html": ("gallery.html", "editorial-coral"),
+    "gallery-dark.html": ("gallery.html", "console-violet"),
+    "themes-light.html": ("themes.html", "editorial-coral"),
+    "themes-dark.html": ("themes.html", "console-violet"),
 }
 
 # Figures inlined into the analytical report, in document order.
@@ -100,7 +105,7 @@ def build_documents() -> None:
         html = target.read_text(encoding="utf-8")
 
         # gallery.html uses named slots; the report uses positional ones.
-        if out == "gallery.html":
+        if out.startswith("gallery"):
             gallery_figs = [f for f in CHARTS if not f.endswith("-wide")]
             for slug in gallery_figs + list(DIAGRAMS) + ["platform-architecture"]:
                 html = html.replace(f"<!-- @FIG {slug} -->", figure(slug))

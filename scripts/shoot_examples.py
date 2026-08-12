@@ -34,8 +34,12 @@ SHOTS = {
     "analytical-report": ("inventory-report.html", (1280, 980), False),
     "analytical-report-detail": ("inventory-report.html", (1280, 980), False),
     "longform-rfc": ("platform-rfc.html", (1280, 980), False),
-    "gallery": ("gallery.html", (1280, 1430), True),
-    "themes": ("themes.html", (1280, 720), False),
+    # Light/dark pairs, for the README <picture> elements that follow the
+    # reader's GitHub theme.
+    "gallery-light": ("gallery-light.html", (1280, 1430), True),
+    "gallery-dark": ("gallery-dark.html", (1280, 1430), True),
+    "themes-light": ("themes-light.html", (1280, 760), False),
+    "themes-dark": ("themes-dark.html", (1280, 760), False),
 }
 
 # Scroll offset in CSS pixels, for shots that should show a section further

@@ -31,6 +31,21 @@ def strip_comments(css: str) -> str:
     return re.sub(r"/\*.*?\*/", "", css, flags=re.S)
 
 
+def relative_luminance(hex_color: str) -> float:
+    h = hex_color.lstrip("#")
+    if len(h) == 3:
+        h = "".join(c * 2 for c in h)
+    r, g, b = (int(h[i : i + 2], 16) / 255 for i in (0, 2, 4))
+    f = lambda c: c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
+
+
+def contrast(a: str, b: str) -> float:
+    la, lb = relative_luminance(a), relative_luminance(b)
+    hi, lo = max(la, lb), min(la, lb)
+    return (hi + 0.05) / (lo + 0.05)
+
+
 def skill_dirs() -> list[Path]:
     return sorted(p for p in SKILLS.iterdir() if p.is_dir())
 
@@ -116,6 +131,45 @@ class TestTokenContract(unittest.TestCase):
                     f"{theme.name} is missing required tokens",
                 )
 
+    def test_dark_themes_define_print_overrides(self):
+        """A dark theme that skips print overrides prints white on white.
+
+        core/print.css flattens the surfaces to white but leaves the ink ramp
+        alone — correct for a light theme, fatal for a dark one. The knowledge
+        belongs with the theme that needs it, so the theme file must carry it.
+        """
+        for theme in sorted((CORE / "themes").glob("*.css")):
+            css = theme.read_text(encoding="utf-8")
+            m = re.search(r"--paper:\s*(#[0-9a-fA-F]{3,8})", strip_comments(css))
+            if not m:
+                continue
+            with self.subTest(theme=theme.name):
+                if relative_luminance(m.group(1)) < 0.5:
+                    self.assertIn(
+                        "@media print",
+                        css,
+                        f"{theme.name} is a dark theme and must restore a dark "
+                        "ink ramp for print, or it prints invisibly",
+                    )
+
+    def test_theme_print_overrides_are_readable_on_paper(self):
+        """Whatever a dark theme restores for print must clear AA on white."""
+        for theme in sorted((CORE / "themes").glob("*.css")):
+            css = strip_comments(theme.read_text(encoding="utf-8"))
+            block = re.search(r"@media print\s*\{(.*)\}\s*\}", css, re.S)
+            if not block:
+                continue
+            for token in ("--ink", "--muted"):
+                m = re.search(rf"{token}:\s*(#[0-9a-fA-F]{{3,8}})", block.group(1))
+                if not m:
+                    continue
+                with self.subTest(theme=theme.name, token=token):
+                    self.assertGreaterEqual(
+                        contrast(m.group(1), "#ffffff"),
+                        4.5,
+                        f"{theme.name} print {token} is unreadable on white paper",
+                    )
+
     def test_base_css_has_no_hex(self):
         """base.css maps components to tokens; a hex there is a theme leak."""
         css = (CORE / "base.css").read_text(encoding="utf-8")
@@ -197,6 +251,26 @@ class TestAssets(unittest.TestCase):
     def test_readme_shows_the_banner(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         self.assertIn("assets/banner.svg", readme)
+
+    def test_readme_images_all_exist(self):
+        """A README <img>/<source> pointing at a missing file renders as a
+        broken-image icon on GitHub, which the markdown link checker never
+        sees because these are HTML attributes, not markdown links."""
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        refs = set(re.findall(r'(?:src|srcset)="(docs/screenshots/[^"]+)"', readme))
+        refs |= set(re.findall(r"\]\((docs/screenshots/[^)]+)\)", readme))
+        self.assertTrue(refs, "README references no screenshots")
+        for ref in sorted(refs):
+            with self.subTest(image=ref):
+                self.assertTrue((ROOT / ref).is_file(), f"README references missing {ref}")
+
+    def test_dark_mode_sources_are_paired(self):
+        """Every <picture> dark source needs a light <img> fallback beside it."""
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        for block in re.findall(r"<picture>(.*?)</picture>", readme, re.S):
+            with self.subTest(block=block[:60]):
+                self.assertIn("prefers-color-scheme: dark", block)
+                self.assertRegex(block, r"<img[^>]+src=", "no light fallback")
 
 
 class TestTemplates(unittest.TestCase):

@@ -16,7 +16,10 @@ python3 scripts/build_examples.py
 | `inventory-report.html` | analytical-document-design | editorial-coral |
 | `platform-rfc.html` | longform-document-design | field-notes |
 | `capacity-deck.html` | presentation-design | executive-navy |
-| `gallery.html` | diagram-design + chart-design | editorial-coral |
+| `gallery-light.html` / `gallery-dark.html` | diagram-design + chart-design | editorial-coral / console-violet |
+| `themes-light.html` / `themes-dark.html` | the token contract itself | all four panels |
+
+The `-light` / `-dark` pairs exist so the README can swap them with the reader's GitHub theme via `<picture>`. Both halves of each pair inline the **same** SVG figures — only the root `data-theme` differs, so the pair is also a direct demonstration that nothing needs re-rendering.
 
 ## Figures
 

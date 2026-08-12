@@ -20,6 +20,8 @@ Most document tooling is welded to one output format or one client's brand. This
 /plugin install document-design-system@document-design-system
 ```
 
+Then `/plugin` to confirm it is installed, or just ask for a report — the skills trigger on their own.
+
 Or use it as a plain skills directory — copy `skills/` and `core/` into `.claude/skills/` or `.agents/skills/`.
 
 ---
@@ -28,13 +30,24 @@ Or use it as a plain skills directory — copy `skills/` and `core/` into `.clau
 
 Every image below is a committed example in [`examples/`](examples/), rebuilt from source by `python scripts/build_examples.py` and captured by `python scripts/shoot_examples.py`. Nothing is a mockup.
 
-### Three themes, one contract
+### Four voices, one contract
 
-Identical markup in all three panels — only `data-theme` differs. Surfaces, ink, accent, typography, border character, and the methodology treatment all follow from the token contract.
+Identical markup in all four panels — only `data-theme` differs. Surfaces, ink, accent, typography, border character, and the methodology treatment all follow from the token contract.
 
-[![Theme comparison](docs/screenshots/themes.png)](examples/themes.html)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/themes-dark.png">
+  <img alt="The same content block rendered under editorial-coral, executive-navy, field-notes, and console-violet" src="docs/screenshots/themes-light.png">
+</picture>
 
-<sub>`editorial-coral` · `executive-navy` · `field-notes` — plus a documented `brand-template` slot · [source](examples/themes.html)</sub>
+| Theme | For | |
+|---|---|---|
+| `editorial-coral` | General analytical reports, portfolio reviews | light · default |
+| `executive-navy` | Board, finance, governance | light |
+| `field-notes` | Research, audit, operational review | light |
+| `console-violet` | Engineering readouts, ops reviews, incident write-ups | **dark** |
+| `brand-template` | Your own brand — copy, fill every TODO, rename | — |
+
+<sub>This image follows your GitHub theme. [source](examples/themes-light.html)</sub>
 
 ### Analytical report — evidence-led, reconciled, printable
 
@@ -71,11 +84,14 @@ Type scales with the slide via container queries, so an authored slide and a pro
 
 ### Figures — diagrams and charts on one token set
 
-Six forms, one accent, all resolving against the document's tokens at view time.
+Six forms, one accent, all resolving against the document's tokens at view time. This image follows your GitHub theme — and both renderings use the **same SVG files**, which is the clearest proof the token indirection works.
 
-[![Figure gallery](docs/screenshots/gallery.png)](examples/gallery.html)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/gallery-dark.png">
+  <img alt="Figure gallery: architecture diagram, sequence diagram, ranked bars, columns, line chart, and a limit ledger" src="docs/screenshots/gallery-light.png">
+</picture>
 
-<sub>`diagram-design` + `chart-design` · theme `editorial-coral` · [source](examples/gallery.html)</sub>
+<sub>`diagram-design` + `chart-design` · rendered in `editorial-coral` and `console-violet` — the same SVG files, no re-render · [source](examples/gallery-light.html)</sub>
 
 | Figure | Path | Why that path |
 |---|---|---|
@@ -125,7 +141,7 @@ Each `SKILL.md` is a lean index — 117 to 181 lines — with the depth in `refe
 ```
 core/            the shared design system — the single source of truth
   tokens.md        the semantic token contract
-  themes/          editorial-coral · executive-navy · field-notes · brand-template
+  themes/          editorial-coral · executive-navy · field-notes · console-violet · brand-template
   base.css         component→token mapping (contains no color literals)
   print.css        print as a distinct output mode
   a11y.md          SVG labelling, contrast, grayscale, focus
@@ -140,14 +156,13 @@ tests/           standard library only, so CI needs no install step
 
 ## Themes
 
-Three neutral themes plus a documented brand slot:
+Four themes plus a documented brand slot — see [the comparison above](#four-voices-one-contract).
 
-- `editorial-coral` — general analytical reports. The default.
-- `executive-navy` — board, finance, governance.
-- `field-notes` — research, audit, operational review.
-- `brand-template` — copy it, fill every TODO, rename. There is a pre-ship checklist at the bottom of the file.
+`console-violet` is the dark one. Its accent is violet rather than the obvious amber because amber measured **6° from `--warning`**, and in a system where status colors are load-bearing an accent that close makes every genuine warning ambiguous. Teal was rejected too — 4° from `executive-navy`, so the two would have been hard to tell apart at thumbnail size.
 
-See the [theme comparison](#three-themes-one-contract) above, or open [`examples/themes.html`](examples/themes.html). Because themes select on `[data-theme]` rather than `:root`, and `core/base.css` re-derives its computed tokens at every theme boundary, a single page can carry several themes at once — that comparison is one document, not three.
+A dark theme must also restore a dark ink ramp for print. `core/print.css` flattens surfaces to white but deliberately leaves the ink ramp alone, so a dark theme that skips this prints white on white. A test fails any dark theme without it.
+
+Because themes select on `[data-theme]` rather than `:root`, and `core/base.css` re-derives its computed tokens at every theme boundary, a single page can carry several themes at once — [`examples/themes-light.html`](examples/themes-light.html) is one document, not four.
 
 A theme changes the visual voice, never the information architecture. It must not change metric definitions, category order, chart scales, included records, or conclusions.
 

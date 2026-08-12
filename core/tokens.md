@@ -119,11 +119,27 @@ If the user names a theme, use it. Otherwise:
 - `editorial-coral` — general analytical reports, portfolio reviews. The default.
 - `executive-navy` — board, finance, governance, conservative corporate contexts.
 - `field-notes` — research, audit, workshop, operational-review documents.
+- `console-violet` — **dark.** Engineering readouts, ops reviews, incident write-ups, service inventories; documents read on a screen rather than printed.
 - `brand-template` — a documented slot to fill with your own brand. See `themes/brand-template.css`.
 
 Ask one short question only when brand fit materially affects the deliverable and context does not imply a choice.
 
 Reject unknown theme IDs, or fall back explicitly to `editorial-coral`. Never silently emit a partially themed document — a half-themed report looks like a bug to the reader and hides which values were intentional.
+
+## Dark themes
+
+A dark theme is only a different set of values — no new tokens. But two things that are automatic for a light theme have to be done deliberately:
+
+**Print overrides are mandatory.** `core/print.css` flattens the surfaces to white and deliberately leaves the ink ramp alone, because for a light theme that ramp is already dark and carries the theme's identity onto paper. A dark theme inherits that flattening and prints near-white text on white — invisible, with hairlines to match. So a dark theme must restore `--ink`, `--muted`, `--soft`, and the rules in its own `@media print` block. That block wins because the theme is inlined before `print.css` and `[data-theme="name"]` outranks `[data-theme]`. `tests/test_repository.py` fails any theme whose `--paper` is dark and whose file has no print block.
+
+**Status colors have to be re-tuned, not inherited.** The light themes' values are chosen against light surfaces; `--positive: #34735b` on a dark panel fails contrast outright. Restate all three.
+
+Two traps when choosing the accent, both of which cost a real candidate during `console-violet`'s design:
+
+- Keep it away from the status hues. Amber measured 6° from `--warning`, which would make every genuine warning ambiguous in a system where status colors are load-bearing.
+- Keep it away from the other themes' accents. Teal measured 4° from `executive-navy`, so the two themes would have been hard to tell apart at thumbnail size.
+
+And avoid cyan-on-dark: that is the "AI dashboard" look the anti-pattern list already rejects.
 
 ## Adding a theme
 

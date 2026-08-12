@@ -1,0 +1,842 @@
+<!doctype html>
+<!--
+  Figure gallery — every diagram and chart form on one page, in one theme.
+
+  Assemble with:
+      python scripts/build_document.py templates/gallery.html \
+             --theme editorial-coral --out gallery.html
+      # then inline each SVG into its figure slot
+
+  Useful for two things: checking that a theme holds together across every
+  figure type, and checking that everything still parses in grayscale.
+-->
+<html lang="en" data-theme="console-violet">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Figure gallery</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ---- inlined from core/themes/console-violet.css ---- */
+/* console-violet — the dark theme.
+ *
+ * Register: engineering readouts, ops reviews, incident write-ups, service
+ * inventories — documents read on a screen rather than printed. That is a
+ * distinct voice, not an inversion of one of the light themes.
+ *
+ * Why violet and not the obvious choices:
+ *
+ *   amber  is 6 degrees from --warning. In a system where status colors are
+ *          load-bearing, an accent that close to a status hue makes every
+ *          genuine warning ambiguous.
+ *   teal   is 4 degrees from executive-navy's accent, so the two themes would
+ *          be hard to tell apart at thumbnail size.
+ *   cyan   on a dark canvas is the "AI dashboard" look that
+ *          analytical-document-design lists as an anti-pattern.
+ *
+ * Violet sits 97 degrees from the nearest status color and more than 60 from
+ * every other theme accent. Kept desaturated and paired with hairlines, it
+ * reads editorial rather than neon.
+ *
+ * Status colors are re-tuned rather than inherited: the light themes' values
+ * (--positive #34735b and friends) fail contrast on a dark surface, so a dark
+ * theme has to restate them regardless.
+ *
+ * Fonts: IBM Plex Sans (display + sans), IBM Plex Mono. A coherent technical
+ * family, distinct from Manrope/Geist and Source Sans.
+ *
+ * Contrast verified against --surface: ink 13.07, muted 6.94, soft 5.55,
+ * accent 5.66, accent-ink on accent 6.63. All clear WCAG AA.
+ */
+
+[data-theme="console-violet"] {
+  --paper: #1a1d26;
+  --surface: #22262f;
+  --surface-muted: #2b303c;
+
+  --ink: #edeef2;
+  --muted: #a8b0bf;
+  --soft: #949dae;
+
+  /* Hairlines invert to light-on-dark at the same opacities the light themes
+   * use, per the inversion convention in core/tokens.md. */
+  --rule: rgba(237, 238, 242, 0.14);
+  --rule-strong: rgba(237, 238, 242, 0.32);
+
+  --accent: #a892e0;
+  --accent-tint: rgba(168, 146, 224, 0.14);
+  --accent-ink: #16181f;
+
+  --positive: #5cb98b;
+  --warning: #f2c14e;
+  --critical: #ec6572;
+
+  /* The methodology block goes deeper than the page rather than lighter — on
+   * dark, recession reads as "supporting material" the way an inverted panel
+   * does on light. */
+  --method-bg: #12141b;
+  --method-ink: #edeef2;
+  --method-muted: #a8b0bf;
+
+  --display: 'IBM Plex Sans', system-ui, sans-serif;
+  --sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --radius-sm: 3px;
+  --radius-md: 5px;
+}
+
+/* --- print ------------------------------------------------------------
+ *
+ * REQUIRED for any dark theme. core/print.css flattens the surfaces to white
+ * but deliberately leaves the ink ramp alone, because for a light theme that
+ * ramp is already dark and carries the theme's identity into print.
+ *
+ * A dark theme inverted onto white paper would print near-white text on white
+ * — invisible — with hairlines to match. So the ink ramp is restored here,
+ * where the knowledge belongs, rather than by making print.css generically
+ * flatten every theme and cost the light themes their per-theme ink.
+ *
+ * This block wins because the theme is inlined before print.css and
+ * [data-theme="console-violet"] outranks [data-theme].
+ *
+ * The accent survives print unchanged: violet on white is 4.0:1, which
+ * carries a focal bar and still reads in grayscale.
+ */
+@media print {
+  [data-theme="console-violet"] {
+    --ink: #24272f;
+    --muted: #4f5560;
+    --soft: #6b7280;
+
+    --rule: rgba(36, 39, 47, 0.14);
+    --rule-strong: rgba(36, 39, 47, 0.34);
+
+    --accent-ink: #ffffff;
+
+    --method-ink: #24272f;
+    --method-muted: #4f5560;
+  }
+}
+/* ---- inlined from core/base.css ---- */
+/* base.css — component-to-token mapping.
+ *
+ * This file contains NO color literals. Every visual decision resolves through
+ * a token defined in core/themes/. That is what makes theme swapping, print
+ * normalization, and grayscale survival work without editing components.
+ *
+ * Load order matters:
+ *   1. a theme from core/themes/
+ *   2. this file
+ *   3. core/print.css   (last, so its overrides beat responsive rules)
+ */
+
+/* ---------------------------------------------------------------- reset */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ----------------------------------------------------------- derived */
+
+/* Derived from the base tokens so themes do not have to restate them.
+ * If color-mix() is unavailable in a target environment, define
+ * --comparison-fill and --track-fill explicitly in the theme instead.
+ *
+ * Declared on [data-theme] as well as :root so they re-derive at every theme
+ * boundary. Defined on :root alone they would resolve once, against the root
+ * theme, and a nested [data-theme="…"] section would keep the root's greys
+ * while everything around them changed — a subtle wrong that only shows up
+ * when two themes appear on one page. */
+:root,
+[data-theme] {
+  --comparison-fill: color-mix(in srgb, var(--muted) 16%, transparent);
+  --track-fill: color-mix(in srgb, var(--muted) 10%, transparent);
+}
+
+/* --- token aliases for embedded renderers ---------------------------
+ *
+ * Third-party renderers set their own theme variables on the element they
+ * emit. beautiful-mermaid, for example, writes --accent, --muted, and
+ * --surface onto its <svg> — names this system already uses.
+ *
+ * Emitting `--accent: var(--accent)` on that <svg> would be a self-reference,
+ * which CSS treats as invalid at computed-value time, so the diagram would
+ * lose its colors. Routing through these aliases breaks the cycle: the
+ * renderer writes `--accent: var(--dds-accent)`, and --dds-accent resolves
+ * here, on :root, where there is no collision.
+ *
+ * Add an alias whenever a renderer's namespace overlaps a token name.
+ *
+ * On [data-theme] too, for the same reason as the derived tokens above: a
+ * prerendered diagram inside a scoped theme must resolve against that theme. */
+:root,
+[data-theme] {
+  --dds-paper: var(--paper);
+  --dds-surface: var(--surface);
+  --dds-surface-muted: var(--surface-muted);
+  --dds-ink: var(--ink);
+  --dds-muted: var(--muted);
+  --dds-soft: var(--soft);
+  --dds-rule: var(--rule);
+  --dds-rule-strong: var(--rule-strong);
+  --dds-accent: var(--accent);
+  --dds-accent-tint: var(--accent-tint);
+}
+
+/* ------------------------------------------------------- typography */
+
+h1, h2, h3,
+.metric-value,
+.focal-value {
+  font-family: var(--display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+h1 { font-size: 2rem; margin: 0 0 0.5rem; }
+h2 { font-size: 1.375rem; margin: 2.5rem 0 0.75rem; }
+h3 { font-size: 1.0625rem; margin: 1.75rem 0 0.5rem; }
+
+p { margin: 0 0 1rem; max-width: 68ch; }
+
+/* Mono is for technical metadata only: dates, versions, identifiers, source
+ * names, compact labels. Body copy in mono is harder to read, not more
+ * credible. */
+.meta,
+.eyebrow,
+time,
+code,
+.identifier,
+.version {
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.01em;
+}
+
+.eyebrow {
+  color: var(--soft);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.subtle { color: var(--muted); }
+
+/* ---------------------------------------------------------- surfaces */
+
+/* Hierarchy comes from borders and spacing, not shadows. */
+.card,
+.table-wrap,
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.375rem;
+}
+
+.chart-frame {
+  background: var(--surface-muted);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+}
+
+.tag {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--rule);
+  padding: 0.125rem 0.4375rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+hr,
+.rule {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 2rem 0;
+}
+
+/* ------------------------------------------------------------ accent */
+
+/* One accent per visual region. Repeating it across every heading and card
+ * destroys the hierarchy it exists to create. */
+.focal-value,
+.focal-label {
+  color: var(--accent);
+}
+
+.accent-surface {
+  background: var(--accent-tint);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+}
+
+.accent-solid {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* ------------------------------------------------------------ status */
+
+/* Color alone never carries meaning — every status element also needs a
+ * written label, so it survives grayscale and color-blind reading. */
+.status-positive { color: var(--positive); }
+.status-warning  { color: var(--warning); }
+.status-critical { color: var(--critical); }
+
+/* ------------------------------------------------------- methodology */
+
+.methodology {
+  background: var(--method-bg);
+  color: var(--method-ink);
+  border-radius: var(--radius-md);
+  padding: 1.5rem 1.625rem;
+}
+
+.methodology h2,
+.methodology h3 { color: var(--method-ink); }
+.methodology .subtle,
+.methodology p { color: var(--method-muted); }
+
+/* ------------------------------------------------------------ tables */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 1px solid var(--rule-strong);
+  padding: 0.5rem 0.625rem;
+}
+
+td {
+  border-bottom: 1px solid var(--rule);
+  padding: 0.5rem 0.625rem;
+}
+
+/* Numbers align right and use tabular figures so columns scan vertically. */
+.num,
+td.num,
+th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+tbody tr:nth-child(even) { background: var(--surface-muted); }
+
+/* On small screens, let wide tables scroll rather than crushing columns.
+ * core/print.css unsets this — a scroll container clips in print. */
+.table-scroll,
+.diagram-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* -------------------------------------------------------------- SVG */
+
+/* Charts and diagrams style through these classes rather than through
+ * presentation attributes, so one stylesheet retheme reaches every figure. */
+.bar-focal      { fill: var(--accent-tint); stroke: var(--accent); }
+.bar-comparison { fill: var(--comparison-fill); stroke: var(--muted); }
+.track          { fill: var(--track-fill); }
+.axis-line      { stroke: var(--rule-strong); }
+.grid-line      { stroke: var(--rule); }
+.chart-label    { fill: var(--muted); font-family: var(--sans); font-size: 12px; }
+.chart-value    { fill: var(--ink); font-family: var(--sans); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+svg { max-width: 100%; height: auto; }
+
+/* --------------------------------------------------------- utilities */
+
+.print-only { display: none; }
+
+a { color: inherit; text-underline-offset: 2px; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.shell { max-width: 1080px; margin: 0 auto; padding: 40px 32px 64px; }
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.fig {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 20px;
+}
+.fig h3 { margin: 0 0 2px; font-size: 0.9375rem; }
+.fig .kind { font-family: var(--mono); font-size: 0.6875rem; color: var(--soft);
+             letter-spacing: 0.06em; text-transform: uppercase; }
+.fig .frame { background: var(--surface-muted); border: 1px solid var(--rule);
+              border-radius: var(--radius-md); padding: 12px; margin-top: 12px; }
+.fig figcaption { font-family: var(--mono); font-size: 0.6875rem;
+                  color: var(--soft); margin-top: 8px; }
+
+@media (max-width: 640px) {
+  .shell { padding: 24px 16px 48px; }
+  .gallery { grid-template-columns: 1fr; }
+}
+
+/* ---- inlined from core/print.css ---- */
+/* print.css — print and PDF as a distinct output mode.
+ *
+ * Load this LAST. Print rendering can match a narrow-viewport media query, so
+ * without explicit overrides a desktop grid collapses to one column in the PDF.
+ * Placing this after the responsive rules is what prevents that.
+ *
+ * Browser-added headers and footers (URL, date, page number) are controlled by
+ * the print dialog, not by CSS. When a clean PDF matters, tell the user to
+ * disable them. Do not claim CSS suppresses them.
+ */
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 14mm 14mm 16mm;
+  }
+
+  /* --- theme normalization ------------------------------------------
+   * Print normalizes to white paper while keeping theme identity through
+   * ink, rules, and the accent. Dark methodology panels invert so they do
+   * not consume ink or reproduce badly in grayscale. */
+  :root,
+  [data-theme] {
+    --paper: #ffffff;
+    --surface: #ffffff;
+    --surface-muted: #f3f3f3;
+    --method-bg: #ffffff;
+    --method-ink: var(--ink);
+    --method-muted: var(--muted);
+  }
+
+  .methodology {
+    border: 1px solid var(--rule-strong);
+  }
+
+  html {
+    font-size: 10pt;
+    background: #fff;
+  }
+
+  body {
+    min-height: auto;
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* --- layout -------------------------------------------------------- */
+
+  .report-shell,
+  main {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .screen-only,
+  nav,
+  button,
+  [role="navigation"] {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  /* --- fragmentation --------------------------------------------------
+   * Protect small self-contained things. Let big things flow. Setting
+   * break-inside: avoid on every section produces half-empty pages when a
+   * section is taller than one page. */
+
+  h1, h2, h3 {
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+
+  p, li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  .metric-card,
+  .chart,
+  figure,
+  blockquote,
+  .callout,
+  .methodology {
+    break-inside: avoid-page;
+    page-break-inside: avoid;
+  }
+
+  section {
+    break-before: auto;
+  }
+
+  .page-break-before {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    break-after: page;
+    page-break-after: always;
+  }
+
+  /* --- tables ---------------------------------------------------------
+   * Long tables span pages with repeating headers. Never break-inside:
+   * avoid a whole table — it overflows or leaves large gaps. */
+
+  table {
+    width: 100%;
+    min-width: 0;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+  }
+
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
+
+  tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  th, td {
+    padding: 2.2mm 1.6mm;
+  }
+
+  /* --- overflow containers --------------------------------------------
+   * Changing overflow alone does not stop an oversized child clipping. The
+   * min-width reset is the part that actually matters. */
+
+  .table-scroll,
+  .diagram-scroll {
+    overflow: visible;
+  }
+
+  .table-scroll table,
+  .diagram-scroll svg {
+    min-width: 0 !important;
+  }
+
+  svg,
+  img,
+  canvas {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* --- compound components --------------------------------------------
+   * Generic structural rules above can strip padding from compound-class
+   * elements such as <section class="section methodology">. Restore it with
+   * a more specific selector, then check all four insets in the PDF. */
+
+  section.methodology {
+    padding: 18px 20px;
+  }
+
+  /* --- links -----------------------------------------------------------
+   * Append URLs only where the destination matters on paper. Never for
+   * fragment-only or javascript: links. */
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  a.external[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-family: ui-monospace, monospace;
+    font-size: 0.82em;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* US Letter alternative — swap the @page block above when the target
+ * organization requires it:
+ *
+ *   @page { size: Letter portrait; margin: 0.55in 0.55in 0.65in; }
+ *
+ * Do not switch the whole document to landscape because one table is wide.
+ * Simplify the printed columns first, or build a separate landscape appendix.
+ */
+</style>
+</head>
+
+<body>
+<div class="shell">
+  <p class="eyebrow">document-design-system</p>
+  <h1>Figure gallery</h1>
+  <p class="subtle">Every figure below consumes the same tokens as the page. Change <code>data-theme</code> on the root element and all of them follow.</p>
+
+  <div class="gallery">
+
+    <figure class="fig">
+      <span class="kind">Diagram · hand-authored SVG</span>
+      <h3>Architecture</h3>
+      <div class="frame"><svg role="img" aria-labelledby="arch-title arch-desc" viewBox="0 0 720 340" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+  <title id="arch-title">Ingestion architecture</title>
+  <desc id="arch-desc">Producers enter through a gateway inside the trust boundary, buffer in a queue, and are consumed into the warehouse. The queue is the only component without a failover, and it carries the whole ingestion path.</desc>
+
+  <defs>
+    <marker id="arch-arrow" viewBox="0 0 8 8" refX="7" refY="4"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arch-arrow-focal" viewBox="0 0 8 8" refX="7" refY="4"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+    </marker>
+  </defs>
+
+  <!-- boundaries -->
+  <g>
+    <rect x="128" y="56" width="404" height="152" rx="6"
+          fill="none" stroke="var(--rule-strong)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="140" y="76" font-family="var(--sans)" font-size="11" fill="var(--soft)"
+          letter-spacing="0.06em">TRUST BOUNDARY</text>
+  </g>
+
+  <!-- edges (drawn before nodes so line ends sit behind the boxes) -->
+  <path d="M104 132 H 152" fill="none" stroke="var(--muted)" stroke-width="1"
+        marker-end="url(#arch-arrow)"/>
+  <path d="M312 132 H 360" fill="none" stroke="var(--accent)" stroke-width="1.5"
+        marker-end="url(#arch-arrow-focal)"/>
+  <path d="M520 132 H 568" fill="none" stroke="var(--muted)" stroke-width="1"
+        marker-end="url(#arch-arrow)"/>
+
+  <!-- edge labels on a paper-colored backing so the line does not strike through -->
+  <rect x="316" y="116" width="40" height="16" fill="var(--paper)"/>
+  <text x="336" y="128" text-anchor="middle" font-family="var(--sans)"
+        font-size="11" fill="var(--muted)">async</text>
+
+  <!-- nodes -->
+  <g>
+    <rect x="24" y="100" width="80" height="64" rx="6"
+          fill="var(--surface)" stroke="var(--rule)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="64" y="136" text-anchor="middle" font-family="var(--sans)"
+          font-size="13" fill="var(--soft)">Producers</text>
+  </g>
+
+  <g>
+    <rect x="152" y="100" width="160" height="64" rx="6"
+          fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="232" y="130" text-anchor="middle" font-family="var(--sans)"
+          font-size="13" fill="var(--ink)">Gateway</text>
+    <text x="232" y="146" text-anchor="middle" font-family="var(--mono)"
+          font-size="11" fill="var(--muted)">:8443</text>
+  </g>
+
+  <!-- focal node: the one thing the diagram is about -->
+  <g>
+    <rect x="360" y="100" width="160" height="64" rx="6"
+          fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="440" y="130" text-anchor="middle" font-family="var(--sans)"
+          font-size="13" fill="var(--ink)">Queue</text>
+    <text x="440" y="146" text-anchor="middle" font-family="var(--mono)"
+          font-size="11" fill="var(--muted)">single instance</text>
+  </g>
+
+  <g>
+    <rect x="568" y="100" width="128" height="64" rx="6"
+          fill="var(--surface)" stroke="var(--rule)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="632" y="136" text-anchor="middle" font-family="var(--sans)"
+          font-size="13" fill="var(--soft)">Warehouse</text>
+  </g>
+
+  <!-- callout: dashed Bezier leader, no arrowhead. At most two per diagram. -->
+  <g>
+    <path d="M440 100 C 440 72, 456 48, 492 48"
+          fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="500" y="52" font-family="var(--sans)" font-size="12"
+          font-style="italic" fill="var(--ink)">no failover</text>
+  </g>
+
+  <!-- legend: inside the viewBox, or it is lost on export and in print -->
+  <g>
+    <path d="M24 268 H 700" stroke="var(--rule)" stroke-width="1"/>
+    <text x="24" y="292" font-family="var(--mono)" font-size="10"
+          fill="var(--soft)" letter-spacing="0.14em">LEGEND</text>
+    <rect x="104" y="282" width="20" height="12" rx="2" fill="var(--surface)"
+          stroke="var(--rule)" stroke-dasharray="4 3"/>
+    <text x="132" y="292" font-family="var(--sans)" font-size="11" fill="var(--muted)">external</text>
+    <rect x="212" y="282" width="20" height="12" rx="2" fill="var(--accent-tint)" stroke="var(--accent)"/>
+    <text x="240" y="292" font-family="var(--sans)" font-size="11" fill="var(--muted)">focal</text>
+  </g>
+</svg></div>
+      <figcaption>Position carries coupling, so this one is drawn, not laid out.</figcaption>
+    </figure>
+
+    <figure class="fig">
+      <span class="kind">Diagram · Mermaid prerendered</span>
+      <h3>Sequence</h3>
+      <div class="frame"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 240" style="--bg:var(--dds-surface);--fg:var(--dds-ink);--line:var(--dds-rule-strong);--accent:var(--dds-accent);--muted:var(--dds-muted);--surface:var(--dds-surface-muted);--border:var(--dds-rule);max-width:720px" width="100%" role="img" aria-labelledby="ingestion-title ingestion-desc">
+  <title id="ingestion-title">Ingestion path</title>
+  <desc id="ingestion-desc">Client posts events to the gateway, which enqueues them; the queue acknowledges.</desc>
+<style>
+  text { font-family: var(--sans); }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 85%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="ingestion-seq-arrow" markerWidth="8" markerHeight="5" refX="8" refY="2.5" orient="auto-start-reverse">
+    <polygon points="0 0, 8 2.5, 0 5" fill="var(--_arrow)" />
+  </marker>
+  <marker id="ingestion-seq-arrow-open" markerWidth="8" markerHeight="5" refX="8" refY="2.5" orient="auto-start-reverse">
+    <polyline points="0 0, 8 2.5, 0 5" fill="none" stroke="var(--_arrow)" stroke-width="1" />
+  </marker>
+</defs>
+<line class="lifeline" data-actor="Client" x1="70" y1="70" x2="70" y2="210" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line class="lifeline" data-actor="Gateway" x1="210" y1="70" x2="210" y2="210" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line class="lifeline" data-actor="Queue" x1="350" y1="70" x2="350" y2="210" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<g class="message" data-from="Client" data-to="Gateway" data-label="POST /events" data-line-style="solid" data-arrow-head="filled" data-self="false">
+  <line x1="70" y1="90" x2="210" y2="90" stroke="var(--_line)" stroke-width="1" marker-end="url(#ingestion-seq-arrow)" />
+  <text x="140" y="80" font-size="11" text-anchor="middle" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">POST /events</text>
+</g>
+<g class="message" data-from="Gateway" data-to="Queue" data-label="enqueue" data-line-style="solid" data-arrow-head="filled" data-self="false">
+  <line x1="210" y1="130" x2="350" y2="130" stroke="var(--_line)" stroke-width="1" marker-end="url(#ingestion-seq-arrow)" />
+  <text x="280" y="120" font-size="11" text-anchor="middle" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">enqueue</text>
+</g>
+<g class="message" data-from="Queue" data-to="Gateway" data-label="ack" data-line-style="dashed" data-arrow-head="filled" data-self="false">
+  <line x1="350" y1="170" x2="210" y2="170" stroke="var(--_line)" stroke-width="1" stroke-dasharray="6 4" marker-end="url(#ingestion-seq-arrow)" />
+  <text x="280" y="160" font-size="11" text-anchor="middle" font-weight="400" fill="var(--_text-muted)" dy="3.8499999999999996">ack</text>
+</g>
+<g class="actor" data-id="ingestion-Client" data-label="Client" data-type="participant">
+  <rect x="30" y="30" width="80" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="70" y="50" font-size="13" text-anchor="middle" font-weight="500" fill="var(--_text)" dy="4.55">Client</text>
+</g>
+<g class="actor" data-id="ingestion-Gateway" data-label="Gateway" data-type="participant">
+  <rect x="167.83100000000002" y="30" width="84.338" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="210" y="50" font-size="13" text-anchor="middle" font-weight="500" fill="var(--_text)" dy="4.55">Gateway</text>
+</g>
+<g class="actor" data-id="ingestion-Queue" data-label="Queue" data-type="participant">
+  <rect x="310" y="30" width="80" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="350" y="50" font-size="13" text-anchor="middle" font-weight="500" fill="var(--_text)" dy="4.55">Queue</text>
+</g>
+</svg></div>
+      <figcaption>Order is dictated by the protocol, so auto-layout is honest here.</figcaption>
+    </figure>
+
+    <figure class="fig">
+      <span class="kind">Chart · ranked bars</span>
+      <h3>Concentration</h3>
+      <div class="frame"><svg class="plot-d6a7b5" fill="currentColor" font-family="var(--sans)" font-size="10" text-anchor="middle" viewBox="0 0 720 320" style="background: transparent;max-width:720px" width="100%" role="img" aria-labelledby="fn-footprint-title fn-footprint-desc">
+  <title id="fn-footprint-title">Ingestion holds 41% of the footprint</title>
+  <desc id="fn-footprint-desc">Five functions ranked by current size. Ingestion holds 41 percent of the 1.8 million unit total, more than the next three combined.</desc><style>:where(.plot-d6a7b5) {
+  --plot-background: transparent;
+  display: block;
+  height: auto;
+  height: intrinsic;
+  max-width: 100%;
+}
+:where(.plot-d6a7b5 text),
+:where(.plot-d6a7b5 tspan) {
+  white-space: pre;
+}</style><g aria-label="y-axis tick" aria-hidden="true" fill="none" stroke="currentColor" transform="translate(0,22.5)"><path transform="translate(130,25)" d="M0,0L-6,0"></path><path transform="translate(130,75)" d="M0,0L-6,0"></path><path transform="translate(130,125)" d="M0,0L-6,0"></path><path transform="translate(130,175)" d="M0,0L-6,0"></path><path transform="translate(130,225)" d="M0,0L-6,0"></path></g><g aria-label="y-axis tick label" text-anchor="end" transform="translate(-9,22.5)"><text y="0.32em" transform="translate(130,25)">Ingestion</text><text y="0.32em" transform="translate(130,75)">Transform</text><text y="0.32em" transform="translate(130,125)">Serving</text><text y="0.32em" transform="translate(130,175)">Archive</text><text y="0.32em" transform="translate(130,225)">Other</text></g><g aria-label="x-axis tick" aria-hidden="true" fill="none" stroke="currentColor"><path transform="translate(130,276)" d="M0,0L0,6"></path><path transform="translate(199.5121951219512,276)" d="M0,0L0,6"></path><path transform="translate(269.0243902439024,276)" d="M0,0L0,6"></path><path transform="translate(338.5365853658536,276)" d="M0,0L0,6"></path><path transform="translate(408.04878048780483,276)" d="M0,0L0,6"></path><path transform="translate(477.5609756097561,276)" d="M0,0L0,6"></path><path transform="translate(547.0731707317073,276)" d="M0,0L0,6"></path><path transform="translate(616.5853658536585,276)" d="M0,0L0,6"></path><path transform="translate(686.0975609756097,276)" d="M0,0L0,6"></path></g><g aria-label="x-axis tick label" font-variant="tabular-nums" transform="translate(0,9)"><text y="0.71em" transform="translate(130,276)">0</text><text y="0.71em" transform="translate(199.5121951219512,276)">5</text><text y="0.71em" transform="translate(269.0243902439024,276)">10</text><text y="0.71em" transform="translate(338.5365853658536,276)">15</text><text y="0.71em" transform="translate(408.04878048780483,276)">20</text><text y="0.71em" transform="translate(477.5609756097561,276)">25</text><text y="0.71em" transform="translate(547.0731707317073,276)">30</text><text y="0.71em" transform="translate(616.5853658536585,276)">35</text><text y="0.71em" transform="translate(686.0975609756097,276)">40</text></g><g aria-label="x-axis label" text-anchor="end" transform="translate(17,41)"><text transform="translate(700,276)">Share of included total (%) →</text></g><g aria-label="bar"><rect x="130" width="570" y="25" height="45" fill="var(--accent-tint)" stroke="var(--accent)"></rect><rect x="130" width="305.8536585365854" y="75" height="45" fill="var(--comparison-fill)" stroke="var(--muted)"></rect><rect x="130" width="250.2439024390244" y="125" height="45" fill="var(--comparison-fill)" stroke="var(--muted)"></rect><rect x="130" width="166.8292682926829" y="175" height="45" fill="var(--comparison-fill)" stroke="var(--muted)"></rect><rect x="130" width="97.3170731707317" y="225" height="45" fill="var(--comparison-fill)" stroke="var(--muted)"></rect></g><g aria-label="rule" stroke="var(--rule-strong)"><line x1="130" x2="130" y1="20" y2="276"></line></g></svg></div>
+      <figcaption>Sorted descending, zero baseline, one focal bar.</figcaption>
+    </figure>
+
+    <figure class="fig">
+      <span class="kind">Chart · columns</span>
+      <h3>Cohorts</h3>
+      <div class="frame"><svg class="plot-d6a7b5" fill="currentColor" font-family="var(--sans)" font-size="10" text-anchor="middle" viewBox="0 0 720 320" style="background: transparent;max-width:720px" width="100%" role="img" aria-labelledby="cohorts-title cohorts-desc">
+  <title id="cohorts-title">Half the footprint was created before 2023</title>
+  <desc id="cohorts-desc">Current size of records grouped by the year they were created. The 2022 cohort is the largest at 620 thousand units. This is a snapshot by creation year, not a measure of growth.</desc><style>:where(.plot-d6a7b5) {
+  --plot-background: transparent;
+  display: block;
+  height: auto;
+  height: intrinsic;
+  max-width: 100%;
+}
+:where(.plot-d6a7b5 text),
+:where(.plot-d6a7b5 tspan) {
+  white-space: pre;
+}</style><g aria-label="y-grid" aria-hidden="true" stroke="currentColor" stroke-opacity="0.1"><line x1="56" x2="700" y1="276" y2="276"></line><line x1="56" x2="700" y1="234.70967741935485" y2="234.70967741935485"></line><line x1="56" x2="700" y1="193.4193548387097" y2="193.4193548387097"></line><line x1="56" x2="700" y1="152.1290322580645" y2="152.1290322580645"></line><line x1="56" x2="700" y1="110.83870967741936" y2="110.83870967741936"></line><line x1="56" x2="700" y1="69.5483870967742" y2="69.5483870967742"></line><line x1="56" x2="700" y1="28.258064516129025" y2="28.258064516129025"></line></g><g aria-label="y-axis tick" aria-hidden="true" fill="none" stroke="currentColor"><path transform="translate(56,276)" d="M0,0L-6,0"></path><path transform="translate(56,234.70967741935485)" d="M0,0L-6,0"></path><path transform="translate(56,193.4193548387097)" d="M0,0L-6,0"></path><path transform="translate(56,152.1290322580645)" d="M0,0L-6,0"></path><path transform="translate(56,110.83870967741936)" d="M0,0L-6,0"></path><path transform="translate(56,69.5483870967742)" d="M0,0L-6,0"></path><path transform="translate(56,28.258064516129025)" d="M0,0L-6,0"></path></g><g aria-label="y-axis tick label" text-anchor="end" font-variant="tabular-nums" transform="translate(-9,0)"><text y="0.32em" transform="translate(56,276)">0</text><text y="0.32em" transform="translate(56,234.70967741935485)">100</text><text y="0.32em" transform="translate(56,193.4193548387097)">200</text><text y="0.32em" transform="translate(56,152.1290322580645)">300</text><text y="0.32em" transform="translate(56,110.83870967741936)">400</text><text y="0.32em" transform="translate(56,69.5483870967742)">500</text><text y="0.32em" transform="translate(56,28.258064516129025)">600</text></g><g aria-label="y-axis label" text-anchor="start" transform="translate(-53,-17)"><text y="0.71em" transform="translate(56,20)">↑ Current size (thousand units)</text></g><g aria-label="x-grid" aria-hidden="true" stroke="currentColor" stroke-opacity="0.1" transform="translate(47.5,0)"><line x1="68" x2="68" y1="20" y2="276"></line><line x1="173" x2="173" y1="20" y2="276"></line><line x1="278" x2="278" y1="20" y2="276"></line><line x1="383" x2="383" y1="20" y2="276"></line><line x1="488" x2="488" y1="20" y2="276"></line><line x1="593" x2="593" y1="20" y2="276"></line></g><g aria-label="x-axis tick" aria-hidden="true" fill="none" stroke="currentColor" transform="translate(47.5,0)"><path transform="translate(68,276)" d="M0,0L0,6"></path><path transform="translate(173,276)" d="M0,0L0,6"></path><path transform="translate(278,276)" d="M0,0L0,6"></path><path transform="translate(383,276)" d="M0,0L0,6"></path><path transform="translate(488,276)" d="M0,0L0,6"></path><path transform="translate(593,276)" d="M0,0L0,6"></path></g><g aria-label="x-axis tick label" transform="translate(47.5,9)"><text y="0.71em" transform="translate(68,276)">2020</text><text y="0.71em" transform="translate(173,276)">2021</text><text y="0.71em" transform="translate(278,276)">2022</text><text y="0.71em" transform="translate(383,276)">2023</text><text y="0.71em" transform="translate(488,276)">2024</text><text y="0.71em" transform="translate(593,276)">2025</text></g><g aria-label="bar"><rect x="68" width="95" y="201.67741935483872" height="74.32258064516128" fill="var(--comparison-fill)" stroke="var(--muted)"></rect><rect x="173" width="95" y="106.70967741935485" height="169.29032258064515" fill="var(--comparison-fill)" stroke="var(--muted)"></rect><rect x="278" width="95" y="20" height="256" fill="var(--accent-tint)" stroke="var(--accent)"></rect><rect x="383" width="95" y="152.1290322580645" height="123.87096774193549" fill="var(--comparison-fill)" stroke="var(--muted)"></rect><rect x="488" width="95" y="189.29032258064518" height="86.70967741935482" fill="var(--comparison-fill)" stroke="var(--muted)"></rect><rect x="593" width="95" y="225.6258064516129" height="50.3741935483871" fill="var(--comparison-fill)" stroke="var(--muted)"></rect></g><g aria-label="rule" stroke="var(--rule-strong)"><line x1="56" x2="700" y1="276" y2="276"></line></g></svg></div>
+      <figcaption>Chronological, never sorted by value — that would destroy the axis.</figcaption>
+    </figure>
+
+    <figure class="fig">
+      <span class="kind">Chart · line</span>
+      <h3>Time series</h3>
+      <div class="frame"><svg class="plot-d6a7b5" fill="currentColor" font-family="var(--sans)" font-size="10" text-anchor="middle" viewBox="0 0 720 320" style="background: transparent;max-width:720px" width="100%" role="img" aria-labelledby="latency-title latency-desc">
+  <title id="latency-title">p99 latency tripled after the June deploy</title>
+  <desc id="latency-desc">Weekly p99 latency in milliseconds across twelve weeks. Latency holds near 140 milliseconds until week 7, then rises to 410 milliseconds and stays there.</desc><style>:where(.plot-d6a7b5) {
+  --plot-background: transparent;
+  display: block;
+  height: auto;
+  height: intrinsic;
+  max-width: 100%;
+}
+:where(.plot-d6a7b5 text),
+:where(.plot-d6a7b5 tspan) {
+  white-space: pre;
+}</style><g aria-label="y-grid" aria-hidden="true" stroke="currentColor" stroke-opacity="0.1"><line x1="56" x2="700" y1="276" y2="276"></line><line x1="56" x2="700" y1="244.93203883495147" y2="244.93203883495147"></line><line x1="56" x2="700" y1="213.8640776699029" y2="213.8640776699029"></line><line x1="56" x2="700" y1="182.79611650485435" y2="182.79611650485435"></line><line x1="56" x2="700" y1="151.72815533980582" y2="151.72815533980582"></line><line x1="56" x2="700" y1="120.6601941747573" y2="120.6601941747573"></line><line x1="56" x2="700" y1="89.59223300970874" y2="89.59223300970874"></line><line x1="56" x2="700" y1="58.524271844660205" y2="58.524271844660205"></line><line x1="56" x2="700" y1="27.456310679611647" y2="27.456310679611647"></line></g><g aria-label="y-axis tick" aria-hidden="true" fill="none" stroke="currentColor"><path transform="translate(56,276)" d="M0,0L-6,0"></path><path transform="translate(56,244.93203883495147)" d="M0,0L-6,0"></path><path transform="translate(56,213.8640776699029)" d="M0,0L-6,0"></path><path transform="translate(56,182.79611650485435)" d="M0,0L-6,0"></path><path transform="translate(56,151.72815533980582)" d="M0,0L-6,0"></path><path transform="translate(56,120.6601941747573)" d="M0,0L-6,0"></path><path transform="translate(56,89.59223300970874)" d="M0,0L-6,0"></path><path transform="translate(56,58.524271844660205)" d="M0,0L-6,0"></path><path transform="translate(56,27.456310679611647)" d="M0,0L-6,0"></path></g><g aria-label="y-axis tick label" text-anchor="end" font-variant="tabular-nums" transform="translate(-9,0)"><text y="0.32em" transform="translate(56,276)">0</text><text y="0.32em" transform="translate(56,244.93203883495147)">50</text><text y="0.32em" transform="translate(56,213.8640776699029)">100</text><text y="0.32em" transform="translate(56,182.79611650485435)">150</text><text y="0.32em" transform="translate(56,151.72815533980582)">200</text><text y="0.32em" transform="translate(56,120.6601941747573)">250</text><text y="0.32em" transform="translate(56,89.59223300970874)">300</text><text y="0.32em" transform="translate(56,58.524271844660205)">350</text><text y="0.32em" transform="translate(56,27.456310679611647)">400</text></g><g aria-label="y-axis label" text-anchor="start" transform="translate(-53,-17)"><text y="0.71em" transform="translate(56,20)">↑ p99 latency (ms)</text></g><g aria-label="x-grid" aria-hidden="true" stroke="currentColor" stroke-opacity="0.1"><line x1="56" x2="56" y1="20" y2="276"></line><line x1="114.54545454545455" x2="114.54545454545455" y1="20" y2="276"></line><line x1="173.0909090909091" x2="173.0909090909091" y1="20" y2="276"></line><line x1="231.63636363636363" x2="231.63636363636363" y1="20" y2="276"></line><line x1="290.1818181818182" x2="290.1818181818182" y1="20" y2="276"></line><line x1="348.72727272727275" x2="348.72727272727275" y1="20" y2="276"></line><line x1="407.27272727272725" x2="407.27272727272725" y1="20" y2="276"></line><line x1="465.8181818181818" x2="465.8181818181818" y1="20" y2="276"></line><line x1="524.3636363636364" x2="524.3636363636364" y1="20" y2="276"></line><line x1="582.9090909090909" x2="582.9090909090909" y1="20" y2="276"></line><line x1="641.4545454545455" x2="641.4545454545455" y1="20" y2="276"></line><line x1="700" x2="700" y1="20" y2="276"></line></g><g aria-label="x-axis tick" aria-hidden="true" fill="none" stroke="currentColor"><path transform="translate(56,276)" d="M0,0L0,6"></path><path transform="translate(114.54545454545455,276)" d="M0,0L0,6"></path><path transform="translate(173.0909090909091,276)" d="M0,0L0,6"></path><path transform="translate(231.63636363636363,276)" d="M0,0L0,6"></path><path transform="translate(290.1818181818182,276)" d="M0,0L0,6"></path><path transform="translate(348.72727272727275,276)" d="M0,0L0,6"></path><path transform="translate(407.27272727272725,276)" d="M0,0L0,6"></path><path transform="translate(465.8181818181818,276)" d="M0,0L0,6"></path><path transform="translate(524.3636363636364,276)" d="M0,0L0,6"></path><path transform="translate(582.9090909090909,276)" d="M0,0L0,6"></path><path transform="translate(641.4545454545455,276)" d="M0,0L0,6"></path><path transform="translate(700,276)" d="M0,0L0,6"></path></g><g aria-label="x-axis tick label" font-variant="tabular-nums" transform="translate(0,9)"><text y="0.71em" transform="translate(56,276)">1</text><text y="0.71em" transform="translate(114.54545454545455,276)">2</text><text y="0.71em" transform="translate(173.0909090909091,276)">3</text><text y="0.71em" transform="translate(231.63636363636363,276)">4</text><text y="0.71em" transform="translate(290.1818181818182,276)">5</text><text y="0.71em" transform="translate(348.72727272727275,276)">6</text><text y="0.71em" transform="translate(407.27272727272725,276)">7</text><text y="0.71em" transform="translate(465.8181818181818,276)">8</text><text y="0.71em" transform="translate(524.3636363636364,276)">9</text><text y="0.71em" transform="translate(582.9090909090909,276)">10</text><text y="0.71em" transform="translate(641.4545454545455,276)">11</text><text y="0.71em" transform="translate(700,276)">12</text></g><g aria-label="x-axis label" text-anchor="end" transform="translate(17,41)"><text transform="translate(700,276)">Week →</text></g><g aria-label="line" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M56,190.252L114.545,187.767L173.091,189.631L231.636,185.903L290.182,188.388L348.727,182.796L407.273,109.476L465.818,32.427L524.364,24.35L582.909,28.699L641.455,20L700,21.243"></path></g><g aria-label="rule" stroke="var(--rule-strong)"><line x1="56" x2="700" y1="276" y2="276"></line></g></svg></div>
+      <figcaption>Straight segments; a spline would invent readings between points.</figcaption>
+    </figure>
+
+    <figure class="fig">
+      <span class="kind">Ledger · hand-authored SVG</span>
+      <h3>Used against a limit</h3>
+      <div class="frame">
+        <svg role="img" aria-label="1.84 million of 2.50 million units used, 74 percent. 660 thousand units remaining."
+             viewBox="0 0 1000 48" width="100%">
+          <rect x="0" y="12" width="1000" height="24" rx="4" fill="var(--track-fill)"/>
+          <rect x="0" y="12" width="736" height="24" rx="4"
+                fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+        </svg>
+        <p class="meta">1.84M of 2.50M units (74%) · 660K remaining</p>
+      </div>
+      <figcaption>A linear track beats a gauge — same value, stated precisely.</figcaption>
+    </figure>
+
+  </div>
+</div>
+</body>
+</html>
