@@ -64,7 +64,12 @@ body { background: var(--surface-muted); }
 .slide-visual     { flex: 1; display: flex; align-items: center; justify-content: center; margin: 0; }
 .slide-visual svg { width: 100%; height: auto; }
 
-.slide-metrics { display: flex; gap: 4cqw; margin: auto 0; }
+.slide-metrics { display: flex; gap: 5cqw; margin: auto 0 0; }
+.slide-ledger { margin: 3cqw 0 auto; }
+.slide-ledger-ends {
+  display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 1.2cqw; color: var(--soft); margin-top: 0.6cqw;
+}
 .slide-metric-value { font-family: var(--display); font-size: 6cqw; line-height: 1; font-variant-numeric: tabular-nums; }
 .slide-metric-label { color: var(--muted); font-size: 1.7cqw; margin-top: 0.4em; }
 .slide-metric-denom { font-family: var(--mono); font-size: 1.3cqw; color: var(--soft); margin-top: 0.3em; }
@@ -130,7 +135,10 @@ body { background: var(--surface-muted); }
     <h2 class="slide-title">Where the footprint sits today</h2>
   </section>
 
-  <!-- metric --------------------------------------------------------- -->
+  <!-- metric ----------------------------------------------------------
+       Up to three numbers. One accent between them, or none of them is the
+       point. The ledger underneath is the same measure drawn once, so the
+       slide argues one thing rather than three. -->
   <section class="slide" aria-label="Slide 4: Three quarters of capacity is committed">
     <h2 class="slide-title">Three quarters of capacity is committed</h2>
     <div class="slide-metrics">
@@ -142,10 +150,26 @@ body { background: var(--surface-muted); }
       <div>
         <div class="slide-metric-value">660K</div>
         <div class="slide-metric-label">Units remaining</div>
-        <div class="slide-metric-denom">as of 2026-08-12</div>
+        <div class="slide-metric-denom">at current allocation</div>
+      </div>
+      <div>
+        <div class="slide-metric-value">~7mo</div>
+        <div class="slide-metric-label">Runway at trailing rate</div>
+        <div class="slide-metric-denom">94K units/month, 12-month mean</div>
       </div>
     </div>
-    <p class="slide-note">Source: normalized inventory export</p>
+    <div class="slide-ledger">
+      <svg role="img" aria-label="1.84 million of 2.50 million units consumed, 74 percent. 660 thousand units remaining."
+           viewBox="0 0 1000 28" width="100%">
+        <rect x="0" y="4" width="1000" height="20" rx="4" fill="var(--track-fill)"/>
+        <rect x="0" y="4" width="736" height="20" rx="4"
+              fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1.5"/>
+      </svg>
+      <div class="slide-ledger-ends">
+        <span>0</span><span>2.50M unit limit</span>
+      </div>
+    </div>
+    <p class="slide-note">Source: normalized inventory export · as of 2026-08-12</p>
   </section>
 
   <!-- chart: title states the finding, not the variables -------------- -->

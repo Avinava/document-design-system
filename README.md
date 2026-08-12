@@ -15,7 +15,15 @@ Or use it as a plain skills directory — copy `skills/` and `core/` into `.clau
 
 ## What it produces
 
-Every image below is a committed example in [`examples/`](examples/), rebuilt by `python scripts/build_examples.py`. Nothing is a mockup.
+Every image below is a committed example in [`examples/`](examples/), rebuilt from source by `python scripts/build_examples.py` and captured by `python scripts/shoot_examples.py`. Nothing is a mockup.
+
+### Three themes, one contract
+
+Identical markup in all three panels — only `data-theme` differs. Surfaces, ink, accent, typography, border character, and the methodology treatment all follow from the token contract.
+
+[![Theme comparison](docs/screenshots/themes.png)](examples/themes.html)
+
+<sub>`editorial-coral` · `executive-navy` · `field-notes` — plus a documented `brand-template` slot · [source](examples/themes.html)</sub>
 
 ### Analytical report — evidence-led, reconciled, printable
 
@@ -23,7 +31,11 @@ Metric semantics, named denominators, a limit ledger, and a methodology block. T
 
 [![Analytical report](docs/screenshots/analytical-report.png)](examples/inventory-report.html)
 
-<sub>`analytical-document-design` · theme `editorial-coral` · [source](examples/inventory-report.html)</sub>
+Further down the same document — cohort columns and an attribution table that flags which "owners" are actually deployment accounts:
+
+[![Analytical report detail](docs/screenshots/analytical-report-detail.png)](examples/inventory-report.html)
+
+<sub>`analytical-document-design` · theme `editorial-coral` · [source](examples/inventory-report.html) · prints to 3 A4 pages</sub>
 
 ### Long-form document — RFCs, design docs, ADRs, specs, postmortems
 
@@ -37,11 +49,18 @@ Measure held at 62–72 characters, explicit status banner, a change log for rev
 
 Type scales with the slide via container queries, so an authored slide and a projected slide agree. No JavaScript: a deck that renders blank without JS is not a deliverable.
 
-[![Deck](docs/screenshots/deck.png)](examples/capacity-deck.html)
+| | |
+|---|---|
+| [![Deck metric slide](docs/screenshots/deck-metric.png)](examples/capacity-deck.html) | [![Deck chart slide](docs/screenshots/deck-chart.png)](examples/capacity-deck.html) |
+| Up to three numbers, one accent between them, and the same measure drawn once underneath | Charts render at `full-width`, not the document size — a doc-inline chart on a slide shrinks its own labels to nothing |
 
-<sub>`presentation-design` · theme `executive-navy` · [source](examples/capacity-deck.html)</sub>
+[![Deck section divider](docs/screenshots/deck-divider.png)](examples/capacity-deck.html)
+
+<sub>`presentation-design` · theme `executive-navy` · [source](examples/capacity-deck.html) · 7 slides → 7 PDF pages</sub>
 
 ### Figures — diagrams and charts on one token set
+
+Six forms, one accent, all resolving against the document's tokens at view time.
 
 [![Figure gallery](docs/screenshots/gallery.png)](examples/gallery.html)
 
@@ -101,7 +120,7 @@ core/            the shared design system — the single source of truth
   a11y.md          SVG labelling, contrast, grayscale, focus
 skills/          the five skills, each SKILL.md + references/
 scripts/         authoring-time tooling — never shipped to readers
-templates/       document · longform · deck · gallery · hand-authored diagram
+templates/       document · longform · deck · gallery · themes · diagram
 examples/        committed outputs, doubling as CI fixtures and the shots above
 docs/screenshots/
 ```
@@ -114,6 +133,8 @@ Three neutral themes plus a documented brand slot:
 - `executive-navy` — board, finance, governance.
 - `field-notes` — research, audit, operational review.
 - `brand-template` — copy it, fill every TODO, rename. There is a pre-ship checklist at the bottom of the file.
+
+See the [theme comparison](#three-themes-one-contract) above, or open [`examples/themes.html`](examples/themes.html). Because themes select on `[data-theme]` rather than `:root`, and `core/base.css` re-derives its computed tokens at every theme boundary, a single page can carry several themes at once — that comparison is one document, not three.
 
 A theme changes the visual voice, never the information architecture. It must not change metric definitions, category order, chart scales, included records, or conclusions.
 

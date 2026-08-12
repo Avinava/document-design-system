@@ -27,6 +27,9 @@ CHARTS = {
     "footprint-by-function": "specs/footprint.json",
     "cohorts-by-year": "specs/cohorts.json",
     "latency-p99": "specs/latency.json",
+    # Full-width variant for the deck. A doc-inline chart dropped into a
+    # 1280px slide sits in the middle with its labels shrunk to nothing.
+    "footprint-by-function-wide": "specs/footprint-wide.json",
 }
 
 DIAGRAMS = {
@@ -43,6 +46,7 @@ DOCUMENTS = {
     "platform-rfc.html": ("longform.html", "field-notes"),
     "capacity-deck.html": ("deck.html", "executive-navy"),
     "gallery.html": ("gallery.html", "editorial-coral"),
+    "themes.html": ("themes.html", "editorial-coral"),
 }
 
 # Figures inlined into the analytical report, in document order.
@@ -97,7 +101,8 @@ def build_documents() -> None:
 
         # gallery.html uses named slots; the report uses positional ones.
         if out == "gallery.html":
-            for slug in list(CHARTS) + list(DIAGRAMS) + ["platform-architecture"]:
+            gallery_figs = [f for f in CHARTS if not f.endswith("-wide")]
+            for slug in gallery_figs + list(DIAGRAMS) + ["platform-architecture"]:
                 html = html.replace(f"<!-- @FIG {slug} -->", figure(slug))
         elif out == "inventory-report.html":
             for marker, slug in REPORT_SLOTS:
@@ -108,7 +113,7 @@ def build_documents() -> None:
         elif out == "capacity-deck.html":
             html = html.replace(
                 "<!-- inline the full-width SVG from scripts/render_chart.mjs here -->",
-                figure("footprint-by-function"), 1,
+                figure("footprint-by-function-wide"), 1,
             )
 
         target.write_text(html, encoding="utf-8")

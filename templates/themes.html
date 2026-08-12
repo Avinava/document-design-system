@@ -1,0 +1,176 @@
+<!doctype html>
+<!--
+  Theme comparison — the same content block under all three themes.
+
+  Assemble with:
+      python scripts/build_document.py templates/themes.html \
+             --theme editorial-coral --out themes.html
+
+  Unlike the other templates this one inlines every theme explicitly rather
+  than through ${THEME}, because the whole point is showing them side by side.
+
+  It works because the theme files select on [data-theme="…"], which matches any
+  element, not just the root — and because core/base.css re-derives its computed
+  tokens at every theme boundary. Set data-theme on a section and everything
+  inside it, including prerendered SVG figures, resolves against that theme.
+-->
+<html lang="en" data-theme="editorial-coral">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Themes</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* @@INLINE core/themes/editorial-coral.css @@ */
+/* @@INLINE core/themes/executive-navy.css @@ */
+/* @@INLINE core/themes/field-notes.css @@ */
+/* @@INLINE core/base.css @@ */
+
+.page { max-width: 1240px; margin: 0 auto; padding: 40px 32px 64px; }
+
+.themes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 28px;
+}
+
+/* Each panel paints its own --paper, so the theme boundary is visible. */
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 22px;
+  color: var(--ink);
+  font-family: var(--sans);
+}
+
+.panel .name {
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  color: var(--soft);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.panel h3 { font-family: var(--display); font-size: 1.0625rem; margin: 4px 0 14px; }
+
+.panel .big {
+  font-family: var(--display);
+  font-size: 2.25rem;
+  line-height: 1;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.panel .lbl { color: var(--muted); font-size: 0.8125rem; margin-top: 4px; }
+.panel .den { font-family: var(--mono); font-size: 0.6875rem; color: var(--soft); margin-top: 2px; }
+
+.panel .frame {
+  background: var(--surface-muted);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  margin-top: 16px;
+}
+
+.panel table { margin-top: 14px; font-size: 0.8125rem; }
+.panel th, .panel td { padding: 5px 6px; }
+
+.panel .method {
+  background: var(--method-bg);
+  color: var(--method-ink);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  margin-top: 16px;
+  font-size: 0.75rem;
+}
+.panel .method strong { color: var(--method-ink); }
+.panel .method span { color: var(--method-muted); }
+
+@media (max-width: 900px) { .themes { grid-template-columns: 1fr; } }
+
+/* @@INLINE core/print.css @@ */
+</style>
+</head>
+
+<body>
+<div class="page">
+  <p class="eyebrow">document-design-system</p>
+  <h1>One contract, three voices</h1>
+  <p class="subtle">Identical markup in all three panels. Only <code>data-theme</code> differs — surfaces, ink, accent, typography, border character, and the methodology treatment all follow from the token contract.</p>
+
+  <div class="themes">
+
+    <section class="panel" data-theme="editorial-coral">
+      <p class="name">editorial-coral</p>
+      <h3>Analytical reports</h3>
+      <div class="big">41%</div>
+      <div class="lbl">Held by the largest function</div>
+      <div class="den">of 1,842,110 included units</div>
+      <div class="frame">
+        <svg role="img" aria-label="74 percent of the limit consumed." viewBox="0 0 300 20" width="100%">
+          <rect x="0" y="4" width="300" height="12" rx="3" fill="var(--track-fill)"/>
+          <rect x="0" y="4" width="222" height="12" rx="3" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+        </svg>
+      </div>
+      <table>
+        <thead><tr><th scope="col">Function</th><th scope="col" class="num">Units</th></tr></thead>
+        <tbody>
+          <tr><td>Ingestion</td><td class="num">612,400</td></tr>
+          <tr><td>Transform</td><td class="num">388,910</td></tr>
+        </tbody>
+      </table>
+      <div class="method"><strong>Methodology</strong><br><span>Current snapshot, as of 2026-08-12.</span></div>
+    </section>
+
+    <section class="panel" data-theme="executive-navy">
+      <p class="name">executive-navy</p>
+      <h3>Board and governance</h3>
+      <div class="big">41%</div>
+      <div class="lbl">Held by the largest function</div>
+      <div class="den">of 1,842,110 included units</div>
+      <div class="frame">
+        <svg role="img" aria-label="74 percent of the limit consumed." viewBox="0 0 300 20" width="100%">
+          <rect x="0" y="4" width="300" height="12" rx="3" fill="var(--track-fill)"/>
+          <rect x="0" y="4" width="222" height="12" rx="3" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+        </svg>
+      </div>
+      <table>
+        <thead><tr><th scope="col">Function</th><th scope="col" class="num">Units</th></tr></thead>
+        <tbody>
+          <tr><td>Ingestion</td><td class="num">612,400</td></tr>
+          <tr><td>Transform</td><td class="num">388,910</td></tr>
+        </tbody>
+      </table>
+      <div class="method"><strong>Methodology</strong><br><span>Current snapshot, as of 2026-08-12.</span></div>
+    </section>
+
+    <section class="panel" data-theme="field-notes">
+      <p class="name">field-notes</p>
+      <h3>Research and audit</h3>
+      <div class="big">41%</div>
+      <div class="lbl">Held by the largest function</div>
+      <div class="den">of 1,842,110 included units</div>
+      <div class="frame">
+        <svg role="img" aria-label="74 percent of the limit consumed." viewBox="0 0 300 20" width="100%">
+          <rect x="0" y="4" width="300" height="12" rx="3" fill="var(--track-fill)"/>
+          <rect x="0" y="4" width="222" height="12" rx="3" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+        </svg>
+      </div>
+      <table>
+        <thead><tr><th scope="col">Function</th><th scope="col" class="num">Units</th></tr></thead>
+        <tbody>
+          <tr><td>Ingestion</td><td class="num">612,400</td></tr>
+          <tr><td>Transform</td><td class="num">388,910</td></tr>
+        </tbody>
+      </table>
+      <div class="method"><strong>Methodology</strong><br><span>Current snapshot, as of 2026-08-12.</span></div>
+    </section>
+
+  </div>
+</div>
+</body>
+</html>

@@ -97,8 +97,15 @@ body {
 
 /* Derived from the base tokens so themes do not have to restate them.
  * If color-mix() is unavailable in a target environment, define
- * --comparison-fill and --track-fill explicitly in the theme instead. */
-:root {
+ * --comparison-fill and --track-fill explicitly in the theme instead.
+ *
+ * Declared on [data-theme] as well as :root so they re-derive at every theme
+ * boundary. Defined on :root alone they would resolve once, against the root
+ * theme, and a nested [data-theme="…"] section would keep the root's greys
+ * while everything around them changed — a subtle wrong that only shows up
+ * when two themes appear on one page. */
+:root,
+[data-theme] {
   --comparison-fill: color-mix(in srgb, var(--muted) 16%, transparent);
   --track-fill: color-mix(in srgb, var(--muted) 10%, transparent);
 }
@@ -115,8 +122,12 @@ body {
  * renderer writes `--accent: var(--dds-accent)`, and --dds-accent resolves
  * here, on :root, where there is no collision.
  *
- * Add an alias whenever a renderer's namespace overlaps a token name. */
-:root {
+ * Add an alias whenever a renderer's namespace overlaps a token name.
+ *
+ * On [data-theme] too, for the same reason as the derived tokens above: a
+ * prerendered diagram inside a scoped theme must resolve against that theme. */
+:root,
+[data-theme] {
   --dds-paper: var(--paper);
   --dds-surface: var(--surface);
   --dds-surface-muted: var(--surface-muted);

@@ -100,8 +100,15 @@ body {
 
 /* Derived from the base tokens so themes do not have to restate them.
  * If color-mix() is unavailable in a target environment, define
- * --comparison-fill and --track-fill explicitly in the theme instead. */
-:root {
+ * --comparison-fill and --track-fill explicitly in the theme instead.
+ *
+ * Declared on [data-theme] as well as :root so they re-derive at every theme
+ * boundary. Defined on :root alone they would resolve once, against the root
+ * theme, and a nested [data-theme="…"] section would keep the root's greys
+ * while everything around them changed — a subtle wrong that only shows up
+ * when two themes appear on one page. */
+:root,
+[data-theme] {
   --comparison-fill: color-mix(in srgb, var(--muted) 16%, transparent);
   --track-fill: color-mix(in srgb, var(--muted) 10%, transparent);
 }
@@ -118,8 +125,12 @@ body {
  * renderer writes `--accent: var(--dds-accent)`, and --dds-accent resolves
  * here, on :root, where there is no collision.
  *
- * Add an alias whenever a renderer's namespace overlaps a token name. */
-:root {
+ * Add an alias whenever a renderer's namespace overlaps a token name.
+ *
+ * On [data-theme] too, for the same reason as the derived tokens above: a
+ * prerendered diagram inside a scoped theme must resolve against that theme. */
+:root,
+[data-theme] {
   --dds-paper: var(--paper);
   --dds-surface: var(--surface);
   --dds-surface-muted: var(--surface-muted);
@@ -350,7 +361,12 @@ body { background: var(--surface-muted); }
 .slide-visual     { flex: 1; display: flex; align-items: center; justify-content: center; margin: 0; }
 .slide-visual svg { width: 100%; height: auto; }
 
-.slide-metrics { display: flex; gap: 4cqw; margin: auto 0; }
+.slide-metrics { display: flex; gap: 5cqw; margin: auto 0 0; }
+.slide-ledger { margin: 3cqw 0 auto; }
+.slide-ledger-ends {
+  display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 1.2cqw; color: var(--soft); margin-top: 0.6cqw;
+}
 .slide-metric-value { font-family: var(--display); font-size: 6cqw; line-height: 1; font-variant-numeric: tabular-nums; }
 .slide-metric-label { color: var(--muted); font-size: 1.7cqw; margin-top: 0.4em; }
 .slide-metric-denom { font-family: var(--mono); font-size: 1.3cqw; color: var(--soft); margin-top: 0.3em; }
@@ -416,7 +432,10 @@ body { background: var(--surface-muted); }
     <h2 class="slide-title">Where the footprint sits today</h2>
   </section>
 
-  <!-- metric --------------------------------------------------------- -->
+  <!-- metric ----------------------------------------------------------
+       Up to three numbers. One accent between them, or none of them is the
+       point. The ledger underneath is the same measure drawn once, so the
+       slide argues one thing rather than three. -->
   <section class="slide" aria-label="Slide 4: Three quarters of capacity is committed">
     <h2 class="slide-title">Three quarters of capacity is committed</h2>
     <div class="slide-metrics">
@@ -428,19 +447,35 @@ body { background: var(--surface-muted); }
       <div>
         <div class="slide-metric-value">660K</div>
         <div class="slide-metric-label">Units remaining</div>
-        <div class="slide-metric-denom">as of 2026-08-12</div>
+        <div class="slide-metric-denom">at current allocation</div>
+      </div>
+      <div>
+        <div class="slide-metric-value">~7mo</div>
+        <div class="slide-metric-label">Runway at trailing rate</div>
+        <div class="slide-metric-denom">94K units/month, 12-month mean</div>
       </div>
     </div>
-    <p class="slide-note">Source: normalized inventory export</p>
+    <div class="slide-ledger">
+      <svg role="img" aria-label="1.84 million of 2.50 million units consumed, 74 percent. 660 thousand units remaining."
+           viewBox="0 0 1000 28" width="100%">
+        <rect x="0" y="4" width="1000" height="20" rx="4" fill="var(--track-fill)"/>
+        <rect x="0" y="4" width="736" height="20" rx="4"
+              fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1.5"/>
+      </svg>
+      <div class="slide-ledger-ends">
+        <span>0</span><span>2.50M unit limit</span>
+      </div>
+    </div>
+    <p class="slide-note">Source: normalized inventory export · as of 2026-08-12</p>
   </section>
 
   <!-- chart: title states the finding, not the variables -------------- -->
   <section class="slide" aria-label="Slide 5: Ingestion holds 41% of the footprint">
     <h2 class="slide-title">Ingestion holds 41% of the footprint</h2>
     <figure class="slide-visual">
-      <svg class="plot-d6a7b5" fill="currentColor" font-family="var(--sans)" font-size="10" text-anchor="middle" viewBox="0 0 720 320" style="background: transparent;max-width:720px" width="100%" role="img" aria-labelledby="fn-footprint-title fn-footprint-desc">
-  <title id="fn-footprint-title">Ingestion holds 41% of the footprint</title>
-  <desc id="fn-footprint-desc">Five functions ranked by current size. Ingestion holds 41 percent of the 1.8 million unit total, more than the next three combined.</desc><style>:where(.plot-d6a7b5) {
+      <svg class="plot-d6a7b5" fill="currentColor" font-family="var(--sans)" font-size="10" text-anchor="middle" viewBox="0 0 1100 420" style="background: transparent;max-width:1100px" width="100%" role="img" aria-labelledby="fn-footprint-wide-title fn-footprint-wide-desc">
+  <title id="fn-footprint-wide-title">Ingestion holds 41% of the footprint</title>
+  <desc id="fn-footprint-wide-desc">Five functions ranked by current size. Ingestion holds 41 percent of the 1.8 million unit total, more than the next three combined.</desc><style>:where(.plot-d6a7b5) {
   --plot-background: transparent;
   display: block;
   height: auto;
@@ -450,7 +485,7 @@ body { background: var(--surface-muted); }
 :where(.plot-d6a7b5 text),
 :where(.plot-d6a7b5 tspan) {
   white-space: pre;
-}</style><g aria-label="y-axis tick" aria-hidden="true" fill="none" stroke="currentColor" transform="translate(0,22.5)"><path transform="translate(130,25)" d="M0,0L-6,0"></path><path transform="translate(130,75)" d="M0,0L-6,0"></path><path transform="translate(130,125)" d="M0,0L-6,0"></path><path transform="translate(130,175)" d="M0,0L-6,0"></path><path transform="translate(130,225)" d="M0,0L-6,0"></path></g><g aria-label="y-axis tick label" text-anchor="end" transform="translate(-9,22.5)"><text y="0.32em" transform="translate(130,25)">Ingestion</text><text y="0.32em" transform="translate(130,75)">Transform</text><text y="0.32em" transform="translate(130,125)">Serving</text><text y="0.32em" transform="translate(130,175)">Archive</text><text y="0.32em" transform="translate(130,225)">Other</text></g><g aria-label="x-axis tick" aria-hidden="true" fill="none" stroke="currentColor"><path transform="translate(130,276)" d="M0,0L0,6"></path><path transform="translate(199.5121951219512,276)" d="M0,0L0,6"></path><path transform="translate(269.0243902439024,276)" d="M0,0L0,6"></path><path transform="translate(338.5365853658536,276)" d="M0,0L0,6"></path><path transform="translate(408.04878048780483,276)" d="M0,0L0,6"></path><path transform="translate(477.5609756097561,276)" d="M0,0L0,6"></path><path transform="translate(547.0731707317073,276)" d="M0,0L0,6"></path><path transform="translate(616.5853658536585,276)" d="M0,0L0,6"></path><path transform="translate(686.0975609756097,276)" d="M0,0L0,6"></path></g><g aria-label="x-axis tick label" font-variant="tabular-nums" transform="translate(0,9)"><text y="0.71em" transform="translate(130,276)">0</text><text y="0.71em" transform="translate(199.5121951219512,276)">5</text><text y="0.71em" transform="translate(269.0243902439024,276)">10</text><text y="0.71em" transform="translate(338.5365853658536,276)">15</text><text y="0.71em" transform="translate(408.04878048780483,276)">20</text><text y="0.71em" transform="translate(477.5609756097561,276)">25</text><text y="0.71em" transform="translate(547.0731707317073,276)">30</text><text y="0.71em" transform="translate(616.5853658536585,276)">35</text><text y="0.71em" transform="translate(686.0975609756097,276)">40</text></g><g aria-label="x-axis label" text-anchor="end" transform="translate(17,41)"><text transform="translate(700,276)">Share of included total (%) →</text></g><g aria-label="bar"><rect x="130" width="570" y="25" height="45" fill="var(--accent-tint)" stroke="var(--accent)"></rect><rect x="130" width="305.8536585365854" y="75" height="45" fill="var(--comparison-fill)" stroke="var(--muted)"></rect><rect x="130" width="250.2439024390244" y="125" height="45" fill="var(--comparison-fill)" stroke="var(--muted)"></rect><rect x="130" width="166.8292682926829" y="175" height="45" fill="var(--comparison-fill)" stroke="var(--muted)"></rect><rect x="130" width="97.3170731707317" y="225" height="45" fill="var(--comparison-fill)" stroke="var(--muted)"></rect></g><g aria-label="rule" stroke="var(--rule-strong)"><line x1="130" x2="130" y1="20" y2="276"></line></g></svg>
+}</style><g aria-label="y-axis tick" aria-hidden="true" fill="none" stroke="currentColor" transform="translate(0,31)"><path transform="translate(130,29)" d="M0,0L-6,0"></path><path transform="translate(130,98)" d="M0,0L-6,0"></path><path transform="translate(130,167)" d="M0,0L-6,0"></path><path transform="translate(130,236)" d="M0,0L-6,0"></path><path transform="translate(130,305)" d="M0,0L-6,0"></path></g><g aria-label="y-axis tick label" text-anchor="end" transform="translate(-9,31)"><text y="0.32em" transform="translate(130,29)">Ingestion</text><text y="0.32em" transform="translate(130,98)">Transform</text><text y="0.32em" transform="translate(130,167)">Serving</text><text y="0.32em" transform="translate(130,236)">Archive</text><text y="0.32em" transform="translate(130,305)">Other</text></g><g aria-label="x-axis tick" aria-hidden="true" fill="none" stroke="currentColor"><path transform="translate(130,376)" d="M0,0L0,6"></path><path transform="translate(245.85365853658539,376)" d="M0,0L0,6"></path><path transform="translate(361.70731707317077,376)" d="M0,0L0,6"></path><path transform="translate(477.5609756097561,376)" d="M0,0L0,6"></path><path transform="translate(593.4146341463415,376)" d="M0,0L0,6"></path><path transform="translate(709.2682926829268,376)" d="M0,0L0,6"></path><path transform="translate(825.1219512195122,376)" d="M0,0L0,6"></path><path transform="translate(940.9756097560975,376)" d="M0,0L0,6"></path><path transform="translate(1056.829268292683,376)" d="M0,0L0,6"></path></g><g aria-label="x-axis tick label" font-variant="tabular-nums" transform="translate(0,9)"><text y="0.71em" transform="translate(130,376)">0</text><text y="0.71em" transform="translate(245.85365853658539,376)">5</text><text y="0.71em" transform="translate(361.70731707317077,376)">10</text><text y="0.71em" transform="translate(477.5609756097561,376)">15</text><text y="0.71em" transform="translate(593.4146341463415,376)">20</text><text y="0.71em" transform="translate(709.2682926829268,376)">25</text><text y="0.71em" transform="translate(825.1219512195122,376)">30</text><text y="0.71em" transform="translate(940.9756097560975,376)">35</text><text y="0.71em" transform="translate(1056.829268292683,376)">40</text></g><g aria-label="x-axis label" text-anchor="end" transform="translate(17,41)"><text transform="translate(1080,376)">Share of included total (%) →</text></g><g aria-label="bar"><rect x="130" width="950" y="29" height="62" fill="var(--accent-tint)" stroke="var(--accent)"></rect><rect x="130" width="509.7560975609756" y="98" height="62" fill="var(--comparison-fill)" stroke="var(--muted)"></rect><rect x="130" width="417.07317073170725" y="167" height="62" fill="var(--comparison-fill)" stroke="var(--muted)"></rect><rect x="130" width="278.04878048780483" y="236" height="62" fill="var(--comparison-fill)" stroke="var(--muted)"></rect><rect x="130" width="162.1951219512195" y="305" height="62" fill="var(--comparison-fill)" stroke="var(--muted)"></rect></g><g aria-label="rule" stroke="var(--rule-strong)"><line x1="130" x2="130" y1="20" y2="376"></line></g></svg>
     </figure>
     <p class="slide-note">Denominator: 1,842,110 included units · as of 2026-08-12</p>
   </section>

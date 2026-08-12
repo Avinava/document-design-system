@@ -105,8 +105,15 @@ body {
 
 /* Derived from the base tokens so themes do not have to restate them.
  * If color-mix() is unavailable in a target environment, define
- * --comparison-fill and --track-fill explicitly in the theme instead. */
-:root {
+ * --comparison-fill and --track-fill explicitly in the theme instead.
+ *
+ * Declared on [data-theme] as well as :root so they re-derive at every theme
+ * boundary. Defined on :root alone they would resolve once, against the root
+ * theme, and a nested [data-theme="…"] section would keep the root's greys
+ * while everything around them changed — a subtle wrong that only shows up
+ * when two themes appear on one page. */
+:root,
+[data-theme] {
   --comparison-fill: color-mix(in srgb, var(--muted) 16%, transparent);
   --track-fill: color-mix(in srgb, var(--muted) 10%, transparent);
 }
@@ -123,8 +130,12 @@ body {
  * renderer writes `--accent: var(--dds-accent)`, and --dds-accent resolves
  * here, on :root, where there is no collision.
  *
- * Add an alias whenever a renderer's namespace overlaps a token name. */
-:root {
+ * Add an alias whenever a renderer's namespace overlaps a token name.
+ *
+ * On [data-theme] too, for the same reason as the derived tokens above: a
+ * prerendered diagram inside a scoped theme must resolve against that theme. */
+:root,
+[data-theme] {
   --dds-paper: var(--paper);
   --dds-surface: var(--surface);
   --dds-surface-muted: var(--surface-muted);
@@ -589,6 +600,7 @@ section { margin-bottom: 48px; }
     <a href="#time">Time</a>
     <a href="#ownership">Ownership</a>
     <a href="#review">Review</a>
+    <a href="#largest">Largest</a>
     <a href="#methodology">Methodology</a>
   </nav>
 
@@ -681,16 +693,27 @@ section { margin-bottom: 48px; }
     <div class="table-wrap">
       <div class="table-scroll">
         <table>
-          <caption class="meta">Included records by last modifier</caption>
+          <caption class="meta">Included records by last modifier · denominator 1,842,110 units</caption>
           <thead>
-            <tr><th scope="col">Modifier</th><th scope="col" class="num">Records</th><th scope="col" class="num">Units</th><th scope="col" class="num">Share</th></tr>
+            <tr>
+              <th scope="col">Modifier</th>
+              <th scope="col" class="num">Records</th>
+              <th scope="col" class="num">Units</th>
+              <th scope="col" class="num">Share</th>
+            </tr>
           </thead>
           <tbody>
-            <tr><td>—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+            <tr><td>svc-deploy <span class="tag">automation</span></td><td class="num">1,204</td><td class="num">612,400</td><td class="num">33.2%</td></tr>
+            <tr><td>a.okafor</td><td class="num">742</td><td class="num">388,910</td><td class="num">21.1%</td></tr>
+            <tr><td>m.lindqvist</td><td class="num">515</td><td class="num">274,300</td><td class="num">14.9%</td></tr>
+            <tr><td>r.iyer</td><td class="num">398</td><td class="num">201,650</td><td class="num">10.9%</td></tr>
+            <tr><td>ci-runner <span class="tag">automation</span></td><td class="num">287</td><td class="num">168,220</td><td class="num">9.1%</td></tr>
+            <tr><td>12 others</td><td class="num">1,034</td><td class="num">196,630</td><td class="num">10.7%</td></tr>
           </tbody>
         </table>
       </div>
     </div>
+    <p class="meta">Two of the top five are deployment accounts, not people.</p>
   </section>
 
   <!-- 9. priority review ------------------------------------------------ -->
@@ -698,15 +721,48 @@ section { margin-bottom: 48px; }
     <h2>Review candidates</h2>
     <div class="callout">
       <p><strong>Rule:</strong> no recorded modification in 5+ years <em>and</em> below version 50.</p>
+      <p><strong>312 records</strong> meet the rule, holding <strong>184,900 units</strong> — 10.0% of the included total.</p>
       <p class="subtle">These are candidates for review, not confirmed savings. The rule is a triage heuristic and has not been validated against usage.</p>
     </div>
+  </section>
+
+  <!-- 10. largest units — compact evidence table ------------------------ -->
+  <section id="largest">
+    <h2>Largest individual records</h2>
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <caption class="meta">Top records by current size</caption>
+          <thead>
+            <tr>
+              <th scope="col">Record</th>
+              <th scope="col">Function</th>
+              <th scope="col" class="num">Units</th>
+              <th scope="col" class="num">Share</th>
+              <th scope="col">Created</th>
+              <th scope="col">Version</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>ingest-events-raw</td><td>Ingestion</td><td class="num">214,800</td><td class="num">11.7%</td><td><span class="meta">2021-04-11</span></td><td><span class="meta">62</span></td></tr>
+            <tr><td>ingest-events-archive</td><td>Ingestion</td><td class="num">188,300</td><td class="num">10.2%</td><td><span class="meta">2020-09-02</span></td><td><span class="meta">41</span></td></tr>
+            <tr><td>transform-sessions</td><td>Transform</td><td class="num">142,050</td><td class="num">7.7%</td><td><span class="meta">2022-01-19</span></td><td><span class="meta">58</span></td></tr>
+            <tr><td>serve-aggregates</td><td>Serving</td><td class="num">96,400</td><td class="num">5.2%</td><td><span class="meta">2023-06-30</span></td><td><span class="meta">71</span></td></tr>
+            <tr><td>archive-cold-2020</td><td>Archive</td><td class="num">88,120</td><td class="num">4.8%</td><td><span class="meta">2020-02-14</span></td><td><span class="meta">33</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p class="meta">Version below 50 marks a compatibility level scheduled for retirement.</p>
   </section>
 
   <!-- 10. methodology --------------------------------------------------- -->
   <section id="methodology" class="section methodology">
     <h2>Methodology</h2>
-    <p>Definitions, the included and excluded populations, how classifications were inferred and with what confidence, and what the dates mean.</p>
-    <p class="subtle">Limitations: what this report cannot show, and why.</p>
+    <p><strong>Population.</strong> 4,180 included records totalling 1,842,110 units. 88 records are excluded: 61 archived before the retention cutoff and 27 with no readable size. Excluded records appear in the supporting CSV.</p>
+    <p><strong>Dates.</strong> "Created" is the record creation timestamp in the source system. "Modified" is the latest recorded change, which may be an automated deployment rather than substantive development.</p>
+    <p><strong>Classification.</strong> Function is inferred from name prefix and source metadata. 3,914 records classified at high confidence, 198 medium, 68 low. Per-record confidence is preserved in the CSV.</p>
+    <p class="subtle"><strong>Limitations.</strong> Cohort charts show current size grouped by creation year. They are not a measure of growth — no historical snapshots exist, so a record that grew after creation is counted entirely in its creation year.</p>
     <p class="subtle">Generated 2026-08-12 from normalized inventory export.</p>
   </section>
 
