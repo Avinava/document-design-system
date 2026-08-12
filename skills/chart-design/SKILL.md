@@ -111,6 +111,18 @@ To generate charts from data rather than hand-authoring them, `scripts/render_ch
 - [ ] Eight categories or fewer visible; the tail is accounted for.
 - [ ] Readable at print width, not just at authoring width.
 
+## Paths in this skill
+
+`core/…` and `scripts/…` are relative to the repo root. When this is installed as a
+plugin your working directory is your own project, not the plugin, so prefix them:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/audit_theme.py" theme.css
+```
+
+`${CLAUDE_PLUGIN_ROOT}` is Claude Code's portable reference to the plugin's own
+directory. Working inside the repo itself, the bare paths are correct as written.
+
 ## Reference files
 
 - `references/chart-forms.md` — per-form construction rules and failure modes.

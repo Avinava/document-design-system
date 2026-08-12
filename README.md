@@ -22,7 +22,26 @@ Most document tooling is welded to one output format or one client's brand. This
 
 Then `/plugin` to confirm it is installed, or just ask for a report — the skills trigger on their own.
 
-Or use it as a plain skills directory — copy `skills/` and `core/` into `.claude/skills/` or `.agents/skills/`.
+<details>
+<summary>Or install it as plain skills, without the plugin system</summary>
+
+The skills read `core/` and run `scripts/`, both of which live at the repo root — so the
+repo has to stay intact. Clone it, then link the skills you want:
+
+```bash
+git clone https://github.com/Avinava/document-design-system ~/src/dds
+mkdir -p .claude/skills
+ln -s ~/src/dds/skills/analytical-document-design .claude/skills/
+ln -s ~/src/dds/skills/diagram-design            .claude/skills/
+# …and so on, or link all six:
+# for d in ~/src/dds/skills/*/; do ln -s "$d" .claude/skills/; done
+```
+
+Symlinks rather than copies, so `core/` and `scripts/` still resolve. Copying the skill
+directories on their own leaves every `core/tokens.md` reference dangling and every
+script invocation pointing at nothing.
+
+</details>
 
 ---
 

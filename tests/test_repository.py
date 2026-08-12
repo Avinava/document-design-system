@@ -87,6 +87,36 @@ class TestSkills(unittest.TestCase):
                     )
 
 
+class TestPortability(unittest.TestCase):
+    """The repo root is not the working directory for a plugin user."""
+
+    def test_script_invocations_document_the_plugin_root(self):
+        """A skill that tells the user to run scripts/... must also explain the
+        ${CLAUDE_PLUGIN_ROOT} form.
+
+        Installed as a plugin, the working directory is the user's own project,
+        where scripts/ does not exist — so a bare `python3 scripts/x.py` simply
+        fails. Claude Code's portable reference is ${CLAUDE_PLUGIN_ROOT}.
+        """
+        for skill in skill_dirs():
+            files = [skill / "SKILL.md"] + sorted((skill / "references").glob("*.md"))
+            invokes = any(
+                re.search(r"(python3|node) scripts/", f.read_text(encoding="utf-8"))
+                for f in files
+                if f.is_file()
+            )
+            if not invokes:
+                continue
+            body = (skill / "SKILL.md").read_text(encoding="utf-8")
+            with self.subTest(skill=skill.name):
+                self.assertIn(
+                    "CLAUDE_PLUGIN_ROOT",
+                    body,
+                    f"{skill.name} invokes scripts/ but never explains how that "
+                    "path resolves for a plugin user",
+                )
+
+
 class TestTokenContract(unittest.TestCase):
     def required_tokens(self) -> set[str]:
         tokens: set[str] = set()
