@@ -212,11 +212,19 @@ class TestTokenContract(unittest.TestCase):
 
 
 class TestPackaging(unittest.TestCase):
-    def test_plugin_and_marketplace_agree(self):
+    def plugin_manifest(self) -> dict:
         import json
 
-        plugin = json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text())
-        market = json.loads((ROOT / ".claude-plugin" / "marketplace.json").read_text())
+        return json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text())
+
+    def marketplace_manifest(self) -> dict:
+        import json
+
+        return json.loads((ROOT / ".claude-plugin" / "marketplace.json").read_text())
+
+    def test_plugin_and_marketplace_agree(self):
+        plugin = self.plugin_manifest()
+        market = self.marketplace_manifest()
         names = [p["name"] for p in market["plugins"]]
         self.assertIn(
             plugin["name"],
@@ -224,12 +232,64 @@ class TestPackaging(unittest.TestCase):
             "plugin.json name is not listed in marketplace.json",
         )
 
-    def test_plugin_skills_path_resolves(self):
-        import json
+    def test_marketplace_is_named_for_the_repository(self):
+        """The catalog carries the repository's name, not a broader one.
 
-        plugin = json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text())
-        path = (ROOT / plugin["skills"].lstrip("./")).resolve()
-        self.assertTrue(path.is_dir(), f"plugin.json skills path does not exist: {path}")
+        Marketplace names are global per user, not scoped to the repository
+        that published them: adding a marketplace under a name already in use
+        silently replaces the one already there, and the plugins installed from
+        the displaced catalog are orphaned. Naming the catalog after the
+        repository makes the name unique by construction. A broader name — a
+        publisher or org — would collide the moment a second repository of
+        theirs published a catalog too.
+
+        This is why `document-design-system@document-design-system` repeats
+        itself, and why that repetition should not be "tidied up".
+        """
+        market = self.marketplace_manifest()
+        repo = self.plugin_manifest()["repository"].rstrip("/").rsplit("/", 1)[-1]
+        self.assertEqual(
+            market["name"],
+            repo,
+            "marketplace name must match the repository that publishes it",
+        )
+
+    def test_manifests_declare_the_same_person(self):
+        plugin = self.plugin_manifest()
+        market = self.marketplace_manifest()
+        entry = next(
+            p for p in market["plugins"] if p["name"] == plugin["name"]
+        )
+        self.assertEqual(plugin["author"], market["owner"])
+        self.assertEqual(plugin["author"], entry["author"])
+
+    def test_manifests_point_at_live_schemas(self):
+        """A $schema URL that 404s gives editors nothing to validate against."""
+        for manifest, expected in (
+            (
+                self.marketplace_manifest(),
+                "https://json.schemastore.org/claude-code-marketplace.json",
+            ),
+            (
+                self.plugin_manifest(),
+                "https://json.schemastore.org/claude-code-plugin-manifest.json",
+            ),
+        ):
+            self.assertEqual(manifest.get("$schema"), expected)
+
+    def test_plugin_does_not_redeclare_the_default_skills_path(self):
+        """`skills/` is scanned by default, so declaring it is redundant.
+
+        It is also not merely redundant: for a marketplace entry whose source
+        resolves to the marketplace root, an explicit skills declaration can
+        replace the default scan rather than extend it, which turns a cosmetic
+        line into a way to lose skills.
+        """
+        self.assertNotIn("skills", self.plugin_manifest())
+        self.assertTrue(
+            (ROOT / "skills").is_dir(),
+            "skills/ must exist for the default scan to find anything",
+        )
 
 
 class TestAssets(unittest.TestCase):

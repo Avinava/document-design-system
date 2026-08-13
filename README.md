@@ -22,6 +22,14 @@ Most document tooling is welded to one output format or one client's brand. This
 
 Then `/plugin` to confirm it is installed, or just ask for a report — the skills trigger on their own.
 
+The repetition on the second line is not a typo. `@` reads as "from": it names a *plugin*
+and the *catalog* it came from, and this repository publishes its own catalog containing
+this one plugin, so both halves are the same word. The catalog is named after the
+repository deliberately — marketplace names are global per user, so two repositories
+publishing catalogs under a shared name would silently replace one another and orphan the
+plugins installed from the loser. A per-repository name is unique by construction and
+cannot collide that way.
+
 <details>
 <summary>Or install it as plain skills, without the plugin system</summary>
 
