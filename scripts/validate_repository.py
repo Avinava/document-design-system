@@ -12,6 +12,7 @@ Standard library only. Exit code 1 on any error.
 
 from __future__ import annotations
 
+import json
 import re
 import sys
 from pathlib import Path
@@ -286,6 +287,140 @@ def check_hex_literals(root: Path, palette: set[str]) -> None:
 # --------------------------------------------------------------------------
 
 
+def check_manifests(root: Path) -> None:
+    """Validate the plugin and marketplace manifests with no dependencies.
+
+    `claude plugin validate` covers this far more thoroughly, but it needs
+    node and a network fetch, so it only runs in CI. These checks are the
+    subset worth catching before a push, and they encode two invariants the
+    schema cannot express: that the marketplace is named for the repository,
+    and that the two manifests do not drift apart.
+    """
+    plugin_path = root / ".claude-plugin" / "plugin.json"
+    market_path = root / ".claude-plugin" / "marketplace.json"
+
+    plugin: dict = {}
+    if not plugin_path.is_file():
+        error(plugin_path.relative_to(root), "missing plugin manifest")
+    else:
+        try:
+            plugin = json.loads(plugin_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            error(plugin_path.relative_to(root), f"invalid JSON: {exc}")
+
+    if plugin:
+        rel = plugin_path.relative_to(root)
+        name = plugin.get("name")
+        if not isinstance(name, str) or not NAME_RE.fullmatch(name):
+            error(rel, f"name must be kebab-case, got {name!r}")
+        if not isinstance(plugin.get("version"), str):
+            error(rel, "missing string version")
+        for field in ("description", "license", "repository", "homepage"):
+            if not plugin.get(field):
+                error(rel, f"missing non-empty {field}")
+
+    if not market_path.is_file():
+        error(market_path.relative_to(root), "missing marketplace manifest")
+        return
+
+    rel = market_path.relative_to(root)
+    try:
+        market = json.loads(market_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        error(rel, f"invalid JSON: {exc}")
+        return
+
+    for field in ("name", "description", "owner", "plugins"):
+        if not market.get(field):
+            error(rel, f"missing non-empty {field}")
+
+    name = market.get("name")
+    if isinstance(name, str) and not NAME_RE.fullmatch(name):
+        error(rel, f"name must be kebab-case, got {name!r}")
+
+    # Marketplace names are global per user: a second catalog registered under
+    # a name already in use silently displaces the first and orphans the
+    # plugins installed from it. Naming the catalog after the repository makes
+    # the name unique by construction. See CHANGELOG 0.1.1.
+    repo_url = plugin.get("repository")
+    if isinstance(name, str) and isinstance(repo_url, str):
+        repo_name = repo_url.rstrip("/").rsplit("/", 1)[-1]
+        if name != repo_name:
+            error(
+                rel,
+                f"marketplace name {name!r} must match the repository name "
+                f"{repo_name!r} — a shared catalog name silently displaces "
+                "another repository's marketplace",
+            )
+
+    owner = market.get("owner")
+    if isinstance(owner, dict) and not owner.get("name"):
+        error(rel, "owner.name is required")
+
+    entries = market.get("plugins")
+    if not isinstance(entries, list):
+        error(rel, "plugins must be a list")
+        return
+
+    for index, entry in enumerate(entries):
+        label = f"plugins[{index}]"
+        if not isinstance(entry, dict):
+            error(rel, f"{label}: must be an object")
+            continue
+
+        entry_name = entry.get("name")
+        if not isinstance(entry_name, str) or not NAME_RE.fullmatch(entry_name):
+            error(rel, f"{label}: name must be kebab-case, got {entry_name!r}")
+
+        source = entry.get("source")
+        if not source:
+            error(rel, f"{label}: missing source")
+        elif isinstance(source, str):
+            if not source.startswith("./"):
+                error(rel, f"{label}: relative source must start with './', got {source!r}")
+            elif not (root / source).is_dir():
+                error(rel, f"{label}: source does not resolve: {source}")
+
+        # A field duplicated from plugin.json is a field that can drift.
+        for field in ("version", "license", "repository", "homepage"):
+            value = entry.get(field)
+            if value is not None and plugin.get(field) is not None and value != plugin[field]:
+                error(
+                    rel,
+                    f"{label}: {field} {value!r} disagrees with plugin.json "
+                    f"{plugin[field]!r}",
+                )
+
+        if entry.get("author") != market.get("owner"):
+            error(rel, f"{label}: author must match the marketplace owner")
+
+        # Whatever a marketplace browser shows comes from the entry, not from
+        # plugin.json, so the entry has to carry its own discovery metadata.
+        for field in ("description", "license", "repository", "category", "tags"):
+            if not entry.get(field):
+                error(rel, f"{label}: missing non-empty {field}")
+
+        if isinstance(source, str) and source in ("./", "."):
+            if entry_name != plugin.get("name"):
+                error(
+                    rel,
+                    f"{label}: name {entry_name!r} must match plugin.json "
+                    f"{plugin.get('name')!r} when source is the repository root",
+                )
+            # With source at the repo root, skills/ is scanned by default; an
+            # explicit `skills` declaration can replace that scan rather than
+            # extend it, which silently drops skills.
+            if "skills" in plugin:
+                error(
+                    plugin_path.relative_to(root),
+                    "remove \"skills\": skills/ is scanned by default, and "
+                    "declaring it can replace that scan rather than extend it",
+                )
+            for skill_dir in sorted((root / "skills").glob("*/")):
+                if not (skill_dir / "SKILL.md").is_file():
+                    error(skill_dir.relative_to(root), "directory under skills/ has no SKILL.md")
+
+
 def check_links(root: Path) -> None:
     for md in sorted(root.rglob("*.md")):
         if any(p in {"node_modules", ".git", "dist"} for p in md.relative_to(root).parts):
@@ -317,6 +452,7 @@ def main() -> int:
 
     palette = check_themes(root)
     check_hex_literals(root, palette)
+    check_manifests(root)
     check_links(root)
 
     for w in warnings:
