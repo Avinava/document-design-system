@@ -232,23 +232,26 @@ class TestPackaging(unittest.TestCase):
             "plugin.json name is not listed in marketplace.json",
         )
 
-    def test_marketplace_is_named_for_the_publisher(self):
-        """The catalog and the thing in it must not share a name.
+    def test_marketplace_is_named_for_the_repository(self):
+        """The catalog carries the repository's name, not a broader one.
 
-        Users install `<plugin>@<marketplace>`, where `@` reads as "from". A
-        marketplace named after its one plugin produces
-        `document-design-system@document-design-system`, which says nothing
-        about where the plugin came from. Marketplace names are also global per
-        user, so a topical name is far likelier to collide with — and silently
-        replace — someone else's marketplace than a publisher-scoped one is.
+        Marketplace names are global per user, not scoped to the repository
+        that published them: adding a marketplace under a name already in use
+        silently replaces the one already there, and the plugins installed from
+        the displaced catalog are orphaned. Naming the catalog after the
+        repository makes the name unique by construction. A broader name — a
+        publisher or org — would collide the moment a second repository of
+        theirs published a catalog too.
+
+        This is why `document-design-system@document-design-system` repeats
+        itself, and why that repetition should not be "tidied up".
         """
         market = self.marketplace_manifest()
-        self.assertEqual(market["name"], "sfdxy")
-        names = [p["name"] for p in market["plugins"]]
-        self.assertNotIn(
+        repo = self.plugin_manifest()["repository"].rstrip("/").rsplit("/", 1)[-1]
+        self.assertEqual(
             market["name"],
-            names,
-            "the marketplace is named after one of its own plugins",
+            repo,
+            "marketplace name must match the repository that publishes it",
         )
 
     def test_manifests_declare_the_same_person(self):

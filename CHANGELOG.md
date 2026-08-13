@@ -3,39 +3,11 @@
 All notable changes to this project are documented here. Versions refer to the
 `version` field in `.claude-plugin/plugin.json`.
 
-## 0.2.0
+## 0.1.1
 
-**Breaking for anyone who already installed the plugin.** The marketplace was renamed, so
-the old install identifier no longer resolves. Migration commands are at the bottom of
-this entry.
-
-### The marketplace is now `sfdxy`
-
-Both the marketplace and the plugin inside it were called `document-design-system`, which
-made the install line read `document-design-system@document-design-system`.
-
-In `plugin@marketplace`, the `@` means "from". The identifier is supposed to name two
-different things — which plugin, and which catalog it came from — so repeating the same
-word on both sides is a stutter that tells you nothing and hides which half is which. A
-marketplace is a catalog, not a product; it takes the name of whoever publishes it. That
-is `sfdxy`, the same identity these skills are published under elsewhere (the `@sfdxy` npm
-scope).
-
-There is a practical reason on top of the readability one. Marketplace names are global
-per user, not scoped to a repository: adding a second marketplace under a name that is
-already taken silently *replaces* the first one. A topical name like
-`document-design-system` is exactly the kind of name someone else plausibly picks, and the
-collision is silent when it happens. A publisher-scoped name is far less likely to be
-claimed by anyone but the publisher.
-
-Renaming is safe because the marketplace name deliberately does not have to match the
-repository path typed into `/plugin marketplace add`. Anthropic's own marketplaces work
-this way: the `anthropics/claude-plugins-community` repo publishes a marketplace named
-`claude-community`, and `anthropics/claude-code` publishes one named
-`claude-code-plugins`. The repository path is how the catalog is *fetched*; the name is
-how it is *referred to* afterwards.
-
-The plugin itself keeps its name. Only the catalog changed.
+Packaging corrections and documentation. Nothing about the skills, themes, or token
+contract changed, and the install identifier is unchanged — existing installs need no
+action.
 
 ### Fixed
 
@@ -45,16 +17,16 @@ The plugin itself keeps its name. Only the catalog changed.
   SchemaStore definitions (`claude-code-marketplace.json` and
   `claude-code-plugin-manifest.json`); `plugin.json` previously declared no `$schema` at
   all.
-- **CI validated only half the packaging.** `claude plugin validate <dir> --strict`
-  validates *only* the marketplace manifest when both manifests are present — it prints
-  `Validating marketplace manifest: …` and stops there. The plugin manifest needs its own
-  invocation against `.claude-plugin/plugin.json`. CI ran neither; it now runs both.
+- **CI validated neither manifest, and one invocation would not have been enough.**
+  `claude plugin validate <dir> --strict` validates *only* the marketplace manifest when
+  both manifests are present — it prints `Validating marketplace manifest: …` and stops.
+  The plugin manifest needs its own invocation against `.claude-plugin/plugin.json`. CI
+  now runs both.
 - **Redundant `skills` declaration.** `plugin.json` declared `"skills": "./skills/"`.
   `skills/` is scanned by default, so this was at best noise. It is worse than noise for a
   marketplace entry whose `source` resolves to the marketplace root, where an explicit
-  skills declaration can *replace* the default scan instead of extending it — a line that
+  skills declaration can *replace* the default scan rather than extend it — a line that
   looks cosmetic but can drop skills. Removed, and all six skills still load.
-- **Install instructions.** The README's install block used the old identifier.
 - **Author consistency.** `owner` in `marketplace.json` and `author` in both manifests now
   carry the same name and URL.
 
@@ -66,26 +38,39 @@ The plugin itself keeps its name. Only the catalog changed.
   who installed the plugin, where the working directory is the user's own project and
   `scripts/` does not exist there. They now document the `${CLAUDE_PLUGIN_ROOT}` prefix,
   matching the three skills that already did.
+- A note in the README explaining why `document-design-system@document-design-system`
+  repeats itself, and tests covering the packaging invariants that were previously
+  unasserted.
 - This changelog.
 
-### Why 0.2.0 and not 1.0.0
+### On the marketplace name
 
-Semantic versioning treats `0.x` as unstable, and the minor position is where a `0.x`
-release signals a break. The rename is genuinely breaking for existing installs, so the
-minor moves. It is not `1.0.0` because that would claim a stability commitment about the
-token contract and the skill surface that this change does not earn — nothing about the
-design system itself stabilized here.
+The install line is `document-design-system@document-design-system`, where `@` reads as
+"from" — it names a plugin and the catalog it came from. Both halves are the same word
+because this repository publishes its own catalog and that catalog contains this one
+plugin.
 
-### Migrating
+That repetition is deliberate rather than an oversight, and it is worth writing down so it
+does not get "tidied up" later. Marketplace names are **global per user**, not scoped to
+the repository that published them. Adding a marketplace under a name already in use
+silently *replaces* the one already there, and the plugins installed from the displaced
+catalog are orphaned — they stop loading and can no longer be resolved. Naming each
+catalog after the repository that publishes it makes the name unique by construction, so
+that collision cannot happen. A shared name across repositories — a publisher or org name,
+say — would reintroduce exactly this failure the moment a second repository used it.
 
-`/plugin marketplace remove` uninstalls every plugin installed from that marketplace, so
-check `/plugin` first if you added the old marketplace for anything else.
+Worth knowing, since it is the thing that makes the naming a real choice rather than a
+constraint: a marketplace name does **not** have to match the repository path typed into
+`/plugin marketplace add`. Anthropic's own catalogs differ from theirs — the
+`anthropics/claude-plugins-community` repo publishes a marketplace named
+`claude-community`, and `anthropics/claude-code` publishes one named
+`claude-code-plugins`. The repository path is how a catalog is *fetched*; the name is how
+it is *referred to* afterwards. Matching them here is a decision, not a requirement.
 
-```
-/plugin marketplace remove document-design-system
-/plugin marketplace add Avinava/document-design-system
-/plugin install document-design-system@sfdxy
-```
+### Why 0.1.1
+
+Every change is a packaging fix or added documentation. No skill behavior, no token
+contract change, no change to how the plugin is installed — so the patch position moves.
 
 ## 0.1.0
 

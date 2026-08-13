@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
-  "name": "sfdxy",
-  "description": "Plugins published by sfdxy.",
+  "name": "document-design-system",
+  "description": "Design system for documents — analytical reports, diagrams, charts, decks, and long-form specs as self-contained HTML.",
   "owner": {
     "name": "Avi",
     "url": "https://github.com/Avinava"
