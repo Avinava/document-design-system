@@ -17,10 +17,18 @@ Most document tooling is welded to one output format or one client's brand. This
 
 ```
 /plugin marketplace add Avinava/document-design-system
-/plugin install document-design-system@document-design-system
+/plugin install document-design-system@sfdxy
 ```
 
 Then `/plugin` to confirm it is installed, or just ask for a report — the skills trigger on their own.
+
+The two names differ on purpose. The first line names a *repository*; the second names a
+*plugin* and the *catalog* it came from — `@` reads as "from". The catalog is published
+under `sfdxy`, so the repository path and the marketplace name are not the same string.
+
+> **Upgrading from an earlier install?** The marketplace used to be called
+> `document-design-system`, so `document-design-system@document-design-system` no longer
+> resolves. See [migrating](#migrating-from-the-old-marketplace-name) below.
 
 <details>
 <summary>Or install it as plain skills, without the plugin system</summary>
@@ -40,6 +48,30 @@ ln -s ~/src/dds/skills/diagram-design            .claude/skills/
 Symlinks rather than copies, so `core/` and `scripts/` still resolve. Copying the skill
 directories on their own leaves every `core/tokens.md` reference dangling and every
 script invocation pointing at nothing.
+
+</details>
+
+<details id="migrating-from-the-old-marketplace-name">
+<summary>Migrating from the old marketplace name</summary>
+
+Before `0.2.0` this repo published a marketplace called `document-design-system`, and the
+install line was `document-design-system@document-design-system`. The marketplace is now
+`sfdxy` — the publisher — so that identifier no longer resolves and the marketplace has to
+be re-added under its new name.
+
+Read this before running it: `/plugin marketplace remove` **uninstalls every plugin you
+installed from that marketplace**. Here that is just this one plugin, but if you added the
+old marketplace yourself, check `/plugin` first so nothing else goes with it.
+
+```
+/plugin marketplace remove document-design-system
+/plugin marketplace add Avinava/document-design-system
+/plugin install document-design-system@sfdxy
+```
+
+Nothing you authored is touched — themes, documents, and any `core/themes/*.css` you wrote
+live in your own project, not in the plugin. Run `/plugin` afterwards to confirm
+`document-design-system` is installed and listed under `sfdxy`.
 
 </details>
 

@@ -9,6 +9,27 @@ permissions:
   contents: read
 
 jobs:
+  packaging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # Pointed at a directory, `claude plugin validate` checks ONLY the
+      # marketplace manifest when both manifests exist — it announces
+      # "Validating marketplace manifest: ..." and stops. The plugin manifest
+      # is never reached unless it is named directly, so both runs are needed.
+      - name: Validate the marketplace manifest
+        run: npx -y @anthropic-ai/claude-code plugin validate . --strict
+
+      - name: Validate the plugin manifest
+        run: |
+          npx -y @anthropic-ai/claude-code plugin validate \
+            .claude-plugin/plugin.json --strict
+
   validate:
     runs-on: ubuntu-latest
     steps:

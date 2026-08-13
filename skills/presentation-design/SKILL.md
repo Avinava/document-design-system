@@ -124,3 +124,15 @@ A deck is usually delivered as a PDF, so the export is part of the deliverable, 
 
 - `references/slide-types.md` — per-type construction rules and failure modes.
 - `references/deck-structure.md` — narrative arc, deck length, opening and closing.
+
+## Paths in this skill
+
+`core/…` and `scripts/…` are relative to the repo root. When this is installed as a
+plugin your working directory is your own project, not the plugin, so prefix them:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/export_pdf.mjs" deck.html --out deck.pdf
+```
+
+`${CLAUDE_PLUGIN_ROOT}` is Claude Code's portable reference to the plugin's own
+directory. Working inside the repo itself, the bare paths are correct as written.

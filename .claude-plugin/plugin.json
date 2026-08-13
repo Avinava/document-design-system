@@ -1,9 +1,11 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "document-design-system",
-  "version": "0.1.0",
-  "description": "A design system for documents: evidence-led analytical reports, diagrams, charts, decks, and long-form specs \u2014 plus guided brand theming \u2014 all sharing one semantic token contract and shipping as self-contained HTML that needs no JavaScript to read.",
+  "version": "0.2.0",
+  "description": "A design system for documents: evidence-led analytical reports, diagrams, charts, decks, and long-form specs — plus guided brand theming — all sharing one semantic token contract and shipping as self-contained HTML that needs no JavaScript to read.",
   "author": {
-    "name": "Avi"
+    "name": "Avi",
+    "url": "https://github.com/Avinava"
   },
   "homepage": "https://github.com/Avinava/document-design-system",
   "repository": "https://github.com/Avinava/document-design-system",
@@ -18,6 +20,5 @@
     "print",
     "pdf",
     "accessibility"
-  ],
-  "skills": "./skills/"
+  ]
 }

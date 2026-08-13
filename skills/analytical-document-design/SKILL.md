@@ -179,3 +179,15 @@ Do not describe every CSS decision. The document should demonstrate the design s
 - `references/print-production.md` — the print contract, page setup, fragmentation strategy, validated failure patterns and remedies, print verification.
 - `references/implementation.md` — generator architecture and stage separation.
 - `references/quality-gate.md` — the full pre-delivery checklist.
+
+## Paths in this skill
+
+`core/…` and `scripts/…` are relative to the repo root. When this is installed as a
+plugin your working directory is your own project, not the plugin, so prefix them:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/render_chart.mjs" spec.json --out chart.svg
+```
+
+`${CLAUDE_PLUGIN_ROOT}` is Claude Code's portable reference to the plugin's own
+directory. Working inside the repo itself, the bare paths are correct as written.
