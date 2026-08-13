@@ -432,5 +432,95 @@ class TestTemplates(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
 
 
+class TestManifestValidation(unittest.TestCase):
+    """The manifest checks must actually reject; a check that never fires is
+    indistinguishable from no check at all."""
+
+    def build(self, tmp: Path, plugin_edit=None, market_edit=None) -> list[str]:
+        """Lay down a minimal valid repo, apply one mutation, and validate it."""
+        import json
+
+        import validate_repository as vr
+
+        plugin = json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text())
+        market = json.loads((ROOT / ".claude-plugin" / "marketplace.json").read_text())
+        if plugin_edit:
+            plugin_edit(plugin)
+        if market_edit:
+            market_edit(market)
+
+        (tmp / ".claude-plugin").mkdir(parents=True)
+        (tmp / ".claude-plugin" / "plugin.json").write_text(json.dumps(plugin))
+        (tmp / ".claude-plugin" / "marketplace.json").write_text(json.dumps(market))
+        (tmp / "skills" / "a-skill").mkdir(parents=True)
+        (tmp / "skills" / "a-skill" / "SKILL.md").write_text("---\nname: a-skill\n---\n")
+
+        vr.errors.clear()
+        vr.warnings.clear()
+        try:
+            vr.check_manifests(tmp)
+            return list(vr.errors)
+        finally:
+            vr.errors.clear()
+            vr.warnings.clear()
+
+    def assert_rejects(self, needle: str, **edits) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            found = self.build(Path(td), **edits)
+        self.assertTrue(
+            any(needle in e for e in found),
+            f"expected an error containing {needle!r}, got {found}",
+        )
+
+    def test_unmutated_manifests_pass(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            self.assertEqual(self.build(Path(td)), [])
+
+    def test_rejects_marketplace_named_for_the_publisher(self):
+        """The invariant that cost two reverts to settle."""
+        self.assert_rejects(
+            "must match the repository name",
+            market_edit=lambda m: m.update({"name": "sfdxy"}),
+        )
+
+    def test_rejects_entry_missing_discovery_metadata(self):
+        for field in ("license", "tags", "category", "description", "repository"):
+            with self.subTest(field=field):
+                self.assert_rejects(
+                    f"missing non-empty {field}",
+                    market_edit=lambda m, f=field: m["plugins"][0].pop(f),
+                )
+
+    def test_rejects_entry_drifting_from_plugin_manifest(self):
+        self.assert_rejects(
+            "disagrees with plugin.json",
+            market_edit=lambda m: m["plugins"][0].update(
+                {"repository": "https://github.com/Avinava/somewhere-else"}
+            ),
+        )
+
+    def test_rejects_author_owner_mismatch(self):
+        self.assert_rejects(
+            "author must match the marketplace owner",
+            market_edit=lambda m: m["plugins"][0].update({"author": {"name": "Nobody"}}),
+        )
+
+    def test_rejects_reintroduced_skills_key(self):
+        self.assert_rejects(
+            'remove "skills"',
+            plugin_edit=lambda p: p.update({"skills": "./skills/"}),
+        )
+
+    def test_rejects_unresolvable_source(self):
+        self.assert_rejects(
+            "source does not resolve",
+            market_edit=lambda m: m["plugins"][0].update({"source": "./nowhere/"}),
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

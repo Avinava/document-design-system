@@ -3,6 +3,33 @@
 All notable changes to this project are documented here. Versions refer to the
 `version` field in `.claude-plugin/plugin.json`.
 
+## 0.1.2
+
+Marketplace listing metadata, and validation that the packaging invariants stay true.
+
+### Added
+
+- **Discovery metadata on the marketplace entry.** A marketplace browser reads the entry in
+  `marketplace.json`, not `plugin.json`, so the entry has to carry its own copy. It declared
+  neither `license` nor `repository` nor `tags` — the plugin is MIT, and said so in
+  `plugin.json` and `LICENSE`, but not anywhere a browser would look. All three are now
+  declared, and a check keeps the duplicated fields from drifting apart.
+- **Manifest validation in `validate_repository.py`.** The manifests were checked only by
+  `claude plugin validate` in CI, which needs node and a network fetch. The local validator
+  now checks them too, and encodes two invariants the JSON schema cannot express: the
+  marketplace must be named for the repository, and every field duplicated between the two
+  manifests must agree. A reintroduced `"skills"` key is rejected outright.
+- **Tests that the validator rejects.** Seven cases assert the new checks actually fire — a
+  check that never fires is indistinguishable from no check at all. The suite goes from 28
+  tests to 35.
+
+### Note on `displayName`
+
+Not added, despite appearing in some plugin manifests. It is in neither the marketplace nor
+the plugin-manifest schema, and both schemas leave `additionalProperties` unset, so it
+validates but is ignored — `plugin list` shows the plugin's `name`. A field that looks
+load-bearing but does nothing is worse than an absent one.
+
 ## 0.1.1
 
 Packaging corrections and documentation. Nothing about the skills, themes, or token

@@ -15,8 +15,21 @@
         "url": "https://github.com/Avinava"
       },
       "category": "design",
+      "tags": [
+        "documents",
+        "design-system",
+        "reports",
+        "diagrams",
+        "charts",
+        "data-visualization",
+        "print",
+        "pdf",
+        "accessibility"
+      ],
+      "license": "MIT",
       "source": "./",
-      "homepage": "https://github.com/Avinava/document-design-system"
+      "homepage": "https://github.com/Avinava/document-design-system",
+      "repository": "https://github.com/Avinava/document-design-system"
     }
   ]
 }
