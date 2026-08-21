@@ -27,7 +27,7 @@ EXPECTED_SKILLS = {
     "analytical-document-design",
     "chart-design",
     "diagram-design",
-    "longform-document-design",
+    "writing-documents",
     "presentation-design",
     "brand-theme-design",
 }
@@ -85,6 +85,30 @@ class TestSkills(unittest.TestCase):
                         f"{skill.name}/references/{ref.name} is never referenced "
                         "from SKILL.md, so it will never be loaded",
                     )
+
+
+class TestWritingTypes(unittest.TestCase):
+    def test_type_slugs_match_filenames(self):
+        ref_dir = SKILLS / "writing-documents" / "references"
+        for path in sorted(ref_dir.glob("type-*.md")):
+            if path.name == "type-index.md":
+                continue
+            with self.subTest(ref=path.name):
+                expected = path.name[len("type-") : -len(".md")]
+                text = path.read_text(encoding="utf-8")
+                self.assertIn(f"slug: {expected}", text)
+                self.assertIn("Reader's question", text)
+                self.assertIn(f"/document-design-system:{expected}", text)
+
+    def test_type_index_lists_every_shipped_type(self):
+        ref_dir = SKILLS / "writing-documents" / "references"
+        index = (ref_dir / "type-index.md").read_text(encoding="utf-8")
+        for path in sorted(ref_dir.glob("type-*.md")):
+            if path.name == "type-index.md":
+                continue
+            slug = path.name[len("type-") : -len(".md")]
+            with self.subTest(slug=slug):
+                self.assertIn(f"`{slug}`", index)
 
 
 class TestPortability(unittest.TestCase):

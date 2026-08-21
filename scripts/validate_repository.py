@@ -156,6 +156,46 @@ def check_skill(skill_dir: Path, root: Path) -> None:
         )
 
 
+TYPE_YAML = re.compile(r"^```yaml\n(.*?)^```", re.M | re.S)
+
+
+def check_writing_types(root: Path) -> None:
+    """Type files in writing-documents declare a slug that matches the filename."""
+    skill = root / "skills" / "writing-documents"
+    ref_dir = skill / "references"
+    if not ref_dir.is_dir():
+        return
+
+    for path in sorted(ref_dir.glob("type-*.md")):
+        if path.name == "type-index.md":
+            continue
+        rel = path.relative_to(root)
+        text = path.read_text(encoding="utf-8")
+        m = TYPE_YAML.search(text)
+        if not m:
+            error(rel, "missing yaml metadata fence (slug, title, command, path)")
+            continue
+        meta = {}
+        for line in m.group(1).splitlines():
+            if ":" not in line:
+                continue
+            key, _, value = line.partition(":")
+            meta[key.strip()] = value.strip()
+        slug = meta.get("slug", "").strip()
+        expected = path.name[len("type-") : -len(".md")]
+        if not slug:
+            error(rel, "yaml metadata has no slug")
+        elif slug != expected:
+            error(rel, f'slug "{slug}" does not match filename (expected "{expected}")')
+        if "command:" in m.group(1) and f"/document-design-system:{expected}" not in m.group(1):
+            error(
+                rel,
+                f'command must be /document-design-system:{expected}',
+            )
+        if "Reader's question" not in text and "Reader’s question" not in text:
+            error(rel, "missing reader's question")
+
+
 # --------------------------------------------------------------------------
 # tokens
 # --------------------------------------------------------------------------
@@ -449,6 +489,7 @@ def main() -> int:
     skills = sorted(p for p in skills_dir.iterdir() if p.is_dir())
     for skill in skills:
         check_skill(skill, root)
+    check_writing_types(root)
 
     palette = check_themes(root)
     check_hex_literals(root, palette)

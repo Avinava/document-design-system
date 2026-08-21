@@ -2,7 +2,7 @@
 
 Every skill in this repo consumes `core/`. It is the single source of truth for tokens, themes, component mapping, print behavior, and accessibility rules.
 
-Skills describe **judgment** — what to measure, when a chart earns its place, how to structure an argument. `core/` describes **mechanics** — what `--accent` means and how a card maps to it. Keeping them apart is what stops five skills from drifting into five incompatible design systems.
+Skills describe **judgment** — what to measure, when a chart earns its place, how to structure an argument. `core/` describes **mechanics** — what `--accent` means and how a card maps to it. Keeping them apart is what stops six skills from drifting into six incompatible design systems.
 
 ## Files
 
@@ -40,7 +40,7 @@ Components consume semantic variables only. A theme's hex values never appear in
 
 ## Changing core
 
-A change here reaches all five skills, so:
+A change here reaches all six skills, so:
 
 1. Adding a token means adding it to **every** theme, including `brand-template.css`, and documenting it in `tokens.md`.
 2. Renaming a token means updating every skill that names it.
