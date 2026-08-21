@@ -1,0 +1,33 @@
+<article class="doc">
+
+  <p class="eyebrow">Reference</p>
+  <h1>Gateway environment</h1>
+
+  <p>Keys the gateway reads. Values are never documented here. Structure matches the binary's flag set.</p>
+
+  <table>
+    <caption>Gateway configuration keys</caption>
+    <thead>
+      <tr>
+        <th scope="col">Key</th>
+        <th scope="col">Required</th>
+        <th scope="col">Meaning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><code>INGEST_QUEUE_URI</code></td><td>yes</td><td>Queue endpoint. Current single queue, or dispatcher later.</td></tr>
+      <tr><td><code>INGEST_GATEWAY_ADDR</code></td><td>no</td><td>Bind address. Default <code>127.0.0.1:8443</code>.</td></tr>
+      <tr><td><code>INGEST_SHED_MS</code></td><td>no</td><td>Max wait before shed. Default 200. Unused until RFC 014.</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="exit-codes">Process exit codes</h2>
+  <ul>
+    <li><code>0</code> — clean shutdown.</li>
+    <li><code>2</code> — configuration missing (usually <code>INGEST_QUEUE_URI</code>).</li>
+    <li><code>3</code> — failed to bind <code>INGEST_GATEWAY_ADDR</code>.</li>
+  </ul>
+
+  <p>No getting-started. No opinion about RFC 014. Those live elsewhere.</p>
+
+</article>

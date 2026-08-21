@@ -1,0 +1,130 @@
+<article class="doc">
+
+  <p class="eyebrow">Design document</p>
+  <h1>RFC 014 — Splitting the ingestion path</h1>
+
+  <p class="status-banner">
+    <strong>Status:</strong> Proposed ·
+    <strong>Decision needed by:</strong> 2026-09-01 ·
+    <strong>Owner:</strong> Platform
+  </p>
+
+  <table class="changelog">
+    <caption class="meta">Change log</caption>
+    <thead><tr><th scope="col">Date</th><th scope="col">Change</th><th scope="col">By</th></tr></thead>
+    <tbody>
+      <tr><td>2026-08-12</td><td>Added rollback plan after review</td><td>Platform</td></tr>
+      <tr><td>2026-08-08</td><td>Initial draft</td><td>Platform</td></tr>
+    </tbody>
+  </table>
+
+  <nav class="toc" aria-label="Contents">
+    <p class="eyebrow">Contents</p>
+    <ol>
+      <li><a href="#problem">Problem</a></li>
+      <li><a href="#goals">Goals and non-goals</a></li>
+      <li><a href="#design">Design</a></li>
+      <li><a href="#alternatives-considered">Alternatives considered</a></li>
+      <li><a href="#cross-cutting">Cross-cutting</a></li>
+      <li><a href="#risks">Risks</a></li>
+      <li><a href="#rollout">Rollout</a></li>
+      <li><a href="#open-questions">Open questions</a></li>
+    </ol>
+  </nav>
+
+  <h2>Summary</h2>
+  <p>
+    The ingestion path holds 41% of the platform footprint behind a single queue
+    with no failover. This proposes splitting it into two independently
+    deployable paths so that a queue failure degrades throughput rather than
+    stopping ingestion.
+  </p>
+
+  <h2 id="problem">Problem</h2>
+  <p>
+    Four of the last six incidents traced to the same coupling.<sup><a href="#fn1" id="fnref1">1</a></sup>
+    Each began as queue backpressure and ended as a full ingestion stop, because
+    every producer shares one path. Ingestion is 41% of included footprint
+    (1.84M of 2.50M units) — a halt is not a corner case.
+  </p>
+  <p class="evidence">Verified: incident tickets 2026-03-14, 2026-04-02, 2026-06-19, 2026-07-30. Inventory snapshot as of 2026-08-12.</p>
+
+  <h2 id="goals">Goals and non-goals</h2>
+  <ul>
+    <li>A queue failure degrades throughput instead of halting ingestion.</li>
+    <li>Recovery without a coordinated redeploy of every producer.</li>
+    <li>No change to the producer-facing API at <code>/events</code>.</li>
+  </ul>
+  <div class="non-goals">
+    <p>
+      This does <strong>not</strong> propose replacing the queue technology,
+      changing the retention policy, or touching the batch path. Those are real
+      questions and they are not this document's questions.
+    </p>
+  </div>
+
+  <h2 id="design">Design</h2>
+  <p>
+    Route producers through a thin dispatcher that writes to one of two queues
+    keyed by partition. Each queue has its own consumer group and its own
+    failover. The dispatcher is stateless and deployable independently.
+  </p>
+  <pre><span class="lang">yaml</span>dispatcher:
+  routes:
+    - match: {partition: even}
+      queue: ingest-a
+    - match: {partition: odd}
+      queue: ingest-b
+  on_queue_unavailable: shed_and_alert</pre>
+
+  <h2 id="alternatives-considered">Alternatives considered</h2>
+  <ul>
+    <li>
+      <strong>Do nothing.</strong> Cost: the incident pattern continues at
+      roughly one per quarter.
+    </li>
+    <li>
+      <strong>Larger single queue.</strong> Raises the backpressure threshold
+      without removing the single point of failure. Rejected because it changes
+      when the incident happens, not whether.
+    </li>
+    <li>
+      <strong>Per-producer queues.</strong> Removes the coupling entirely, but
+      multiplies operational surface by the producer count. Rejected on cost.
+    </li>
+  </ul>
+
+  <h2 id="cross-cutting">Cross-cutting</h2>
+  <ul>
+    <li><strong>Observability.</strong> Per-queue lag and dispatcher shed counts become first-class dashboards before rollout.</li>
+    <li><strong>Security.</strong> The producer-facing auth at the gateway does not change. The dispatcher inherits the gateway's identity.</li>
+    <li><strong>Privacy.</strong> Payloads are unchanged; this is a routing change, not a new store.</li>
+  </ul>
+
+  <h2 id="risks">Risks and mitigations</h2>
+  <ul>
+    <li><strong>Partition skew</strong> sends most traffic to one queue. Mitigated by hashing on event ID rather than producer ID.</li>
+    <li><strong>Dispatcher becomes the new single point of failure.</strong> Mitigated by running it stateless behind the existing load balancer.</li>
+  </ul>
+
+  <h2 id="rollout">Rollout</h2>
+  <p>
+    Dual-write to <code>ingest</code> and the new pair for one week, shadow-consume
+    <code>ingest-a/b</code>, then cut reads. Rollback is a DNS/flag flip back to
+    the single queue; the old path stays until the shadow week ends.
+  </p>
+
+  <h2 id="open-questions">Open questions</h2>
+  <ol>
+    <li>Does the consumer group rebalance cleanly under partial failure? — <em>Owner: Platform, by 2026-08-25</em></li>
+    <li>Is shed-and-alert the right behavior, or should the dispatcher block? — <em>Owner: Reliability, by 2026-08-25</em></li>
+  </ol>
+
+  <section class="footnotes">
+    <h2>Notes</h2>
+    <ol>
+      <li id="fn1">Incidents 2026-03-14, 2026-04-02, 2026-06-19, 2026-07-30. <a href="#fnref1">↩</a></li>
+    </ol>
+  </section>
+
+</article>

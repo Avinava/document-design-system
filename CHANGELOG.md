@@ -3,6 +3,29 @@
 All notable changes to this project are documented here. Versions refer to the
 `version` field in `.claude-plugin/plugin.json`.
 
+## Unreleased
+
+## 0.2.0
+
+`writing-documents` replaces `longform-document-design`. Eighteen types, Markdown by default, a type gallery, and a fourteen-slide RFC 014 deck.
+
+### Changed
+
+- **`longform-document-design` is now `writing-documents`.** Markdown in the user's repo is the default. Designed HTML/PDF only when asked. Slash commands: `/document-design-system:<slug>`.
+- Existing RFC/ADR/spec/postmortem/proposal/runbook shapes live as `references/type-<slug>.md`.
+- Plugin and marketplace descriptions name eighteen prose types, not "long-form specs". Writing is Markdown by default.
+
+### Added
+
+- Types: `api-contract`, `architecture`, `handoff`, `design-handoff`, `discovery`, `test-report`, `onboarding`, `tutorial`, `how-to`, `reference`, `explanation`, `mulesoft`.
+- Shared `evidence.md`, `writing.md`, `output.md`, `suites.md`, `type-index.md`.
+- Gallery: `examples/<slug>.html` + `.md` for every type, rebuilt from `templates/types/`. Shared fiction in `examples/WORLD.md`. Screenshots in `docs/screenshots/<slug>.png`.
+- Document-type gallery page at `examples/index.html`. GitHub Pages workflow deploys `site/` from `scripts/build_site.py`.
+- Richer 14-slide RFC 014 capacity deck: title, agenda, statement, divider, table, metric, chart, diagram, comparison, cost, closing.
+- README skills table links each skill to its `SKILL.md` and a committed example. The type gallery opens with the same six-skill map.
+- GitHub Pages site at https://avinava.github.io/document-design-system/ — homepage covers all six skills; eighteen types live at `/types.html`.
+- `horizon` theme: a client brand from `brand-theme-design`. Same proposal in navy, horizon, and coral. Exhibit at `examples/brand.html`.
+
 ## 0.1.2
 
 Marketplace listing metadata, and validation that the packaging invariants stay true.

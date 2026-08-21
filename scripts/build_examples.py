@@ -3,9 +3,10 @@
 
     python scripts/build_examples.py
 
-Renders the charts and diagrams, assembles the four example documents, and
-inlines each figure into its slot. Committed outputs double as CI fixtures and
-as the screenshots in the README, so they need to be reproducible rather than
+Renders the charts and diagrams, assembles the report, the deck, the eighteen
+writing-documents types, the figure gallery, and the theme panels, and inlines
+each figure into its slot. Committed outputs double as CI fixtures and as the
+screenshots in the README, so they need to be reproducible rather than
 hand-maintained.
 
 Node renderers are optional: if their dependencies are missing, the existing
@@ -15,12 +16,18 @@ document build working on a machine with only Python.
 
 from __future__ import annotations
 
+import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 EX = ROOT / "examples"
+TYPES = ROOT / "templates" / "types"
+
+sys.path.insert(0, str(ROOT / "scripts"))
+from build_document import build  # noqa: E402
 
 # figure slug -> (renderer, spec, extra args)
 CHARTS = {
@@ -43,7 +50,6 @@ DIAGRAMS = {
 # output -> (template, theme)
 DOCUMENTS = {
     "inventory-report.html": ("document.html", "editorial-coral"),
-    "platform-rfc.html": ("longform.html", "field-notes"),
     "capacity-deck.html": ("deck.html", "executive-navy"),
     # The two images the README swaps with the reader's GitHub theme are built
     # twice, once under a light root theme and once under the dark one. Only
@@ -53,6 +59,162 @@ DOCUMENTS = {
     "themes-light.html": ("themes.html", "editorial-coral"),
     "themes-dark.html": ("themes.html", "console-violet"),
 }
+
+# writing-documents examples: slug -> (theme, contract-layout)
+# Bodies live in templates/types/<slug>.html; the shell is templates/longform.html.
+LONGFORM = {
+    "design-doc": ("field-notes", False),
+    "adr": ("field-notes", False),
+    "spec": ("field-notes", True),
+    "api-contract": ("console-violet", True),
+    "architecture": ("field-notes", False),
+    "handoff": ("field-notes", False),
+    "design-handoff": ("editorial-coral", False),
+    "discovery": ("field-notes", False),
+    "test-report": ("editorial-coral", True),
+    "postmortem": ("console-violet", False),
+    "proposal": ("executive-navy", False),
+    "runbook": ("console-violet", False),
+    "onboarding": ("field-notes", False),
+    "tutorial": ("editorial-coral", False),
+    "how-to": ("editorial-coral", False),
+    "reference": ("console-violet", True),
+    "explanation": ("field-notes", False),
+    "mulesoft": ("field-notes", False),
+}
+
+# Same body, different theme — the token-contract proof. out_slug -> (body slug, theme, contract)
+LONGFORM_VARIANTS = {
+    "proposal-horizon": ("proposal", "horizon", False),
+    "proposal-coral": ("proposal", "editorial-coral", False),
+}
+
+FONTS = {
+    "field-notes": (
+        "https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700"
+        "&family=Source+Code+Pro:wght@400;500;600&display=swap"
+    ),
+    "editorial-coral": (
+        "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700"
+        "&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap"
+    ),
+    "executive-navy": (
+        "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700"
+        "&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    ),
+    "console-violet": (
+        "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700"
+        "&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    ),
+    "horizon": (
+        "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700"
+        "&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    ),
+}
+
+# Cards on the document-type gallery, grouped the same way as the README.
+TYPE_GALLERY = [
+    (
+        "Decide",
+        [
+            ("design-doc", "Should we do this, and is the approach sound?"),
+            ("adr", "Why is it like this?"),
+            ("spec", "What exactly must I build, and how do I know I am done?"),
+            ("proposal", "Should I approve this?"),
+        ],
+    ),
+    (
+        "Hand off",
+        [
+            ("handoff", "What do I run, change, and not break after you leave?"),
+            ("design-handoff", "What do I build, in every state?"),
+        ],
+    ),
+    (
+        "Operate",
+        [
+            ("architecture", "How is it arranged today?"),
+            ("runbook", "What do I do right now?"),
+            ("postmortem", "What happened, why, and what stops it recurring?"),
+            ("onboarding", "How do I get it running and prove it works?"),
+        ],
+    ),
+    (
+        "Specify",
+        [
+            ("api-contract", "How do I call this correctly, and what happens when I do it wrong?"),
+            ("test-report", "Can we ship, on this build?"),
+            ("reference", "What is the exact fact?"),
+        ],
+    ),
+    (
+        "Discover and teach",
+        [
+            ("discovery", "What did we learn, and should we proceed?"),
+            ("tutorial", "Can I learn this by doing it once?"),
+            ("how-to", "How do I get this job done?"),
+            ("explanation", "Why is it like this?"),
+        ],
+    ),
+    (
+        "MuleSoft",
+        [
+            ("mulesoft", "What does this Mule app do?"),
+        ],
+    ),
+]
+
+SHOT_PREFIX = "../docs/screenshots"
+
+# Theme variants shown on the local type gallery (and Pages types.html).
+VOICES_GALLERY = [
+    ("proposal", "proposal.html", "proposal.png", "executive-navy — board voice"),
+    ("proposal-horizon", "proposal-horizon.html", "proposal-horizon.png", "horizon — client brand"),
+    ("proposal-coral", "proposal-coral.html", "proposal-coral.png", "editorial-coral — default"),
+    ("brand", "brand.html", "brand.png", "How the Horizon brand was built"),
+]
+
+# Cards at the top of the type gallery — one per skill in the README table.
+# diagram-design and chart-design share the figure gallery on purpose: that
+# page is the proof they resolve against the same tokens.
+SKILL_GALLERY = [
+    (
+        "analytical-document-design",
+        "inventory-report.html",
+        "analytical-report.png",
+        "Evidence-led reports from structured data",
+    ),
+    (
+        "diagram-design",
+        "gallery-light.html",
+        "gallery-light.png",
+        "Editorial SVG — architecture, sequence, maps",
+    ),
+    (
+        "chart-design",
+        "gallery-light.html",
+        "gallery-light.png",
+        "Honest charts as inline SVG",
+    ),
+    (
+        "presentation-design",
+        "capacity-deck.html",
+        "deck-title.png",
+        "16:9 decks, one idea per slide",
+    ),
+    (
+        "writing-documents",
+        "#types",
+        "design-doc.png",
+        "Eighteen types, Markdown by default",
+    ),
+    (
+        "brand-theme-design",
+        "themes-light.html",
+        "themes-light.png",
+        "A brand in, a theme out",
+    ),
+]
 
 # Figures inlined into the analytical report, in document order.
 REPORT_SLOTS = [
@@ -92,8 +254,197 @@ def figure(slug: str) -> str:
     return path.read_text(encoding="utf-8").strip()
 
 
+def _title(body: str) -> str:
+    m = re.search(r"<h1>(.*?)</h1>", body, re.S)
+    if not m:
+        return "Document"
+    return re.sub(r"<[^>]+>", "", m.group(1)).strip()
+
+
+def _assemble_one_longform(out_slug: str, body_slug: str, theme: str, contract: bool, shell: str) -> None:
+    body_path = TYPES / f"{body_slug}.html"
+    if not body_path.is_file():
+        sys.exit(f"missing type body: {body_path.relative_to(ROOT)}")
+    body = body_path.read_text(encoding="utf-8")
+    href = FONTS[theme]
+    html = shell.replace("<!-- @@TITLE -->", _title(body), 1)
+    html = html.replace(
+        "<!-- @@FONTS -->",
+        f'<link href="{href}" rel="stylesheet">',
+        1,
+    )
+    html = html.replace("<!-- @@BODY -->", body, 1)
+    if contract:
+        html = html.replace(
+            "<html lang=\"en\"",
+            '<html lang="en" data-layout="contract"',
+            1,
+        )
+    with tempfile.NamedTemporaryFile(
+        "w", suffix=".html", encoding="utf-8", delete=False
+    ) as tmp:
+        tmp.write(html)
+        tmp_path = Path(tmp.name)
+    try:
+        assembled = build(tmp_path, theme)
+    finally:
+        tmp_path.unlink(missing_ok=True)
+    if "@@INLINE" in assembled or "@@BODY" in assembled or "@@TITLE" in assembled:
+        sys.exit(f"unresolved marker in {out_slug}")
+    (EX / f"{out_slug}.html").write_text(assembled, encoding="utf-8")
+    print(f"  {out_slug}.html ({theme}, {len(assembled):,} bytes)")
+
+
+def assemble_longform() -> None:
+    print("assembling writing-documents examples")
+    shell = (ROOT / "templates" / "longform.html").read_text(encoding="utf-8")
+    stale = EX / "platform-rfc.html"
+    if stale.is_file():
+        stale.unlink()
+
+    for slug, (theme, contract) in LONGFORM.items():
+        _assemble_one_longform(slug, slug, theme, contract, shell)
+    for out_slug, (body_slug, theme, contract) in LONGFORM_VARIANTS.items():
+        _assemble_one_longform(out_slug, body_slug, theme, contract, shell)
+
+    assemble_brand(SHOT_PREFIX, EX / "brand.html")
+    assemble_docs_gallery(SHOT_PREFIX)
+
+
+def assemble_brand(shot_prefix: str, dest: Path) -> None:
+    raw = (ROOT / "templates" / "brand.html").read_text(encoding="utf-8")
+    filled = raw.replace("@@SHOT", shot_prefix)
+    with tempfile.NamedTemporaryFile(
+        "w", suffix=".html", encoding="utf-8", delete=False
+    ) as tmp:
+        tmp.write(filled)
+        tmp_path = Path(tmp.name)
+    try:
+        assembled = build(tmp_path, "editorial-coral")
+    finally:
+        tmp_path.unlink(missing_ok=True)
+    if "@@INLINE" in assembled or "@@SHOT" in assembled:
+        sys.exit("unresolved marker in brand.html")
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(assembled, encoding="utf-8")
+    try:
+        shown = dest.relative_to(ROOT)
+    except ValueError:
+        shown = dest
+    print(f"  {shown} ({len(assembled):,} bytes)")
+
+
+def assemble_docs_gallery(
+    shot_prefix: str,
+    dest: Path | None = None,
+    *,
+    include_skills: bool = True,
+    types_href: str = "#types",
+) -> None:
+    """Fill templates/docs-gallery.html.
+
+    Local default writes examples/index.html with the six-skill strip.
+    Pages writes types.html without that strip — the homepage already
+    introduced the skills.
+    """
+    groups = []
+    for heading, items in TYPE_GALLERY:
+        cards = []
+        for slug, question in items:
+            shot = f"{shot_prefix}/{slug}.png"
+            cards.append(
+                f'<a class="card" href="{slug}.html">\n'
+                f'  <img src="{shot}" alt="{slug}: {question}">\n'
+                f'  <div class="pad">\n'
+                f'    <span class="kind">{slug}</span>\n'
+                f'    <h3>{question}</h3>\n'
+                f'  </div>\n'
+                f'</a>'
+            )
+        groups.append(
+            f'<section class="group">\n'
+            f'  <h2>{heading}</h2>\n'
+            f'  <div class="cards">\n    '
+            + "\n    ".join(cards)
+            + "\n  </div>\n</section>"
+        )
+    cards_html = "\n".join(groups)
+    voice_cards = []
+    for name, href, shot, blurb in VOICES_GALLERY:
+        voice_cards.append(
+            f'<a class="card" href="{href}">\n'
+            f'  <img src="{shot_prefix}/{shot}" alt="{name}: {blurb}">\n'
+            f'  <div class="pad">\n'
+            f'    <span class="kind">{name}</span>\n'
+            f'    <h3>{blurb}</h3>\n'
+            f'  </div>\n'
+            f'</a>'
+        )
+    voices_html = (
+        '<section class="group">\n'
+        '  <h2>Voices</h2>\n'
+        '  <p class="lead">The same proposal in three themes, then how the client brand was built.</p>\n'
+        '  <div class="cards">\n    '
+        + "\n    ".join(voice_cards)
+        + "\n  </div>\n</section>"
+    )
+    skill_cards = []
+    for name, href, shot, blurb in SKILL_GALLERY:
+        skill_cards.append(
+            f'<a class="card" href="{href}">\n'
+            f'  <img src="{shot_prefix}/{shot}" alt="{name}: {blurb}">\n'
+            f'  <div class="pad">\n'
+            f'    <span class="kind">{name}</span>\n'
+            f'    <h3>{blurb}</h3>\n'
+            f'  </div>\n'
+            f'</a>'
+        )
+    skills_html = ""
+    if include_skills:
+        skills_html = (
+            '<section class="group">\n'
+            '  <h2>The skills</h2>\n'
+            '  <div class="cards">\n    '
+            + "\n    ".join(skill_cards)
+            + "\n  </div>\n</section>"
+        )
+    with tempfile.NamedTemporaryFile(
+        "w", suffix=".html", encoding="utf-8", delete=False
+    ) as tmp:
+        raw = (ROOT / "templates" / "docs-gallery.html").read_text(encoding="utf-8")
+        filled = (
+            raw.replace("<!-- @@VOICES -->", voices_html, 1)
+            .replace("<!-- @@SKILLS -->", skills_html, 1)
+            .replace("<!-- @@CARDS -->", cards_html, 1)
+            .replace("@@TYPES_HREF", types_href)
+        )
+        tmp.write(filled)
+        tmp_path = Path(tmp.name)
+    try:
+        assembled = build(tmp_path, "field-notes")
+    finally:
+        tmp_path.unlink(missing_ok=True)
+    if (
+        "@@INLINE" in assembled
+        or "@@CARDS" in assembled
+        or "@@SKILLS" in assembled
+        or "@@VOICES" in assembled
+        or "@@TYPES_HREF" in assembled
+    ):
+        sys.exit("unresolved marker in docs-gallery")
+    out = dest or (EX / "index.html")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(assembled, encoding="utf-8")
+    try:
+        shown = out.relative_to(ROOT)
+    except ValueError:
+        shown = out
+    print(f"  {shown} ({len(assembled):,} bytes)")
+
+
 def build_documents() -> None:
     print("assembling documents")
+    assemble_longform()
     for out, (template, theme) in DOCUMENTS.items():
         target = EX / out
         if not run([

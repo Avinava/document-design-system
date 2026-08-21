@@ -1,0 +1,54 @@
+<article class="doc">
+
+  <p class="eyebrow">Specification</p>
+  <h1>Dispatcher routing — Northwind Ingestion</h1>
+
+  <p class="status-banner">
+    <strong>Status:</strong> Proposed ·
+    <strong>Keywords:</strong> RFC 2119 ·
+    <strong>Owner:</strong> Platform
+  </p>
+
+  <p>
+    The key words MUST, SHOULD, and MAY in this document are to be interpreted
+    as described in RFC 2119.
+  </p>
+
+  <h2 id="scope">Scope</h2>
+  <p>
+    This specifies the dispatcher introduced by RFC 014: how an accepted
+    <code>POST /events</code> payload is assigned to <code>ingest-a</code> or
+    <code>ingest-b</code>. It does not specify the gateway API, warehouse
+    schema, or batch path.
+  </p>
+
+  <h2 id="definitions">Definitions</h2>
+  <ul>
+    <li><strong>Event ID</strong> — the <code>id</code> field on an accepted event. Opaque string.</li>
+    <li><strong>Partition</strong> — <code>hash(event id) mod 2</code>. Even → <code>ingest-a</code>. Odd → <code>ingest-b</code>.</li>
+  </ul>
+
+  <h2 id="requirements">Requirements</h2>
+  <ul>
+    <li><code>REQ-001</code> The dispatcher MUST assign every accepted event to exactly one of <code>ingest-a</code> or <code>ingest-b</code>.</li>
+    <li><code>REQ-002</code> The assignment MUST be a function of event ID alone.</li>
+    <li><code>REQ-003</code> If the chosen queue is unavailable, the dispatcher MUST shed the event and emit an alert. It MUST NOT block the gateway request for more than 200ms. <span class="evidence">(Unresolved vs blocking: Reliability, 2026-08-25.)</span></li>
+    <li><code>REQ-004</code> The dispatcher MUST NOT inspect or persist payload bodies.</li>
+  </ul>
+
+  <h2 id="examples">Examples</h2>
+  <p>
+    Event <code>id=evt_01</code> hashes even → <code>ingest-a</code>. Event
+    <code>id=evt_02</code> hashes odd → <code>ingest-b</code>. A 503 from
+    <code>ingest-a</code> yields HTTP 202 from the gateway, a shed count, and
+    no warehouse write.
+  </p>
+
+  <h2 id="compliance">Compliance</h2>
+  <p>
+    Conformance is a unit test of <code>REQ-001</code>–<code>REQ-002</code> on a
+    fixed ID list, plus a chaos test that <code>ingest-a</code> down does not
+    stall <code>/events</code> past 200ms.
+  </p>
+
+</article>

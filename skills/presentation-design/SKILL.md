@@ -1,13 +1,13 @@
 ---
 name: presentation-design
-description: Design presentation decks as self-contained 16:9 HTML slides that export cleanly to PDF — board updates, project reviews, findings readouts, proposals, and conference talks. Use when building a deck, slides, a presentation, or a leadership readout; when converting a report or a set of findings into slides; or when an existing deck needs a coherent visual system and a clean PDF export. Do not use for documents meant to be read rather than presented (use analytical-document-design or longform-document-design), for a single standalone chart or diagram, or when the user specifically needs an editable .pptx file.
+description: Design presentation decks as self-contained 16:9 HTML slides that export cleanly to PDF — board updates, project reviews, findings readouts, proposals, and conference talks. Use when building a deck, slides, a presentation, or a leadership readout; when converting a report or a set of findings into slides; or when an existing deck needs a coherent visual system and a clean PDF export. Do not use for documents meant to be read rather than presented (use analytical-document-design or writing-documents), for a single standalone chart or diagram, or when the user specifically needs an editable .pptx file.
 ---
 
 # Presentation Design
 
 A slide is seen for as long as it takes to say one thing. That constraint drives every rule here.
 
-A deck is not a document with page breaks. If the content only makes sense when read closely, it is a document — say so and use `analytical-document-design` or `longform-document-design` instead. Converting a document into slides by cutting it into pieces produces a deck that is bad to present and worse to read.
+A deck is not a document with page breaks. If the content only makes sense when read closely, it is a document — say so and use `analytical-document-design` or `writing-documents` instead. Converting a document into slides by cutting it into pieces produces a deck that is bad to present and worse to read.
 
 ## One idea per slide
 
@@ -57,7 +57,7 @@ Slides are `1280 × 720` CSS pixels. That is the authoring unit; the deck scales
 - **8px spacing grid** at this scale, since everything is twice document scale.
 - One visual per slide. Two charts on one slide means the audience reads neither.
 
-The token contract in `core/tokens.md` applies in full. `templates/deck.html` is the working skeleton.
+The token contract in `core/tokens.md` applies in full. `templates/deck.html` is the worked example — fourteen slides covering every type in the table above. Assemble it to `examples/capacity-deck.html`.
 
 ## Contrast and the room
 

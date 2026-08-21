@@ -1,0 +1,126 @@
+<!doctype html>
+<!--
+  Type gallery — one card per writing-documents slug.
+  Local: examples/index.html. Pages: types.html (homepage is templates/site.html).
+
+  Assemble with python scripts/build_examples.py
+  Screenshot paths assume this file is served from examples/
+  (../docs/screenshots/<slug>.png). build_site.py rewrites them for Pages.
+-->
+<html lang="en" data-theme="field-notes">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eighteen document types — document-design-system</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* @@INLINE core/themes/${THEME}.css @@ */
+/* @@INLINE core/base.css @@ */
+
+.shell { max-width: 1120px; margin: 0 auto; padding: 40px 32px 72px; }
+.lead { max-width: 62ch; }
+.group { margin-top: 2.5rem; }
+.group h2 { margin-top: 0; }
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 1rem;
+}
+.card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.card:hover { border-color: var(--rule-strong); }
+.card img {
+  display: block;
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  object-position: top;
+  border-bottom: 1px solid var(--rule);
+  background: var(--surface-muted);
+}
+.card .pad { padding: 0.875rem 1rem 1.1rem; }
+.card .kind {
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+.card h3 { margin: 0.25rem 0 0; font-size: 1rem; font-weight: 600; }
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 32px;
+}
+.wordmark {
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  color: var(--ink);
+}
+.site-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.15rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.9375rem;
+}
+.site-nav a { color: var(--muted); text-decoration: none; }
+.site-nav a:hover { color: var(--ink); }
+@media (max-width: 640px) {
+  .shell { padding: 24px 16px 48px; }
+  .card img { height: 140px; }
+}
+
+/* @@INLINE core/print.css @@ */
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="site-nav" aria-label="Site">
+    <a class="wordmark" href="index.html">document-design-system</a>
+    <ul>
+      <li><a href="inventory-report.html">Report</a></li>
+      <li><a href="capacity-deck.html">Deck</a></li>
+      <li><a href="gallery-light.html">Figures</a></li>
+      <li><a href="@@TYPES_HREF">Types</a></li>
+      <li><a href="themes-light.html">Themes</a></li>
+      <li><a href="brand.html">Brand</a></li>
+      <li><a href="https://github.com/Avinava/document-design-system">GitHub</a></li>
+    </ul>
+  </nav>
+
+  <p class="eyebrow">writing-documents</p>
+  <h1>Eighteen document types</h1>
+  <p class="lead">
+    Markdown in your repo by default. These HTML files are the designed
+    gallery — one Northwind Ingestion world. Open any card.
+  </p>
+
+  <!-- @@VOICES -->
+
+  <!-- @@SKILLS -->
+
+  <div id="types"></div>
+  <!-- @@CARDS -->
+</div>
+</body>
+</html>

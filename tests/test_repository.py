@@ -27,7 +27,7 @@ EXPECTED_SKILLS = {
     "analytical-document-design",
     "chart-design",
     "diagram-design",
-    "longform-document-design",
+    "writing-documents",
     "presentation-design",
     "brand-theme-design",
 }
@@ -85,6 +85,130 @@ class TestSkills(unittest.TestCase):
                         f"{skill.name}/references/{ref.name} is never referenced "
                         "from SKILL.md, so it will never be loaded",
                     )
+
+
+class TestWritingTypes(unittest.TestCase):
+    def test_type_slugs_match_filenames(self):
+        ref_dir = SKILLS / "writing-documents" / "references"
+        for path in sorted(ref_dir.glob("type-*.md")):
+            if path.name == "type-index.md":
+                continue
+            with self.subTest(ref=path.name):
+                expected = path.name[len("type-") : -len(".md")]
+                text = path.read_text(encoding="utf-8")
+                self.assertIn(f"slug: {expected}", text)
+                self.assertIn("Reader's question", text)
+                self.assertIn(f"/document-design-system:{expected}", text)
+
+    def test_type_index_lists_every_shipped_type(self):
+        ref_dir = SKILLS / "writing-documents" / "references"
+        index = (ref_dir / "type-index.md").read_text(encoding="utf-8")
+        for path in sorted(ref_dir.glob("type-*.md")):
+            if path.name == "type-index.md":
+                continue
+            slug = path.name[len("type-") : -len(".md")]
+            with self.subTest(slug=slug):
+                self.assertIn(f"`{slug}`", index)
+
+    def test_gallery_lists_every_type(self):
+        from build_examples import LONGFORM, TYPE_GALLERY
+
+        listed = {slug for _, items in TYPE_GALLERY for slug, _ in items}
+        self.assertEqual(listed, set(LONGFORM))
+        index = ROOT / "examples" / "index.html"
+        if index.is_file():
+            text = index.read_text(encoding="utf-8")
+            for slug in LONGFORM:
+                with self.subTest(slug=slug):
+                    self.assertIn(f'href="{slug}.html"', text)
+
+    def test_gallery_covers_every_skill(self):
+        from build_examples import SKILL_GALLERY
+
+        listed = {name for name, *_ in SKILL_GALLERY}
+        self.assertEqual(listed, EXPECTED_SKILLS)
+        index = ROOT / "examples" / "index.html"
+        if index.is_file():
+            text = index.read_text(encoding="utf-8")
+            for name, href, shot, _ in SKILL_GALLERY:
+                with self.subTest(skill=name):
+                    self.assertIn(name, text)
+                    self.assertIn(href, text)
+                    self.assertIn(shot, text)
+
+    def test_example_html_exists_for_every_type(self):
+        ref_dir = SKILLS / "writing-documents" / "references"
+        for path in sorted(ref_dir.glob("type-*.md")):
+            if path.name == "type-index.md":
+                continue
+            slug = path.name[len("type-") : -len(".md")]
+            with self.subTest(slug=slug):
+                self.assertTrue(
+                    (ROOT / "examples" / f"{slug}.html").is_file(),
+                    f"missing examples/{slug}.html",
+                )
+                self.assertTrue(
+                    (ROOT / "templates" / "types" / f"{slug}.html").is_file(),
+                    f"missing templates/types/{slug}.html",
+                )
+                self.assertTrue(
+                    (ROOT / "examples" / f"{slug}.md").is_file(),
+                    f"missing examples/{slug}.md",
+                )
+                self.assertTrue(
+                    (ROOT / "docs" / "screenshots" / f"{slug}.png").is_file(),
+                    f"missing docs/screenshots/{slug}.png",
+                )
+
+    def test_command_exists_for_every_type(self):
+        ref_dir = SKILLS / "writing-documents" / "references"
+        commands = ROOT / "commands"
+        for path in sorted(ref_dir.glob("type-*.md")):
+            if path.name == "type-index.md":
+                continue
+            slug = path.name[len("type-") : -len(".md")]
+            with self.subTest(slug=slug):
+                cmd = commands / f"{slug}.md"
+                self.assertTrue(cmd.is_file(), f"missing commands/{slug}.md")
+                body = cmd.read_text(encoding="utf-8")
+                self.assertTrue(body.startswith("---\n"), f"{slug} missing frontmatter")
+                self.assertIn("description:", body)
+                self.assertIn(f"Type slug: {slug}", body)
+                self.assertIn("Markdown", body)
+
+    def test_proposal_variants_share_a_body(self):
+        from build_examples import LONGFORM_VARIANTS
+
+        self.assertIn("proposal-horizon", LONGFORM_VARIANTS)
+        self.assertIn("proposal-coral", LONGFORM_VARIANTS)
+        for out_slug, (body_slug, theme, _) in LONGFORM_VARIANTS.items():
+            with self.subTest(out=out_slug):
+                self.assertEqual(body_slug, "proposal")
+                html = (ROOT / "examples" / f"{out_slug}.html").read_text(
+                    encoding="utf-8"
+                )
+                self.assertIn(f'data-theme="{theme}"', html)
+                self.assertIn("Two engineers, one quarter", html)
+
+    def test_pages_site_is_homepage_plus_types(self):
+        result = subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / "build_site.py"), "--check"],
+            capture_output=True,
+            text=True,
+            cwd=str(ROOT),
+        )
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertIn("homepage", result.stdout)
+
+    def test_no_orphan_commands(self):
+        ref_dir = SKILLS / "writing-documents" / "references"
+        types = {
+            p.name[len("type-") : -len(".md")]
+            for p in ref_dir.glob("type-*.md")
+            if p.name != "type-index.md"
+        }
+        commands = {p.stem for p in (ROOT / "commands").glob("*.md")}
+        self.assertEqual(commands, types)
 
 
 class TestPortability(unittest.TestCase):

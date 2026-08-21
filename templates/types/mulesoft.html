@@ -1,0 +1,47 @@
+<article class="doc">
+
+  <p class="eyebrow">MuleSoft suite</p>
+  <h1>Northwind partner ingest — documentation set</h1>
+
+  <p class="status-banner">
+    <strong>Kind:</strong> suite, not one file ·
+    <strong>If mule-docs is installed:</strong> prefer it for inventory ·
+    <strong>This page:</strong> designed index of the Markdown set
+  </p>
+
+  <p>
+    A fictional Mule 4 application that accepts partner events and hands them
+    to Northwind Ingestion's <code>/events</code>. Claims below are labelled.
+    No Anypoint topology is invented. No secrets.
+  </p>
+
+  <h2 id="set">Documents in this set</h2>
+  <table>
+    <caption>Adaptive suite</caption>
+    <thead><tr><th scope="col">File</th><th scope="col">Why it exists</th></tr></thead>
+    <tbody>
+      <tr><td><code>README.md</code></td><td>Two-minute orientation</td></tr>
+      <tr><td><code>docs/architecture.md</code></td><td>HTTP listener → transform → Northwind <code>/events</code></td></tr>
+      <tr><td><code>docs/api-contract.md</code></td><td>RAML present — partner-facing POST</td></tr>
+      <tr><td><code>docs/onboarding.md</code></td><td>POM and MUnit commands in CI</td></tr>
+    </tbody>
+  </table>
+  <p>No operations doc: no scheduler, queue, or batch in the (fictional) source. No flow catalog: fewer than ten top-level flows.</p>
+
+  <h2 id="boundary">What this application owns</h2>
+  <p>
+    Partner HTTP in, DataWeave mapping to the Northwind event shape, POST to
+    the gateway. It does not own the warehouse or RFC 014.
+    <span class="evidence">Inferred from a conventional Mule layout for this example — there is no real <code>src/main/mule</code> in <em>this</em> repo.</span>
+  </p>
+
+  <h2 id="evidence-rules">Evidence rules used</h2>
+  <ul>
+    <li>Property keys only (<code>${NWIN_EVENTS_URI}</code>), never values.</li>
+    <li>Hostnames: <code>api.example.invalid</code>.</li>
+    <li>MUnit summarised by behaviour (happy path, HTTP 4xx mapping), not suite count.</li>
+  </ul>
+
+  <p>Markdown twins for a real project would live next to that project's code. This HTML is the gallery rendering of the same suite.</p>
+
+</article>

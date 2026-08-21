@@ -1,0 +1,57 @@
+<article class="doc">
+
+  <p class="eyebrow">Postmortem</p>
+  <h1>Ingestion halt — 2026-07-30</h1>
+
+  <p class="status-banner">
+    <strong>Status:</strong> Draft ·
+    <strong>When:</strong> 2026-07-30 14:12–16:04 UTC ·
+    <strong>Owner:</strong> Platform
+  </p>
+
+  <h2 id="summary">Summary</h2>
+  <p>
+    The single ingestion queue filled. Every producer sharing that path stopped
+    accepting events for 1 hour 52 minutes. Warehouse freshness lagged. This is
+    the fourth incident of this shape in six events.
+  </p>
+
+  <h2 id="impact">Impact</h2>
+  <ul>
+    <li>Duration: 1h 52m (detect 14:12 UTC, recover 16:04 UTC).</li>
+    <li>Checkout, Catalog, and Inventory producers returned 503 or blocked.</li>
+    <li>Warehouse lag peaked at 118 minutes of events.</li>
+  </ul>
+  <p class="evidence">Verified: pager timestamps; gateway 5xx from the 14:12–16:04 window.</p>
+
+  <h2 id="timeline">Timeline (UTC)</h2>
+  <ul>
+    <li>14:12 — lag alert. Detection.</li>
+    <li>14:18 — on-call confirms queue depth saturating; consumers alive.</li>
+    <li>15:40 — producers start failing hard as the gateway times out.</li>
+    <li>16:04 — queue drained after a consumer scale-up; ingestion resumes.</li>
+  </ul>
+
+  <h2 id="root-cause">Root cause</h2>
+  <p>
+    One queue, no failover. Backpressure had nowhere to go except the gateway.
+    Scaling consumers recovered this instance; it does not remove the coupling.
+    RFC 014 exists because of this chain.
+  </p>
+
+  <h2 id="contributing">Contributing factors</h2>
+  <ul>
+    <li>Detection waited on lag &gt; 120s — five minutes of fill before a page.</li>
+    <li>No shed-and-alert path; the gateway blocked.</li>
+  </ul>
+
+  <h2 id="what-went-well">What went well</h2>
+  <p>On-call found the lag dashboard on the first try. The runbook scale step worked.</p>
+
+  <h2 id="action-items">Action items</h2>
+  <ol>
+    <li>Ship RFC 014 (two queues). Owner: Platform. P1. Tracking: RFC 014.</li>
+    <li>Page at 60s lag, not 120s. Owner: Reliability. P2.</li>
+  </ol>
+
+</article>

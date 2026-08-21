@@ -2,6 +2,8 @@
 
 Committed outputs. They serve three jobs at once: CI fixtures, the screenshots in the root README, and a working reference for what each skill produces.
 
+The local type gallery is [`index.html`](index.html) — six skill cards, then the eighteen writing-documents types. GitHub Pages uses a full homepage at the site root and this gallery at `/types.html`.
+
 All of them rebuild from source — nothing here is hand-maintained.
 
 ```bash
@@ -14,12 +16,39 @@ python3 scripts/build_examples.py
 | File | Skill | Theme |
 |---|---|---|
 | `inventory-report.html` | analytical-document-design | editorial-coral |
-| `platform-rfc.html` | longform-document-design | field-notes |
+| `design-doc.html` (and 17 other slugs) | writing-documents | see table below |
 | `capacity-deck.html` | presentation-design | executive-navy |
 | `gallery-light.html` / `gallery-dark.html` | diagram-design + chart-design | editorial-coral / console-violet |
-| `themes-light.html` / `themes-dark.html` | the token contract itself | all four panels |
+| `themes-light.html` / `themes-dark.html` | the token contract itself | four house styles + horizon |
+| `proposal-horizon.html` / `proposal-coral.html` | writing-documents (same body as proposal) | horizon / editorial-coral |
+| `brand.html` | brand-theme-design exhibit | editorial-coral |
 
 The `-light` / `-dark` pairs exist so the README can swap them with the reader's GitHub theme via `<picture>`. Both halves of each pair inline the **same** SVG figures — only the root `data-theme` differs, so the pair is also a direct demonstration that nothing needs re-rendering.
+
+### writing-documents types
+
+Bodies live in `templates/types/<slug>.html`. The shared world is [`WORLD.md`](WORLD.md). Rebuild with `python3 scripts/build_examples.py`. Each slug also has a Markdown twin `examples/<slug>.md`.
+
+| File | Theme |
+|---|---|
+| `design-doc.html` | field-notes |
+| `adr.html` | field-notes |
+| `spec.html` | field-notes |
+| `api-contract.html` | console-violet |
+| `architecture.html` | field-notes |
+| `handoff.html` | field-notes |
+| `design-handoff.html` | editorial-coral |
+| `discovery.html` | field-notes |
+| `test-report.html` | editorial-coral |
+| `postmortem.html` | console-violet |
+| `proposal.html` | executive-navy |
+| `runbook.html` | console-violet |
+| `onboarding.html` | field-notes |
+| `tutorial.html` | editorial-coral |
+| `how-to.html` | editorial-coral |
+| `reference.html` | console-violet |
+| `explanation.html` | field-notes |
+| `mulesoft.html` | field-notes |
 
 ## Figures
 
@@ -58,4 +87,4 @@ node scripts/export_pdf.mjs examples/inventory-report.html --out report.pdf
 node scripts/export_pdf.mjs examples/capacity-deck.html --out deck.pdf --preset deck
 ```
 
-The report is 3 pages of A4; the deck is 7 slides on 7 pages. Open the PDF and look at it — page count alone proves nothing, since a drop in pages can mean clipped overflow rather than better layout.
+The report is 3 pages of A4; the deck is 14 slides on 14 pages (title, agenda, statements, dividers, table, metrics, chart, diagrams, comparison, closing). Open the PDF and look at it — page count alone proves nothing, since a drop in pages can mean clipped overflow rather than better layout.

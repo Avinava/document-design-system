@@ -1,17 +1,18 @@
 <p align="center">
-  <img src="assets/banner.svg" alt="document-design-system — analytical reports, diagrams, charts, decks, and long-form specs as self-contained HTML" width="960" />
+  <img src="assets/banner.svg" alt="document-design-system — reports, diagrams, charts, decks, and eighteen document types as self-contained HTML" width="960" />
 </p>
 
 <p align="center">
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/license-MIT-2d3142"></a>
   <img alt="6 skills" src="https://img.shields.io/badge/skills-6-eb6c36">
+  <img alt="18 document types" src="https://img.shields.io/badge/document%20types-18-2d3142">
   <img alt="no runtime dependencies" src="https://img.shields.io/badge/runtime%20deps-none-2d3142">
   <a href="https://github.com/Avinava/document-design-system/actions/workflows/validate.yml"><img alt="validate" src="https://github.com/Avinava/document-design-system/actions/workflows/validate.yml/badge.svg"></a>
 </p>
 
 ---
 
-**A design system for documents.** Six skills over one token contract — analytical reports, diagrams, charts, decks, long-form specs, and brand theming — producing self-contained HTML that needs no JavaScript to read, no build step to open, and prints properly.
+**A design system for documents, and a skill that writes them.** Six skills over one token contract — analytical reports, diagrams, charts, decks, eighteen document types, and brand theming. Writing lands as Markdown in your repo by default. Designed HTML is opt-in: no JavaScript to read, no build step to open, and it prints.
 
 Most document tooling is welded to one output format or one client's brand. This is the discipline itself: what to measure, when a chart earns its place, how to structure an argument, and one shared set of semantic tokens underneath so a report, the diagram inside it, and the deck derived from it all look like one system.
 
@@ -20,7 +21,7 @@ Most document tooling is welded to one output format or one client's brand. This
 /plugin install document-design-system@document-design-system
 ```
 
-Then `/plugin` to confirm it is installed, or just ask for a report — the skills trigger on their own.
+Then `/plugin` to confirm it is installed. Ask for a report, or `/document-design-system:handoff` (or `adr`, `design-doc`, …) — Markdown in the repo unless you asked for HTML.
 
 The repetition on the second line is not a typo. `@` reads as "from": it names a *plugin*
 and the *catalog* it came from, and this repository publishes its own catalog containing
@@ -57,7 +58,7 @@ script invocation pointing at nothing.
 
 Every image below is a committed example in [`examples/`](examples/), rebuilt from source by `python scripts/build_examples.py` and captured by `python scripts/shoot_examples.py`. Nothing is a mockup.
 
-### Four voices, one contract
+### Several voices, one contract
 
 Identical markup in all four panels — only `data-theme` differs. Surfaces, ink, accent, typography, border character, and the methodology treatment all follow from the token contract.
 
@@ -72,6 +73,7 @@ Identical markup in all four panels — only `data-theme` differs. Surfaces, ink
 | `executive-navy` | Board, finance, governance | light |
 | `field-notes` | Research, audit, operational review | light |
 | `console-violet` | Engineering readouts, ops reviews, incident write-ups | **dark** |
+| `horizon` | A client brand applied — what `brand-theme-design` produces | light |
 | `brand-template` | Your own brand — copy, fill every TODO, rename | — |
 
 <sub>This image follows your GitHub theme. [source](examples/themes-light.html)</sub>
@@ -88,26 +90,102 @@ Further down the same document — cohort columns and an attribution table that 
 
 <sub>`analytical-document-design` · theme `editorial-coral` · [source](examples/inventory-report.html) · prints to 3 A4 pages</sub>
 
-### Long-form document — RFCs, design docs, ADRs, specs, postmortems
+### Document types — the writing gallery
 
-Measure held at 62–72 characters, explicit status banner, a change log for reviewers, and non-goals given their own box because it is the section most often skipped and most often needed.
+`writing-documents` writes Markdown in *your* repo by default (`/document-design-system:handoff`, `adr`, `design-doc`, …). Designed HTML is opt-in. The files below are the designed gallery: one Northwind Ingestion world, eighteen shapes.
 
-[![Long-form RFC](docs/screenshots/longform-rfc.png)](examples/platform-rfc.html)
+Browse them on the [live site](https://avinava.github.io/document-design-system/types.html), or [`examples/index.html`](examples/index.html) locally.
 
-<sub>`longform-document-design` · theme `field-notes` · [source](examples/platform-rfc.html)</sub>
+Measure 62–72 characters, status explicit, non-goals in their own box.
 
-### Deck — 16:9 slides that export one-per-page to PDF
-
-Type scales with the slide via container queries, so an authored slide and a projected slide agree. No JavaScript: a deck that renders blank without JS is not a deliverable.
+**Decide**
 
 | | |
 |---|---|
-| [![Deck metric slide](docs/screenshots/deck-metric.png)](examples/capacity-deck.html) | [![Deck chart slide](docs/screenshots/deck-chart.png)](examples/capacity-deck.html) |
-| Up to three numbers, one accent between them, and the same measure drawn once underneath | Charts render at `full-width`, not the document size — a doc-inline chart on a slide shrinks its own labels to nothing |
+| [![Design doc](docs/screenshots/design-doc.png)](examples/design-doc.html) | [![ADR](docs/screenshots/adr.png)](examples/adr.html) |
+| `design-doc` — should we do this, and is the approach sound? | `adr` — why is it like this? |
+| [![Spec](docs/screenshots/spec.png)](examples/spec.html) | [![Proposal](docs/screenshots/proposal.png)](examples/proposal.html) |
+| `spec` — what exactly must I build? | `proposal` — should I approve this? |
 
-[![Deck section divider](docs/screenshots/deck-divider.png)](examples/capacity-deck.html)
+**Hand off**
 
-<sub>`presentation-design` · theme `executive-navy` · [source](examples/capacity-deck.html) · 7 slides → 7 PDF pages</sub>
+| | |
+|---|---|
+| [![Handoff](docs/screenshots/handoff.png)](examples/handoff.html) | [![Design handoff](docs/screenshots/design-handoff.png)](examples/design-handoff.html) |
+| `handoff` — what do I run after you leave? | `design-handoff` — what do I build, in every state? |
+
+**Operate**
+
+| | |
+|---|---|
+| [![Architecture](docs/screenshots/architecture.png)](examples/architecture.html) | [![Runbook](docs/screenshots/runbook.png)](examples/runbook.html) |
+| `architecture` — how is it arranged today? | `runbook` — what do I do right now? |
+| [![Postmortem](docs/screenshots/postmortem.png)](examples/postmortem.html) | [![Onboarding](docs/screenshots/onboarding.png)](examples/onboarding.html) |
+| `postmortem` — what happened, and what stops it recurring? | `onboarding` — how do I get it running? |
+
+**Specify**
+
+| | |
+|---|---|
+| [![API contract](docs/screenshots/api-contract.png)](examples/api-contract.html) | [![Test report](docs/screenshots/test-report.png)](examples/test-report.html) |
+| `api-contract` — how do I call this correctly? | `test-report` — can we ship, on this build? |
+| [![Reference](docs/screenshots/reference.png)](examples/reference.html) | |
+| `reference` — what is the exact fact? | |
+
+**Discover and teach**
+
+| | |
+|---|---|
+| [![Discovery](docs/screenshots/discovery.png)](examples/discovery.html) | [![Tutorial](docs/screenshots/tutorial.png)](examples/tutorial.html) |
+| `discovery` — what did we learn, and should we proceed? | `tutorial` — can I learn this by doing it once? |
+| [![How-to](docs/screenshots/how-to.png)](examples/how-to.html) | [![Explanation](docs/screenshots/explanation.png)](examples/explanation.html) |
+| `how-to` — how do I get this job done? | `explanation` — why is it like this? |
+
+**MuleSoft**
+
+[![MuleSoft suite](docs/screenshots/mulesoft.png)](examples/mulesoft.html)
+
+<sub>`mulesoft` — suite index (README, architecture, API, onboarding). Prefer the `mule-docs` skill for inventory when it is installed. [source](examples/mulesoft.html)</sub>
+
+#### Catalog
+
+| Slug | Command | HTML | Markdown |
+|---|---|---|---|
+| `design-doc` | `/document-design-system:design-doc` | [html](examples/design-doc.html) | [md](examples/design-doc.md) |
+| `adr` | `/document-design-system:adr` | [html](examples/adr.html) | [md](examples/adr.md) |
+| `spec` | `/document-design-system:spec` | [html](examples/spec.html) | [md](examples/spec.md) |
+| `proposal` | `/document-design-system:proposal` | [html](examples/proposal.html) | [md](examples/proposal.md) |
+| `handoff` | `/document-design-system:handoff` | [html](examples/handoff.html) | [md](examples/handoff.md) |
+| `design-handoff` | `/document-design-system:design-handoff` | [html](examples/design-handoff.html) | [md](examples/design-handoff.md) |
+| `architecture` | `/document-design-system:architecture` | [html](examples/architecture.html) | [md](examples/architecture.md) |
+| `runbook` | `/document-design-system:runbook` | [html](examples/runbook.html) | [md](examples/runbook.md) |
+| `postmortem` | `/document-design-system:postmortem` | [html](examples/postmortem.html) | [md](examples/postmortem.md) |
+| `onboarding` | `/document-design-system:onboarding` | [html](examples/onboarding.html) | [md](examples/onboarding.md) |
+| `api-contract` | `/document-design-system:api-contract` | [html](examples/api-contract.html) | [md](examples/api-contract.md) |
+| `test-report` | `/document-design-system:test-report` | [html](examples/test-report.html) | [md](examples/test-report.md) |
+| `reference` | `/document-design-system:reference` | [html](examples/reference.html) | [md](examples/reference.md) |
+| `discovery` | `/document-design-system:discovery` | [html](examples/discovery.html) | [md](examples/discovery.md) |
+| `tutorial` | `/document-design-system:tutorial` | [html](examples/tutorial.html) | [md](examples/tutorial.md) |
+| `how-to` | `/document-design-system:how-to` | [html](examples/how-to.html) | [md](examples/how-to.md) |
+| `explanation` | `/document-design-system:explanation` | [html](examples/explanation.html) | [md](examples/explanation.md) |
+| `mulesoft` | `/document-design-system:mulesoft` | [html](examples/mulesoft.html) | [md](examples/mulesoft.md) |
+
+### Deck — a presented ask, not a document with page breaks
+
+RFC 014 for the Platform director. Fourteen slides, one idea each, claim titles. Every `presentation-design` slide type is in the file. Type scales with the slide via container queries. No JavaScript: a deck that renders blank without JS is not a deliverable.
+
+| | |
+|---|---|
+| [![Title slide](docs/screenshots/deck-title.png)](examples/capacity-deck.html) | [![Statement slide](docs/screenshots/deck-statement.png)](examples/capacity-deck.html) |
+| Title names the argument, not the meeting | Statement slides are reserved for the two or three lines that should stick |
+| [![Comparison slide](docs/screenshots/deck-compare.png)](examples/capacity-deck.html) | [![Chart slide](docs/screenshots/deck-chart.png)](examples/capacity-deck.html) |
+| Three options on the same criteria — accenting a column is a recommendation | Chart at `full-width`. A document chart dropped on a slide shrinks its labels to nothing |
+| [![Metric slide](docs/screenshots/deck-metric.png)](examples/capacity-deck.html) | [![Incident table](docs/screenshots/deck-table.png)](examples/capacity-deck.html) |
+| Three numbers, one accent, one ledger underneath | Six rows is the ceiling; the last halt is the focal row |
+| [![Diagram slide](docs/screenshots/deck-diagram.png)](examples/capacity-deck.html) | [![Section divider](docs/screenshots/deck-divider.png)](examples/capacity-deck.html) |
+| One path, one failure — the current queue has no failover | Dividers mark a shift; a few words on an accent field |
+
+<sub>`presentation-design` · theme `executive-navy` · [source](examples/capacity-deck.html) · 14 slides → 14 PDF pages · also [closing](docs/screenshots/deck-close.png)</sub>
 
 ### Figures — diagrams and charts on one token set
 
@@ -129,18 +207,31 @@ Six forms, one accent, all resolving against the document's tokens at view time.
 | Line | Observable Plot → SVG | Straight segments; a spline invents readings between points |
 | Limit ledger | Hand-authored SVG | A linear track beats a gauge — same value, stated precisely |
 
+### Same document, three voices
+
+The proposal you send. Identical markup; only `data-theme` changes. Navy is the system's board voice. Horizon is a client brand. Coral is the default analytical voice.
+
+| | | |
+|---|---|---|
+| [![Proposal in executive-navy](docs/screenshots/proposal.png)](examples/proposal.html) | [![Proposal in horizon](docs/screenshots/proposal-horizon.png)](examples/proposal-horizon.html) | [![Proposal in editorial-coral](docs/screenshots/proposal-coral.png)](examples/proposal-coral.html) |
+| `executive-navy` — board packet | `horizon` — client brand, the one you send | `editorial-coral` — default analytical |
+
+<sub>Same `templates/types/proposal.html` body. [How horizon was built](examples/brand.html).</sub>
+
 ### Brand theming — a guide in, a theme out
 
 Point it at a brand guide PDF, a website, a screenshot, or a few hex values. It extracts with provenance, maps to the semantic roles, and audits the result — because brand colors are chosen for logos, and routinely fail contrast for body text.
 
+`horizon` is that process, finished: the mapping in [`examples/brand.html`](examples/brand.html), the theme in `core/themes/horizon.css`, the document in [`proposal-horizon.html`](examples/proposal-horizon.html).
+
 ```bash
 python3 scripts/extract_site_theme.py https://example.com   # computed styles, not pixels
-python3 scripts/audit_theme.py core/themes/acme.css         # every pair, exact thresholds
+python3 scripts/audit_theme.py core/themes/horizon.css      # every pair, exact thresholds
 ```
 
-The auditor is the part that matters. Building it immediately found two defects in this repo's own default theme: `--accent-ink` on `--accent` was **3.12:1**, failing AA, and the accent sat 13° from `--warning`. Both are fixed.
+The auditor is the part that matters. Building it immediately found two defects in this repo's own default theme: `--accent-ink` on `--accent` was **3.12:1**, failing AA, and the accent sat 13° from `--warning`. Both are fixed. Horizon's brand green/orange/red failed as text on white and were darkened (mapping.md remedy 2) before the theme shipped.
 
-<sub>`brand-theme-design` · [skill](skills/brand-theme-design/SKILL.md)</sub>
+<sub>`brand-theme-design` · [skill](skills/brand-theme-design/SKILL.md) · [exhibit](examples/brand.html) · [themes](examples/themes-light.html)</sub>
 
 ---
 
@@ -164,16 +255,18 @@ The page, the chart's focal bar, and the diagram's arrowheads all move together.
 
 ## The skills
 
-| Skill | Owns | Does **not** own |
-|---|---|---|
-| **analytical-document-design** | Evidence models, control totals, metric semantics, cohort/time semantics, classification confidence, report architecture, methodology | Prose-first docs, slides, standalone charts |
-| **diagram-design** | When a diagram earns its place, form routing, layout/edge/label rules, Mermaid→SVG prerender, hand-SVG for concept diagrams | Quantitative charts, UI mockups, editable `.drawio` |
-| **chart-design** | Chart-type selection, axis honesty, encoding rules, palettes derived from tokens, grayscale survival | Narrative structure, dashboards-as-applications |
-| **presentation-design** | 16:9 HTML slides, one-idea-per-slide, slide hierarchy, PDF export | Documents meant to be read rather than presented |
-| **longform-document-design** | RFCs, design docs, ADRs, specs, postmortems, runbooks; prose hierarchy, cross-references, footnotes | Metric-led reports |
-| **brand-theme-design** | Turning a brand into a theme — extraction from a guide, site, or screenshot; mapping to semantic roles; contrast auditing | Picking between themes that already ship; restyling one document |
+Each row is a committed example in [`examples/`](examples/), not a description of intent. The gallery above is the proof.
 
-Each `SKILL.md` is a lean index — 110 to 181 lines — with the depth in `references/` loading only when relevant.
+| Skill | Owns | Does **not** own | Example |
+|---|---|---|---|
+| **[analytical-document-design](skills/analytical-document-design/SKILL.md)** | Evidence models, control totals, metric semantics, cohort/time semantics, classification confidence, report architecture, methodology | Prose-first docs, slides, standalone charts | [inventory-report](examples/inventory-report.html) |
+| **[diagram-design](skills/diagram-design/SKILL.md)** | When a diagram earns its place, form routing, layout/edge/label rules, Mermaid→SVG prerender, hand-SVG for concept diagrams | Quantitative charts, UI mockups, editable `.drawio` | [figure gallery](examples/gallery-light.html) |
+| **[chart-design](skills/chart-design/SKILL.md)** | Chart-type selection, axis honesty, encoding rules, palettes derived from tokens, grayscale survival | Narrative structure, dashboards-as-applications | [figure gallery](examples/gallery-light.html) |
+| **[presentation-design](skills/presentation-design/SKILL.md)** | 16:9 HTML slides; claim titles; one idea per slide; title, agenda, statement, divider, metric, chart, diagram, comparison, table, closing; PDF one slide per page | Documents meant to be read rather than presented; editable `.pptx` | [capacity-deck](examples/capacity-deck.html) |
+| **[writing-documents](skills/writing-documents/SKILL.md)** | Eighteen types (design-doc, adr, handoff, api-contract, test-report, Diátaxis, MuleSoft suite, …); Markdown by default; designed HTML only when asked | Metric-led reports; casual edits to existing markdown; restyling into HTML unprompted | [type gallery](examples/index.html) |
+| **[brand-theme-design](skills/brand-theme-design/SKILL.md)** | Turning a brand into a theme — extraction from a guide, site, or screenshot; mapping to semantic roles; contrast auditing | Picking between themes that already ship; restyling one document | [themes](examples/themes-light.html) |
+
+Each `SKILL.md` is a lean index — under 200 lines — with the depth in `references/` loading only when relevant.
 
 ---
 
@@ -187,8 +280,9 @@ core/            the shared design system — the single source of truth
   print.css        print as a distinct output mode
   a11y.md          SVG labelling, contrast, grayscale, focus
 skills/          the six skills, each SKILL.md + references/
+commands/        /document-design-system:<slug> for each writing-documents type
 scripts/         authoring-time tooling — never shipped to readers
-templates/       document · longform · deck · gallery · themes · diagram
+templates/       document · longform (writing-documents shell) · types/<slug> · deck · site · docs-gallery · gallery · themes · diagram
 examples/        committed outputs, doubling as CI fixtures and the shots above
 assets/          banner.svg — literal colors, because <img> is an isolated document
 docs/screenshots/
@@ -215,9 +309,9 @@ All of it runs on the authoring machine. The delivered artifact is plain HTML an
 npm install beautiful-mermaid @observablehq/plot jsdom     # renderers
 pip install playwright && playwright install chromium      # PDF + screenshots
 
-python3 scripts/build_examples.py       # rebuild every example from source
+python3 scripts/build_examples.py       # reports, decks, figures, all 18 types, gallery index
 python3 scripts/shoot_examples.py       # refresh the screenshots above
-python3 scripts/build_document.py templates/longform.html --theme field-notes --out rfc.html
+python3 scripts/build_site.py           # GitHub Pages homepage + types gallery in site/ (gitignored)
 python3 scripts/inline_fonts.py rfc.html --font "Geist:400:geist.woff2" --out offline.html
 python3 scripts/validate_repository.py .
 python3 -m unittest discover -s tests
@@ -237,6 +331,15 @@ Both renderers wrap their upstream library rather than calling it directly, beca
 `scripts/validate_repository.py` reads the same files the skills read — `core/tokens.md` for the required tokens and `core/themes/*.css` for the palette — so the prose rules and the machine check cannot drift apart. It enforces the two-key frontmatter schema, name↔folder agreement, a mandatory `Do not use for …` clause in every description, complete token coverage in every theme, no color literals outside `core/themes/`, and no broken relative links.
 
 Print is verified by exporting a PDF and looking at it, not by the presence of `@media print`. That check is what caught the report printing its title twice.
+
+## It's working if
+
+- `/document-design-system:handoff` (or any slug in the catalog) writes Markdown at the conventional path and does not load `core/` unless you asked for HTML.
+- A routine “write an ADR” loads `writing-documents` plus `type-adr.md` — not the RFC outline, not a theme.
+- [`examples/index.html`](examples/index.html) opens offline and every card reaches a real HTML example.
+- `python3 scripts/validate_repository.py .` and `python3 -m unittest discover -s tests` pass.
+
+The live site is [avinava.github.io/document-design-system](https://avinava.github.io/document-design-system/) — homepage for all six skills, [types](https://avinava.github.io/document-design-system/types.html) for the eighteen writing-documents cards. Pushes to `main` deploy it via [`.github/workflows/pages.yml`](.github/workflows/pages.yml).
 
 ## Attribution
 

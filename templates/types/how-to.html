@@ -1,0 +1,25 @@
+<article class="doc">
+
+  <p class="eyebrow">How-to</p>
+  <h1>How to replay a shed event</h1>
+
+  <p>For someone who already runs ingestion. Goal: take an event that was shed and land it without duplicating a warehouse row.</p>
+
+  <h2 id="prereq">Before you start</h2>
+  <ul>
+    <li>You have the event id and the shed timestamp from the dispatcher log.</li>
+    <li>RFC 014 is in shadow or later. On today's single queue this how-to does not apply — there is no shed path.</li>
+  </ul>
+
+  <h2 id="steps">Steps</h2>
+  <ol>
+    <li>Confirm the warehouse has no row for that id. If it does, stop. Idempotency already did the job.</li>
+    <li>POST <code>/events</code> with the same body and the same <code>id</code>. Do not mint a new id.</li>
+    <li>Expect 202. If you get <code>INVALID_EVENT</code>, fix the payload; do not retry blindly.</li>
+    <li>If you get <code>INGEST_SHED</code> again, the chosen queue is still down — wait, do not hammer.</li>
+  </ol>
+
+  <h2 id="result">You are done when</h2>
+  <p>Warehouse has one row for that id, and the shed dashboard does not increment on the replay.</p>
+
+</article>

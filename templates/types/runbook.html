@@ -1,0 +1,41 @@
+<article class="doc">
+
+  <p class="eyebrow">Runbook</p>
+  <h1>Ingestion queue lag is climbing</h1>
+
+  <p class="status-banner">
+    <strong>Owner:</strong> Platform ·
+    <strong>Dated:</strong> 2026-08-12 ·
+    <strong>Trigger:</strong> <code>ingest_lag_seconds</code> &gt; 120 for 5 minutes
+  </p>
+
+  <h2 id="when-to-use">When to use</h2>
+  <p>Page: <code>ingest_lag_seconds</code> above 120s for five minutes, or a producer report that <code>POST /events</code> is 202-shedding.</p>
+
+  <h2 id="preconditions">Preconditions</h2>
+  <ul>
+    <li>On-call has <code>kubectl</code> access to the ingestion namespace.</li>
+    <li>Dashboard: Ingestion / lag (no credentials in this document).</li>
+  </ul>
+
+  <h2 id="steps">Steps</h2>
+  <ol>
+    <li>Open the lag dashboard. Confirm which queue (<code>ingest</code> today; <code>ingest-a</code> or <code>ingest-b</code> after RFC 014). Success: one queue named.</li>
+    <li>Check consumer restart count. If crashing, jump to Escalation.</li>
+    <li>If consumers are up and lag is still climbing, scale the consumer group by one replica:
+      <pre><span class="lang">bash</span>kubectl -n ingest scale deploy/ingest-consumer --replicas=$(($(kubectl -n ingest get deploy/ingest-consumer -o jsonpath='{.spec.replicas}')+1))</pre>
+      Success: replica count increased by one; lag slope flattens within three minutes.
+    </li>
+    <li>If lag does not flatten, shed is already happening at the dispatcher — do not restart the gateway. Go to Escalation.</li>
+  </ol>
+
+  <h2 id="verification">Verification</h2>
+  <p><code>ingest_lag_seconds</code> falling for ten minutes, and <code>POST /events</code> p99 under 200ms.</p>
+
+  <h2 id="rollback">Rollback</h2>
+  <p>Scale the consumer group back to the previous replica count. Do not delete queues.</p>
+
+  <h2 id="escalation">Escalation</h2>
+  <p>After 15 minutes without a falling lag, or any consumer crashloop: page Platform primary, then Reliability. Stop changing replica counts.</p>
+
+</article>

@@ -64,6 +64,9 @@ jobs:
             --theme executive-navy --out /tmp/deck.html
           ! grep -q '@@INLINE' /tmp/deck.html
 
+      - name: Assemble the Pages gallery
+        run: python scripts/build_site.py --check
+
   render:
     runs-on: ubuntu-latest
     steps:

@@ -1,0 +1,842 @@
+<!doctype html>
+<!--
+  Type gallery — one card per writing-documents slug.
+  Local: examples/index.html. Pages: types.html (homepage is templates/site.html).
+
+  Assemble with python scripts/build_examples.py
+  Screenshot paths assume this file is served from examples/
+  (../docs/screenshots/<slug>.png). build_site.py rewrites them for Pages.
+-->
+<html lang="en" data-theme="field-notes">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eighteen document types — document-design-system</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ---- inlined from core/themes/field-notes.css ---- */
+/* field-notes — research findings, audits, operational workshops.
+ *
+ * Tactile but still professional. Warm paper, near-zero radii, a rust accent.
+ *
+ * This theme may use a very subtle paper texture, but only when requested.
+ * Texture must disappear in print and must never reduce contrast.
+ *
+ * Fonts: Source Sans 3 (display + sans), Source Code Pro (mono).
+ */
+
+[data-theme="field-notes"] {
+  --paper: #f4f0e7;
+  --surface: #fffdf7;
+  --surface-muted: #ebe5d8;
+
+  --ink: #28312d;
+  --muted: #59665f;
+  --soft: #7b857f;
+
+  --rule: rgba(40, 49, 45, 0.14);
+  --rule-strong: rgba(40, 49, 45, 0.34);
+
+  --accent: #b65332;
+  --accent-tint: rgba(182, 83, 50, 0.10);
+  --accent-ink: #ffffff;
+
+  --positive: #46725a;
+  --warning: #9a681d;
+  --critical: #9b4343;
+
+  --method-bg: #28312d;
+  --method-ink: #f4f0e7;
+  --method-muted: #c7cec8;
+
+  --display: 'Source Sans 3', 'Manrope', system-ui, sans-serif;
+  --sans: 'Source Sans 3', 'Geist', system-ui, sans-serif;
+  --mono: 'Source Code Pro', 'Geist Mono', ui-monospace, monospace;
+
+  --radius-sm: 0;
+  --radius-md: 2px;
+}
+/* ---- inlined from core/base.css ---- */
+/* base.css — component-to-token mapping.
+ *
+ * This file contains NO color literals. Every visual decision resolves through
+ * a token defined in core/themes/. That is what makes theme swapping, print
+ * normalization, and grayscale survival work without editing components.
+ *
+ * Load order matters:
+ *   1. a theme from core/themes/
+ *   2. this file
+ *   3. core/print.css   (last, so its overrides beat responsive rules)
+ */
+
+/* ---------------------------------------------------------------- reset */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ----------------------------------------------------------- derived */
+
+/* Derived from the base tokens so themes do not have to restate them.
+ * If color-mix() is unavailable in a target environment, define
+ * --comparison-fill and --track-fill explicitly in the theme instead.
+ *
+ * Declared on [data-theme] as well as :root so they re-derive at every theme
+ * boundary. Defined on :root alone they would resolve once, against the root
+ * theme, and a nested [data-theme="…"] section would keep the root's greys
+ * while everything around them changed — a subtle wrong that only shows up
+ * when two themes appear on one page. */
+:root,
+[data-theme] {
+  --comparison-fill: color-mix(in srgb, var(--muted) 16%, transparent);
+  --track-fill: color-mix(in srgb, var(--muted) 10%, transparent);
+}
+
+/* --- token aliases for embedded renderers ---------------------------
+ *
+ * Third-party renderers set their own theme variables on the element they
+ * emit. beautiful-mermaid, for example, writes --accent, --muted, and
+ * --surface onto its <svg> — names this system already uses.
+ *
+ * Emitting `--accent: var(--accent)` on that <svg> would be a self-reference,
+ * which CSS treats as invalid at computed-value time, so the diagram would
+ * lose its colors. Routing through these aliases breaks the cycle: the
+ * renderer writes `--accent: var(--dds-accent)`, and --dds-accent resolves
+ * here, on :root, where there is no collision.
+ *
+ * Add an alias whenever a renderer's namespace overlaps a token name.
+ *
+ * On [data-theme] too, for the same reason as the derived tokens above: a
+ * prerendered diagram inside a scoped theme must resolve against that theme. */
+:root,
+[data-theme] {
+  --dds-paper: var(--paper);
+  --dds-surface: var(--surface);
+  --dds-surface-muted: var(--surface-muted);
+  --dds-ink: var(--ink);
+  --dds-muted: var(--muted);
+  --dds-soft: var(--soft);
+  --dds-rule: var(--rule);
+  --dds-rule-strong: var(--rule-strong);
+  --dds-accent: var(--accent);
+  --dds-accent-tint: var(--accent-tint);
+}
+
+/* ------------------------------------------------------- typography */
+
+h1, h2, h3,
+.metric-value,
+.focal-value {
+  font-family: var(--display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+h1 { font-size: 2rem; margin: 0 0 0.5rem; }
+h2 { font-size: 1.375rem; margin: 2.5rem 0 0.75rem; }
+h3 { font-size: 1.0625rem; margin: 1.75rem 0 0.5rem; }
+
+p { margin: 0 0 1rem; max-width: 68ch; }
+
+/* Mono is for technical metadata only: dates, versions, identifiers, source
+ * names, compact labels. Body copy in mono is harder to read, not more
+ * credible. */
+.meta,
+.eyebrow,
+time,
+code,
+.identifier,
+.version {
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.01em;
+}
+
+.eyebrow {
+  color: var(--soft);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.subtle { color: var(--muted); }
+
+/* ---------------------------------------------------------- surfaces */
+
+/* Hierarchy comes from borders and spacing, not shadows. */
+.card,
+.table-wrap,
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.375rem;
+}
+
+.chart-frame {
+  background: var(--surface-muted);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+}
+
+.tag {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--rule);
+  padding: 0.125rem 0.4375rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+hr,
+.rule {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 2rem 0;
+}
+
+/* ------------------------------------------------------------ accent */
+
+/* One accent per visual region. Repeating it across every heading and card
+ * destroys the hierarchy it exists to create. */
+.focal-value,
+.focal-label {
+  color: var(--accent);
+}
+
+.accent-surface {
+  background: var(--accent-tint);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+}
+
+.accent-solid {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* ------------------------------------------------------------ status */
+
+/* Color alone never carries meaning — every status element also needs a
+ * written label, so it survives grayscale and color-blind reading. */
+.status-positive { color: var(--positive); }
+.status-warning  { color: var(--warning); }
+.status-critical { color: var(--critical); }
+
+/* ------------------------------------------------------- methodology */
+
+.methodology {
+  background: var(--method-bg);
+  color: var(--method-ink);
+  border-radius: var(--radius-md);
+  padding: 1.5rem 1.625rem;
+}
+
+.methodology h2,
+.methodology h3 { color: var(--method-ink); }
+.methodology .subtle,
+.methodology p { color: var(--method-muted); }
+
+/* ------------------------------------------------------------ tables */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 1px solid var(--rule-strong);
+  padding: 0.5rem 0.625rem;
+}
+
+td {
+  border-bottom: 1px solid var(--rule);
+  padding: 0.5rem 0.625rem;
+}
+
+/* Numbers align right and use tabular figures so columns scan vertically. */
+.num,
+td.num,
+th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+tbody tr:nth-child(even) { background: var(--surface-muted); }
+
+/* On small screens, let wide tables scroll rather than crushing columns.
+ * core/print.css unsets this — a scroll container clips in print. */
+.table-scroll,
+.diagram-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* -------------------------------------------------------------- SVG */
+
+/* Charts and diagrams style through these classes rather than through
+ * presentation attributes, so one stylesheet retheme reaches every figure. */
+.bar-focal      { fill: var(--accent-tint); stroke: var(--accent); }
+.bar-comparison { fill: var(--comparison-fill); stroke: var(--muted); }
+.track          { fill: var(--track-fill); }
+.axis-line      { stroke: var(--rule-strong); }
+.grid-line      { stroke: var(--rule); }
+.chart-label    { fill: var(--muted); font-family: var(--sans); font-size: 12px; }
+.chart-value    { fill: var(--ink); font-family: var(--sans); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+svg { max-width: 100%; height: auto; }
+
+/* --------------------------------------------------------- utilities */
+
+.print-only { display: none; }
+
+a { color: inherit; text-underline-offset: 2px; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.shell { max-width: 1120px; margin: 0 auto; padding: 40px 32px 72px; }
+.lead { max-width: 62ch; }
+.group { margin-top: 2.5rem; }
+.group h2 { margin-top: 0; }
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 1rem;
+}
+.card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.card:hover { border-color: var(--rule-strong); }
+.card img {
+  display: block;
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  object-position: top;
+  border-bottom: 1px solid var(--rule);
+  background: var(--surface-muted);
+}
+.card .pad { padding: 0.875rem 1rem 1.1rem; }
+.card .kind {
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+.card h3 { margin: 0.25rem 0 0; font-size: 1rem; font-weight: 600; }
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 32px;
+}
+.wordmark {
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  color: var(--ink);
+}
+.site-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.15rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.9375rem;
+}
+.site-nav a { color: var(--muted); text-decoration: none; }
+.site-nav a:hover { color: var(--ink); }
+@media (max-width: 640px) {
+  .shell { padding: 24px 16px 48px; }
+  .card img { height: 140px; }
+}
+
+/* ---- inlined from core/print.css ---- */
+/* print.css — print and PDF as a distinct output mode.
+ *
+ * Load this LAST. Print rendering can match a narrow-viewport media query, so
+ * without explicit overrides a desktop grid collapses to one column in the PDF.
+ * Placing this after the responsive rules is what prevents that.
+ *
+ * Browser-added headers and footers (URL, date, page number) are controlled by
+ * the print dialog, not by CSS. When a clean PDF matters, tell the user to
+ * disable them. Do not claim CSS suppresses them.
+ */
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 14mm 14mm 16mm;
+  }
+
+  /* --- theme normalization ------------------------------------------
+   * Print normalizes to white paper while keeping theme identity through
+   * ink, rules, and the accent. Dark methodology panels invert so they do
+   * not consume ink or reproduce badly in grayscale. */
+  :root,
+  [data-theme] {
+    --paper: #ffffff;
+    --surface: #ffffff;
+    --surface-muted: #f3f3f3;
+    --method-bg: #ffffff;
+    --method-ink: var(--ink);
+    --method-muted: var(--muted);
+  }
+
+  .methodology {
+    border: 1px solid var(--rule-strong);
+  }
+
+  html {
+    font-size: 10pt;
+    background: #fff;
+  }
+
+  body {
+    min-height: auto;
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* --- layout -------------------------------------------------------- */
+
+  .report-shell,
+  main {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .screen-only,
+  nav,
+  button,
+  [role="navigation"] {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  /* --- fragmentation --------------------------------------------------
+   * Protect small self-contained things. Let big things flow. Setting
+   * break-inside: avoid on every section produces half-empty pages when a
+   * section is taller than one page. */
+
+  h1, h2, h3 {
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+
+  p, li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  .metric-card,
+  .chart,
+  figure,
+  blockquote,
+  .callout,
+  .methodology {
+    break-inside: avoid-page;
+    page-break-inside: avoid;
+  }
+
+  section {
+    break-before: auto;
+  }
+
+  .page-break-before {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    break-after: page;
+    page-break-after: always;
+  }
+
+  /* --- tables ---------------------------------------------------------
+   * Long tables span pages with repeating headers. Never break-inside:
+   * avoid a whole table — it overflows or leaves large gaps. */
+
+  table {
+    width: 100%;
+    min-width: 0;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+  }
+
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
+
+  tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  th, td {
+    padding: 2.2mm 1.6mm;
+  }
+
+  /* --- overflow containers --------------------------------------------
+   * Changing overflow alone does not stop an oversized child clipping. The
+   * min-width reset is the part that actually matters. */
+
+  .table-scroll,
+  .diagram-scroll {
+    overflow: visible;
+  }
+
+  .table-scroll table,
+  .diagram-scroll svg {
+    min-width: 0 !important;
+  }
+
+  svg,
+  img,
+  canvas {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* --- compound components --------------------------------------------
+   * Generic structural rules above can strip padding from compound-class
+   * elements such as <section class="section methodology">. Restore it with
+   * a more specific selector, then check all four insets in the PDF. */
+
+  section.methodology {
+    padding: 18px 20px;
+  }
+
+  /* --- links -----------------------------------------------------------
+   * Append URLs only where the destination matters on paper. Never for
+   * fragment-only or javascript: links. */
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  a.external[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-family: ui-monospace, monospace;
+    font-size: 0.82em;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* US Letter alternative — swap the @page block above when the target
+ * organization requires it:
+ *
+ *   @page { size: Letter portrait; margin: 0.55in 0.55in 0.65in; }
+ *
+ * Do not switch the whole document to landscape because one table is wide.
+ * Simplify the printed columns first, or build a separate landscape appendix.
+ */
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="site-nav" aria-label="Site">
+    <a class="wordmark" href="index.html">document-design-system</a>
+    <ul>
+      <li><a href="inventory-report.html">Report</a></li>
+      <li><a href="capacity-deck.html">Deck</a></li>
+      <li><a href="gallery-light.html">Figures</a></li>
+      <li><a href="#types">Types</a></li>
+      <li><a href="themes-light.html">Themes</a></li>
+      <li><a href="brand.html">Brand</a></li>
+      <li><a href="https://github.com/Avinava/document-design-system">GitHub</a></li>
+    </ul>
+  </nav>
+
+  <p class="eyebrow">writing-documents</p>
+  <h1>Eighteen document types</h1>
+  <p class="lead">
+    Markdown in your repo by default. These HTML files are the designed
+    gallery — one Northwind Ingestion world. Open any card.
+  </p>
+
+  <section class="group">
+  <h2>Voices</h2>
+  <p class="lead">The same proposal in three themes, then how the client brand was built.</p>
+  <div class="cards">
+    <a class="card" href="proposal.html">
+  <img src="../docs/screenshots/proposal.png" alt="proposal: executive-navy — board voice">
+  <div class="pad">
+    <span class="kind">proposal</span>
+    <h3>executive-navy — board voice</h3>
+  </div>
+</a>
+    <a class="card" href="proposal-horizon.html">
+  <img src="../docs/screenshots/proposal-horizon.png" alt="proposal-horizon: horizon — client brand">
+  <div class="pad">
+    <span class="kind">proposal-horizon</span>
+    <h3>horizon — client brand</h3>
+  </div>
+</a>
+    <a class="card" href="proposal-coral.html">
+  <img src="../docs/screenshots/proposal-coral.png" alt="proposal-coral: editorial-coral — default">
+  <div class="pad">
+    <span class="kind">proposal-coral</span>
+    <h3>editorial-coral — default</h3>
+  </div>
+</a>
+    <a class="card" href="brand.html">
+  <img src="../docs/screenshots/brand.png" alt="brand: How the Horizon brand was built">
+  <div class="pad">
+    <span class="kind">brand</span>
+    <h3>How the Horizon brand was built</h3>
+  </div>
+</a>
+  </div>
+</section>
+
+  <section class="group">
+  <h2>The skills</h2>
+  <div class="cards">
+    <a class="card" href="inventory-report.html">
+  <img src="../docs/screenshots/analytical-report.png" alt="analytical-document-design: Evidence-led reports from structured data">
+  <div class="pad">
+    <span class="kind">analytical-document-design</span>
+    <h3>Evidence-led reports from structured data</h3>
+  </div>
+</a>
+    <a class="card" href="gallery-light.html">
+  <img src="../docs/screenshots/gallery-light.png" alt="diagram-design: Editorial SVG — architecture, sequence, maps">
+  <div class="pad">
+    <span class="kind">diagram-design</span>
+    <h3>Editorial SVG — architecture, sequence, maps</h3>
+  </div>
+</a>
+    <a class="card" href="gallery-light.html">
+  <img src="../docs/screenshots/gallery-light.png" alt="chart-design: Honest charts as inline SVG">
+  <div class="pad">
+    <span class="kind">chart-design</span>
+    <h3>Honest charts as inline SVG</h3>
+  </div>
+</a>
+    <a class="card" href="capacity-deck.html">
+  <img src="../docs/screenshots/deck-title.png" alt="presentation-design: 16:9 decks, one idea per slide">
+  <div class="pad">
+    <span class="kind">presentation-design</span>
+    <h3>16:9 decks, one idea per slide</h3>
+  </div>
+</a>
+    <a class="card" href="#types">
+  <img src="../docs/screenshots/design-doc.png" alt="writing-documents: Eighteen types, Markdown by default">
+  <div class="pad">
+    <span class="kind">writing-documents</span>
+    <h3>Eighteen types, Markdown by default</h3>
+  </div>
+</a>
+    <a class="card" href="themes-light.html">
+  <img src="../docs/screenshots/themes-light.png" alt="brand-theme-design: A brand in, a theme out">
+  <div class="pad">
+    <span class="kind">brand-theme-design</span>
+    <h3>A brand in, a theme out</h3>
+  </div>
+</a>
+  </div>
+</section>
+
+  <div id="types"></div>
+  <section class="group">
+  <h2>Decide</h2>
+  <div class="cards">
+    <a class="card" href="design-doc.html">
+  <img src="../docs/screenshots/design-doc.png" alt="design-doc: Should we do this, and is the approach sound?">
+  <div class="pad">
+    <span class="kind">design-doc</span>
+    <h3>Should we do this, and is the approach sound?</h3>
+  </div>
+</a>
+    <a class="card" href="adr.html">
+  <img src="../docs/screenshots/adr.png" alt="adr: Why is it like this?">
+  <div class="pad">
+    <span class="kind">adr</span>
+    <h3>Why is it like this?</h3>
+  </div>
+</a>
+    <a class="card" href="spec.html">
+  <img src="../docs/screenshots/spec.png" alt="spec: What exactly must I build, and how do I know I am done?">
+  <div class="pad">
+    <span class="kind">spec</span>
+    <h3>What exactly must I build, and how do I know I am done?</h3>
+  </div>
+</a>
+    <a class="card" href="proposal.html">
+  <img src="../docs/screenshots/proposal.png" alt="proposal: Should I approve this?">
+  <div class="pad">
+    <span class="kind">proposal</span>
+    <h3>Should I approve this?</h3>
+  </div>
+</a>
+  </div>
+</section>
+<section class="group">
+  <h2>Hand off</h2>
+  <div class="cards">
+    <a class="card" href="handoff.html">
+  <img src="../docs/screenshots/handoff.png" alt="handoff: What do I run, change, and not break after you leave?">
+  <div class="pad">
+    <span class="kind">handoff</span>
+    <h3>What do I run, change, and not break after you leave?</h3>
+  </div>
+</a>
+    <a class="card" href="design-handoff.html">
+  <img src="../docs/screenshots/design-handoff.png" alt="design-handoff: What do I build, in every state?">
+  <div class="pad">
+    <span class="kind">design-handoff</span>
+    <h3>What do I build, in every state?</h3>
+  </div>
+</a>
+  </div>
+</section>
+<section class="group">
+  <h2>Operate</h2>
+  <div class="cards">
+    <a class="card" href="architecture.html">
+  <img src="../docs/screenshots/architecture.png" alt="architecture: How is it arranged today?">
+  <div class="pad">
+    <span class="kind">architecture</span>
+    <h3>How is it arranged today?</h3>
+  </div>
+</a>
+    <a class="card" href="runbook.html">
+  <img src="../docs/screenshots/runbook.png" alt="runbook: What do I do right now?">
+  <div class="pad">
+    <span class="kind">runbook</span>
+    <h3>What do I do right now?</h3>
+  </div>
+</a>
+    <a class="card" href="postmortem.html">
+  <img src="../docs/screenshots/postmortem.png" alt="postmortem: What happened, why, and what stops it recurring?">
+  <div class="pad">
+    <span class="kind">postmortem</span>
+    <h3>What happened, why, and what stops it recurring?</h3>
+  </div>
+</a>
+    <a class="card" href="onboarding.html">
+  <img src="../docs/screenshots/onboarding.png" alt="onboarding: How do I get it running and prove it works?">
+  <div class="pad">
+    <span class="kind">onboarding</span>
+    <h3>How do I get it running and prove it works?</h3>
+  </div>
+</a>
+  </div>
+</section>
+<section class="group">
+  <h2>Specify</h2>
+  <div class="cards">
+    <a class="card" href="api-contract.html">
+  <img src="../docs/screenshots/api-contract.png" alt="api-contract: How do I call this correctly, and what happens when I do it wrong?">
+  <div class="pad">
+    <span class="kind">api-contract</span>
+    <h3>How do I call this correctly, and what happens when I do it wrong?</h3>
+  </div>
+</a>
+    <a class="card" href="test-report.html">
+  <img src="../docs/screenshots/test-report.png" alt="test-report: Can we ship, on this build?">
+  <div class="pad">
+    <span class="kind">test-report</span>
+    <h3>Can we ship, on this build?</h3>
+  </div>
+</a>
+    <a class="card" href="reference.html">
+  <img src="../docs/screenshots/reference.png" alt="reference: What is the exact fact?">
+  <div class="pad">
+    <span class="kind">reference</span>
+    <h3>What is the exact fact?</h3>
+  </div>
+</a>
+  </div>
+</section>
+<section class="group">
+  <h2>Discover and teach</h2>
+  <div class="cards">
+    <a class="card" href="discovery.html">
+  <img src="../docs/screenshots/discovery.png" alt="discovery: What did we learn, and should we proceed?">
+  <div class="pad">
+    <span class="kind">discovery</span>
+    <h3>What did we learn, and should we proceed?</h3>
+  </div>
+</a>
+    <a class="card" href="tutorial.html">
+  <img src="../docs/screenshots/tutorial.png" alt="tutorial: Can I learn this by doing it once?">
+  <div class="pad">
+    <span class="kind">tutorial</span>
+    <h3>Can I learn this by doing it once?</h3>
+  </div>
+</a>
+    <a class="card" href="how-to.html">
+  <img src="../docs/screenshots/how-to.png" alt="how-to: How do I get this job done?">
+  <div class="pad">
+    <span class="kind">how-to</span>
+    <h3>How do I get this job done?</h3>
+  </div>
+</a>
+    <a class="card" href="explanation.html">
+  <img src="../docs/screenshots/explanation.png" alt="explanation: Why is it like this?">
+  <div class="pad">
+    <span class="kind">explanation</span>
+    <h3>Why is it like this?</h3>
+  </div>
+</a>
+  </div>
+</section>
+<section class="group">
+  <h2>MuleSoft</h2>
+  <div class="cards">
+    <a class="card" href="mulesoft.html">
+  <img src="../docs/screenshots/mulesoft.png" alt="mulesoft: What does this Mule app do?">
+  <div class="pad">
+    <span class="kind">mulesoft</span>
+    <h3>What does this Mule app do?</h3>
+  </div>
+</a>
+  </div>
+</section>
+</div>
+</body>
+</html>

@@ -257,6 +257,56 @@
     --method-muted: #4f5560;
   }
 }
+/* ---- inlined from core/themes/horizon.css ---- */
+/* horizon — a client brand applied to the token contract.
+ *
+ * This is the worked example from skills/brand-theme-design/references/mapping.md
+ * made into a real theme. Navy is the system's board voice; this is what
+ * brand-theme-design produces from a guide.
+ *
+ * Input (fictional guide): Primary #0B5FFF, Ink #101828, Slate #475467,
+ * Cloud #F2F4F7, Success #12B76A, Warning #F79009, Error #F04438.
+ * Fonts: Söhne (licensed — not redistributed). Inter is the metric fallback.
+ *
+ * Provenance is in the comments. Do not treat these as decoration.
+ *
+ * Fonts: Inter (display + sans), IBM Plex Mono (mono).
+ */
+
+[data-theme="horizon"] {
+  /* Cloud lightened so surface can sit above it. */
+  --paper: #f9fafb;            /* Cloud, lifted ← mapping.md */
+  --surface: #ffffff;
+  --surface-muted: #f2f4f7;    /* Cloud proper ← brand guide */
+
+  --ink: #101828;              /* brand ink. 16:1 on surface */
+  --muted: #475467;            /* brand slate. 7.5:1 */
+  --soft: #667085;             /* one step up; guide has no tertiary */
+
+  --rule: rgba(16, 24, 40, 0.12);
+  --rule-strong: rgba(16, 24, 40, 0.34);
+
+  /* Primary is accent only because the rest of the palette is neutral. */
+  --accent: #0b5fff;           /* brand primary ← guide */
+  --accent-tint: rgba(11, 95, 255, 0.10);
+  --accent-ink: #ffffff;       /* 4.9:1 on that blue */
+
+  /* Brand status, re-checked against --surface. */
+  --positive: #0e9f57;         /* #12B76A darkened to clear AA on white */
+  --warning: #b54708;          /* #F79009 darkened — logo orange fails as text */
+  --critical: #d92d20;         /* #F04438 darkened the same way */
+
+  --method-bg: #101828;
+  --method-ink: #f9fafb;
+  --method-muted: #c5cdd6;
+
+  --display: 'Inter', system-ui, sans-serif;
+  --sans: 'Inter', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+}
 /* ---- inlined from core/base.css ---- */
 /* base.css — component-to-token mapping.
  *
@@ -519,7 +569,7 @@ a { color: inherit; text-underline-offset: 2px; }
 
 .themes {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 20px;
   margin-top: 28px;
 }
@@ -770,8 +820,8 @@ a { color: inherit; text-underline-offset: 2px; }
 <body>
 <div class="page">
   <p class="eyebrow">document-design-system</p>
-  <h1>One contract, four voices</h1>
-  <p class="subtle">Identical markup in all four panels. Only <code>data-theme</code> differs — surfaces, ink, accent, typography, border character, and the methodology treatment all follow from the token contract.</p>
+  <h1>One contract, several voices</h1>
+  <p class="subtle">Identical markup in every panel. Only <code>data-theme</code> differs — surfaces, ink, accent, typography, border character, and the methodology treatment all follow from the token contract. <code>horizon</code> is a client brand, not a fifth house style.</p>
 
   <div class="themes">
 
@@ -844,6 +894,28 @@ a { color: inherit; text-underline-offset: 2px; }
     <section class="panel" data-theme="console-violet">
       <p class="name">console-violet</p>
       <h3>Engineering readouts</h3>
+      <div class="big">41%</div>
+      <div class="lbl">Held by the largest function</div>
+      <div class="den">of 1,842,110 included units</div>
+      <div class="frame">
+        <svg role="img" aria-label="74 percent of the limit consumed." viewBox="0 0 300 20" width="100%">
+          <rect x="0" y="4" width="300" height="12" rx="3" fill="var(--track-fill)"/>
+          <rect x="0" y="4" width="222" height="12" rx="3" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+        </svg>
+      </div>
+      <table>
+        <thead><tr><th scope="col">Function</th><th scope="col" class="num">Units</th></tr></thead>
+        <tbody>
+          <tr><td>Ingestion</td><td class="num">612,400</td></tr>
+          <tr><td>Transform</td><td class="num">388,910</td></tr>
+        </tbody>
+      </table>
+      <div class="method"><strong>Methodology</strong><br><span>Current snapshot, as of 2026-08-12.</span></div>
+    </section>
+
+    <section class="panel" data-theme="horizon">
+      <p class="name">horizon</p>
+      <h3>Client brand</h3>
       <div class="big">41%</div>
       <div class="lbl">Held by the largest function</div>
       <div class="den">of 1,842,110 included units</div>

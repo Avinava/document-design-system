@@ -1,0 +1,60 @@
+<article class="doc">
+
+  <p class="eyebrow">Discovery</p>
+  <h1>Should we split ingestion, or is the problem somewhere else?</h1>
+
+  <p class="status-banner">
+    <strong>Decision this enables:</strong> go to RFC 014 / stop / reframe ·
+    <strong>Window:</strong> 2026-07-01 – 2026-08-08 ·
+    <strong>Owner:</strong> Platform
+  </p>
+
+  <h2 id="goal">Goal of this discovery</h2>
+  <p>Decide whether a queue split is the right next investment, or whether detection, consumer capacity, or producer behaviour would remove more halt time cheaper.</p>
+
+  <h2 id="problem">Problem as reframed</h2>
+  <p>
+    Not "we need two queues". The problem: when ingestion backpressures, the
+    whole platform stops accepting events, and that has happened four times in
+    six incidents.
+  </p>
+
+  <h2 id="users">Users and context</h2>
+  <p>Operators (Platform on-call). Producer teams who feel the 503s. Downstream analysts who wait on the warehouse. Wider journey: checkout write → event → warehouse → inventory views.</p>
+
+  <h2 id="evidence">Evidence</h2>
+  <ul>
+    <li>6 incident tickets in 2026; 4 share the queue-fill chain. <span class="evidence">Verified.</span></li>
+    <li>3 on-call interviews (Platform). All named lag-alert delay as well as the single queue. <span class="evidence">Verified method; n=3.</span></li>
+    <li>"Ingestion must not fully stop" as a business rule. <span class="evidence">Provided: Platform lead.</span></li>
+  </ul>
+
+  <h2 id="opportunities">Opportunities</h2>
+  <ul>
+    <li>Remove the single point of failure (queue split).</li>
+    <li>Detect earlier (60s lag, not 120s).</li>
+    <li>Degrade instead of block (shed-and-alert) even on one queue.</li>
+  </ul>
+
+  <h2 id="constraints">Constraints</h2>
+  <ul>
+    <li><strong>Hard:</strong> producer API at <code>/events</code> stays. Changing it is a multi-team contract.</li>
+    <li><strong>Soft:</strong> consumer count and alert thresholds. Those we can change next week.</li>
+  </ul>
+
+  <h2 id="alternatives-to-building">Alternatives to building</h2>
+  <p>Page earlier and scale consumers — cheaper, does not stop a full fill. Doing nothing remains the default if this discovery recommends stop.</p>
+
+  <h2 id="assumptions">Assumptions still open</h2>
+  <ol>
+    <li>Two queues actually fail independently — untested. Highest build risk.</li>
+    <li>Shed-and-alert is acceptable to Checkout. Not yet asked.</li>
+  </ol>
+
+  <h2 id="recommendation">Recommendation</h2>
+  <p><strong>Proceed</strong> to RFC 014, and also lower the lag alert in parallel. Stopping would accept another halt this quarter; the cost of being wrong on the split is one extra queue to run, not a new user-facing surface.</p>
+
+  <h2 id="next">What would be tested next</h2>
+  <p>Shadow-consume on a second queue for a week (RFC 014 rollout). Ask Checkout whether 202-shed is tolerable.</p>
+
+</article>

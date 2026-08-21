@@ -129,7 +129,7 @@ Two dials worth setting deliberately, because they change what belongs in the di
 plugin your working directory is your own project, not the plugin, so prefix them:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/audit_theme.py" theme.css
+node "${CLAUDE_PLUGIN_ROOT}/scripts/render_diagram.mjs" in.mmd --id x --title "…" --desc "…" --out x.svg
 ```
 
 `${CLAUDE_PLUGIN_ROOT}` is Claude Code's portable reference to the plugin's own

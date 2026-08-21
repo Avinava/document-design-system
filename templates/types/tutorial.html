@@ -1,0 +1,36 @@
+<article class="doc">
+
+  <p class="eyebrow">Tutorial</p>
+  <h1>Land your first event</h1>
+
+  <p>
+    You will send one synthetic event through a local gateway and see it accepted.
+    This is a lesson, not a production how-to. If you already run ingestion,
+    use the how-to instead.
+  </p>
+
+  <h2 id="you-will">You will</h2>
+  <ol>
+    <li>Start the local gateway.</li>
+    <li>POST one event.</li>
+    <li>Read the 202 and the event id.</li>
+  </ol>
+
+  <h2 id="step-1">Start the gateway</h2>
+  <pre><span class="lang">bash</span>make ingest-run</pre>
+  <p>Wait until the log line contains <code>listening</code>. That is success for this step. Leave the process running.</p>
+
+  <h2 id="step-2">Post an event</h2>
+  <p>In a second terminal:</p>
+  <pre><span class="lang">bash</span>curl -k -s -o /tmp/evt.json -w "%{http_code}" \
+  https://127.0.0.1:8443/events \
+  -d '{"id":"evt_learn","type":"tutorial.ping"}'</pre>
+  <p>You should see <code>202</code>. Open <code>/tmp/evt.json</code> — it contains <code>evt_learn</code>.</p>
+
+  <h2 id="done">You are done</h2>
+  <p>
+    You can accept an event locally. What the queue does under failure, how
+    partitions work, and how to operate lag are other documents. Stop here.
+  </p>
+
+</article>
