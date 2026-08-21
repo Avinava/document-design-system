@@ -83,6 +83,12 @@ LONGFORM = {
     "mulesoft": ("field-notes", False),
 }
 
+# Same body, different theme — the token-contract proof. out_slug -> (body slug, theme, contract)
+LONGFORM_VARIANTS = {
+    "proposal-horizon": ("proposal", "horizon", False),
+    "proposal-coral": ("proposal", "editorial-coral", False),
+}
+
 FONTS = {
     "field-notes": (
         "https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700"
@@ -98,6 +104,10 @@ FONTS = {
     ),
     "console-violet": (
         "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700"
+        "&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    ),
+    "horizon": (
+        "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700"
         "&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
     ),
 }
@@ -155,6 +165,14 @@ TYPE_GALLERY = [
 ]
 
 SHOT_PREFIX = "../docs/screenshots"
+
+# Theme variants shown on the local type gallery (and Pages types.html).
+VOICES_GALLERY = [
+    ("proposal", "proposal.html", "proposal.png", "executive-navy — board voice"),
+    ("proposal-horizon", "proposal-horizon.html", "proposal-horizon.png", "horizon — client brand"),
+    ("proposal-coral", "proposal-coral.html", "proposal-coral.png", "editorial-coral — default"),
+    ("brand", "brand.html", "brand.png", "How the Horizon brand was built"),
+]
 
 # Cards at the top of the type gallery — one per skill in the README table.
 # diagram-design and chart-design share the figure gallery on purpose: that
@@ -243,6 +261,40 @@ def _title(body: str) -> str:
     return re.sub(r"<[^>]+>", "", m.group(1)).strip()
 
 
+def _assemble_one_longform(out_slug: str, body_slug: str, theme: str, contract: bool, shell: str) -> None:
+    body_path = TYPES / f"{body_slug}.html"
+    if not body_path.is_file():
+        sys.exit(f"missing type body: {body_path.relative_to(ROOT)}")
+    body = body_path.read_text(encoding="utf-8")
+    href = FONTS[theme]
+    html = shell.replace("<!-- @@TITLE -->", _title(body), 1)
+    html = html.replace(
+        "<!-- @@FONTS -->",
+        f'<link href="{href}" rel="stylesheet">',
+        1,
+    )
+    html = html.replace("<!-- @@BODY -->", body, 1)
+    if contract:
+        html = html.replace(
+            "<html lang=\"en\"",
+            '<html lang="en" data-layout="contract"',
+            1,
+        )
+    with tempfile.NamedTemporaryFile(
+        "w", suffix=".html", encoding="utf-8", delete=False
+    ) as tmp:
+        tmp.write(html)
+        tmp_path = Path(tmp.name)
+    try:
+        assembled = build(tmp_path, theme)
+    finally:
+        tmp_path.unlink(missing_ok=True)
+    if "@@INLINE" in assembled or "@@BODY" in assembled or "@@TITLE" in assembled:
+        sys.exit(f"unresolved marker in {out_slug}")
+    (EX / f"{out_slug}.html").write_text(assembled, encoding="utf-8")
+    print(f"  {out_slug}.html ({theme}, {len(assembled):,} bytes)")
+
+
 def assemble_longform() -> None:
     print("assembling writing-documents examples")
     shell = (ROOT / "templates" / "longform.html").read_text(encoding="utf-8")
@@ -251,39 +303,35 @@ def assemble_longform() -> None:
         stale.unlink()
 
     for slug, (theme, contract) in LONGFORM.items():
-        body_path = TYPES / f"{slug}.html"
-        if not body_path.is_file():
-            sys.exit(f"missing type body: {body_path.relative_to(ROOT)}")
-        body = body_path.read_text(encoding="utf-8")
-        href = FONTS[theme]
-        html = shell.replace("<!-- @@TITLE -->", _title(body), 1)
-        html = html.replace(
-            "<!-- @@FONTS -->",
-            f'<link href="{href}" rel="stylesheet">',
-            1,
-        )
-        html = html.replace("<!-- @@BODY -->", body, 1)
-        if contract:
-            html = html.replace(
-                "<html lang=\"en\"",
-                '<html lang="en" data-layout="contract"',
-                1,
-            )
-        with tempfile.NamedTemporaryFile(
-            "w", suffix=".html", encoding="utf-8", delete=False
-        ) as tmp:
-            tmp.write(html)
-            tmp_path = Path(tmp.name)
-        try:
-            assembled = build(tmp_path, theme)
-        finally:
-            tmp_path.unlink(missing_ok=True)
-        if "@@INLINE" in assembled or "@@BODY" in assembled or "@@TITLE" in assembled:
-            sys.exit(f"unresolved marker in {slug}")
-        (EX / f"{slug}.html").write_text(assembled, encoding="utf-8")
-        print(f"  {slug}.html ({theme}, {len(assembled):,} bytes)")
+        _assemble_one_longform(slug, slug, theme, contract, shell)
+    for out_slug, (body_slug, theme, contract) in LONGFORM_VARIANTS.items():
+        _assemble_one_longform(out_slug, body_slug, theme, contract, shell)
 
+    assemble_brand(SHOT_PREFIX, EX / "brand.html")
     assemble_docs_gallery(SHOT_PREFIX)
+
+
+def assemble_brand(shot_prefix: str, dest: Path) -> None:
+    raw = (ROOT / "templates" / "brand.html").read_text(encoding="utf-8")
+    filled = raw.replace("@@SHOT", shot_prefix)
+    with tempfile.NamedTemporaryFile(
+        "w", suffix=".html", encoding="utf-8", delete=False
+    ) as tmp:
+        tmp.write(filled)
+        tmp_path = Path(tmp.name)
+    try:
+        assembled = build(tmp_path, "editorial-coral")
+    finally:
+        tmp_path.unlink(missing_ok=True)
+    if "@@INLINE" in assembled or "@@SHOT" in assembled:
+        sys.exit("unresolved marker in brand.html")
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(assembled, encoding="utf-8")
+    try:
+        shown = dest.relative_to(ROOT)
+    except ValueError:
+        shown = dest
+    print(f"  {shown} ({len(assembled):,} bytes)")
 
 
 def assemble_docs_gallery(
@@ -321,6 +369,25 @@ def assemble_docs_gallery(
             + "\n  </div>\n</section>"
         )
     cards_html = "\n".join(groups)
+    voice_cards = []
+    for name, href, shot, blurb in VOICES_GALLERY:
+        voice_cards.append(
+            f'<a class="card" href="{href}">\n'
+            f'  <img src="{shot_prefix}/{shot}" alt="{name}: {blurb}">\n'
+            f'  <div class="pad">\n'
+            f'    <span class="kind">{name}</span>\n'
+            f'    <h3>{blurb}</h3>\n'
+            f'  </div>\n'
+            f'</a>'
+        )
+    voices_html = (
+        '<section class="group">\n'
+        '  <h2>Voices</h2>\n'
+        '  <p class="lead">The same proposal in three themes, then how the client brand was built.</p>\n'
+        '  <div class="cards">\n    '
+        + "\n    ".join(voice_cards)
+        + "\n  </div>\n</section>"
+    )
     skill_cards = []
     for name, href, shot, blurb in SKILL_GALLERY:
         skill_cards.append(
@@ -346,7 +413,8 @@ def assemble_docs_gallery(
     ) as tmp:
         raw = (ROOT / "templates" / "docs-gallery.html").read_text(encoding="utf-8")
         filled = (
-            raw.replace("<!-- @@SKILLS -->", skills_html, 1)
+            raw.replace("<!-- @@VOICES -->", voices_html, 1)
+            .replace("<!-- @@SKILLS -->", skills_html, 1)
             .replace("<!-- @@CARDS -->", cards_html, 1)
             .replace("@@TYPES_HREF", types_href)
         )
@@ -360,6 +428,7 @@ def assemble_docs_gallery(
         "@@INLINE" in assembled
         or "@@CARDS" in assembled
         or "@@SKILLS" in assembled
+        or "@@VOICES" in assembled
         or "@@TYPES_HREF" in assembled
     ):
         sys.exit("unresolved marker in docs-gallery")

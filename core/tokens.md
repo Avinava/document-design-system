@@ -120,6 +120,7 @@ If the user names a theme, use it. Otherwise:
 - `executive-navy` — board, finance, governance, conservative corporate contexts.
 - `field-notes` — research, audit, workshop, operational-review documents.
 - `console-violet` — **dark.** Engineering readouts, ops reviews, incident write-ups, service inventories; documents read on a screen rather than printed.
+- `horizon` — a client brand applied. Worked example from `brand-theme-design` (cool paper, Inter, one precise blue). Navy is the system's board voice; this is what a guide becomes.
 - `brand-template` — a documented slot to fill with your own brand. See `themes/brand-template.css`, and use the `brand-theme-design` skill to fill it from a brand guide, site, or screenshot.
 
 Ask one short question only when brand fit materially affects the deliverable and context does not imply a choice.

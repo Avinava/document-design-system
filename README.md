@@ -58,7 +58,7 @@ script invocation pointing at nothing.
 
 Every image below is a committed example in [`examples/`](examples/), rebuilt from source by `python scripts/build_examples.py` and captured by `python scripts/shoot_examples.py`. Nothing is a mockup.
 
-### Four voices, one contract
+### Several voices, one contract
 
 Identical markup in all four panels — only `data-theme` differs. Surfaces, ink, accent, typography, border character, and the methodology treatment all follow from the token contract.
 
@@ -73,6 +73,7 @@ Identical markup in all four panels — only `data-theme` differs. Surfaces, ink
 | `executive-navy` | Board, finance, governance | light |
 | `field-notes` | Research, audit, operational review | light |
 | `console-violet` | Engineering readouts, ops reviews, incident write-ups | **dark** |
+| `horizon` | A client brand applied — what `brand-theme-design` produces | light |
 | `brand-template` | Your own brand — copy, fill every TODO, rename | — |
 
 <sub>This image follows your GitHub theme. [source](examples/themes-light.html)</sub>
@@ -206,20 +207,31 @@ Six forms, one accent, all resolving against the document's tokens at view time.
 | Line | Observable Plot → SVG | Straight segments; a spline invents readings between points |
 | Limit ledger | Hand-authored SVG | A linear track beats a gauge — same value, stated precisely |
 
+### Same document, three voices
+
+The proposal you send. Identical markup; only `data-theme` changes. Navy is the system's board voice. Horizon is a client brand. Coral is the default analytical voice.
+
+| | | |
+|---|---|---|
+| [![Proposal in executive-navy](docs/screenshots/proposal.png)](examples/proposal.html) | [![Proposal in horizon](docs/screenshots/proposal-horizon.png)](examples/proposal-horizon.html) | [![Proposal in editorial-coral](docs/screenshots/proposal-coral.png)](examples/proposal-coral.html) |
+| `executive-navy` — board packet | `horizon` — client brand, the one you send | `editorial-coral` — default analytical |
+
+<sub>Same `templates/types/proposal.html` body. [How horizon was built](examples/brand.html).</sub>
+
 ### Brand theming — a guide in, a theme out
 
 Point it at a brand guide PDF, a website, a screenshot, or a few hex values. It extracts with provenance, maps to the semantic roles, and audits the result — because brand colors are chosen for logos, and routinely fail contrast for body text.
 
+`horizon` is that process, finished: the mapping in [`examples/brand.html`](examples/brand.html), the theme in `core/themes/horizon.css`, the document in [`proposal-horizon.html`](examples/proposal-horizon.html).
+
 ```bash
 python3 scripts/extract_site_theme.py https://example.com   # computed styles, not pixels
-python3 scripts/audit_theme.py core/themes/acme.css         # every pair, exact thresholds
+python3 scripts/audit_theme.py core/themes/horizon.css      # every pair, exact thresholds
 ```
 
-The auditor is the part that matters. Building it immediately found two defects in this repo's own default theme: `--accent-ink` on `--accent` was **3.12:1**, failing AA, and the accent sat 13° from `--warning`. Both are fixed.
+The auditor is the part that matters. Building it immediately found two defects in this repo's own default theme: `--accent-ink` on `--accent` was **3.12:1**, failing AA, and the accent sat 13° from `--warning`. Both are fixed. Horizon's brand green/orange/red failed as text on white and were darkened (mapping.md remedy 2) before the theme shipped.
 
-The four-voice panel at the top of this README is what a filled theme looks like next to the ones that already ship.
-
-<sub>`brand-theme-design` · [skill](skills/brand-theme-design/SKILL.md) · [themes](examples/themes-light.html)</sub>
+<sub>`brand-theme-design` · [skill](skills/brand-theme-design/SKILL.md) · [exhibit](examples/brand.html) · [themes](examples/themes-light.html)</sub>
 
 ---
 

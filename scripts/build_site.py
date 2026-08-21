@@ -37,6 +37,9 @@ HTML_KEEP = {
     "gallery-dark.html",
     "themes-light.html",
     "themes-dark.html",
+    "proposal-horizon.html",
+    "proposal-coral.html",
+    "brand.html",
 }
 
 HOME_MUST_CONTAIN = (
@@ -53,6 +56,10 @@ HOME_MUST_CONTAIN = (
     "brand-theme-design",
     "diagram-design",
     "chart-design",
+    "href=\"proposal-horizon.html\"",
+    "href=\"proposal-coral.html\"",
+    "href=\"brand.html\"",
+    "horizon",
 )
 
 

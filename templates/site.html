@@ -214,6 +214,7 @@ footer.site-foot a { color: var(--ink); }
       <li><a href="gallery-light.html">Figures</a></li>
       <li><a href="types.html">Types</a></li>
       <li><a href="themes-light.html">Themes</a></li>
+      <li><a href="brand.html">Brand</a></li>
       <li><a href="https://github.com/Avinava/document-design-system">GitHub</a></li>
     </ul>
   </nav>
@@ -233,15 +234,43 @@ footer.site-foot a { color: var(--ink); }
   </header>
 
   <section class="block" id="themes">
-    <h2>Four voices, one contract</h2>
-    <p class="lead">Identical markup in all four panels — only <code>data-theme</code> differs.</p>
+    <h2>Several voices, one contract</h2>
+    <p class="lead">Identical markup in every panel — only <code>data-theme</code> differs. Four house styles plus <code>horizon</code>, a client brand.</p>
     <a class="shot" href="themes-light.html">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="@@SHOT/themes-dark.png">
-        <img alt="The same content block rendered under editorial-coral, executive-navy, field-notes, and console-violet" src="@@SHOT/themes-light.png" width="1280" height="760">
+        <img alt="The same content block rendered under editorial-coral, executive-navy, field-notes, console-violet, and horizon" src="@@SHOT/themes-light.png" width="1280" height="760">
       </picture>
     </a>
-    <p class="caption"><code>brand-theme-design</code> · <a href="themes-light.html">Open the comparison</a></p>
+    <p class="caption"><a href="themes-light.html">Open the comparison</a></p>
+  </section>
+
+  <section class="block" id="voices">
+    <h2>Same document, three voices</h2>
+    <p class="lead">The proposal you send. Identical markup. Navy is the system's board voice; Horizon is the client brand; coral is the default analytical voice.</p>
+    <div class="preview-cards">
+      <a href="proposal.html">
+        <img alt="Proposal in executive-navy" src="@@SHOT/proposal.png" width="1280" height="800">
+        <div class="pad"><span class="kind">executive-navy</span><h3>Board packet</h3></div>
+      </a>
+      <a href="proposal-horizon.html">
+        <img alt="Proposal in horizon, the client brand" src="@@SHOT/proposal-horizon.png" width="1280" height="800">
+        <div class="pad"><span class="kind">horizon</span><h3>Client brand — send this</h3></div>
+      </a>
+      <a href="proposal-coral.html">
+        <img alt="Proposal in editorial-coral" src="@@SHOT/proposal-coral.png" width="1280" height="800">
+        <div class="pad"><span class="kind">editorial-coral</span><h3>Default analytical</h3></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="block" id="brand">
+    <h2>How the brand was built</h2>
+    <p class="lead"><code>brand-theme-design</code>: extract with provenance, map (mostly subtraction), audit, then wear it on a real document. Do not eyeball contrast.</p>
+    <a class="shot" href="brand.html">
+      <img alt="How the Horizon brand was built" src="@@SHOT/brand.png" width="1280" height="900">
+    </a>
+    <p class="caption"><a href="brand.html">Open the exhibit</a> · <a href="proposal-horizon.html">the document you send</a></p>
   </section>
 
   <section class="block" id="report">

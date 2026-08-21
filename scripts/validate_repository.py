@@ -40,6 +40,9 @@ HEX_EXEMPT_FILES = {
     # white paper and neutral greys is the whole point of that layer, so its
     # literals are intentional rather than a leak of theme knowledge.
     "core/print.css",
+    # The brand exhibit quotes the fictional guide's hex values as evidence.
+    # That is provenance, not a component learning a theme.
+    "templates/brand.html",
 }
 
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)#][^)]*)\)")
@@ -346,7 +349,7 @@ def check_hex_literals(root: Path, palette: set[str]) -> None:
         # document that the page's custom properties never reach. A banner has
         # to carry literal colors and do its own light/dark handling; there is
         # no token to reference from in there.
-        if rel.parts[0] in {"examples", "assets"}:
+        if rel.parts[0] in {"examples", "assets", "site"}:
             continue
         if rel_str in HEX_EXEMPT_FILES:
             continue

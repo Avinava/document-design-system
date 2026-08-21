@@ -46,6 +46,12 @@ It is an internal platform capability, not a customer-facing product. Operators 
 - **Checkout / Catalog / Inventory** — producer teams; callers of `/events`.
 - Incoming engineer in the handoff: "the incoming owner". Outgoing: "Platform".
 
+## Brand
+
+Documents sent outside the team wear **Horizon** (`data-theme="horizon"`). The guide is the worked example in `skills/brand-theme-design/references/mapping.md`: primary `#0B5FFF`, ink `#101828`, slate `#475467`, cloud `#F2F4F7`. Söhne is licensed and is not redistributed; Inter is the metric fallback.
+
+Ops and internal notes stay on `field-notes` or `console-violet`. Board packets that are not wearing the client brand stay on `executive-navy`.
+
 ## What is in-repo here
 
 This document-design-system repository is *not* Northwind. The examples pretend to be Northwind documents living in a Northwind repo (`docs/adr/`, `docs/runbooks/`, …). Commands, property keys, and paths are synthetic. No secrets, no real hostnames — `api.example.invalid`, `${INGEST_QUEUE_URI}`.

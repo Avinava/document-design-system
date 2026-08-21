@@ -176,6 +176,20 @@ class TestWritingTypes(unittest.TestCase):
                 self.assertIn(f"Type slug: {slug}", body)
                 self.assertIn("Markdown", body)
 
+    def test_proposal_variants_share_a_body(self):
+        from build_examples import LONGFORM_VARIANTS
+
+        self.assertIn("proposal-horizon", LONGFORM_VARIANTS)
+        self.assertIn("proposal-coral", LONGFORM_VARIANTS)
+        for out_slug, (body_slug, theme, _) in LONGFORM_VARIANTS.items():
+            with self.subTest(out=out_slug):
+                self.assertEqual(body_slug, "proposal")
+                html = (ROOT / "examples" / f"{out_slug}.html").read_text(
+                    encoding="utf-8"
+                )
+                self.assertIn(f'data-theme="{theme}"', html)
+                self.assertIn("Two engineers, one quarter", html)
+
     def test_pages_site_is_homepage_plus_types(self):
         result = subprocess.run(
             [sys.executable, str(ROOT / "scripts" / "build_site.py"), "--check"],

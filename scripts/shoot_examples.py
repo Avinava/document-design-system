@@ -44,6 +44,9 @@ SHOTS = {
     "test-report": ("test-report.html", (1280, 980), False),
     "postmortem": ("postmortem.html", (1280, 980), False),
     "proposal": ("proposal.html", (1280, 800), False),
+    "proposal-horizon": ("proposal-horizon.html", (1280, 800), False),
+    "proposal-coral": ("proposal-coral.html", (1280, 800), False),
+    "brand": ("brand.html", (1280, 900), False),
     "runbook": ("runbook.html", (1280, 980), False),
     "onboarding": ("onboarding.html", (1280, 900), False),
     "tutorial": ("tutorial.html", (1280, 900), False),
@@ -55,8 +58,8 @@ SHOTS = {
     # reader's GitHub theme.
     "gallery-light": ("gallery-light.html", (1280, 1430), True),
     "gallery-dark": ("gallery-dark.html", (1280, 1430), True),
-    "themes-light": ("themes-light.html", (1280, 760), False),
-    "themes-dark": ("themes-dark.html", (1280, 760), False),
+    "themes-light": ("themes-light.html", (1280, 1180), False),
+    "themes-dark": ("themes-dark.html", (1280, 1180), False),
 }
 
 # Scroll offset in CSS pixels, for shots that should show a section further

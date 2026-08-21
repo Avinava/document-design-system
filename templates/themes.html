@@ -29,13 +29,14 @@
 /* @@INLINE core/themes/executive-navy.css @@ */
 /* @@INLINE core/themes/field-notes.css @@ */
 /* @@INLINE core/themes/console-violet.css @@ */
+/* @@INLINE core/themes/horizon.css @@ */
 /* @@INLINE core/base.css @@ */
 
 .page { max-width: 1240px; margin: 0 auto; padding: 40px 32px 64px; }
 
 .themes {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 20px;
   margin-top: 28px;
 }
@@ -101,8 +102,8 @@
 <body>
 <div class="page">
   <p class="eyebrow">document-design-system</p>
-  <h1>One contract, four voices</h1>
-  <p class="subtle">Identical markup in all four panels. Only <code>data-theme</code> differs — surfaces, ink, accent, typography, border character, and the methodology treatment all follow from the token contract.</p>
+  <h1>One contract, several voices</h1>
+  <p class="subtle">Identical markup in every panel. Only <code>data-theme</code> differs — surfaces, ink, accent, typography, border character, and the methodology treatment all follow from the token contract. <code>horizon</code> is a client brand, not a fifth house style.</p>
 
   <div class="themes">
 
@@ -175,6 +176,28 @@
     <section class="panel" data-theme="console-violet">
       <p class="name">console-violet</p>
       <h3>Engineering readouts</h3>
+      <div class="big">41%</div>
+      <div class="lbl">Held by the largest function</div>
+      <div class="den">of 1,842,110 included units</div>
+      <div class="frame">
+        <svg role="img" aria-label="74 percent of the limit consumed." viewBox="0 0 300 20" width="100%">
+          <rect x="0" y="4" width="300" height="12" rx="3" fill="var(--track-fill)"/>
+          <rect x="0" y="4" width="222" height="12" rx="3" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+        </svg>
+      </div>
+      <table>
+        <thead><tr><th scope="col">Function</th><th scope="col" class="num">Units</th></tr></thead>
+        <tbody>
+          <tr><td>Ingestion</td><td class="num">612,400</td></tr>
+          <tr><td>Transform</td><td class="num">388,910</td></tr>
+        </tbody>
+      </table>
+      <div class="method"><strong>Methodology</strong><br><span>Current snapshot, as of 2026-08-12.</span></div>
+    </section>
+
+    <section class="panel" data-theme="horizon">
+      <p class="name">horizon</p>
+      <h3>Client brand</h3>
       <div class="big">41%</div>
       <div class="lbl">Held by the largest function</div>
       <div class="den">of 1,842,110 included units</div>

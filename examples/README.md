@@ -19,7 +19,9 @@ python3 scripts/build_examples.py
 | `design-doc.html` (and 17 other slugs) | writing-documents | see table below |
 | `capacity-deck.html` | presentation-design | executive-navy |
 | `gallery-light.html` / `gallery-dark.html` | diagram-design + chart-design | editorial-coral / console-violet |
-| `themes-light.html` / `themes-dark.html` | the token contract itself | all four panels |
+| `themes-light.html` / `themes-dark.html` | the token contract itself | four house styles + horizon |
+| `proposal-horizon.html` / `proposal-coral.html` | writing-documents (same body as proposal) | horizon / editorial-coral |
+| `brand.html` | brand-theme-design exhibit | editorial-coral |
 
 The `-light` / `-dark` pairs exist so the README can swap them with the reader's GitHub theme via `<picture>`. Both halves of each pair inline the **same** SVG figures — only the root `data-theme` differs, so the pair is also a direct demonstration that nothing needs re-rendering.
 
