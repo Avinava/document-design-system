@@ -85,4 +85,4 @@ node scripts/export_pdf.mjs examples/inventory-report.html --out report.pdf
 node scripts/export_pdf.mjs examples/capacity-deck.html --out deck.pdf --preset deck
 ```
 
-The report is 3 pages of A4; the deck is 7 slides on 7 pages. Open the PDF and look at it — page count alone proves nothing, since a drop in pages can mean clipped overflow rather than better layout.
+The report is 3 pages of A4; the deck is 14 slides on 14 pages (title, agenda, statements, dividers, table, metrics, chart, diagrams, comparison, closing). Open the PDF and look at it — page count alone proves nothing, since a drop in pages can mean clipped overflow rather than better layout.

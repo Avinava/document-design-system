@@ -173,18 +173,22 @@ Measure 62–72 characters, status explicit, non-goals in their own box.
 | `explanation` | `/document-design-system:explanation` | [html](examples/explanation.html) | [md](examples/explanation.md) |
 | `mulesoft` | `/document-design-system:mulesoft` | [html](examples/mulesoft.html) | [md](examples/mulesoft.md) |
 
-### Deck — 16:9 slides that export one-per-page to PDF
+### Deck — a presented ask, not a document with page breaks
 
-Type scales with the slide via container queries, so an authored slide and a projected slide agree. No JavaScript: a deck that renders blank without JS is not a deliverable.
+RFC 014 for the Platform director. Fourteen slides, one idea each, claim titles. Every `presentation-design` slide type is in the file. Type scales with the slide via container queries. No JavaScript: a deck that renders blank without JS is not a deliverable.
 
 | | |
 |---|---|
-| [![Deck metric slide](docs/screenshots/deck-metric.png)](examples/capacity-deck.html) | [![Deck chart slide](docs/screenshots/deck-chart.png)](examples/capacity-deck.html) |
-| Up to three numbers, one accent between them, and the same measure drawn once underneath | Charts render at `full-width`, not the document size — a doc-inline chart on a slide shrinks its own labels to nothing |
+| [![Title slide](docs/screenshots/deck-title.png)](examples/capacity-deck.html) | [![Statement slide](docs/screenshots/deck-statement.png)](examples/capacity-deck.html) |
+| Title names the argument, not the meeting | Statement slides are reserved for the two or three lines that should stick |
+| [![Comparison slide](docs/screenshots/deck-compare.png)](examples/capacity-deck.html) | [![Chart slide](docs/screenshots/deck-chart.png)](examples/capacity-deck.html) |
+| Three options on the same criteria — accenting a column is a recommendation | Chart at `full-width`. A document chart dropped on a slide shrinks its labels to nothing |
+| [![Metric slide](docs/screenshots/deck-metric.png)](examples/capacity-deck.html) | [![Incident table](docs/screenshots/deck-table.png)](examples/capacity-deck.html) |
+| Three numbers, one accent, one ledger underneath | Six rows is the ceiling; the last halt is the focal row |
+| [![Diagram slide](docs/screenshots/deck-diagram.png)](examples/capacity-deck.html) | [![Section divider](docs/screenshots/deck-divider.png)](examples/capacity-deck.html) |
+| One path, one failure — the current queue has no failover | Dividers mark a shift; a few words on an accent field |
 
-[![Deck section divider](docs/screenshots/deck-divider.png)](examples/capacity-deck.html)
-
-<sub>`presentation-design` · theme `executive-navy` · [source](examples/capacity-deck.html) · 7 slides → 7 PDF pages</sub>
+<sub>`presentation-design` · theme `executive-navy` · [source](examples/capacity-deck.html) · 14 slides → 14 PDF pages · also [closing](docs/screenshots/deck-close.png)</sub>
 
 ### Figures — diagrams and charts on one token set
 

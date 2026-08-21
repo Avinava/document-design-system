@@ -69,9 +69,15 @@ SCROLL = {"analytical-report-detail": 1128}
 # deliberately sparse — one idea per slide — so a viewport shot of page one is
 # mostly empty paper and tells a reader nothing about the system.
 SLIDE_SHOTS = {
-    "deck-metric": ("capacity-deck.html", 3),
-    "deck-chart": ("capacity-deck.html", 4),
-    "deck-divider": ("capacity-deck.html", 2),
+    "deck-title": ("capacity-deck.html", 0),
+    "deck-statement": ("capacity-deck.html", 2),
+    "deck-divider": ("capacity-deck.html", 3),
+    "deck-table": ("capacity-deck.html", 4),
+    "deck-metric": ("capacity-deck.html", 5),
+    "deck-chart": ("capacity-deck.html", 6),
+    "deck-diagram": ("capacity-deck.html", 7),
+    "deck-compare": ("capacity-deck.html", 10),
+    "deck-close": ("capacity-deck.html", 13),
 }
 
 
