@@ -2,7 +2,7 @@ name: Deploy gallery to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, v0.2-writing-documents]
   workflow_dispatch:
 
 permissions:

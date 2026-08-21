@@ -93,7 +93,7 @@ Further down the same document — cohort columns and an attribution table that 
 
 `writing-documents` writes Markdown in *your* repo by default (`/document-design-system:handoff`, `adr`, `design-doc`, …). Designed HTML is opt-in. The files below are the designed gallery: one Northwind Ingestion world, eighteen shapes.
 
-Browse them as a page: open [`examples/index.html`](examples/index.html) locally, or the [live gallery](https://avinava.github.io/document-design-system/) after GitHub Pages is enabled on this repository.
+Browse them as a page: the [live gallery](https://avinava.github.io/document-design-system/), or [`examples/index.html`](examples/index.html) locally.
 
 Measure 62–72 characters, status explicit, non-goals in their own box.
 
@@ -327,7 +327,7 @@ Print is verified by exporting a PDF and looking at it, not by the presence of `
 - [`examples/index.html`](examples/index.html) opens offline and every card reaches a real HTML example.
 - `python3 scripts/validate_repository.py .` and `python3 -m unittest discover -s tests` pass.
 
-To publish the live gallery: repo **Settings → Pages → GitHub Actions**. Pushes to `main` then deploy [`.github/workflows/pages.yml`](.github/workflows/pages.yml). Until that toggle is on, the github.io URL 404s; the README images and `examples/index.html` are the gallery.
+The live gallery is [avinava.github.io/document-design-system](https://avinava.github.io/document-design-system/). Pushes to `main` deploy it via [`.github/workflows/pages.yml`](.github/workflows/pages.yml).
 
 ## Attribution
 

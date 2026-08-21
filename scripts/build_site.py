@@ -33,7 +33,6 @@ HTML_KEEP = {
     "gallery-dark.html",
     "themes-light.html",
     "themes-dark.html",
-    "index.html",
 }
 
 
@@ -57,7 +56,10 @@ def populate(dest: Path) -> None:
         if src.is_file():
             shutil.copy2(src, dest / name)
 
+    # Always assemble the index. Copying examples/index.html would leave
+    # screenshot paths as ../docs/screenshots/, which 404 on Pages.
     assemble_docs_gallery("screenshots", dest / "index.html")
+    (dest / ".nojekyll").write_text("", encoding="utf-8")
 
 
 def main() -> None:
