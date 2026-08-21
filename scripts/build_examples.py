@@ -101,6 +101,60 @@ FONTS = {
     ),
 }
 
+# Cards on the document-type gallery, grouped the same way as the README.
+TYPE_GALLERY = [
+    (
+        "Decide",
+        [
+            ("design-doc", "Should we do this, and is the approach sound?"),
+            ("adr", "Why is it like this?"),
+            ("spec", "What exactly must I build, and how do I know I am done?"),
+            ("proposal", "Should I approve this?"),
+        ],
+    ),
+    (
+        "Hand off",
+        [
+            ("handoff", "What do I run, change, and not break after you leave?"),
+            ("design-handoff", "What do I build, in every state?"),
+        ],
+    ),
+    (
+        "Operate",
+        [
+            ("architecture", "How is it arranged today?"),
+            ("runbook", "What do I do right now?"),
+            ("postmortem", "What happened, why, and what stops it recurring?"),
+            ("onboarding", "How do I get it running and prove it works?"),
+        ],
+    ),
+    (
+        "Specify",
+        [
+            ("api-contract", "How do I call this correctly, and what happens when I do it wrong?"),
+            ("test-report", "Can we ship, on this build?"),
+            ("reference", "What is the exact fact?"),
+        ],
+    ),
+    (
+        "Discover and teach",
+        [
+            ("discovery", "What did we learn, and should we proceed?"),
+            ("tutorial", "Can I learn this by doing it once?"),
+            ("how-to", "How do I get this job done?"),
+            ("explanation", "Why is it like this?"),
+        ],
+    ),
+    (
+        "MuleSoft",
+        [
+            ("mulesoft", "What does this Mule app do?"),
+        ],
+    ),
+]
+
+SHOT_PREFIX = "../docs/screenshots"
+
 # Figures inlined into the analytical report, in document order.
 REPORT_SLOTS = [
     ("<!-- inline the SVG from scripts/render_chart.mjs here -->", "footprint-by-function"),
@@ -185,6 +239,54 @@ def assemble_longform() -> None:
             sys.exit(f"unresolved marker in {slug}")
         (EX / f"{slug}.html").write_text(assembled, encoding="utf-8")
         print(f"  {slug}.html ({theme}, {len(assembled):,} bytes)")
+
+    assemble_docs_gallery(SHOT_PREFIX)
+
+
+def assemble_docs_gallery(shot_prefix: str, dest: Path | None = None) -> None:
+    """Fill templates/docs-gallery.html and write examples/docs-gallery.html."""
+    groups = []
+    for heading, items in TYPE_GALLERY:
+        cards = []
+        for slug, question in items:
+            shot = f"{shot_prefix}/{slug}.png"
+            cards.append(
+                f'<a class="card" href="{slug}.html">\n'
+                f'  <img src="{shot}" alt="{slug}: {question}">\n'
+                f'  <div class="pad">\n'
+                f'    <span class="kind">{slug}</span>\n'
+                f'    <h3>{question}</h3>\n'
+                f'  </div>\n'
+                f'</a>'
+            )
+        groups.append(
+            f'<section class="group">\n'
+            f'  <h2>{heading}</h2>\n'
+            f'  <div class="cards">\n    '
+            + "\n    ".join(cards)
+            + "\n  </div>\n</section>"
+        )
+    cards_html = "\n".join(groups)
+    with tempfile.NamedTemporaryFile(
+        "w", suffix=".html", encoding="utf-8", delete=False
+    ) as tmp:
+        raw = (ROOT / "templates" / "docs-gallery.html").read_text(encoding="utf-8")
+        tmp.write(raw.replace("<!-- @@CARDS -->", cards_html, 1))
+        tmp_path = Path(tmp.name)
+    try:
+        assembled = build(tmp_path, "field-notes")
+    finally:
+        tmp_path.unlink(missing_ok=True)
+    if "@@INLINE" in assembled or "@@CARDS" in assembled:
+        sys.exit("unresolved marker in docs-gallery")
+    out = dest or (EX / "index.html")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(assembled, encoding="utf-8")
+    try:
+        shown = out.relative_to(ROOT)
+    except ValueError:
+        shown = out
+    print(f"  {shown} ({len(assembled):,} bytes)")
 
 
 def build_documents() -> None:

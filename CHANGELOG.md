@@ -17,6 +17,7 @@ Skill rename, eighteen document types, gallery examples. Plugin version still `0
 - Types: `api-contract`, `architecture`, `handoff`, `design-handoff`, `discovery`, `test-report`, `onboarding`, `tutorial`, `how-to`, `reference`, `explanation`, `mulesoft`.
 - Shared `evidence.md`, `writing.md`, `output.md`, `suites.md`, `type-index.md`.
 - Gallery: `examples/<slug>.html` + `.md` for every type, rebuilt from `templates/types/`. Shared fiction in `examples/WORLD.md`. Screenshots in `docs/screenshots/<slug>.png`.
+- Document-type gallery page at `examples/index.html`. GitHub Pages workflow deploys `site/` from `scripts/build_site.py`.
 
 ## 0.1.2
 

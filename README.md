@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/banner.svg" alt="document-design-system — analytical reports, diagrams, charts, decks, and long-form specs as self-contained HTML" width="960" />
+  <img src="assets/banner.svg" alt="document-design-system — reports, diagrams, charts, decks, and eighteen document types as self-contained HTML" width="960" />
 </p>
 
 <p align="center">
@@ -89,24 +89,89 @@ Further down the same document — cohort columns and an attribution table that 
 
 <sub>`analytical-document-design` · theme `editorial-coral` · [source](examples/inventory-report.html) · prints to 3 A4 pages</sub>
 
-### Design doc — and eighteen other types
+### Document types — the writing gallery
 
-Measure held at 62–72 characters, explicit status banner, a change log for reviewers, and non-goals given their own box because it is the section most often skipped and most often needed.
+`writing-documents` writes Markdown in *your* repo by default (`/document-design-system:handoff`, `adr`, `design-doc`, …). Designed HTML is opt-in. The files below are the designed gallery: one Northwind Ingestion world, eighteen shapes.
+
+Browse them as a page: open [`examples/index.html`](examples/index.html) locally, or the [live gallery](https://avinava.github.io/document-design-system/) after GitHub Pages is enabled on this repository.
+
+Measure 62–72 characters, status explicit, non-goals in their own box.
 
 [![Design doc](docs/screenshots/design-doc.png)](examples/design-doc.html)
 
-<sub>`writing-documents` · type `design-doc` · theme `field-notes` · [source](examples/design-doc.html)</sub>
+<sub>`design-doc` · theme `field-notes` · [source](examples/design-doc.html) · [markdown](examples/design-doc.md)</sub>
 
-Same skill, same world (Northwind Ingestion), different shapes. Markdown is the default in *your* repo; these HTML files are the gallery.
+**Decide**
 
 | | |
 |---|---|
-| [![Handoff](docs/screenshots/handoff.png)](examples/handoff.html) | [![Test report](docs/screenshots/test-report.png)](examples/test-report.html) |
-| `handoff` · what to run after you leave | `test-report` · go / no-go on this build |
-| [![API contract](docs/screenshots/api-contract.png)](examples/api-contract.html) | [![Discovery](docs/screenshots/discovery.png)](examples/discovery.html) |
-| `api-contract` · companion to the spec, not a second copy | `discovery` · go / stop / reframe |
+| [![Design doc](docs/screenshots/design-doc.png)](examples/design-doc.html) | [![ADR](docs/screenshots/adr.png)](examples/adr.html) |
+| `design-doc` — should we do this, and is the approach sound? | `adr` — why is it like this? |
+| [![Spec](docs/screenshots/spec.png)](examples/spec.html) | [![Proposal](docs/screenshots/proposal.png)](examples/proposal.html) |
+| `spec` — what exactly must I build? | `proposal` — should I approve this? |
 
-Every type: `design-doc`, `adr`, `spec`, `api-contract`, `architecture`, `handoff`, `design-handoff`, `discovery`, `test-report`, `postmortem`, `proposal`, `runbook`, `onboarding`, `tutorial`, `how-to`, `reference`, `explanation`, `mulesoft`. Each has `examples/<slug>.html`, `examples/<slug>.md`, and `/document-design-system:<slug>`.
+**Hand off**
+
+| | |
+|---|---|
+| [![Handoff](docs/screenshots/handoff.png)](examples/handoff.html) | [![Design handoff](docs/screenshots/design-handoff.png)](examples/design-handoff.html) |
+| `handoff` — what do I run after you leave? | `design-handoff` — what do I build, in every state? |
+
+**Operate**
+
+| | |
+|---|---|
+| [![Architecture](docs/screenshots/architecture.png)](examples/architecture.html) | [![Runbook](docs/screenshots/runbook.png)](examples/runbook.html) |
+| `architecture` — how is it arranged today? | `runbook` — what do I do right now? |
+| [![Postmortem](docs/screenshots/postmortem.png)](examples/postmortem.html) | [![Onboarding](docs/screenshots/onboarding.png)](examples/onboarding.html) |
+| `postmortem` — what happened, and what stops it recurring? | `onboarding` — how do I get it running? |
+
+**Specify**
+
+| | |
+|---|---|
+| [![API contract](docs/screenshots/api-contract.png)](examples/api-contract.html) | [![Test report](docs/screenshots/test-report.png)](examples/test-report.html) |
+| `api-contract` — how do I call this correctly? | `test-report` — can we ship, on this build? |
+| [![Reference](docs/screenshots/reference.png)](examples/reference.html) | |
+| `reference` — what is the exact fact? | |
+
+**Discover and teach**
+
+| | |
+|---|---|
+| [![Discovery](docs/screenshots/discovery.png)](examples/discovery.html) | [![Tutorial](docs/screenshots/tutorial.png)](examples/tutorial.html) |
+| `discovery` — what did we learn, and should we proceed? | `tutorial` — can I learn this by doing it once? |
+| [![How-to](docs/screenshots/how-to.png)](examples/how-to.html) | [![Explanation](docs/screenshots/explanation.png)](examples/explanation.html) |
+| `how-to` — how do I get this job done? | `explanation` — why is it like this? |
+
+**MuleSoft**
+
+[![MuleSoft suite](docs/screenshots/mulesoft.png)](examples/mulesoft.html)
+
+<sub>`mulesoft` — suite index (README, architecture, API, onboarding). Prefer the `mule-docs` skill for inventory when it is installed. [source](examples/mulesoft.html)</sub>
+
+#### Catalog
+
+| Slug | Command | HTML | Markdown |
+|---|---|---|---|
+| `design-doc` | `/document-design-system:design-doc` | [html](examples/design-doc.html) | [md](examples/design-doc.md) |
+| `adr` | `/document-design-system:adr` | [html](examples/adr.html) | [md](examples/adr.md) |
+| `spec` | `/document-design-system:spec` | [html](examples/spec.html) | [md](examples/spec.md) |
+| `proposal` | `/document-design-system:proposal` | [html](examples/proposal.html) | [md](examples/proposal.md) |
+| `handoff` | `/document-design-system:handoff` | [html](examples/handoff.html) | [md](examples/handoff.md) |
+| `design-handoff` | `/document-design-system:design-handoff` | [html](examples/design-handoff.html) | [md](examples/design-handoff.md) |
+| `architecture` | `/document-design-system:architecture` | [html](examples/architecture.html) | [md](examples/architecture.md) |
+| `runbook` | `/document-design-system:runbook` | [html](examples/runbook.html) | [md](examples/runbook.md) |
+| `postmortem` | `/document-design-system:postmortem` | [html](examples/postmortem.html) | [md](examples/postmortem.md) |
+| `onboarding` | `/document-design-system:onboarding` | [html](examples/onboarding.html) | [md](examples/onboarding.md) |
+| `api-contract` | `/document-design-system:api-contract` | [html](examples/api-contract.html) | [md](examples/api-contract.md) |
+| `test-report` | `/document-design-system:test-report` | [html](examples/test-report.html) | [md](examples/test-report.md) |
+| `reference` | `/document-design-system:reference` | [html](examples/reference.html) | [md](examples/reference.md) |
+| `discovery` | `/document-design-system:discovery` | [html](examples/discovery.html) | [md](examples/discovery.md) |
+| `tutorial` | `/document-design-system:tutorial` | [html](examples/tutorial.html) | [md](examples/tutorial.md) |
+| `how-to` | `/document-design-system:how-to` | [html](examples/how-to.html) | [md](examples/how-to.md) |
+| `explanation` | `/document-design-system:explanation` | [html](examples/explanation.html) | [md](examples/explanation.md) |
+| `mulesoft` | `/document-design-system:mulesoft` | [html](examples/mulesoft.html) | [md](examples/mulesoft.md) |
 
 ### Deck — 16:9 slides that export one-per-page to PDF
 
@@ -228,9 +293,9 @@ All of it runs on the authoring machine. The delivered artifact is plain HTML an
 npm install beautiful-mermaid @observablehq/plot jsdom     # renderers
 pip install playwright && playwright install chromium      # PDF + screenshots
 
-python3 scripts/build_examples.py       # rebuild every example from source
+python3 scripts/build_examples.py       # reports, decks, figures, all 18 types, gallery index
 python3 scripts/shoot_examples.py       # refresh the screenshots above
-python3 scripts/build_examples.py                          # includes all writing-documents types
+python3 scripts/build_site.py           # GitHub Pages payload in site/ (gitignored)
 python3 scripts/inline_fonts.py rfc.html --font "Geist:400:geist.woff2" --out offline.html
 python3 scripts/validate_repository.py .
 python3 -m unittest discover -s tests
@@ -250,6 +315,15 @@ Both renderers wrap their upstream library rather than calling it directly, beca
 `scripts/validate_repository.py` reads the same files the skills read — `core/tokens.md` for the required tokens and `core/themes/*.css` for the palette — so the prose rules and the machine check cannot drift apart. It enforces the two-key frontmatter schema, name↔folder agreement, a mandatory `Do not use for …` clause in every description, complete token coverage in every theme, no color literals outside `core/themes/`, and no broken relative links.
 
 Print is verified by exporting a PDF and looking at it, not by the presence of `@media print`. That check is what caught the report printing its title twice.
+
+## It's working if
+
+- `/document-design-system:handoff` (or any slug in the catalog) writes Markdown at the conventional path and does not load `core/` unless you asked for HTML.
+- A routine “write an ADR” loads `writing-documents` plus `type-adr.md` — not the RFC outline, not a theme.
+- [`examples/index.html`](examples/index.html) opens offline and every card reaches a real HTML example.
+- `python3 scripts/validate_repository.py .` and `python3 -m unittest discover -s tests` pass.
+
+To publish the live gallery: repo **Settings → Pages → GitHub Actions**. Pushes to `main` then deploy [`.github/workflows/pages.yml`](.github/workflows/pages.yml). Until that toggle is on, the github.io URL 404s; the README images and `examples/index.html` are the gallery.
 
 ## Attribution
 

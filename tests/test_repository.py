@@ -110,6 +110,18 @@ class TestWritingTypes(unittest.TestCase):
             with self.subTest(slug=slug):
                 self.assertIn(f"`{slug}`", index)
 
+    def test_gallery_lists_every_type(self):
+        from build_examples import LONGFORM, TYPE_GALLERY
+
+        listed = {slug for _, items in TYPE_GALLERY for slug, _ in items}
+        self.assertEqual(listed, set(LONGFORM))
+        index = ROOT / "examples" / "index.html"
+        if index.is_file():
+            text = index.read_text(encoding="utf-8")
+            for slug in LONGFORM:
+                with self.subTest(slug=slug):
+                    self.assertIn(f'href="{slug}.html"', text)
+
     def test_example_html_exists_for_every_type(self):
         ref_dir = SKILLS / "writing-documents" / "references"
         for path in sorted(ref_dir.glob("type-*.md")):
