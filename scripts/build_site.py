@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
-"""Build the GitHub Pages gallery into site/.
+"""Build the GitHub Pages site into site/.
 
     python scripts/build_examples.py
     python scripts/build_site.py
 
-Copies committed examples and screenshots, and writes an index that is the
-document-type gallery with screenshot paths rewritten for the site root.
+Homepage is templates/site.html (the whole system). The eighteen-type
+gallery is types.html. Example documents are copied next to them.
+Screenshot paths on the homepage use the @@SHOT marker.
 
     python scripts/build_site.py --check
-writes to a temp dir and asserts the index assembled, then deletes it.
+writes to a temp dir and asserts the split, then deletes it.
 """
 
 from __future__ import annotations
 
 import argparse
+import re
 import shutil
 import sys
 import tempfile
@@ -22,9 +24,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 EX = ROOT / "examples"
 SHOTS = ROOT / "docs" / "screenshots"
+ASSETS = ROOT / "assets"
 
 sys.path.insert(0, str(ROOT / "scripts"))
-from build_examples import assemble_docs_gallery  # noqa: E402
+from build_document import build  # noqa: E402
+from build_examples import LONGFORM, assemble_docs_gallery  # noqa: E402
 
 HTML_KEEP = {
     "inventory-report.html",
@@ -35,6 +39,44 @@ HTML_KEEP = {
     "themes-dark.html",
 }
 
+HOME_MUST_CONTAIN = (
+    "src=\"assets/banner.svg\"",
+    "/plugin marketplace add Avinava/document-design-system",
+    "href=\"types.html\"",
+    "href=\"capacity-deck.html\"",
+    "href=\"inventory-report.html\"",
+    "href=\"gallery-light.html\"",
+    "href=\"themes-light.html\"",
+    "analytical-document-design",
+    "presentation-design",
+    "writing-documents",
+    "brand-theme-design",
+    "diagram-design",
+    "chart-design",
+)
+
+
+def assemble_home(shot_prefix: str, dest: Path) -> None:
+    raw = (ROOT / "templates" / "site.html").read_text(encoding="utf-8")
+    filled = raw.replace("@@SHOT", shot_prefix)
+    with tempfile.NamedTemporaryFile(
+        "w", suffix=".html", encoding="utf-8", delete=False
+    ) as tmp:
+        tmp.write(filled)
+        tmp_path = Path(tmp.name)
+    try:
+        assembled = build(tmp_path, "editorial-coral")
+    finally:
+        tmp_path.unlink(missing_ok=True)
+    if "@@INLINE" in assembled or "@@SHOT" in assembled:
+        sys.exit("unresolved marker in site homepage")
+    dest.write_text(assembled, encoding="utf-8")
+    try:
+        shown = dest.relative_to(ROOT)
+    except ValueError:
+        shown = dest
+    print(f"  {shown} ({len(assembled):,} bytes)")
+
 
 def populate(dest: Path) -> None:
     dest.mkdir(parents=True, exist_ok=True)
@@ -43,7 +85,11 @@ def populate(dest: Path) -> None:
     for png in sorted(SHOTS.glob("*.png")):
         shutil.copy2(png, shots / png.name)
 
-    from build_examples import LONGFORM
+    assets = dest / "assets"
+    assets.mkdir(exist_ok=True)
+    banner = ASSETS / "banner.svg"
+    if banner.is_file():
+        shutil.copy2(banner, assets / "banner.svg")
 
     for slug in LONGFORM:
         src = EX / f"{slug}.html"
@@ -56,10 +102,42 @@ def populate(dest: Path) -> None:
         if src.is_file():
             shutil.copy2(src, dest / name)
 
-    # Always assemble the index. Copying examples/index.html would leave
-    # screenshot paths as ../docs/screenshots/, which 404 on Pages.
-    assemble_docs_gallery("screenshots", dest / "index.html")
+    assemble_home("screenshots", dest / "index.html")
+    assemble_docs_gallery(
+        "screenshots",
+        dest / "types.html",
+        include_skills=False,
+        types_href="types.html",
+    )
     (dest / ".nojekyll").write_text("", encoding="utf-8")
+
+
+def check_built(dest: Path) -> None:
+    index = dest / "index.html"
+    types = dest / "types.html"
+    if not index.is_file():
+        sys.exit("site index failed to assemble")
+    if not types.is_file():
+        sys.exit("site types.html failed to assemble")
+    home = index.read_text(encoding="utf-8")
+    gallery = types.read_text(encoding="utf-8")
+    if "@@INLINE" in home or "@@SHOT" in home:
+        sys.exit("unresolved marker in site index")
+    if "@@INLINE" in gallery:
+        sys.exit("unresolved marker in types.html")
+    if re.search(r'<img[^>]+src="\.\./docs/screenshots', home):
+        sys.exit("homepage still points at ../docs/screenshots")
+    if re.search(r'<img[^>]+src="\.\./docs/screenshots', gallery):
+        sys.exit("types.html still points at ../docs/screenshots")
+    for needle in HOME_MUST_CONTAIN:
+        if needle not in home:
+            sys.exit(f"homepage missing {needle!r}")
+    for slug in LONGFORM:
+        if f'href="{slug}.html"' not in gallery:
+            sys.exit(f"types.html missing {slug}.html")
+    if '<section class="group">\n  <h2>The skills</h2>' in gallery:
+        sys.exit("types.html should not repeat the six-skill strip")
+    print(f"ok: {index.stat().st_size:,} bytes homepage, {types.stat().st_size:,} bytes types")
 
 
 def main() -> None:
@@ -73,17 +151,16 @@ def main() -> None:
 
     if args.check:
         with tempfile.TemporaryDirectory() as tmp:
-            populate(Path(tmp))
-            index = Path(tmp) / "index.html"
-            if not index.is_file() or "@@INLINE" in index.read_text(encoding="utf-8"):
-                sys.exit("site index failed to assemble")
-            print(f"ok: {index.stat().st_size:,} bytes")
+            dest = Path(tmp)
+            populate(dest)
+            check_built(dest)
         return
 
     dest = ROOT / "site"
     if dest.exists():
         shutil.rmtree(dest)
     populate(dest)
+    check_built(dest)
     print(f"wrote {dest.relative_to(ROOT)}/")
 
 

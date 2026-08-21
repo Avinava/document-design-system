@@ -2,7 +2,7 @@
 
 Committed outputs. They serve three jobs at once: CI fixtures, the screenshots in the root README, and a working reference for what each skill produces.
 
-The gallery is [`index.html`](index.html) — six skill cards, then the eighteen writing-documents types. Open it in a browser.
+The local type gallery is [`index.html`](index.html) — six skill cards, then the eighteen writing-documents types. GitHub Pages uses a full homepage at the site root and this gallery at `/types.html`.
 
 All of them rebuild from source — nothing here is hand-maintained.
 

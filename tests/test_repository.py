@@ -176,6 +176,16 @@ class TestWritingTypes(unittest.TestCase):
                 self.assertIn(f"Type slug: {slug}", body)
                 self.assertIn("Markdown", body)
 
+    def test_pages_site_is_homepage_plus_types(self):
+        result = subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / "build_site.py"), "--check"],
+            capture_output=True,
+            text=True,
+            cwd=str(ROOT),
+        )
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertIn("homepage", result.stdout)
+
     def test_no_orphan_commands(self):
         ref_dir = SKILLS / "writing-documents" / "references"
         types = {

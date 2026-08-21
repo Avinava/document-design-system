@@ -23,7 +23,7 @@ All notable changes to this project are documented here. Versions refer to the
 - Document-type gallery page at `examples/index.html`. GitHub Pages workflow deploys `site/` from `scripts/build_site.py`.
 - Richer 14-slide RFC 014 capacity deck: title, agenda, statement, divider, table, metric, chart, diagram, comparison, cost, closing.
 - README skills table links each skill to its `SKILL.md` and a committed example. The type gallery opens with the same six-skill map.
-- GitHub Pages gallery at https://avinava.github.io/document-design-system/ (`pages.yml`, Actions source).
+- GitHub Pages site at https://avinava.github.io/document-design-system/ — homepage covers all six skills; eighteen types live at `/types.html`.
 
 ## 0.1.2
 

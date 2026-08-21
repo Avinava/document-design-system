@@ -1,6 +1,7 @@
 <!doctype html>
 <!--
-  Gallery homepage — one card per skill, then one card per writing-documents slug.
+  Type gallery — one card per writing-documents slug.
+  Local: examples/index.html. Pages: types.html (homepage is templates/site.html).
 
   Assemble with python scripts/build_examples.py
   Screenshot paths assume this file is served from examples/
@@ -10,7 +11,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Six skills — document-design-system</title>
+<title>Eighteen document types — document-design-system</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
@@ -56,14 +57,34 @@
   color: var(--soft);
 }
 .card h3 { margin: 0.25rem 0 0; font-size: 1rem; font-weight: 600; }
-.nav {
+.site-nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem 1.25rem;
-  margin: 1.25rem 0 0;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 32px;
+}
+.wordmark {
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  color: var(--ink);
+}
+.site-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.15rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
   font-size: 0.9375rem;
 }
-.types-head { margin-top: 3rem; }
+.site-nav a { color: var(--muted); text-decoration: none; }
+.site-nav a:hover { color: var(--ink); }
 @media (max-width: 640px) {
   .shell { padding: 24px 16px 48px; }
   .card img { height: 140px; }
@@ -74,26 +95,28 @@
 </head>
 <body>
 <div class="shell">
-  <p class="eyebrow">document-design-system</p>
-  <h1>Six skills, one token contract</h1>
-  <p class="lead">
-    Analytical reports, diagrams, charts, decks, eighteen document types, and
-    brand theming. Same Northwind Ingestion world throughout. Markdown is the
-    default in your repo; these HTML files are the designed gallery.
-  </p>
-  <nav class="nav" aria-label="Also in this repo">
-    <a href="inventory-report.html">analytical-document-design</a>
-    <a href="gallery-light.html">diagram-design + chart-design</a>
-    <a href="capacity-deck.html">presentation-design</a>
-    <a href="#types">writing-documents</a>
-    <a href="themes-light.html">brand-theme-design</a>
+  <nav class="site-nav" aria-label="Site">
+    <a class="wordmark" href="index.html">document-design-system</a>
+    <ul>
+      <li><a href="inventory-report.html">Report</a></li>
+      <li><a href="capacity-deck.html">Deck</a></li>
+      <li><a href="gallery-light.html">Figures</a></li>
+      <li><a href="@@TYPES_HREF">Types</a></li>
+      <li><a href="themes-light.html">Themes</a></li>
+      <li><a href="https://github.com/Avinava/document-design-system">GitHub</a></li>
+    </ul>
   </nav>
+
+  <p class="eyebrow">writing-documents</p>
+  <h1>Eighteen document types</h1>
+  <p class="lead">
+    Markdown in your repo by default. These HTML files are the designed
+    gallery — one Northwind Ingestion world. Open any card.
+  </p>
 
   <!-- @@SKILLS -->
 
-  <h2 id="types" class="types-head">Eighteen document types</h2>
-  <p class="lead">From <code>writing-documents</code>. Open any card.</p>
-
+  <div id="types"></div>
   <!-- @@CARDS -->
 </div>
 </body>

@@ -93,7 +93,7 @@ Further down the same document — cohort columns and an attribution table that 
 
 `writing-documents` writes Markdown in *your* repo by default (`/document-design-system:handoff`, `adr`, `design-doc`, …). Designed HTML is opt-in. The files below are the designed gallery: one Northwind Ingestion world, eighteen shapes.
 
-Browse them as a page: the [live gallery](https://avinava.github.io/document-design-system/), or [`examples/index.html`](examples/index.html) locally.
+Browse them on the [live site](https://avinava.github.io/document-design-system/types.html), or [`examples/index.html`](examples/index.html) locally.
 
 Measure 62–72 characters, status explicit, non-goals in their own box.
 
@@ -270,7 +270,7 @@ core/            the shared design system — the single source of truth
 skills/          the six skills, each SKILL.md + references/
 commands/        /document-design-system:<slug> for each writing-documents type
 scripts/         authoring-time tooling — never shipped to readers
-templates/       document · longform (writing-documents shell) · types/<slug> · deck · docs-gallery · gallery · themes · diagram
+templates/       document · longform (writing-documents shell) · types/<slug> · deck · site · docs-gallery · gallery · themes · diagram
 examples/        committed outputs, doubling as CI fixtures and the shots above
 assets/          banner.svg — literal colors, because <img> is an isolated document
 docs/screenshots/
@@ -299,7 +299,7 @@ pip install playwright && playwright install chromium      # PDF + screenshots
 
 python3 scripts/build_examples.py       # reports, decks, figures, all 18 types, gallery index
 python3 scripts/shoot_examples.py       # refresh the screenshots above
-python3 scripts/build_site.py           # GitHub Pages payload in site/ (gitignored)
+python3 scripts/build_site.py           # GitHub Pages homepage + types gallery in site/ (gitignored)
 python3 scripts/inline_fonts.py rfc.html --font "Geist:400:geist.woff2" --out offline.html
 python3 scripts/validate_repository.py .
 python3 -m unittest discover -s tests
@@ -327,7 +327,7 @@ Print is verified by exporting a PDF and looking at it, not by the presence of `
 - [`examples/index.html`](examples/index.html) opens offline and every card reaches a real HTML example.
 - `python3 scripts/validate_repository.py .` and `python3 -m unittest discover -s tests` pass.
 
-The live gallery is [avinava.github.io/document-design-system](https://avinava.github.io/document-design-system/). Pushes to `main` deploy it via [`.github/workflows/pages.yml`](.github/workflows/pages.yml).
+The live site is [avinava.github.io/document-design-system](https://avinava.github.io/document-design-system/) — homepage for all six skills, [types](https://avinava.github.io/document-design-system/types.html) for the eighteen writing-documents cards. Pushes to `main` deploy it via [`.github/workflows/pages.yml`](.github/workflows/pages.yml).
 
 ## Attribution
 

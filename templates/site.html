@@ -1,0 +1,379 @@
+<!doctype html>
+<!--
+  GitHub Pages homepage — the designed face of the whole system.
+
+  Assemble with scripts/build_site.py (not a local examples/ file).
+  @@SHOT is replaced with the screenshot directory (screenshots/ on Pages).
+-->
+<html lang="en" data-theme="editorial-coral">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>document-design-system</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* @@INLINE core/themes/${THEME}.css @@ */
+/* @@INLINE core/base.css @@ */
+
+.shell { max-width: 1120px; margin: 0 auto; padding: 32px 32px 72px; }
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 40px;
+}
+.wordmark {
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  color: var(--ink);
+}
+.site-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.15rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.9375rem;
+}
+.site-nav a { color: var(--muted); text-decoration: none; }
+.site-nav a:hover { color: var(--ink); }
+.site-nav a[aria-current="page"] { color: var(--ink); }
+
+.banner {
+  display: block;
+  width: 100%;
+  max-width: 960px;
+  height: auto;
+  margin: 0 0 2rem;
+}
+.hero { margin: 0 0 3.5rem; }
+.hero h1 {
+  font-size: 2.25rem;
+  line-height: 1.15;
+  max-width: 16ch;
+  margin: 0 0 0.6rem;
+}
+.hero .lead { max-width: 62ch; color: var(--ink); font-size: 1.125rem; }
+.hero pre {
+  max-width: 62ch;
+  margin: 1.5rem 0 0.75rem;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  line-height: 1.55;
+}
+.hero .quiet { color: var(--muted); font-size: 0.9375rem; max-width: 62ch; }
+
+section.block { margin: 0 0 3.5rem; }
+section.block h2 { margin: 0 0 0.5rem; }
+section.block .lead { margin: 0 0 1.25rem; color: var(--muted); }
+.shot {
+  display: block;
+  margin: 0 0 0.75rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--surface);
+}
+.shot img { display: block; width: 100%; height: auto; }
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.pair .shot { margin: 0; }
+.caption {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin: 0;
+}
+.caption a { color: var(--ink); }
+
+.deck-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 0.75rem;
+}
+.deck-grid a {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--surface);
+}
+.deck-grid img { display: block; width: 100%; height: auto; }
+.deck-grid p {
+  margin: 0;
+  padding: 8px 12px 10px;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.preview-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 0 0 1rem;
+}
+.preview-cards a {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.preview-cards a:hover { border-color: var(--rule-strong); }
+.preview-cards img {
+  display: block;
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  object-position: top;
+  border-bottom: 1px solid var(--rule);
+}
+.preview-cards .pad { padding: 0.75rem 0.9rem 1rem; }
+.preview-cards .kind {
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+.preview-cards h3 { margin: 0.2rem 0 0; font-size: 0.9375rem; }
+
+.more {
+  font-size: 1rem;
+  font-weight: 600;
+}
+table.skills { width: 100%; font-size: 0.9375rem; }
+table.skills th {
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+blockquote.idea {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  max-width: 42ch;
+  font-family: var(--display);
+  font-size: 1.5rem;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+footer.site-foot {
+  margin-top: 4rem;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+footer.site-foot a { color: var(--ink); }
+
+@media (max-width: 720px) {
+  .shell { padding: 24px 16px 48px; }
+  .hero h1 { font-size: 1.75rem; }
+  .pair, .deck-grid { grid-template-columns: 1fr; }
+  .preview-cards img { height: 120px; }
+}
+
+/* @@INLINE core/print.css @@ */
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <nav class="site-nav" aria-label="Site">
+    <a class="wordmark" href="index.html" aria-current="page">document-design-system</a>
+    <ul>
+      <li><a href="inventory-report.html">Report</a></li>
+      <li><a href="capacity-deck.html">Deck</a></li>
+      <li><a href="gallery-light.html">Figures</a></li>
+      <li><a href="types.html">Types</a></li>
+      <li><a href="themes-light.html">Themes</a></li>
+      <li><a href="https://github.com/Avinava/document-design-system">GitHub</a></li>
+    </ul>
+  </nav>
+
+  <header class="hero">
+    <img class="banner" src="assets/banner.svg" width="960" height="300" alt="document-design-system — reports, diagrams, charts, decks, and eighteen document types as self-contained HTML">
+    <p class="eyebrow">Six skills · one token contract</p>
+    <h1>A design system for documents</h1>
+    <p class="lead">
+      Analytical reports, diagrams, charts, decks, eighteen document types, and
+      brand theming. Writing lands as Markdown in your repo by default. Designed
+      HTML is opt-in: no JavaScript to read, no build step to open, and it prints.
+    </p>
+    <pre>/plugin marketplace add Avinava/document-design-system
+/plugin install document-design-system@document-design-system</pre>
+    <p class="quiet">Then ask for a report, or <code>/document-design-system:handoff</code> (or <code>adr</code>, <code>design-doc</code>, …).</p>
+  </header>
+
+  <section class="block" id="themes">
+    <h2>Four voices, one contract</h2>
+    <p class="lead">Identical markup in all four panels — only <code>data-theme</code> differs.</p>
+    <a class="shot" href="themes-light.html">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="@@SHOT/themes-dark.png">
+        <img alt="The same content block rendered under editorial-coral, executive-navy, field-notes, and console-violet" src="@@SHOT/themes-light.png" width="1280" height="760">
+      </picture>
+    </a>
+    <p class="caption"><code>brand-theme-design</code> · <a href="themes-light.html">Open the comparison</a></p>
+  </section>
+
+  <section class="block" id="report">
+    <h2>Analytical report</h2>
+    <p class="lead">Evidence-led, reconciled, printable. Named denominators, a limit ledger, a methodology block.</p>
+    <div class="pair">
+      <a class="shot" href="inventory-report.html">
+        <img alt="Inventory report: 41 percent of footprint sits on ingestion" src="@@SHOT/analytical-report.png" width="1280" height="980">
+      </a>
+      <a class="shot" href="inventory-report.html">
+        <img alt="Same report further down: cohort columns and an attribution table" src="@@SHOT/analytical-report-detail.png" width="1280" height="980">
+      </a>
+    </div>
+    <p class="caption"><code>analytical-document-design</code> · theme <code>editorial-coral</code> · <a href="inventory-report.html">Open the report</a></p>
+  </section>
+
+  <section class="block" id="deck">
+    <h2>Deck — a presented ask</h2>
+    <p class="lead">Fourteen slides, one idea each, claim titles. Not a document with page breaks.</p>
+    <div class="deck-grid">
+      <a href="capacity-deck.html">
+        <img alt="Title slide: Split ingestion before the next halt" src="@@SHOT/deck-title.png" width="1280" height="720">
+        <p>Title names the argument, not the meeting</p>
+      </a>
+      <a href="capacity-deck.html">
+        <img alt="Statement slide: Four of the last six incidents ended the same way" src="@@SHOT/deck-statement.png" width="1280" height="720">
+        <p>Statement slides are the lines that should stick</p>
+      </a>
+      <a href="capacity-deck.html">
+        <img alt="Comparison slide: three options, split path accented" src="@@SHOT/deck-compare.png" width="1280" height="720">
+        <p>Three options, one accent — that is the recommendation</p>
+      </a>
+      <a href="capacity-deck.html">
+        <img alt="Chart slide: Ingestion holds 41 percent of the footprint" src="@@SHOT/deck-chart.png" width="1280" height="720">
+        <p>Chart at full-width, not the document size</p>
+      </a>
+    </div>
+    <p class="caption"><code>presentation-design</code> · theme <code>executive-navy</code> · 14 slides → 14 PDF pages · <a href="capacity-deck.html">Open the deck</a></p>
+  </section>
+
+  <section class="block" id="figures">
+    <h2>Figures — diagrams and charts on one token set</h2>
+    <p class="lead">Mermaid is an input. The shipped figure is SVG whose colors are <code>var(--…)</code>. Change <code>data-theme</code> and the focal bar moves with the page.</p>
+    <a class="shot" href="gallery-light.html">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="@@SHOT/gallery-dark.png">
+        <img alt="Figure gallery: architecture, sequence, ranked bars, columns, line chart, and a limit ledger" src="@@SHOT/gallery-light.png" width="1280" height="1430">
+      </picture>
+    </a>
+    <p class="caption"><code>diagram-design</code> + <code>chart-design</code> · <a href="gallery-light.html">Open the figure gallery</a></p>
+  </section>
+
+  <section class="block" id="writing">
+    <h2>Eighteen document types</h2>
+    <p class="lead"><code>writing-documents</code> writes Markdown in your repo by default. These are the designed gallery — one Northwind Ingestion world.</p>
+    <div class="preview-cards">
+      <a href="design-doc.html">
+        <img alt="design-doc" src="@@SHOT/design-doc.png" width="1280" height="980">
+        <div class="pad"><span class="kind">design-doc</span><h3>Should we do this?</h3></div>
+      </a>
+      <a href="adr.html">
+        <img alt="adr" src="@@SHOT/adr.png" width="1280" height="720">
+        <div class="pad"><span class="kind">adr</span><h3>Why is it like this?</h3></div>
+      </a>
+      <a href="handoff.html">
+        <img alt="handoff" src="@@SHOT/handoff.png" width="1280" height="980">
+        <div class="pad"><span class="kind">handoff</span><h3>What do I run after you leave?</h3></div>
+      </a>
+      <a href="runbook.html">
+        <img alt="runbook" src="@@SHOT/runbook.png" width="1280" height="980">
+        <div class="pad"><span class="kind">runbook</span><h3>What do I do right now?</h3></div>
+      </a>
+    </div>
+    <p><a class="more" href="types.html">All eighteen types →</a></p>
+  </section>
+
+  <section class="block" id="skills">
+    <h2>The skills</h2>
+    <p class="lead">Each row is a committed example, not a description of intent.</p>
+    <table class="skills">
+      <thead>
+        <tr>
+          <th>Skill</th>
+          <th>Owns</th>
+          <th>Does not own</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="inventory-report.html"><code>analytical-document-design</code></a></td>
+          <td>Evidence models, metric semantics, report architecture</td>
+          <td>Prose-first docs, slides, standalone charts</td>
+        </tr>
+        <tr>
+          <td><a href="gallery-light.html"><code>diagram-design</code></a></td>
+          <td>When a diagram earns its place; Mermaid → themed SVG</td>
+          <td>Quantitative charts, UI mockups, <code>.drawio</code></td>
+        </tr>
+        <tr>
+          <td><a href="gallery-light.html"><code>chart-design</code></a></td>
+          <td>Chart-type selection, axis honesty, token palettes</td>
+          <td>Narrative structure, dashboards-as-applications</td>
+        </tr>
+        <tr>
+          <td><a href="capacity-deck.html"><code>presentation-design</code></a></td>
+          <td>16:9 HTML slides, claim titles, one idea per slide, PDF</td>
+          <td>Documents meant to be read; editable <code>.pptx</code></td>
+        </tr>
+        <tr>
+          <td><a href="types.html"><code>writing-documents</code></a></td>
+          <td>Eighteen types; Markdown by default; HTML only when asked</td>
+          <td>Metric-led reports; casual markdown edits</td>
+        </tr>
+        <tr>
+          <td><a href="themes-light.html"><code>brand-theme-design</code></a></td>
+          <td>Brand → theme, semantic mapping, contrast audit</td>
+          <td>Picking a shipped theme; restyling one document</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="block" id="idea">
+    <h2>The one idea</h2>
+    <blockquote class="idea">Everything renders to an SVG string at authoring time. The only thing still live in the shipped HTML is CSS custom properties.</blockquote>
+  </section>
+
+  <footer class="site-foot">
+    MIT · <a href="https://github.com/Avinava/document-design-system">Avinava/document-design-system</a>
+    · examples from Northwind Ingestion, data as of 2026-08-12
+  </footer>
+
+</div>
+</body>
+</html>

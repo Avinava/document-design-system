@@ -286,8 +286,19 @@ def assemble_longform() -> None:
     assemble_docs_gallery(SHOT_PREFIX)
 
 
-def assemble_docs_gallery(shot_prefix: str, dest: Path | None = None) -> None:
-    """Fill templates/docs-gallery.html and write examples/index.html."""
+def assemble_docs_gallery(
+    shot_prefix: str,
+    dest: Path | None = None,
+    *,
+    include_skills: bool = True,
+    types_href: str = "#types",
+) -> None:
+    """Fill templates/docs-gallery.html.
+
+    Local default writes examples/index.html with the six-skill strip.
+    Pages writes types.html without that strip — the homepage already
+    introduced the skills.
+    """
     groups = []
     for heading, items in TYPE_GALLERY:
         cards = []
@@ -321,19 +332,23 @@ def assemble_docs_gallery(shot_prefix: str, dest: Path | None = None) -> None:
             f'  </div>\n'
             f'</a>'
         )
-    skills_html = (
-        '<section class="group">\n'
-        '  <h2>The skills</h2>\n'
-        '  <div class="cards">\n    '
-        + "\n    ".join(skill_cards)
-        + "\n  </div>\n</section>"
-    )
+    skills_html = ""
+    if include_skills:
+        skills_html = (
+            '<section class="group">\n'
+            '  <h2>The skills</h2>\n'
+            '  <div class="cards">\n    '
+            + "\n    ".join(skill_cards)
+            + "\n  </div>\n</section>"
+        )
     with tempfile.NamedTemporaryFile(
         "w", suffix=".html", encoding="utf-8", delete=False
     ) as tmp:
         raw = (ROOT / "templates" / "docs-gallery.html").read_text(encoding="utf-8")
-        filled = raw.replace("<!-- @@SKILLS -->", skills_html, 1).replace(
-            "<!-- @@CARDS -->", cards_html, 1
+        filled = (
+            raw.replace("<!-- @@SKILLS -->", skills_html, 1)
+            .replace("<!-- @@CARDS -->", cards_html, 1)
+            .replace("@@TYPES_HREF", types_href)
         )
         tmp.write(filled)
         tmp_path = Path(tmp.name)
@@ -341,7 +356,12 @@ def assemble_docs_gallery(shot_prefix: str, dest: Path | None = None) -> None:
         assembled = build(tmp_path, "field-notes")
     finally:
         tmp_path.unlink(missing_ok=True)
-    if "@@INLINE" in assembled or "@@CARDS" in assembled or "@@SKILLS" in assembled:
+    if (
+        "@@INLINE" in assembled
+        or "@@CARDS" in assembled
+        or "@@SKILLS" in assembled
+        or "@@TYPES_HREF" in assembled
+    ):
         sys.exit("unresolved marker in docs-gallery")
     out = dest or (EX / "index.html")
     out.parent.mkdir(parents=True, exist_ok=True)
