@@ -1,0 +1,63 @@
+<article class="doc">
+
+  <p class="eyebrow">Handoff</p>
+  <h1>Northwind Ingestion — engineering handoff</h1>
+
+  <p class="status-banner">
+    <strong>As of:</strong> 2026-08-12 ·
+    <strong>Outgoing:</strong> Platform ·
+    <strong>Incoming:</strong> the incoming owner
+  </p>
+
+  <h2 id="scope">Scope and date</h2>
+  <p>
+    Ownership of the ingestion path: gateway, the current single queue, consumers,
+    and RFC 014 (proposed split). Warehouse ownership stays with Analytics.
+  </p>
+
+  <h2 id="what-it-is">What it is</h2>
+  <p>
+    Events enter at <code>POST /events</code>, buffer on <code>ingest</code>,
+    land in the warehouse. Ingestion is 41% of platform footprint. See
+    <a href="architecture.html">architecture</a> and RFC 014.
+  </p>
+
+  <h2 id="status">Current status</h2>
+  <ul>
+    <li>RFC 014 is Proposed, decision by 2026-09-01. Not shipped.</li>
+    <li>Open: consumer rebalance question; shed-versus-block (Reliability).</li>
+    <li>No unreleased branch except the RFC draft. Known bug: lag alert fires at 120s — too late (see postmortem 2026-07-30).</li>
+  </ul>
+
+  <h2 id="how-to-run">How to run it</h2>
+  <pre><span class="lang">bash</span>make ingest-test
+make ingest-run   # needs ${INGEST_QUEUE_URI}</pre>
+  <p class="evidence">Verified: these targets exist in the Northwind Makefile used for this fiction.</p>
+
+  <h2 id="truth">Where truth lives</h2>
+  <ul>
+    <li>Code: <code>cmd/gateway</code>, <code>cmd/consumer</code>.</li>
+    <li>Queue URI: property <code>INGEST_QUEUE_URI</code> — location, not value.</li>
+    <li>Dashboards: Ingestion / lag. Secrets: platform vault path <code>ingest/*</code>, never in git.</li>
+  </ul>
+
+  <h2 id="decisions">Decisions that bind</h2>
+  <p>Producer API is frozen (RFC 014 goal). Partition key is still Proposed (ADR 009). Verbal "we will not promise order" is now in that ADR — write it down before you leave.</p>
+
+  <h2 id="tripwires">Risks and tripwires</h2>
+  <p>A single queue fill still stops the platform. Do not restart the gateway to "clear" lag. Page at lag, then scale consumers, then escalate — <a href="runbook.html">runbook</a>.</p>
+
+  <h2 id="access">Access</h2>
+  <p>Request: ingestion namespace, lag dashboard, vault <code>ingest/*</code>. No credentials in this file.</p>
+
+  <h2 id="first-week">First-week checklist</h2>
+  <ol>
+    <li>Run <code>make ingest-test</code>.</li>
+    <li>Read RFC 014 and the 2026-07-30 postmortem.</li>
+    <li>Sit on one lag page with Platform still reachable.</li>
+  </ol>
+
+  <h2 id="open-questions">Open questions</h2>
+  <p>Same two as RFC 014. Owner remains Reliability / Platform, 2026-08-25.</p>
+
+</article>

@@ -5,13 +5,14 @@
 <p align="center">
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/license-MIT-2d3142"></a>
   <img alt="6 skills" src="https://img.shields.io/badge/skills-6-eb6c36">
+  <img alt="18 document types" src="https://img.shields.io/badge/document%20types-18-2d3142">
   <img alt="no runtime dependencies" src="https://img.shields.io/badge/runtime%20deps-none-2d3142">
   <a href="https://github.com/Avinava/document-design-system/actions/workflows/validate.yml"><img alt="validate" src="https://github.com/Avinava/document-design-system/actions/workflows/validate.yml/badge.svg"></a>
 </p>
 
 ---
 
-**A design system for documents.** Six skills over one token contract — analytical reports, diagrams, charts, decks, long-form specs, and brand theming — producing self-contained HTML that needs no JavaScript to read, no build step to open, and prints properly.
+**A design system for documents, and a skill that writes them.** Six skills over one token contract — analytical reports, diagrams, charts, decks, eighteen document types, and brand theming. Writing lands as Markdown in your repo by default. Designed HTML is opt-in: no JavaScript to read, no build step to open, and it prints.
 
 Most document tooling is welded to one output format or one client's brand. This is the discipline itself: what to measure, when a chart earns its place, how to structure an argument, and one shared set of semantic tokens underneath so a report, the diagram inside it, and the deck derived from it all look like one system.
 
@@ -20,7 +21,7 @@ Most document tooling is welded to one output format or one client's brand. This
 /plugin install document-design-system@document-design-system
 ```
 
-Then `/plugin` to confirm it is installed, or just ask for a report — the skills trigger on their own.
+Then `/plugin` to confirm it is installed. Ask for a report, or `/document-design-system:handoff` (or `adr`, `design-doc`, …) — Markdown in the repo unless you asked for HTML.
 
 The repetition on the second line is not a typo. `@` reads as "from": it names a *plugin*
 and the *catalog* it came from, and this repository publishes its own catalog containing
@@ -88,13 +89,24 @@ Further down the same document — cohort columns and an attribution table that 
 
 <sub>`analytical-document-design` · theme `editorial-coral` · [source](examples/inventory-report.html) · prints to 3 A4 pages</sub>
 
-### Long-form document — RFCs, design docs, ADRs, specs, postmortems
+### Design doc — and eighteen other types
 
 Measure held at 62–72 characters, explicit status banner, a change log for reviewers, and non-goals given their own box because it is the section most often skipped and most often needed.
 
-[![Long-form RFC](docs/screenshots/longform-rfc.png)](examples/platform-rfc.html)
+[![Design doc](docs/screenshots/design-doc.png)](examples/design-doc.html)
 
-<sub>`longform-document-design` · theme `field-notes` · [source](examples/platform-rfc.html)</sub>
+<sub>`writing-documents` · type `design-doc` · theme `field-notes` · [source](examples/design-doc.html)</sub>
+
+Same skill, same world (Northwind Ingestion), different shapes. Markdown is the default in *your* repo; these HTML files are the gallery.
+
+| | |
+|---|---|
+| [![Handoff](docs/screenshots/handoff.png)](examples/handoff.html) | [![Test report](docs/screenshots/test-report.png)](examples/test-report.html) |
+| `handoff` · what to run after you leave | `test-report` · go / no-go on this build |
+| [![API contract](docs/screenshots/api-contract.png)](examples/api-contract.html) | [![Discovery](docs/screenshots/discovery.png)](examples/discovery.html) |
+| `api-contract` · companion to the spec, not a second copy | `discovery` · go / stop / reframe |
+
+Every type: `design-doc`, `adr`, `spec`, `api-contract`, `architecture`, `handoff`, `design-handoff`, `discovery`, `test-report`, `postmortem`, `proposal`, `runbook`, `onboarding`, `tutorial`, `how-to`, `reference`, `explanation`, `mulesoft`. Each has `examples/<slug>.html`, `examples/<slug>.md`, and `/document-design-system:<slug>`.
 
 ### Deck — 16:9 slides that export one-per-page to PDF
 
@@ -170,7 +182,7 @@ The page, the chart's focal bar, and the diagram's arrowheads all move together.
 | **diagram-design** | When a diagram earns its place, form routing, layout/edge/label rules, Mermaid→SVG prerender, hand-SVG for concept diagrams | Quantitative charts, UI mockups, editable `.drawio` |
 | **chart-design** | Chart-type selection, axis honesty, encoding rules, palettes derived from tokens, grayscale survival | Narrative structure, dashboards-as-applications |
 | **presentation-design** | 16:9 HTML slides, one-idea-per-slide, slide hierarchy, PDF export | Documents meant to be read rather than presented |
-| **longform-document-design** | RFCs, design docs, ADRs, specs, postmortems, runbooks; prose hierarchy, cross-references, footnotes | Metric-led reports |
+| **writing-documents** | Eighteen types (design-doc, adr, handoff, api-contract, test-report, Diátaxis, MuleSoft suite, …); Markdown by default; designed HTML only when asked | Metric-led reports; casual edits to existing markdown; restyling into HTML unprompted |
 | **brand-theme-design** | Turning a brand into a theme — extraction from a guide, site, or screenshot; mapping to semantic roles; contrast auditing | Picking between themes that already ship; restyling one document |
 
 Each `SKILL.md` is a lean index — 110 to 181 lines — with the depth in `references/` loading only when relevant.
@@ -187,8 +199,9 @@ core/            the shared design system — the single source of truth
   print.css        print as a distinct output mode
   a11y.md          SVG labelling, contrast, grayscale, focus
 skills/          the six skills, each SKILL.md + references/
+commands/        /document-design-system:<slug> for each writing-documents type
 scripts/         authoring-time tooling — never shipped to readers
-templates/       document · longform · deck · gallery · themes · diagram
+templates/       document · longform (shell) · types/<slug> · deck · gallery · themes · diagram
 examples/        committed outputs, doubling as CI fixtures and the shots above
 assets/          banner.svg — literal colors, because <img> is an isolated document
 docs/screenshots/
@@ -217,7 +230,7 @@ pip install playwright && playwright install chromium      # PDF + screenshots
 
 python3 scripts/build_examples.py       # rebuild every example from source
 python3 scripts/shoot_examples.py       # refresh the screenshots above
-python3 scripts/build_document.py templates/longform.html --theme field-notes --out rfc.html
+python3 scripts/build_examples.py                          # includes all writing-documents types
 python3 scripts/inline_fonts.py rfc.html --font "Geist:400:geist.woff2" --out offline.html
 python3 scripts/validate_repository.py .
 python3 -m unittest discover -s tests

@@ -1,0 +1,47 @@
+<article class="doc">
+
+  <p class="eyebrow">Test report</p>
+  <h1>Ingestion — RC 2026.08.12</h1>
+
+  <p class="status-banner">
+    <strong>Build:</strong> <code>sha-a1b2c3d</code> ·
+    <strong>Environment:</strong> staging ·
+    <strong>Date:</strong> 2026-08-12 ·
+    <strong>Author:</strong> Platform
+  </p>
+
+  <div class="verdict">
+    <p><strong>Verdict: go-with-waivers.</strong> Functional and regression passed. Chaos test of a downed queue is waived until RFC 014 ships — that path does not exist on this build.</p>
+  </div>
+
+  <h2 id="scope">Objective and scope</h2>
+  <p>Regression on <code>POST /events</code> and consumer drain for release candidate 2026.08.12. Out of scope: dispatcher split (not merged), warehouse compaction, batch path.</p>
+
+  <h2 id="results">Results</h2>
+  <table>
+    <caption>Counts for this build only</caption>
+    <thead><tr><th scope="col">Planned</th><th scope="col">Executed</th><th scope="col">Passed</th><th scope="col">Failed</th><th scope="col">Blocked</th><th scope="col">Skipped</th></tr></thead>
+    <tbody>
+      <tr><td>40</td><td>38</td><td>36</td><td>0</td><td>0</td><td>2</td></tr>
+    </tbody>
+  </table>
+  <p>38 of 40 executed (95%). 36 of 38 passed (95% of executed). Two skipped: chaos-down-queue, dual-write shadow — both RFC 014.</p>
+  <p class="evidence">Verified: CI job ingest-test on sha-a1b2c3d.</p>
+
+  <h2 id="defects">Defects</h2>
+  <p>None open from this cycle. Waiver: no chaos coverage for single-queue fill (known; tracked by RFC 014).</p>
+
+  <h2 id="environment">Environment</h2>
+  <p>Staging. Runtime matching production minor. Browser matrix not applicable (service API). No private URLs, no credentials.</p>
+
+  <h2 id="exit">Exit criteria</h2>
+  <ul>
+    <li>No P1/P2 open from the cycle — met.</li>
+    <li>Regression suite green — met.</li>
+    <li>Chaos on queue failure — waived, RFC 014.</li>
+  </ul>
+
+  <h2 id="residual">Residual risk</h2>
+  <p>The failure mode in the 2026-07-30 postmortem is untested on this build because the second queue is not there. Shipping this RC does not reduce halt risk. That is a product risk, not a test escape.</p>
+
+</article>

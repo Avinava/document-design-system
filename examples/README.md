@@ -14,12 +14,37 @@ python3 scripts/build_examples.py
 | File | Skill | Theme |
 |---|---|---|
 | `inventory-report.html` | analytical-document-design | editorial-coral |
-| `platform-rfc.html` | longform-document-design | field-notes |
+| `design-doc.html` (and 17 other slugs) | writing-documents | see table below |
 | `capacity-deck.html` | presentation-design | executive-navy |
 | `gallery-light.html` / `gallery-dark.html` | diagram-design + chart-design | editorial-coral / console-violet |
 | `themes-light.html` / `themes-dark.html` | the token contract itself | all four panels |
 
 The `-light` / `-dark` pairs exist so the README can swap them with the reader's GitHub theme via `<picture>`. Both halves of each pair inline the **same** SVG figures — only the root `data-theme` differs, so the pair is also a direct demonstration that nothing needs re-rendering.
+
+### writing-documents types
+
+Bodies live in `templates/types/<slug>.html`. The shared world is [`WORLD.md`](WORLD.md). Rebuild with `python3 scripts/build_examples.py`. Each slug also has a Markdown twin `examples/<slug>.md`.
+
+| File | Theme |
+|---|---|
+| `design-doc.html` | field-notes |
+| `adr.html` | field-notes |
+| `spec.html` | field-notes |
+| `api-contract.html` | console-violet |
+| `architecture.html` | field-notes |
+| `handoff.html` | field-notes |
+| `design-handoff.html` | editorial-coral |
+| `discovery.html` | field-notes |
+| `test-report.html` | editorial-coral |
+| `postmortem.html` | console-violet |
+| `proposal.html` | executive-navy |
+| `runbook.html` | console-violet |
+| `onboarding.html` | field-notes |
+| `tutorial.html` | editorial-coral |
+| `how-to.html` | editorial-coral |
+| `reference.html` | console-violet |
+| `explanation.html` | field-notes |
+| `mulesoft.html` | field-notes |
 
 ## Figures
 

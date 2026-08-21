@@ -15,12 +15,18 @@ document build working on a machine with only Python.
 
 from __future__ import annotations
 
+import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 EX = ROOT / "examples"
+TYPES = ROOT / "templates" / "types"
+
+sys.path.insert(0, str(ROOT / "scripts"))
+from build_document import build  # noqa: E402
 
 # figure slug -> (renderer, spec, extra args)
 CHARTS = {
@@ -43,7 +49,6 @@ DIAGRAMS = {
 # output -> (template, theme)
 DOCUMENTS = {
     "inventory-report.html": ("document.html", "editorial-coral"),
-    "platform-rfc.html": ("longform.html", "field-notes"),
     "capacity-deck.html": ("deck.html", "executive-navy"),
     # The two images the README swaps with the reader's GitHub theme are built
     # twice, once under a light root theme and once under the dark one. Only
@@ -52,6 +57,48 @@ DOCUMENTS = {
     "gallery-dark.html": ("gallery.html", "console-violet"),
     "themes-light.html": ("themes.html", "editorial-coral"),
     "themes-dark.html": ("themes.html", "console-violet"),
+}
+
+# writing-documents examples: slug -> (theme, contract-layout)
+# Bodies live in templates/types/<slug>.html; the shell is templates/longform.html.
+LONGFORM = {
+    "design-doc": ("field-notes", False),
+    "adr": ("field-notes", False),
+    "spec": ("field-notes", True),
+    "api-contract": ("console-violet", True),
+    "architecture": ("field-notes", False),
+    "handoff": ("field-notes", False),
+    "design-handoff": ("editorial-coral", False),
+    "discovery": ("field-notes", False),
+    "test-report": ("editorial-coral", True),
+    "postmortem": ("console-violet", False),
+    "proposal": ("executive-navy", False),
+    "runbook": ("console-violet", False),
+    "onboarding": ("field-notes", False),
+    "tutorial": ("editorial-coral", False),
+    "how-to": ("editorial-coral", False),
+    "reference": ("console-violet", True),
+    "explanation": ("field-notes", False),
+    "mulesoft": ("field-notes", False),
+}
+
+FONTS = {
+    "field-notes": (
+        "https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700"
+        "&family=Source+Code+Pro:wght@400;500;600&display=swap"
+    ),
+    "editorial-coral": (
+        "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700"
+        "&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap"
+    ),
+    "executive-navy": (
+        "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700"
+        "&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    ),
+    "console-violet": (
+        "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700"
+        "&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    ),
 }
 
 # Figures inlined into the analytical report, in document order.
@@ -92,8 +139,57 @@ def figure(slug: str) -> str:
     return path.read_text(encoding="utf-8").strip()
 
 
+def _title(body: str) -> str:
+    m = re.search(r"<h1>(.*?)</h1>", body, re.S)
+    if not m:
+        return "Document"
+    return re.sub(r"<[^>]+>", "", m.group(1)).strip()
+
+
+def assemble_longform() -> None:
+    print("assembling writing-documents examples")
+    shell = (ROOT / "templates" / "longform.html").read_text(encoding="utf-8")
+    stale = EX / "platform-rfc.html"
+    if stale.is_file():
+        stale.unlink()
+
+    for slug, (theme, contract) in LONGFORM.items():
+        body_path = TYPES / f"{slug}.html"
+        if not body_path.is_file():
+            sys.exit(f"missing type body: {body_path.relative_to(ROOT)}")
+        body = body_path.read_text(encoding="utf-8")
+        href = FONTS[theme]
+        html = shell.replace("<!-- @@TITLE -->", _title(body), 1)
+        html = html.replace(
+            "<!-- @@FONTS -->",
+            f'<link href="{href}" rel="stylesheet">',
+            1,
+        )
+        html = html.replace("<!-- @@BODY -->", body, 1)
+        if contract:
+            html = html.replace(
+                "<html lang=\"en\"",
+                '<html lang="en" data-layout="contract"',
+                1,
+            )
+        with tempfile.NamedTemporaryFile(
+            "w", suffix=".html", encoding="utf-8", delete=False
+        ) as tmp:
+            tmp.write(html)
+            tmp_path = Path(tmp.name)
+        try:
+            assembled = build(tmp_path, theme)
+        finally:
+            tmp_path.unlink(missing_ok=True)
+        if "@@INLINE" in assembled or "@@BODY" in assembled or "@@TITLE" in assembled:
+            sys.exit(f"unresolved marker in {slug}")
+        (EX / f"{slug}.html").write_text(assembled, encoding="utf-8")
+        print(f"  {slug}.html ({theme}, {len(assembled):,} bytes)")
+
+
 def build_documents() -> None:
     print("assembling documents")
+    assemble_longform()
     for out, (template, theme) in DOCUMENTS.items():
         target = EX / out
         if not run([

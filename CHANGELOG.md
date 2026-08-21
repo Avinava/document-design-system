@@ -3,6 +3,21 @@
 All notable changes to this project are documented here. Versions refer to the
 `version` field in `.claude-plugin/plugin.json`.
 
+## Unreleased
+
+Skill rename, eighteen document types, gallery examples. Plugin version still `0.1.2` until this branch merges as 0.2.0.
+
+### Changed
+
+- **`longform-document-design` is now `writing-documents`.** Markdown in the user's repo is the default. Designed HTML/PDF only when asked. Slash commands: `/document-design-system:<slug>`.
+- Existing RFC/ADR/spec/postmortem/proposal/runbook shapes live as `references/type-<slug>.md`.
+
+### Added
+
+- Types: `api-contract`, `architecture`, `handoff`, `design-handoff`, `discovery`, `test-report`, `onboarding`, `tutorial`, `how-to`, `reference`, `explanation`, `mulesoft`.
+- Shared `evidence.md`, `writing.md`, `output.md`, `suites.md`, `type-index.md`.
+- Gallery: `examples/<slug>.html` + `.md` for every type, rebuilt from `templates/types/`. Shared fiction in `examples/WORLD.md`. Screenshots in `docs/screenshots/<slug>.png`.
+
 ## 0.1.2
 
 Marketplace listing metadata, and validation that the packaging invariants stay true.

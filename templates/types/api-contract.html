@@ -1,0 +1,60 @@
+<article class="doc">
+
+  <p class="eyebrow">API contract</p>
+  <h1>POST /events — companion to the spec</h1>
+
+  <p class="status-banner">
+    <strong>Source of truth:</strong> <code>openapi/events.yaml</code> ·
+    <strong>Base path:</strong> as declared in that file, not a hostname ·
+    <strong>Audience:</strong> producer teams
+  </p>
+
+  <h2 id="auth">Auth</h2>
+  <p>Service-to-service mTLS at the gateway, plus an audience claim on the caller identity. No API keys in query strings. This document does not include credentials.</p>
+
+  <h2 id="resource-map">Resource map</h2>
+  <table>
+    <caption>Operations producers call</caption>
+    <thead><tr><th scope="col">Method</th><th scope="col">Path</th><th scope="col">Success</th><th scope="col">Notes</th></tr></thead>
+    <tbody>
+      <tr><td><code>POST</code></td><td><code>/events</code></td><td>202</td><td>Accepted for ingest. Body is the event.</td></tr>
+      <tr><td><code>GET</code></td><td><code>/events/{id}</code></td><td>200 / 404</td><td>Lookup by event ID. Not a list.</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="conventions">Conventions</h2>
+  <ul>
+    <li><strong>Idempotency.</strong> Repeat <code>POST</code> with the same <code>id</code> MUST NOT create a second warehouse row. Header <code>Idempotency-Key</code> MAY duplicate <code>id</code>.</li>
+    <li><strong>Correlation.</strong> Echo <code>X-Request-Id</code> on every response.</li>
+    <li><strong>Versioning.</strong> Breaking changes go to <code>/v2</code>. This companion is v1.</li>
+    <li><strong>Errors.</strong> JSON object <code>{ "code", "message", "retryable" }</code>.</li>
+  </ul>
+
+  <h2 id="examples">Worked examples</h2>
+  <p>Success (synthetic):</p>
+  <pre><span class="lang">http</span>POST /events
+{"id":"evt_01","type":"checkout.paid"}
+
+202
+{"id":"evt_01","status":"accepted"}</pre>
+  <p>Error — queue shed (after RFC 014; today this is a 503):</p>
+  <pre><span class="lang">http</span>202
+{"id":"evt_01","status":"shed","code":"INGEST_SHED","retryable":true}</pre>
+
+  <h2 id="errors">Error catalog</h2>
+  <table>
+    <caption>Stable codes</caption>
+    <thead><tr><th scope="col">Code</th><th scope="col">Meaning</th><th scope="col">Client should</th></tr></thead>
+    <tbody>
+      <tr><td><code>INGEST_SHED</code></td><td>Chosen queue unavailable</td><td>Retry with backoff</td></tr>
+      <tr><td><code>INVALID_EVENT</code></td><td>Body failed schema</td><td>Fix the payload; do not retry</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="mismatches">Spec ↔ implementation</h2>
+  <p>OpenAPI still documents 503 on overload. Implementation after RFC 014 will return 202 + <code>INGEST_SHED</code>. Until the spec PR lands, treat the YAML as source and this paragraph as the known drift.</p>
+
+  <h2 id="changelog">Changelog</h2>
+  <p>2026-08-12 — documented shed. No breaking change yet.</p>
+
+</article>

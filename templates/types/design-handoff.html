@@ -1,0 +1,56 @@
+<article class="doc">
+
+  <p class="eyebrow">Design handoff</p>
+  <h1>Ingestion status — operator view</h1>
+
+  <p class="status-banner">
+    <strong>For:</strong> Platform UI ·
+    <strong>File:</strong> Figma · Ingestion / status (link the file; this is the packet) ·
+    <strong>As of:</strong> 2026-08-12
+  </p>
+
+  <h2 id="overview">Overview</h2>
+  <p>Operators need to see whether ingestion is healthy without opening four dashboards. In-scope: a single status page for queue lag and shed count. Out of scope: producer configuration.</p>
+
+  <h2 id="user-flow">User flow</h2>
+  <ol>
+    <li>Open Status.</li>
+    <li>See current lag and whether shed is active.</li>
+    <li>If lag is high, follow the runbook link.</li>
+  </ol>
+
+  <h2 id="screens">Screens</h2>
+  <ul>
+    <li><strong>Happy</strong> — lag under 30s, shed count zero.</li>
+    <li><strong>Empty</strong> — no events in 15 minutes. Copy: "No events in the last 15 minutes. Producers may be idle."</li>
+    <li><strong>Loading</strong> — skeleton bars, no fake numbers.</li>
+    <li><strong>Error</strong> — dashboard query failed. Copy: "Status unavailable. Try again, then page Platform."</li>
+    <li><strong>Success</strong> — not a toast; the happy state is the success.</li>
+  </ul>
+
+  <h2 id="components">Components</h2>
+  <p>Use <code>StatusBanner</code>, <code>MetricCard</code>, <code>Button</code> from the platform system. No custom chart — a number plus a 15-minute sparkline from <code>Sparkline</code>. Do not introduce a new accent; use the system danger token for shed-active.</p>
+
+  <h2 id="interaction">Interaction</h2>
+  <p>Focus order: title, lag metric, shed metric, runbook link. Keyboard: tab through; Enter on the runbook link. No motion beyond the existing 150ms fade on number change. Honour <code>prefers-reduced-motion</code>.</p>
+
+  <h2 id="responsive">Responsive</h2>
+  <p>One column below 720px. Two metric cards stack; do not shrink type below 16px.</p>
+
+  <h2 id="content">Content</h2>
+  <p>Lag label: "Queue lag". Units: seconds. Truncate shed counts with SI (1.2k), not "1200.00". Empty strings are the empty-state copy above — never blank cards.</p>
+
+  <h2 id="data">Data</h2>
+  <p>Lag from <code>ingest_lag_seconds</code>. Shed from <code>dispatcher_shed_total</code> (zero until RFC 014 ships — show the metric, value 0, no "coming soon"). If the operator lacks the dashboard role, hide the page behind the existing 403, do not show zeros.</p>
+
+  <h2 id="a11y">Accessibility</h2>
+  <p>Metric numbers have visible text, not colour-only. StatusBanner uses text + icon. Contrast already in the system; do not override.</p>
+
+  <h2 id="acceptance">Acceptance criteria</h2>
+  <ul>
+    <li>Given lag 12s and shed 0, when I open Status, then I see 12 and 0 and no error.</li>
+    <li>Given the query fails, when I open Status, then I see the error copy and no invented lag.</li>
+    <li>Given a viewport 375px wide, when I open Status, then both metrics remain fully visible without horizontal scroll.</li>
+  </ul>
+
+</article>

@@ -1,0 +1,38 @@
+<article class="doc">
+
+  <p class="eyebrow">ADR 009</p>
+  <h1>Hash partitions on event ID, not producer ID</h1>
+
+  <p class="status-banner">
+    <strong>Status:</strong> Proposed ·
+    <strong>Supersedes:</strong> none ·
+    <strong>Owner:</strong> Platform
+  </p>
+
+  <h2 id="context">Context</h2>
+  <p>
+    RFC 014 splits ingestion into <code>ingest-a</code> and <code>ingest-b</code>
+    by partition. The partition key decides whether traffic is even under
+    failure. Producers (Checkout, Catalog, Inventory) have very different
+    volumes — Checkout alone is most of the 1.84M-unit ingestion footprint.
+  </p>
+  <p>
+    Two forces are in tension: affinity (keep a producer's events on one queue
+    so ordering is cheap) versus balance (keep both queues useful if one fails).
+  </p>
+
+  <h2 id="decision">Decision</h2>
+  <p>
+    We will hash the partition on <strong>event ID</strong>, not producer ID.
+    Ordering inside a producer is not a platform guarantee today and will not
+    become one.
+  </p>
+
+  <h2 id="consequences">Consequences</h2>
+  <ul>
+    <li>Load splits even when one producer dominates.</li>
+    <li>A producer cannot assume in-order delivery across the two queues. Callers that need order must impose it themselves.</li>
+    <li>Replaying a single producer's events means reading both queues. Operational runbooks have to say so.</li>
+  </ul>
+
+</article>

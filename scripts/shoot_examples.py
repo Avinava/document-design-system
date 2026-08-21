@@ -33,7 +33,24 @@ PORT = 8931
 SHOTS = {
     "analytical-report": ("inventory-report.html", (1280, 980), False),
     "analytical-report-detail": ("inventory-report.html", (1280, 980), False),
-    "longform-rfc": ("platform-rfc.html", (1280, 980), False),
+    "design-doc": ("design-doc.html", (1280, 980), False),
+    "adr": ("adr.html", (1280, 720), False),
+    "spec": ("spec.html", (1280, 980), False),
+    "api-contract": ("api-contract.html", (1280, 980), False),
+    "architecture": ("architecture.html", (1280, 980), False),
+    "handoff": ("handoff.html", (1280, 980), False),
+    "design-handoff": ("design-handoff.html", (1280, 980), False),
+    "discovery": ("discovery.html", (1280, 980), False),
+    "test-report": ("test-report.html", (1280, 980), False),
+    "postmortem": ("postmortem.html", (1280, 980), False),
+    "proposal": ("proposal.html", (1280, 800), False),
+    "runbook": ("runbook.html", (1280, 980), False),
+    "onboarding": ("onboarding.html", (1280, 900), False),
+    "tutorial": ("tutorial.html", (1280, 900), False),
+    "how-to": ("how-to.html", (1280, 800), False),
+    "reference": ("reference.html", (1280, 800), False),
+    "explanation": ("explanation.html", (1280, 800), False),
+    "mulesoft": ("mulesoft.html", (1280, 900), False),
     # Light/dark pairs, for the README <picture> elements that follow the
     # reader's GitHub theme.
     "gallery-light": ("gallery-light.html", (1280, 1430), True),
@@ -75,6 +92,8 @@ def serve() -> socketserver.TCPServer:
 
 
 def main() -> None:
+    only = set(sys.argv[1:]) if len(sys.argv) > 1 else None
+
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
@@ -92,6 +111,8 @@ def main() -> None:
             browser = p.chromium.launch()
 
             for name, (page_file, (w, h), full) in SHOTS.items():
+                if only and name not in only:
+                    continue
                 page = browser.new_page(viewport={"width": w, "height": h},
                                         device_scale_factor=2)
                 page.goto(f"http://127.0.0.1:{PORT}/{page_file}", wait_until="networkidle")
@@ -108,6 +129,8 @@ def main() -> None:
                 page.close()
 
             for name, (page_file, index) in SLIDE_SHOTS.items():
+                if only and name not in only:
+                    continue
                 page = browser.new_page(viewport={"width": 1280, "height": 760},
                                         device_scale_factor=2)
                 page.goto(f"http://127.0.0.1:{PORT}/{page_file}", wait_until="networkidle")

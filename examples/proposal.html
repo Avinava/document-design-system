@@ -1,71 +1,71 @@
 <!doctype html>
 <!--
-  Long-form document skeleton — RFC, design doc, ADR, spec, postmortem.
+  Long-form shell — bodies live in templates/types/<slug>.html.
 
   Assemble with:
+      python scripts/build_examples.py
+  or, for a one-off:
       python scripts/build_document.py templates/longform.html \
-             --theme field-notes --out rfc.html
+             --theme field-notes --out document.html
 
-  Prose-first, so the measure is the load-bearing decision: 62-72 characters.
-  Full-width text on a wide monitor is the most common readability failure in
-  HTML technical documents, and it is entirely avoidable.
+  Prose-first: the measure is 62-72 characters. Full-width text on a wide
+  monitor is the most common readability failure in HTML technical documents.
 
-  The section order below is the design-doc / RFC shape. Swap it for the ADR,
-  spec, postmortem, or runbook shape from
-  skills/longform-document-design/references/document-types.md.
+  Type files own section order. This shell owns tokens, measure, print.
+  Contract-heavy types set data-layout="contract" for a slightly wider shell.
 -->
-<html lang="en" data-theme="field-notes">
+<html lang="en" data-theme="executive-navy">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RFC 014 — Splitting the ingestion path</title>
+<title>Two engineers, one quarter, to split ingestion</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
-/* ---- inlined from core/themes/field-notes.css ---- */
-/* field-notes — research findings, audits, operational workshops.
+/* ---- inlined from core/themes/executive-navy.css ---- */
+/* executive-navy — formal governance, financial, board, and leadership reporting.
  *
- * Tactile but still professional. Warm paper, near-zero radii, a rust accent.
+ * Lower-expression and higher-contrast than the default. Tighter radii read as
+ * more institutional.
  *
- * This theme may use a very subtle paper texture, but only when requested.
- * Texture must disappear in print and must never reduce contrast.
+ * Do not add gold as a second decorative accent. Warning amber stays status-only.
  *
- * Fonts: Source Sans 3 (display + sans), Source Code Pro (mono).
+ * Fonts: Manrope (display), Inter (sans), IBM Plex Mono (mono).
  */
 
-[data-theme="field-notes"] {
-  --paper: #f4f0e7;
-  --surface: #fffdf7;
-  --surface-muted: #ebe5d8;
+[data-theme="executive-navy"] {
+  --paper: #f3f6f8;
+  --surface: #ffffff;
+  --surface-muted: #e9eef2;
 
-  --ink: #28312d;
-  --muted: #59665f;
-  --soft: #7b857f;
+  --ink: #13293d;
+  --muted: #486174;
+  --soft: #718493;
 
-  --rule: rgba(40, 49, 45, 0.14);
-  --rule-strong: rgba(40, 49, 45, 0.34);
+  --rule: rgba(19, 41, 61, 0.13);
+  --rule-strong: rgba(19, 41, 61, 0.34);
 
-  --accent: #b65332;
-  --accent-tint: rgba(182, 83, 50, 0.10);
+  --accent: #1f6f8b;
+  --accent-tint: rgba(31, 111, 139, 0.10);
   --accent-ink: #ffffff;
 
-  --positive: #46725a;
-  --warning: #9a681d;
-  --critical: #9b4343;
+  --positive: #2f7254;
+  --warning: #996319;
+  --critical: #a13f45;
 
-  --method-bg: #28312d;
-  --method-ink: #f4f0e7;
-  --method-muted: #c7cec8;
+  --method-bg: #13293d;
+  --method-ink: #f5f8fa;
+  --method-muted: #c3ced6;
 
-  --display: 'Source Sans 3', 'Manrope', system-ui, sans-serif;
-  --sans: 'Source Sans 3', 'Geist', system-ui, sans-serif;
-  --mono: 'Source Code Pro', 'Geist Mono', ui-monospace, monospace;
+  --display: 'Manrope', system-ui, sans-serif;
+  --sans: 'Inter', 'Geist', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', 'Geist Mono', ui-monospace, monospace;
 
-  --radius-sm: 0;
-  --radius-md: 2px;
+  --radius-sm: 2px;
+  --radius-md: 4px;
 }
 /* ---- inlined from core/base.css ---- */
 /* base.css — component-to-token mapping.
@@ -333,6 +333,10 @@ a { color: inherit; text-underline-offset: 2px; }
   padding: 48px 32px 80px;
 }
 
+html[data-layout="contract"] .doc {
+  max-width: 880px;
+}
+
 .status-banner {
   border: 1px solid var(--rule-strong);
   border-radius: var(--radius-md);
@@ -356,6 +360,18 @@ a { color: inherit; text-underline-offset: 2px; }
   border-left: 3px solid var(--accent);
   border-radius: 0 var(--radius-md) var(--radius-md) 0;
   padding: 1rem 1.25rem;
+}
+
+.verdict {
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.evidence {
+  font-size: 0.8125rem;
+  color: var(--soft);
 }
 
 pre {
@@ -579,146 +595,52 @@ sup a { text-decoration: none; color: var(--accent); }
  */
 </style>
 </head>
-
 <body>
 <article class="doc">
 
-  <p class="eyebrow">Design document</p>
-  <h1>RFC 014 — Splitting the ingestion path</h1>
+  <p class="eyebrow">Proposal</p>
+  <h1>Two engineers, one quarter, to split ingestion</h1>
 
-  <!-- Status is explicit. A reader must be able to tell whether they are
-       reading a decision, a proposal, or a sketch. -->
   <p class="status-banner">
-    <strong>Status:</strong> Proposed ·
-    <strong>Decision needed by:</strong> 2026-09-01 ·
-    <strong>Owner:</strong> Platform
+    <strong>Ask of:</strong> Platform director ·
+    <strong>Needed by:</strong> 2026-09-01 ·
+    <strong>Author:</strong> Platform
   </p>
 
-  <table class="changelog">
-    <caption class="meta">Change log</caption>
-    <thead><tr><th scope="col">Date</th><th scope="col">Change</th><th scope="col">By</th></tr></thead>
-    <tbody>
-      <tr><td>2026-08-12</td><td>Added rollback plan after review</td><td>Author</td></tr>
-      <tr><td>2026-08-08</td><td>Initial draft</td><td>Author</td></tr>
-    </tbody>
-  </table>
-
-  <nav class="toc" aria-label="Contents">
-    <p class="eyebrow">Contents</p>
-    <ol>
-      <li><a href="#problem">Problem</a></li>
-      <li><a href="#goals">Goals</a></li>
-      <li><a href="#non-goals">Non-goals</a></li>
-      <li><a href="#proposal">Proposal</a></li>
-      <li><a href="#alternatives-considered">Alternatives considered</a></li>
-      <li><a href="#risks">Risks and mitigations</a></li>
-      <li><a href="#open-questions">Open questions</a></li>
-    </ol>
-  </nav>
-
-  <h2>Summary</h2>
+  <h2 id="the-ask">The ask</h2>
   <p>
-    The ingestion path holds 41% of the platform footprint behind a single queue
-    with no failover. This proposes splitting it into two independently
-    deployable paths so that a queue failure degrades throughput rather than
-    stopping ingestion. Written last, as a summary should be.
+    Two engineers for one quarter to ship RFC 014 — split the ingestion queue
+    so a single queue failure degrades throughput instead of stopping ingestion.
   </p>
 
-  <h2 id="problem">Problem</h2>
+  <h2 id="rationale">Rationale</h2>
   <p>
-    Four of the last six incidents traced to the same coupling.<sup><a href="#fn1" id="fnref1">1</a></sup>
-    Each began as queue backpressure and ended as a full ingestion stop, because
-    every producer shares one path.
+    Four of the last six incidents ended as a full ingestion stop. Ingestion is
+    41% of platform footprint. Doing this later, during a worse incident, costs
+    more than a planned quarter.
   </p>
-  <p>
-    State the evidence, not the feeling. "The current system is hard to maintain"
-    is an opinion; the incident count is a problem.
-  </p>
+  <p class="evidence">Verified: incident list and inventory snapshot in RFC 014.</p>
 
-  <h2 id="goals">Goals</h2>
+  <h2 id="cost">Cost</h2>
   <ul>
-    <li>A queue failure degrades throughput instead of halting ingestion.</li>
-    <li>Recovery without a coordinated redeploy of every producer.</li>
-    <li>No change to the producer-facing API.</li>
+    <li>Two engineers, twelve weeks. Opportunity cost: the catalog backfill slips a quarter.</li>
+    <li>Ongoing: one extra queue and consumer group to operate.</li>
+    <li>Hard to quantify: pages we do not take when the next backpressure arrives.</li>
   </ul>
 
-  <h2 id="non-goals">Non-goals</h2>
-  <div class="non-goals">
-    <p>
-      This does <strong>not</strong> propose replacing the queue technology,
-      changing the retention policy, or touching the batch path. Those are real
-      questions and they are not this document's questions.
-    </p>
-  </div>
-  <p>
-    This is the section most often omitted and most often needed. It keeps the
-    review from sprawling into adjacent problems, and it is where a reviewer
-    with a different mental model discovers the mismatch early — while it is
-    still cheap.
-  </p>
-
-  <h2 id="proposal">Proposal</h2>
-  <p>
-    Route producers through a thin dispatcher that writes to one of two queues
-    keyed by partition. Each queue has its own consumer group and its own
-    failover. The dispatcher is stateless and deployable independently.
-  </p>
-  <pre><span class="lang">yaml</span>dispatcher:
-  routes:
-    - match: {partition: even}
-      queue: ingest-a
-    - match: {partition: odd}
-      queue: ingest-b
-  on_queue_unavailable: shed_and_alert</pre>
-  <p>
-    Keep lines under about 80 characters. Long lines force horizontal scrolling
-    on screen and clip in print.
-  </p>
-
-  <h2 id="alternatives-considered">Alternatives considered</h2>
+  <h2 id="alternatives">Alternatives</h2>
   <ul>
-    <li>
-      <strong>Do nothing.</strong> Always an option, and often chosen by
-      default. Cost: the incident pattern continues at roughly one per quarter.
-    </li>
-    <li>
-      <strong>Larger single queue.</strong> Raises the backpressure threshold
-      without removing the single point of failure. Rejected because it changes
-      when the incident happens, not whether.
-    </li>
-    <li>
-      <strong>Per-producer queues.</strong> Removes the coupling entirely, but
-      multiplies operational surface by the producer count. Rejected on cost.
-    </li>
-  </ul>
-  <p>
-    An alternatives section listing only strawmen tells the reader the decision
-    was made before the document was written, and they will read the rest
-    accordingly.
-  </p>
-
-  <h2 id="risks">Risks and mitigations</h2>
-  <ul>
-    <li><strong>Partition skew</strong> sends most traffic to one queue. Mitigated by hashing on event ID rather than producer ID.</li>
-    <li><strong>Dispatcher becomes the new single point of failure.</strong> Mitigated by running it stateless behind the existing load balancer.</li>
+    <li><strong>Do nothing.</strong> Continue at roughly one halt per quarter.</li>
+    <li><strong>Larger single queue.</strong> Cheaper this quarter; does not remove the failure mode. Rejected in RFC 014.</li>
   </ul>
 
-  <h2 id="open-questions">Open questions</h2>
-  <ol>
-    <li>Does the consumer group rebalance cleanly under partial failure? — <em>Owner: Platform, by 2026-08-25</em></li>
-    <li>Is shed-and-alert the right behavior, or should the dispatcher block? — <em>Owner: Reliability, by 2026-08-25</em></li>
-  </ol>
+  <h2 id="decision-needed">Decision needed</h2>
   <p>
-    A document with no open questions is either finished or not being honest.
+    Platform director, by 2026-09-01. If there is no decision, the default is
+    do nothing — which is a choice, and should be recorded as one.
   </p>
-
-  <section class="footnotes">
-    <h2>Notes</h2>
-    <ol>
-      <li id="fn1">Incidents 2026-03-14, 2026-04-02, 2026-06-19, 2026-07-30. <a href="#fnref1">↩</a></li>
-    </ol>
-  </section>
 
 </article>
+
 </body>
 </html>

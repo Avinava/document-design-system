@@ -110,6 +110,22 @@ class TestWritingTypes(unittest.TestCase):
             with self.subTest(slug=slug):
                 self.assertIn(f"`{slug}`", index)
 
+    def test_example_html_exists_for_every_type(self):
+        ref_dir = SKILLS / "writing-documents" / "references"
+        for path in sorted(ref_dir.glob("type-*.md")):
+            if path.name == "type-index.md":
+                continue
+            slug = path.name[len("type-") : -len(".md")]
+            with self.subTest(slug=slug):
+                self.assertTrue(
+                    (ROOT / "examples" / f"{slug}.html").is_file(),
+                    f"missing examples/{slug}.html",
+                )
+                self.assertTrue(
+                    (ROOT / "templates" / "types" / f"{slug}.html").is_file(),
+                    f"missing templates/types/{slug}.html",
+                )
+
     def test_command_exists_for_every_type(self):
         ref_dir = SKILLS / "writing-documents" / "references"
         commands = ROOT / "commands"

@@ -1,0 +1,44 @@
+<article class="doc">
+
+  <p class="eyebrow">Architecture</p>
+  <h1>Northwind Ingestion — current state</h1>
+
+  <p class="status-banner">
+    <strong>As of:</strong> 2026-08-12 ·
+    <strong>This is current, not proposed.</strong> RFC 014 is the change. ·
+    <strong>Owner:</strong> Platform
+  </p>
+
+  <h2 id="boundary">Boundary</h2>
+  <p>This application owns accept, buffer, and land of first-party and partner events. It does not own checkout, catalog, or the warehouse schema.</p>
+
+  <h2 id="context">System context</h2>
+  <p>Checkout, Catalog, and Inventory call <code>POST /events</code>. The warehouse is downstream. On-call watches lag. <span class="evidence">Verified: gateway listeners and consumer writes.</span></p>
+
+  <h2 id="containers">Containers</h2>
+  <ul>
+    <li><strong>Gateway</strong> — HTTP, auth, schema check.</li>
+    <li><strong>Queue <code>ingest</code></strong> — one queue, no failover. 41% of platform footprint sits behind it.</li>
+    <li><strong>Consumer</strong> — writes the warehouse.</li>
+  </ul>
+  <p>The dispatcher and <code>ingest-a/b</code> are Proposed, not current. They do not appear on this map.</p>
+
+  <h2 id="path">Primary runtime path</h2>
+  <p>Producer → gateway → enqueue on <code>ingest</code> → consumer → warehouse. On queue full, the gateway blocks and then 503s. There is no shed path yet.</p>
+
+  <h2 id="data">Data</h2>
+  <p>Event body is JSON as declared in <code>openapi/events.yaml</code>. Transforms: none in this service; the warehouse maps fields.</p>
+
+  <h2 id="failures">Failures</h2>
+  <p>Consumer crash: lag climbs, runbook scales replicas. Queue unavailable: producers fail. No retry-with-shed. <span class="evidence">Verified: 2026-07-30 postmortem.</span></p>
+
+  <h2 id="trust">Trust boundaries</h2>
+  <p>mTLS at the gateway. Queue URI from <code>${INGEST_QUEUE_URI}</code>. This document does not name hosts or secrets.</p>
+
+  <h2 id="extension">Extension points</h2>
+  <p>A new event type is a schema addition at the gateway plus a warehouse mapping. A new producer is an identity grant, not a new queue — until RFC 014.</p>
+
+  <h2 id="gaps">Known gaps</h2>
+  <p>Whether two queues fail independently is Unresolved. Partner-feed volume is not in the 41% snapshot — excluded population, same as the analytical report.</p>
+
+</article>
