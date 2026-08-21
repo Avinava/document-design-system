@@ -221,7 +221,9 @@ python3 scripts/audit_theme.py core/themes/acme.css         # every pair, exact 
 
 The auditor is the part that matters. Building it immediately found two defects in this repo's own default theme: `--accent-ink` on `--accent` was **3.12:1**, failing AA, and the accent sat 13° from `--warning`. Both are fixed.
 
-<sub>`brand-theme-design` · [skill](skills/brand-theme-design/SKILL.md)</sub>
+The four-voice panel at the top of this README is what a filled theme looks like next to the ones that already ship.
+
+<sub>`brand-theme-design` · [skill](skills/brand-theme-design/SKILL.md) · [themes](examples/themes-light.html)</sub>
 
 ---
 
@@ -245,16 +247,18 @@ The page, the chart's focal bar, and the diagram's arrowheads all move together.
 
 ## The skills
 
-| Skill | Owns | Does **not** own |
-|---|---|---|
-| **analytical-document-design** | Evidence models, control totals, metric semantics, cohort/time semantics, classification confidence, report architecture, methodology | Prose-first docs, slides, standalone charts |
-| **diagram-design** | When a diagram earns its place, form routing, layout/edge/label rules, Mermaid→SVG prerender, hand-SVG for concept diagrams | Quantitative charts, UI mockups, editable `.drawio` |
-| **chart-design** | Chart-type selection, axis honesty, encoding rules, palettes derived from tokens, grayscale survival | Narrative structure, dashboards-as-applications |
-| **presentation-design** | 16:9 HTML slides, one-idea-per-slide, slide hierarchy, PDF export | Documents meant to be read rather than presented |
-| **writing-documents** | Eighteen types (design-doc, adr, handoff, api-contract, test-report, Diátaxis, MuleSoft suite, …); Markdown by default; designed HTML only when asked | Metric-led reports; casual edits to existing markdown; restyling into HTML unprompted |
-| **brand-theme-design** | Turning a brand into a theme — extraction from a guide, site, or screenshot; mapping to semantic roles; contrast auditing | Picking between themes that already ship; restyling one document |
+Each row is a committed example in [`examples/`](examples/), not a description of intent. The gallery above is the proof.
 
-Each `SKILL.md` is a lean index — 110 to 181 lines — with the depth in `references/` loading only when relevant.
+| Skill | Owns | Does **not** own | Example |
+|---|---|---|---|
+| **[analytical-document-design](skills/analytical-document-design/SKILL.md)** | Evidence models, control totals, metric semantics, cohort/time semantics, classification confidence, report architecture, methodology | Prose-first docs, slides, standalone charts | [inventory-report](examples/inventory-report.html) |
+| **[diagram-design](skills/diagram-design/SKILL.md)** | When a diagram earns its place, form routing, layout/edge/label rules, Mermaid→SVG prerender, hand-SVG for concept diagrams | Quantitative charts, UI mockups, editable `.drawio` | [figure gallery](examples/gallery-light.html) |
+| **[chart-design](skills/chart-design/SKILL.md)** | Chart-type selection, axis honesty, encoding rules, palettes derived from tokens, grayscale survival | Narrative structure, dashboards-as-applications | [figure gallery](examples/gallery-light.html) |
+| **[presentation-design](skills/presentation-design/SKILL.md)** | 16:9 HTML slides; claim titles; one idea per slide; title, agenda, statement, divider, metric, chart, diagram, comparison, table, closing; PDF one slide per page | Documents meant to be read rather than presented; editable `.pptx` | [capacity-deck](examples/capacity-deck.html) |
+| **[writing-documents](skills/writing-documents/SKILL.md)** | Eighteen types (design-doc, adr, handoff, api-contract, test-report, Diátaxis, MuleSoft suite, …); Markdown by default; designed HTML only when asked | Metric-led reports; casual edits to existing markdown; restyling into HTML unprompted | [type gallery](examples/index.html) |
+| **[brand-theme-design](skills/brand-theme-design/SKILL.md)** | Turning a brand into a theme — extraction from a guide, site, or screenshot; mapping to semantic roles; contrast auditing | Picking between themes that already ship; restyling one document | [themes](examples/themes-light.html) |
+
+Each `SKILL.md` is a lean index — under 200 lines — with the depth in `references/` loading only when relevant.
 
 ---
 

@@ -10,7 +10,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Document types — document-design-system</title>
+<title>Six skills — document-design-system</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
@@ -360,6 +360,7 @@ a { color: inherit; text-underline-offset: 2px; }
   margin: 1.25rem 0 0;
   font-size: 0.9375rem;
 }
+.types-head { margin-top: 3rem; }
 @media (max-width: 640px) {
   .shell { padding: 24px 16px 48px; }
   .card img { height: 140px; }
@@ -556,18 +557,70 @@ a { color: inherit; text-underline-offset: 2px; }
 <body>
 <div class="shell">
   <p class="eyebrow">document-design-system</p>
-  <h1>Document types</h1>
+  <h1>Six skills, one token contract</h1>
   <p class="lead">
-    Eighteen shapes from <code>writing-documents</code>. Markdown is the default
-    in your repo. These HTML files are the designed gallery — open any card.
-    Same Northwind Ingestion world throughout.
+    Analytical reports, diagrams, charts, decks, eighteen document types, and
+    brand theming. Same Northwind Ingestion world throughout. Markdown is the
+    default in your repo; these HTML files are the designed gallery.
   </p>
   <nav class="nav" aria-label="Also in this repo">
-    <a href="inventory-report.html">Analytical report</a>
-    <a href="capacity-deck.html">Deck</a>
-    <a href="gallery-light.html">Figure gallery</a>
-    <a href="themes-light.html">Themes</a>
+    <a href="inventory-report.html">analytical-document-design</a>
+    <a href="gallery-light.html">diagram-design + chart-design</a>
+    <a href="capacity-deck.html">presentation-design</a>
+    <a href="#types">writing-documents</a>
+    <a href="themes-light.html">brand-theme-design</a>
   </nav>
+
+  <section class="group">
+  <h2>The skills</h2>
+  <div class="cards">
+    <a class="card" href="inventory-report.html">
+  <img src="../docs/screenshots/analytical-report.png" alt="analytical-document-design: Evidence-led reports from structured data">
+  <div class="pad">
+    <span class="kind">analytical-document-design</span>
+    <h3>Evidence-led reports from structured data</h3>
+  </div>
+</a>
+    <a class="card" href="gallery-light.html">
+  <img src="../docs/screenshots/gallery-light.png" alt="diagram-design: Editorial SVG — architecture, sequence, maps">
+  <div class="pad">
+    <span class="kind">diagram-design</span>
+    <h3>Editorial SVG — architecture, sequence, maps</h3>
+  </div>
+</a>
+    <a class="card" href="gallery-light.html">
+  <img src="../docs/screenshots/gallery-light.png" alt="chart-design: Honest charts as inline SVG">
+  <div class="pad">
+    <span class="kind">chart-design</span>
+    <h3>Honest charts as inline SVG</h3>
+  </div>
+</a>
+    <a class="card" href="capacity-deck.html">
+  <img src="../docs/screenshots/deck-title.png" alt="presentation-design: 16:9 decks, one idea per slide">
+  <div class="pad">
+    <span class="kind">presentation-design</span>
+    <h3>16:9 decks, one idea per slide</h3>
+  </div>
+</a>
+    <a class="card" href="#types">
+  <img src="../docs/screenshots/design-doc.png" alt="writing-documents: Eighteen types, Markdown by default">
+  <div class="pad">
+    <span class="kind">writing-documents</span>
+    <h3>Eighteen types, Markdown by default</h3>
+  </div>
+</a>
+    <a class="card" href="themes-light.html">
+  <img src="../docs/screenshots/themes-light.png" alt="brand-theme-design: A brand in, a theme out">
+  <div class="pad">
+    <span class="kind">brand-theme-design</span>
+    <h3>A brand in, a theme out</h3>
+  </div>
+</a>
+  </div>
+</section>
+
+  <h2 id="types" class="types-head">Eighteen document types</h2>
+  <p class="lead">From <code>writing-documents</code>. Open any card.</p>
 
   <section class="group">
   <h2>Decide</h2>

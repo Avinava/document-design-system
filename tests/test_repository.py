@@ -122,6 +122,20 @@ class TestWritingTypes(unittest.TestCase):
                 with self.subTest(slug=slug):
                     self.assertIn(f'href="{slug}.html"', text)
 
+    def test_gallery_covers_every_skill(self):
+        from build_examples import SKILL_GALLERY
+
+        listed = {name for name, *_ in SKILL_GALLERY}
+        self.assertEqual(listed, EXPECTED_SKILLS)
+        index = ROOT / "examples" / "index.html"
+        if index.is_file():
+            text = index.read_text(encoding="utf-8")
+            for name, href, shot, _ in SKILL_GALLERY:
+                with self.subTest(skill=name):
+                    self.assertIn(name, text)
+                    self.assertIn(href, text)
+                    self.assertIn(shot, text)
+
     def test_example_html_exists_for_every_type(self):
         ref_dir = SKILLS / "writing-documents" / "references"
         for path in sorted(ref_dir.glob("type-*.md")):

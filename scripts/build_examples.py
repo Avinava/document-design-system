@@ -155,6 +155,48 @@ TYPE_GALLERY = [
 
 SHOT_PREFIX = "../docs/screenshots"
 
+# Cards at the top of the type gallery — one per skill in the README table.
+# diagram-design and chart-design share the figure gallery on purpose: that
+# page is the proof they resolve against the same tokens.
+SKILL_GALLERY = [
+    (
+        "analytical-document-design",
+        "inventory-report.html",
+        "analytical-report.png",
+        "Evidence-led reports from structured data",
+    ),
+    (
+        "diagram-design",
+        "gallery-light.html",
+        "gallery-light.png",
+        "Editorial SVG — architecture, sequence, maps",
+    ),
+    (
+        "chart-design",
+        "gallery-light.html",
+        "gallery-light.png",
+        "Honest charts as inline SVG",
+    ),
+    (
+        "presentation-design",
+        "capacity-deck.html",
+        "deck-title.png",
+        "16:9 decks, one idea per slide",
+    ),
+    (
+        "writing-documents",
+        "#types",
+        "design-doc.png",
+        "Eighteen types, Markdown by default",
+    ),
+    (
+        "brand-theme-design",
+        "themes-light.html",
+        "themes-light.png",
+        "A brand in, a theme out",
+    ),
+]
+
 # Figures inlined into the analytical report, in document order.
 REPORT_SLOTS = [
     ("<!-- inline the SVG from scripts/render_chart.mjs here -->", "footprint-by-function"),
@@ -267,17 +309,38 @@ def assemble_docs_gallery(shot_prefix: str, dest: Path | None = None) -> None:
             + "\n  </div>\n</section>"
         )
     cards_html = "\n".join(groups)
+    skill_cards = []
+    for name, href, shot, blurb in SKILL_GALLERY:
+        skill_cards.append(
+            f'<a class="card" href="{href}">\n'
+            f'  <img src="{shot_prefix}/{shot}" alt="{name}: {blurb}">\n'
+            f'  <div class="pad">\n'
+            f'    <span class="kind">{name}</span>\n'
+            f'    <h3>{blurb}</h3>\n'
+            f'  </div>\n'
+            f'</a>'
+        )
+    skills_html = (
+        '<section class="group">\n'
+        '  <h2>The skills</h2>\n'
+        '  <div class="cards">\n    '
+        + "\n    ".join(skill_cards)
+        + "\n  </div>\n</section>"
+    )
     with tempfile.NamedTemporaryFile(
         "w", suffix=".html", encoding="utf-8", delete=False
     ) as tmp:
         raw = (ROOT / "templates" / "docs-gallery.html").read_text(encoding="utf-8")
-        tmp.write(raw.replace("<!-- @@CARDS -->", cards_html, 1))
+        filled = raw.replace("<!-- @@SKILLS -->", skills_html, 1).replace(
+            "<!-- @@CARDS -->", cards_html, 1
+        )
+        tmp.write(filled)
         tmp_path = Path(tmp.name)
     try:
         assembled = build(tmp_path, "field-notes")
     finally:
         tmp_path.unlink(missing_ok=True)
-    if "@@INLINE" in assembled or "@@CARDS" in assembled:
+    if "@@INLINE" in assembled or "@@CARDS" in assembled or "@@SKILLS" in assembled:
         sys.exit("unresolved marker in docs-gallery")
     out = dest or (EX / "index.html")
     out.parent.mkdir(parents=True, exist_ok=True)

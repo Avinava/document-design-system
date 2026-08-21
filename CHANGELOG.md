@@ -19,6 +19,7 @@ Skill rename, eighteen document types, gallery examples. Plugin version still `0
 - Gallery: `examples/<slug>.html` + `.md` for every type, rebuilt from `templates/types/`. Shared fiction in `examples/WORLD.md`. Screenshots in `docs/screenshots/<slug>.png`.
 - Document-type gallery page at `examples/index.html`. GitHub Pages workflow deploys `site/` from `scripts/build_site.py`.
 - Richer 14-slide RFC 014 capacity deck: title, agenda, statement, divider, table, metric, chart, diagram, comparison, cost, closing.
+- README skills table links each skill to its `SKILL.md` and a committed example. The type gallery opens with the same six-skill map.
 
 ## 0.1.2
 
