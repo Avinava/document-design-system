@@ -137,6 +137,8 @@ class TestWritingTypes(unittest.TestCase):
                 cmd = commands / f"{slug}.md"
                 self.assertTrue(cmd.is_file(), f"missing commands/{slug}.md")
                 body = cmd.read_text(encoding="utf-8")
+                self.assertTrue(body.startswith("---\n"), f"{slug} missing frontmatter")
+                self.assertIn("description:", body)
                 self.assertIn(f"Type slug: {slug}", body)
                 self.assertIn("Markdown", body)
 

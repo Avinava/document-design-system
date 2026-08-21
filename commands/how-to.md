@@ -1,3 +1,7 @@
+---
+description: Write a Diátaxis how-to guide as Markdown in the user's repository. Use when invoked as /document-design-system:how-to. Produce designed HTML or PDF only when asked.
+---
+
 Use the `writing-documents` skill.
 Type slug: how-to
 Load `references/type-how-to.md`, `references/writing.md`, `references/evidence.md`.

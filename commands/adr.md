@@ -1,3 +1,7 @@
+---
+description: Write an architecture decision record as Markdown in the user's repository. Use when invoked as /document-design-system:adr. Produce designed HTML or PDF only when asked.
+---
+
 Use the `writing-documents` skill.
 Type slug: adr
 Load `references/type-adr.md`, `references/writing.md`, `references/evidence.md`.

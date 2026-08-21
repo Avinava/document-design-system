@@ -1,3 +1,7 @@
+---
+description: Write a Diátaxis tutorial as Markdown in the user's repository. Use when invoked as /document-design-system:tutorial. Produce designed HTML or PDF only when asked.
+---
+
 Use the `writing-documents` skill.
 Type slug: tutorial
 Load `references/type-tutorial.md`, `references/writing.md`, `references/evidence.md`.

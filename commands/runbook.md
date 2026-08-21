@@ -1,3 +1,7 @@
+---
+description: Write an operational runbook as Markdown in the user's repository. Use when invoked as /document-design-system:runbook. Produce designed HTML or PDF only when asked.
+---
+
 Use the `writing-documents` skill.
 Type slug: runbook
 Load `references/type-runbook.md`, `references/writing.md`, `references/evidence.md`.

@@ -1,3 +1,7 @@
+---
+description: Write a Diátaxis explanation as Markdown in the user's repository. Use when invoked as /document-design-system:explanation. Produce designed HTML or PDF only when asked.
+---
+
 Use the `writing-documents` skill.
 Type slug: explanation
 Load `references/type-explanation.md`, `references/writing.md`, `references/evidence.md`.

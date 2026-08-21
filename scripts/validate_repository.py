@@ -196,6 +196,22 @@ def check_writing_types(root: Path) -> None:
             error(rel, "missing reader's question")
 
 
+def check_commands(root: Path) -> None:
+    """Plugin commands need YAML frontmatter. `claude plugin validate --strict`
+    treats a missing description as a warning, then fails the job."""
+    commands = root / "commands"
+    if not commands.is_dir():
+        return
+    for path in sorted(commands.glob("*.md")):
+        rel = path.relative_to(root)
+        fm = parse_frontmatter(path.read_text(encoding="utf-8"))
+        if fm is None:
+            error(rel, "missing YAML frontmatter (plugin validate --strict fails)")
+            continue
+        if not fm.get("description"):
+            error(rel, "frontmatter has no description")
+
+
 # --------------------------------------------------------------------------
 # tokens
 # --------------------------------------------------------------------------
@@ -490,6 +506,7 @@ def main() -> int:
     for skill in skills:
         check_skill(skill, root)
     check_writing_types(root)
+    check_commands(root)
 
     palette = check_themes(root)
     check_hex_literals(root, palette)

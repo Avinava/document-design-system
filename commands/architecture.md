@@ -1,3 +1,7 @@
+---
+description: Write a living architecture guide as Markdown in the user's repository. Use when invoked as /document-design-system:architecture. Produce designed HTML or PDF only when asked.
+---
+
 Use the `writing-documents` skill.
 Type slug: architecture
 Load `references/type-architecture.md`, `references/writing.md`, `references/evidence.md`.

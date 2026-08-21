@@ -1,3 +1,7 @@
+---
+description: Write a normative specification as Markdown in the user's repository. Use when invoked as /document-design-system:spec. Produce designed HTML or PDF only when asked.
+---
+
 Use the `writing-documents` skill.
 Type slug: spec
 Load `references/type-spec.md`, `references/writing.md`, `references/evidence.md`.

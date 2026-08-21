@@ -1,3 +1,7 @@
+---
+description: Write Diátaxis reference as Markdown in the user's repository. Use when invoked as /document-design-system:reference. Produce designed HTML or PDF only when asked.
+---
+
 Use the `writing-documents` skill.
 Type slug: reference
 Load `references/type-reference.md`, `references/writing.md`, `references/evidence.md`.

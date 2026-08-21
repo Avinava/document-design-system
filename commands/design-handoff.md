@@ -1,3 +1,7 @@
+---
+description: Write a design-to-engineering handoff as Markdown in the user's repository. Use when invoked as /document-design-system:design-handoff. Produce designed HTML or PDF only when asked.
+---
+
 Use the `writing-documents` skill.
 Type slug: design-handoff
 Load `references/type-design-handoff.md`, `references/writing.md`, `references/evidence.md`.
