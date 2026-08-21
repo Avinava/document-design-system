@@ -110,6 +110,20 @@ class TestWritingTypes(unittest.TestCase):
             with self.subTest(slug=slug):
                 self.assertIn(f"`{slug}`", index)
 
+    def test_command_exists_for_every_type(self):
+        ref_dir = SKILLS / "writing-documents" / "references"
+        commands = ROOT / "commands"
+        for path in sorted(ref_dir.glob("type-*.md")):
+            if path.name == "type-index.md":
+                continue
+            slug = path.name[len("type-") : -len(".md")]
+            with self.subTest(slug=slug):
+                cmd = commands / f"{slug}.md"
+                self.assertTrue(cmd.is_file(), f"missing commands/{slug}.md")
+                body = cmd.read_text(encoding="utf-8")
+                self.assertIn(f"Type slug: {slug}", body)
+                self.assertIn("Markdown", body)
+
 
 class TestPortability(unittest.TestCase):
     """The repo root is not the working directory for a plugin user."""

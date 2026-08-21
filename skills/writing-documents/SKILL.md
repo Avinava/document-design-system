@@ -1,6 +1,6 @@
 ---
 name: writing-documents
-description: Write structured technical documents — design-doc, adr, spec, postmortem, proposal, runbook — as Markdown in the repo by default. Use when asked to write or restructure a design doc, RFC, ADR, spec, postmortem, proposal, runbook, or longform technical documentation. Produce designed HTML or PDF only when asked. Do not use for casual edits to existing markdown, metric-led reports (analytical-document-design), slides (presentation-design), standalone charts or diagrams, or restyling a file into HTML unprompted.
+description: Write structured technical documents — design-doc, adr, spec, api-contract, architecture, handoff, design-handoff, discovery, test-report, postmortem, proposal, runbook, onboarding, tutorial, how-to, reference, explanation, mulesoft — as Markdown in the repo by default. Use when asked to write or restructure one of those types, including RFCs, ADRs, developer handoffs, API writeups, test summaries, discovery briefs, or MuleSoft project docs. Produce designed HTML or PDF only when asked. Do not use for casual edits to existing markdown, metric-led reports (analytical-document-design), slides (presentation-design), standalone charts or diagrams, restyling a file into HTML unprompted, or Mule markdown refresh when mule-docs is installed.
 ---
 
 # Writing Documents
@@ -45,9 +45,21 @@ Load `references/type-index.md` if the slug is unclear. Then load **one** `refer
 | `design-doc` | Should we do this, and is the approach sound? | Context → Problem → Goals / non-goals → Design → Alternatives → Cross-cutting → Risks → Rollout → Open questions |
 | `adr` | Why is it like this? | Status → Context → Decision → Consequences. One decision, immutable once accepted |
 | `spec` | What exactly must I build, and how do I know I am done? | Scope → Definitions → Normative requirements → Examples → Compliance |
-| `postmortem` | What happened, why, and what stops it recurring? | Summary → Impact → Timeline → Root cause → Contributing factors → Action items. Blameless |
+| `api-contract` | How do I call this correctly, and what happens when I do it wrong? | Companion to OAS/RAML, not a second copy of the spec |
+| `architecture` | How is it arranged today? | Living current-state (C4 context/container), not a change proposal |
+| `handoff` | What do I run, change, and not break after you leave? | Status, how to run, in-flight work, tripwires |
+| `design-handoff` | What do I build, in every state? | Screens, states, components, acceptance criteria |
+| `discovery` | What did we learn, and should we proceed? | Evidence, opportunities, go / stop / reframe |
+| `test-report` | Can we ship, on this build? | Verdict first; counts with denominators |
+| `postmortem` | What happened, why, and what stops it recurring? | Summary → Impact → Timeline → Root cause → Action items. Blameless |
 | `proposal` | Should I approve this? | The ask → Rationale → Cost → Alternatives → Decision needed |
 | `runbook` | What do I do right now? | Preconditions → Steps → Verification → Rollback → Escalation |
+| `onboarding` | How do I get it running and prove it works? | Prerequisites, commands from CI, one validation |
+| `tutorial` | Can I learn this by doing it once? | Diátaxis lesson — one successful path |
+| `how-to` | How do I get this job done? | Diátaxis recipe for a competent user |
+| `reference` | What is the exact fact? | Diátaxis lookup — mirrors the product |
+| `explanation` | Why is it like this? | Diátaxis study — context, not a procedure |
+| `mulesoft` | What does this Mule app do? | Suite: README, architecture, and conditional extras |
 
 Aliases (`rfc` → `design-doc`, `playbook` → `runbook`) live in `references/type-index.md`. Do not invent a second filename.
 
@@ -108,6 +120,7 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/export_pdf.mjs" document.html --out document
 - Slides → `presentation-design`.
 - Standalone charts or diagrams.
 - Restyling Markdown into HTML, or applying a theme, unless asked.
+- Generating Mule XML or running MUnit. Mule markdown refresh when `mule-docs` is installed — prefer that skill.
 - Rewriting a README that already has a shape the user did not ask to change.
 
 ## Before delivering
@@ -126,9 +139,21 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/export_pdf.mjs" document.html --out document
 - `references/type-design-doc.md`
 - `references/type-adr.md`
 - `references/type-spec.md`
+- `references/type-api-contract.md`
+- `references/type-architecture.md`
+- `references/type-handoff.md`
+- `references/type-design-handoff.md`
+- `references/type-discovery.md`
+- `references/type-test-report.md`
 - `references/type-postmortem.md`
 - `references/type-proposal.md`
 - `references/type-runbook.md`
+- `references/type-onboarding.md`
+- `references/type-tutorial.md`
+- `references/type-how-to.md`
+- `references/type-reference.md`
+- `references/type-explanation.md`
+- `references/type-mulesoft.md`
 - `references/writing.md` — prose, headings, review mechanics.
 - `references/evidence.md` — evidence states, privacy.
 - `references/suites.md` — when to emit a linked set.
