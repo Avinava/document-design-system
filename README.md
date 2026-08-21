@@ -97,10 +97,6 @@ Browse them as a page: open [`examples/index.html`](examples/index.html) locally
 
 Measure 62–72 characters, status explicit, non-goals in their own box.
 
-[![Design doc](docs/screenshots/design-doc.png)](examples/design-doc.html)
-
-<sub>`design-doc` · theme `field-notes` · [source](examples/design-doc.html) · [markdown](examples/design-doc.md)</sub>
-
 **Decide**
 
 | | |
@@ -274,7 +270,7 @@ core/            the shared design system — the single source of truth
 skills/          the six skills, each SKILL.md + references/
 commands/        /document-design-system:<slug> for each writing-documents type
 scripts/         authoring-time tooling — never shipped to readers
-templates/       document · longform (shell) · types/<slug> · deck · gallery · themes · diagram
+templates/       document · longform (writing-documents shell) · types/<slug> · deck · docs-gallery · gallery · themes · diagram
 examples/        committed outputs, doubling as CI fixtures and the shots above
 assets/          banner.svg — literal colors, because <img> is an isolated document
 docs/screenshots/

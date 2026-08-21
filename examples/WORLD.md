@@ -1,6 +1,6 @@
 # World — Northwind Ingestion
 
-Shared fiction for every `writing-documents` example. Writers treat these as facts. Do not invent a second company.
+Shared fiction for every example in this repo — writing-documents, the capacity deck, the inventory report, and the figures. Writers treat these as facts. Do not invent a second company.
 
 ## Product
 

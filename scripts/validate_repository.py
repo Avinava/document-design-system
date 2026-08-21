@@ -160,12 +160,18 @@ TYPE_YAML = re.compile(r"^```yaml\n(.*?)^```", re.M | re.S)
 
 
 def check_writing_types(root: Path) -> None:
-    """Type files in writing-documents declare a slug that matches the filename."""
+    """Type files in writing-documents declare a slug that matches the filename.
+
+    Commands, type bodies, and example HTML/Markdown must use the same slug
+    set — a command without a type file (or the reverse) is how the catalog
+    and the skill drift apart.
+    """
     skill = root / "skills" / "writing-documents"
     ref_dir = skill / "references"
     if not ref_dir.is_dir():
         return
 
+    slugs: set[str] = set()
     for path in sorted(ref_dir.glob("type-*.md")):
         if path.name == "type-index.md":
             continue
@@ -187,6 +193,8 @@ def check_writing_types(root: Path) -> None:
             error(rel, "yaml metadata has no slug")
         elif slug != expected:
             error(rel, f'slug "{slug}" does not match filename (expected "{expected}")')
+        else:
+            slugs.add(expected)
         if "command:" in m.group(1) and f"/document-design-system:{expected}" not in m.group(1):
             error(
                 rel,
@@ -194,6 +202,34 @@ def check_writing_types(root: Path) -> None:
             )
         if "Reader's question" not in text and "Reader’s question" not in text:
             error(rel, "missing reader's question")
+
+    commands = root / "commands"
+    if commands.is_dir() and slugs:
+        cmd_slugs = {p.stem for p in commands.glob("*.md")}
+        for extra in sorted(cmd_slugs - slugs):
+            error(
+                (commands / f"{extra}.md").relative_to(root),
+                f'command "{extra}" has no matching type-{extra}.md',
+            )
+        for missing in sorted(slugs - cmd_slugs):
+            error(
+                Path("commands") / f"{missing}.md",
+                f"missing command for shipped type {missing}",
+            )
+
+    types_dir = root / "templates" / "types"
+    if types_dir.is_dir() and slugs:
+        body_slugs = {p.stem for p in types_dir.glob("*.html")}
+        for extra in sorted(body_slugs - slugs):
+            error(
+                (types_dir / f"{extra}.html").relative_to(root),
+                f'type body "{extra}" has no matching type-{extra}.md',
+            )
+        for missing in sorted(slugs - body_slugs):
+            error(
+                Path("templates/types") / f"{missing}.html",
+                f"missing type body for shipped type {missing}",
+            )
 
 
 def check_commands(root: Path) -> None:
@@ -438,7 +474,7 @@ def check_manifests(root: Path) -> None:
                 error(rel, f"{label}: source does not resolve: {source}")
 
         # A field duplicated from plugin.json is a field that can drift.
-        for field in ("version", "license", "repository", "homepage"):
+        for field in ("description", "version", "license", "repository", "homepage"):
             value = entry.get(field)
             if value is not None and plugin.get(field) is not None and value != plugin[field]:
                 error(

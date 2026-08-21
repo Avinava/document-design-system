@@ -12,6 +12,7 @@ Skills describe **judgment** — what to measure, when a chart earns its place, 
 | `themes/editorial-coral.css` | Default theme. Warm, precise, broadly shareable analytical reports. |
 | `themes/executive-navy.css` | Board, finance, governance. Lower expression, higher contrast. |
 | `themes/field-notes.css` | Research, audit, workshop. Tactile warm paper. |
+| `themes/console-violet.css` | Engineering readouts, ops reviews, incident write-ups. The dark theme. |
 | `themes/brand-template.css` | Documented slot for your own brand. Copy, fill every TODO, rename. |
 | `base.css` | Component-to-token mapping. Contains no color literals. |
 | `print.css` | Print and PDF as a distinct output mode. Load last. |

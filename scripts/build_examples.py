@@ -3,9 +3,10 @@
 
     python scripts/build_examples.py
 
-Renders the charts and diagrams, assembles the four example documents, and
-inlines each figure into its slot. Committed outputs double as CI fixtures and
-as the screenshots in the README, so they need to be reproducible rather than
+Renders the charts and diagrams, assembles the report, the deck, the eighteen
+writing-documents types, the figure gallery, and the theme panels, and inlines
+each figure into its slot. Committed outputs double as CI fixtures and as the
+screenshots in the README, so they need to be reproducible rather than
 hand-maintained.
 
 Node renderers are optional: if their dependencies are missing, the existing
@@ -286,7 +287,7 @@ def assemble_longform() -> None:
 
 
 def assemble_docs_gallery(shot_prefix: str, dest: Path | None = None) -> None:
-    """Fill templates/docs-gallery.html and write examples/docs-gallery.html."""
+    """Fill templates/docs-gallery.html and write examples/index.html."""
     groups = []
     for heading, items in TYPE_GALLERY:
         cards = []

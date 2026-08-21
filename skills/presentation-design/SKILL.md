@@ -57,7 +57,7 @@ Slides are `1280 × 720` CSS pixels. That is the authoring unit; the deck scales
 - **8px spacing grid** at this scale, since everything is twice document scale.
 - One visual per slide. Two charts on one slide means the audience reads neither.
 
-The token contract in `core/tokens.md` applies in full. `templates/deck.html` is the working skeleton.
+The token contract in `core/tokens.md` applies in full. `templates/deck.html` is the worked example — fourteen slides covering every type in the table above. Assemble it to `examples/capacity-deck.html`.
 
 ## Contrast and the room
 

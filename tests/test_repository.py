@@ -151,6 +151,14 @@ class TestWritingTypes(unittest.TestCase):
                     (ROOT / "templates" / "types" / f"{slug}.html").is_file(),
                     f"missing templates/types/{slug}.html",
                 )
+                self.assertTrue(
+                    (ROOT / "examples" / f"{slug}.md").is_file(),
+                    f"missing examples/{slug}.md",
+                )
+                self.assertTrue(
+                    (ROOT / "docs" / "screenshots" / f"{slug}.png").is_file(),
+                    f"missing docs/screenshots/{slug}.png",
+                )
 
     def test_command_exists_for_every_type(self):
         ref_dir = SKILLS / "writing-documents" / "references"
@@ -167,6 +175,16 @@ class TestWritingTypes(unittest.TestCase):
                 self.assertIn("description:", body)
                 self.assertIn(f"Type slug: {slug}", body)
                 self.assertIn("Markdown", body)
+
+    def test_no_orphan_commands(self):
+        ref_dir = SKILLS / "writing-documents" / "references"
+        types = {
+            p.name[len("type-") : -len(".md")]
+            for p in ref_dir.glob("type-*.md")
+            if p.name != "type-index.md"
+        }
+        commands = {p.stem for p in (ROOT / "commands").glob("*.md")}
+        self.assertEqual(commands, types)
 
 
 class TestPortability(unittest.TestCase):

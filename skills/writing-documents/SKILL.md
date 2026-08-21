@@ -32,7 +32,7 @@ State the assumption in one line. Do not quiz.
 
 > Writing `docs/adr/adr-014.md` as type `adr` (markdown). Designed HTML on request.
 
-Ask only when the slug is actually ambiguous, the request conflicts with another skill, or they asked for HTML and no theme is set (`field-notes` is the longform default).
+Ask only when the slug is actually ambiguous, the request conflicts with another skill, or they asked for HTML and no theme is set (`field-notes` is the default).
 
 Never offer a designed HTML version unprompted.
 

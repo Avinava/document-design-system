@@ -36,7 +36,7 @@ Theme on the root:
 <html lang="en" data-theme="field-notes">
 ```
 
-`field-notes` is the longform default. `console-violet` for incident and ops voices. `executive-navy` for proposals to leadership. `editorial-coral` when the document sits next to an analytical report. Contract- and table-heavy types (`spec`, and later `api-contract` / `test-report`) set `data-layout="contract"` for a slightly wider shell.
+`field-notes` is the writing-documents default. `console-violet` for incident and ops voices. `executive-navy` for proposals to leadership. `editorial-coral` when the document sits next to an analytical report. Contract- and table-heavy types (`spec`, `api-contract`, `test-report`, `reference`) set `data-layout="contract"` for a slightly wider shell.
 
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/build_document.py" \
