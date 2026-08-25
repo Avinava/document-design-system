@@ -42,7 +42,7 @@ EXPECTED_PATTERNS = {
     "handoff": ("field-notes", "procedure"),
     "design-handoff": ("editorial-coral", "system"),
     "discovery": ("field-notes", "decision"),
-    "test-report": ("editorial-coral", "contract"),
+    "test-report": ("editorial-coral", "assurance"),
     "postmortem": ("console-violet", "incident"),
     "proposal": ("executive-navy", "decision"),
     "runbook": ("console-violet", "procedure"),
@@ -51,8 +51,26 @@ EXPECTED_PATTERNS = {
     "how-to": ("editorial-coral", "procedure"),
     "reference": ("console-violet", "contract"),
     "explanation": ("field-notes", "learning"),
-    "mulesoft": ("field-notes", "suite"),
+    "project-charter": ("executive-navy", "decision"),
+    "estimate": ("executive-navy", "decision"),
+    "change-request": ("executive-navy", "decision"),
+    "requirements": ("field-notes", "contract"),
+    "statement-of-work": ("executive-navy", "contract"),
+    "support-model": ("field-notes", "contract"),
+    "delivery-plan": ("executive-navy", "plan"),
+    "migration-plan": ("console-violet", "plan"),
+    "test-strategy": ("editorial-coral", "plan"),
+    "threat-model": ("console-violet", "assurance"),
+    "readiness-review": ("console-violet", "assurance"),
+    "risk-register": ("executive-navy", "assurance"),
+    "status-report": ("executive-navy", "brief"),
+    "release-notes": ("editorial-coral", "brief"),
+    "workshop-summary": ("field-notes", "brief"),
+    "incident-update": ("console-violet", "brief"),
+    "service-docs": ("field-notes", "suite"),
 }
+
+COMPATIBILITY_PROFILES = {"mulesoft"}
 
 
 def skill_dirs() -> list[Path]:
@@ -208,6 +226,8 @@ class TestWritingTypes(unittest.TestCase):
         self.assertIn("proposal-horizon", LONGFORM_VARIANTS)
         self.assertIn("proposal-coral", LONGFORM_VARIANTS)
         for out_slug, (body_slug, theme, _) in LONGFORM_VARIANTS.items():
+            if out_slug in COMPATIBILITY_PROFILES:
+                continue
             with self.subTest(out=out_slug):
                 self.assertEqual(body_slug, "proposal")
                 html = (ROOT / "examples" / f"{out_slug}.html").read_text(
@@ -223,7 +243,7 @@ class TestWritingTypes(unittest.TestCase):
         self.assertEqual(LONGFORM, EXPECTED_PATTERNS)
         self.assertEqual(
             {pattern for pattern, *_ in TYPE_GALLERY},
-            {"decision", "record", "contract", "procedure", "learning", "system", "incident", "suite"},
+            {"decision", "record", "contract", "procedure", "learning", "system", "incident", "suite", "plan", "assurance", "brief"},
         )
         ref_dir = SKILLS / "writing-documents" / "references"
         for slug, (theme, pattern) in EXPECTED_PATTERNS.items():
@@ -245,6 +265,9 @@ class TestWritingTypes(unittest.TestCase):
             "system": "system-map",
             "incident": "impact-strip",
             "suite": "document-map",
+            "plan": "milestone-rail",
+            "assurance": "assurance-verdict",
+            "brief": "brief-status",
         }
         for slug, (_, pattern) in EXPECTED_PATTERNS.items():
             with self.subTest(slug=slug, pattern=pattern):
@@ -289,7 +312,17 @@ class TestWritingTypes(unittest.TestCase):
             if p.name != "type-index.md"
         }
         commands = {p.stem for p in (ROOT / "commands").glob("*.md")}
-        self.assertEqual(commands, types)
+        self.assertEqual(commands, types | COMPATIBILITY_PROFILES)
+
+    def test_compatibility_profile_routes_to_service_docs(self):
+        command = (ROOT / "commands" / "mulesoft.md").read_text(encoding="utf-8")
+        self.assertIn("type-service-docs.md", command)
+        self.assertIn("profile-mulesoft.md", command)
+        from build_examples import LONGFORM_VARIANTS
+        self.assertEqual(
+            LONGFORM_VARIANTS["mulesoft"],
+            ("mulesoft", "field-notes", "suite"),
+        )
 
 
 class TestPortability(unittest.TestCase):

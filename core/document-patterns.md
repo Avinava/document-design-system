@@ -18,18 +18,21 @@ Changing `data-theme` must not change the information architecture. Changing
 Pattern CSS lives in `core/document-patterns.css` and contains no colour
 literals; every component consumes the active theme's semantic tokens.
 
-## The eight families
+## The eleven families
 
 | Pattern | Reader movement | Characteristic modules | Types |
 |---|---|---|---|
-| `decision` | Orient to the ask, compare choices, record what is needed next | ask band, comparison grid, decision rail, risks | `design-doc`, `discovery`, `proposal` |
+| `decision` | Orient to the ask, compare choices, record what is needed next | ask band, comparison grid, decision rail, risks | `design-doc`, `discovery`, `proposal`, `project-charter`, `estimate`, `change-request` |
 | `record` | Confirm status, read the decision, trace consequences | compact record header, status stamp, consequence register | `adr` |
-| `contract` | Find an exact rule, example, or compliance condition | wide requirement tables, specimens, definition blocks, verdict | `spec`, `api-contract`, `test-report`, `reference` |
+| `contract` | Find an exact rule, example, or compliance condition | wide requirement tables, specimens, definition blocks | `spec`, `api-contract`, `reference`, `requirements`, `statement-of-work`, `support-model` |
 | `procedure` | Establish safety, execute in order, verify or recover | preconditions, numbered steps, checkpoints, danger and rollback | `handoff`, `how-to`, `runbook` |
 | `learning` | Build context, complete a path, consolidate understanding | learning goal, staged lesson, checkpoints, takeaways | `explanation`, `onboarding`, `tutorial` |
 | `system` | Build a spatial model, then inspect boundaries and states | system map, boundary cards, state grid, interface ledger | `architecture`, `design-handoff` |
 | `incident` | See severity first, reconstruct time, connect cause to action | impact strip, timeline, cause chain, action register | `postmortem` |
-| `suite` | Orient across a linked documentation set | document map, ownership matrix, freshness state | `mulesoft` |
+| `suite` | Orient across a linked documentation set | document map, ownership matrix, freshness state | `service-docs` |
+| `plan` | Follow work from baseline through dependencies and control gates | milestone rail, workstream board, dependency and gate register | `delivery-plan`, `migration-plan`, `test-strategy` |
+| `assurance` | See the verdict, inspect evidence, then accept or close exposure | assurance verdict, evidence matrix, finding and risk register | `test-report`, `threat-model`, `readiness-review`, `risk-register` |
+| `brief` | Read current state, material change, required action, next checkpoint | status strip, action band, update grid, next checkpoint | `status-report`, `release-notes`, `workshop-summary`, `incident-update` |
 
 The family is a constraint, not a page template. Two documents in the same
 family may omit or reorder modules when their reader's question requires it.

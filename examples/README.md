@@ -2,7 +2,7 @@
 
 Committed outputs. They serve three jobs at once: CI fixtures, the screenshots in the root README, and a working reference for what each skill produces.
 
-The local type gallery is [`index.html`](index.html) — eighteen types grouped by eight reading patterns, followed by theme variants and the six-skill strip. GitHub Pages uses a full homepage at the site root and this gallery at `/types.html`.
+The local type gallery is [`index.html`](index.html) — thirty-four canonical types grouped by eleven reading patterns, followed by one compatibility profile, theme variants, and the six-skill strip. GitHub Pages uses a full homepage at the site root and this gallery at `/types.html`.
 
 All of them rebuild from source — nothing here is hand-maintained.
 
@@ -16,7 +16,7 @@ python3 scripts/build_examples.py
 | File | Skill | Theme |
 |---|---|---|
 | `inventory-report.html` | analytical-document-design | editorial-coral |
-| `design-doc.html` (and 17 other slugs) | writing-documents | see table below |
+| `design-doc.html` (and 33 other canonical slugs) | writing-documents | see table below |
 | `capacity-deck.html` | presentation-design | executive-navy |
 | `gallery-light.html` / `gallery-dark.html` | diagram-design + chart-design | editorial-coral / console-violet |
 | `themes-light.html` / `themes-dark.html` | the token contract itself | four house styles + horizon |
@@ -31,14 +31,20 @@ Bodies live in `templates/types/<slug>.html`. The shared world is [`WORLD.md`](W
 
 | Pattern | Files | Default themes |
 |---|---|---|
-| decision | `design-doc`, `discovery`, `proposal` | field-notes; proposal uses executive-navy |
+| decision | `design-doc`, `discovery`, `proposal`, `project-charter`, `estimate`, `change-request` | field-notes; proposal uses executive-navy |
 | record | `adr` | field-notes |
-| contract | `spec`, `api-contract`, `test-report`, `reference` | field-notes, console-violet, editorial-coral |
+| contract | `spec`, `api-contract`, `reference`, `requirements`, `statement-of-work`, `support-model` | field-notes, console-violet, editorial-coral |
 | procedure | `handoff`, `how-to`, `runbook` | field-notes, editorial-coral, console-violet |
 | learning | `explanation`, `onboarding`, `tutorial` | field-notes, editorial-coral |
 | system | `architecture`, `design-handoff` | field-notes, editorial-coral |
 | incident | `postmortem` | console-violet |
-| suite | `mulesoft` | field-notes |
+| suite | `service-docs` | field-notes |
+| plan | `delivery-plan`, `migration-plan`, `test-strategy` | executive-navy, field-notes |
+| assurance | `test-report`, `threat-model`, `readiness-review`, `risk-register` | console-violet, executive-navy, field-notes |
+| brief | `status-report`, `release-notes`, `workshop-summary`, `incident-update` | executive-navy, editorial-coral, field-notes, console-violet |
+
+`mulesoft` remains a compatibility profile of canonical `service-docs`; it is
+not a second type.
 
 Pattern and theme are independent root attributes. See
 [`../core/document-patterns.md`](../core/document-patterns.md) for the contract.

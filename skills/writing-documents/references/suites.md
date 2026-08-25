@@ -8,6 +8,9 @@ Prefer a small, navigable set over a single exhaustive dump. One fact lives in o
 - Two slugs both apply (a design-doc *and* a runbook).
 - A living architecture guide would bury a one-decision ADR.
 - Diátaxis types mixing (tutorial material inside reference) — split rather than blend.
+- An engagement spans lifecycle stages — load `consultancy-lifecycle.md` and
+  choose only the documents with supported evidence.
+- A service needs a maintained entry point — route to `service-docs`.
 
 Do not create an empty file to satisfy a table. If evidence is missing, keep a short Open questions section in the closest owning document.
 

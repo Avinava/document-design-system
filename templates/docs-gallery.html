@@ -30,6 +30,16 @@
 .pattern-jump { display: flex; gap: .5rem; overflow-x: auto; padding: .25rem 0 1.25rem; border-bottom: 1px solid var(--rule); scrollbar-width: thin; }
 .pattern-jump a { flex: 0 0 auto; border: 1px solid var(--rule); border-radius: 999px; padding: .42rem .72rem; color: var(--muted); text-decoration: none; font: 500 .75rem/1 var(--mono); }
 .pattern-jump a:hover { border-color: var(--accent); color: var(--ink); }
+.catalog-orientation { padding: 2.5rem 0 1rem; }
+.catalog-orientation > h2 { margin-bottom: .5rem; }
+.catalog-orientation > p { max-width: 68ch; color: var(--muted); }
+.lifecycle-map { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .75rem; margin: 1.5rem 0 2rem; }
+.lifecycle-map section { min-width: 0; padding: 1rem; border: 1px solid var(--rule); border-top: 3px solid var(--accent); border-radius: var(--radius-md); background: var(--surface); }
+.lifecycle-map h3 { margin: .35rem 0 .7rem; font-size: 1rem; }
+.lifecycle-map p { margin: 0; color: var(--muted); font-size: .82rem; }
+.lifecycle-map a, .common-names a { color: var(--ink); text-decoration-color: var(--rule-strong); text-underline-offset: 2px; }
+.common-names { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem 1.5rem; margin: 1rem 0 2rem; padding: 1.25rem; background: var(--surface-muted); border-radius: var(--radius-md); font-size: .85rem; }
+.common-names p { margin: 0; }
 .pattern-section { display: grid; grid-template-columns: minmax(230px, .35fr) minmax(0, 1fr); gap: 2.5rem; padding: 4rem 0; border-bottom: 1px solid var(--rule-strong); scroll-margin-top: 1rem; }
 .pattern-section > header { display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-content: start; position: sticky; top: 1rem; align-self: start; }
 .pattern-index { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: var(--radius-sm); background: var(--accent); color: var(--accent-ink); font: 600 .75rem/1 var(--mono); }
@@ -67,6 +77,7 @@ footer { margin-top: 4rem; color: var(--soft); font: .75rem/1.5 var(--mono); }
   .pattern-record .type-card, .pattern-incident .type-card, .pattern-suite .type-card { grid-template-columns: 1fr; grid-template-rows: 155px 1fr; }
   .pattern-record .type-card img, .pattern-incident .type-card img, .pattern-suite .type-card img { height: 155px; border-right: 0; border-bottom: 1px solid var(--rule); }
   .pattern-incident { margin-inline: -1rem; padding-inline: 1rem; }
+  .lifecycle-map, .common-names { grid-template-columns: 1fr; }
 }
 /* @@INLINE core/print.css @@ */
 </style>
@@ -81,11 +92,25 @@ footer { margin-top: 4rem; color: var(--soft); font: .75rem/1.5 var(--mono); }
     </ul>
   </nav>
   <header class="gallery-hero">
-    <div><p class="eyebrow">Eight reading patterns · eighteen types</p><h1>Different questions need different pages.</h1><p class="lead">A runbook should move like a safe procedure. A postmortem should reveal impact and time. A contract should make exact rules effortless to find. Choose the reading pattern first; choose the visual voice separately.</p></div>
+    <div><p class="eyebrow">Eleven reading patterns · thirty-four canonical types</p><h1>Different questions need different pages.</h1><p class="lead">A delivery plan should expose gates. An assurance review should put evidence beside risk. A live brief should make the next update impossible to miss. Choose the reading pattern first; choose the visual voice separately.</p></div>
     <aside class="axis-note" aria-label="Pattern and theme distinction"><p><strong>Pattern</strong> changes structure and reading movement.</p><p><strong>Theme</strong> changes tokens, typography, and visual voice.</p><p>The same pattern can wear any compliant theme.</p></aside>
   </header>
-  <nav class="pattern-jump" aria-label="Document patterns"><a href="#decision">Decision</a><a href="#record">Record</a><a href="#contract">Contract</a><a href="#procedure">Procedure</a><a href="#learning">Learning</a><a href="#system">System</a><a href="#incident">Incident</a><a href="#suite">Suite</a></nav>
+  <nav class="pattern-jump" aria-label="Document patterns"><a href="#decision">Decision</a><a href="#record">Record</a><a href="#contract">Contract</a><a href="#procedure">Procedure</a><a href="#learning">Learning</a><a href="#system">System</a><a href="#incident">Incident</a><a href="#suite">Suite</a><a href="#plan">Plan</a><a href="#assurance">Assurance</a><a href="#brief">Brief</a></nav>
+  <section class="catalog-orientation" aria-labelledby="lifecycle-title">
+    <p class="eyebrow">Find by engagement stage</p><h2 id="lifecycle-title">One catalog across the delivery lifecycle</h2>
+    <p>Start with the reader's decision, not the familiar filename. These maps link to the canonical owner; aliases never create duplicate document types.</p>
+    <div class="lifecycle-map">
+      <section><span class="component-label">01</span><h3>Frame and agree</h3><p><a href="#type-discovery">Discovery</a>, <a href="#type-proposal">proposal</a>, <a href="#type-estimate">estimate</a>, <a href="#type-project-charter">charter</a>, <a href="#type-statement-of-work">statement of work</a>.</p></section>
+      <section><span class="component-label">02</span><h3>Define</h3><p><a href="#type-requirements">Requirements</a>, <a href="#type-design-doc">design</a>, <a href="#type-architecture">architecture</a>, <a href="#type-api-contract">interfaces</a>, <a href="#type-threat-model">threats</a>.</p></section>
+      <section><span class="component-label">03</span><h3>Plan and govern</h3><p><a href="#type-delivery-plan">Delivery</a>, <a href="#type-test-strategy">quality</a>, <a href="#type-risk-register">RAID</a>, <a href="#type-status-report">status</a>, <a href="#type-change-request">change</a>.</p></section>
+      <section><span class="component-label">04</span><h3>Verify and transition</h3><p><a href="#type-readiness-review">Readiness</a>, <a href="#type-test-report">test verdict</a>, <a href="#type-migration-plan">cutover</a>, <a href="#type-release-notes">release</a>, <a href="#type-handoff">handoff</a>.</p></section>
+      <section><span class="component-label">05</span><h3>Operate and improve</h3><p><a href="#type-service-docs">Service docs</a>, <a href="#type-support-model">support</a>, <a href="#type-runbook">runbook</a>, <a href="#type-incident-update">incident update</a>, <a href="#type-postmortem">postmortem</a>.</p></section>
+    </div>
+    <p class="eyebrow">Common names, canonical owners</p>
+    <div class="common-names"><p><strong>TDD / proposed HLD</strong> → <a href="#type-design-doc">design doc</a></p><p><strong>Current HLD</strong> → <a href="#type-architecture">architecture</a></p><p><strong>LLD / technical spec</strong> → <a href="#type-spec">spec</a></p><p><strong>PRD / BRD / SRS</strong> → <a href="#type-requirements">requirements</a></p><p><strong>API spec</strong> → machine source + <a href="#type-api-contract">API contract</a></p><p><strong>PRR / ORR</strong> → <a href="#type-readiness-review">readiness review</a></p><p><strong>Project plan</strong> → <a href="#type-delivery-plan">delivery plan</a></p><p><strong>Cutover</strong> → <a href="#type-migration-plan">migration plan</a></p><p><strong>RAID</strong> → <a href="#type-risk-register">risk register</a></p></div>
+  </section>
   <main id="patterns"><!-- @@CARDS --></main>
+  <!-- @@PROFILES -->
   <!-- @@VOICES -->
   <!-- @@SKILLS -->
   <footer>Markdown remains canonical. Designed HTML adds the selected pattern and theme, then prints from the same source facts.</footer>

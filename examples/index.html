@@ -327,6 +327,16 @@ a { color: inherit; text-underline-offset: 2px; }
 .pattern-jump { display: flex; gap: .5rem; overflow-x: auto; padding: .25rem 0 1.25rem; border-bottom: 1px solid var(--rule); scrollbar-width: thin; }
 .pattern-jump a { flex: 0 0 auto; border: 1px solid var(--rule); border-radius: 999px; padding: .42rem .72rem; color: var(--muted); text-decoration: none; font: 500 .75rem/1 var(--mono); }
 .pattern-jump a:hover { border-color: var(--accent); color: var(--ink); }
+.catalog-orientation { padding: 2.5rem 0 1rem; }
+.catalog-orientation > h2 { margin-bottom: .5rem; }
+.catalog-orientation > p { max-width: 68ch; color: var(--muted); }
+.lifecycle-map { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .75rem; margin: 1.5rem 0 2rem; }
+.lifecycle-map section { min-width: 0; padding: 1rem; border: 1px solid var(--rule); border-top: 3px solid var(--accent); border-radius: var(--radius-md); background: var(--surface); }
+.lifecycle-map h3 { margin: .35rem 0 .7rem; font-size: 1rem; }
+.lifecycle-map p { margin: 0; color: var(--muted); font-size: .82rem; }
+.lifecycle-map a, .common-names a { color: var(--ink); text-decoration-color: var(--rule-strong); text-underline-offset: 2px; }
+.common-names { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem 1.5rem; margin: 1rem 0 2rem; padding: 1.25rem; background: var(--surface-muted); border-radius: var(--radius-md); font-size: .85rem; }
+.common-names p { margin: 0; }
 .pattern-section { display: grid; grid-template-columns: minmax(230px, .35fr) minmax(0, 1fr); gap: 2.5rem; padding: 4rem 0; border-bottom: 1px solid var(--rule-strong); scroll-margin-top: 1rem; }
 .pattern-section > header { display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-content: start; position: sticky; top: 1rem; align-self: start; }
 .pattern-index { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: var(--radius-sm); background: var(--accent); color: var(--accent-ink); font: 600 .75rem/1 var(--mono); }
@@ -364,6 +374,7 @@ footer { margin-top: 4rem; color: var(--soft); font: .75rem/1.5 var(--mono); }
   .pattern-record .type-card, .pattern-incident .type-card, .pattern-suite .type-card { grid-template-columns: 1fr; grid-template-rows: 155px 1fr; }
   .pattern-record .type-card img, .pattern-incident .type-card img, .pattern-suite .type-card img { height: 155px; border-right: 0; border-bottom: 1px solid var(--rule); }
   .pattern-incident { margin-inline: -1rem; padding-inline: 1rem; }
+  .lifecycle-map, .common-names { grid-template-columns: 1fr; }
 }
 /* ---- inlined from core/print.css ---- */
 /* print.css — print and PDF as a distinct output mode.
@@ -563,32 +574,66 @@ footer { margin-top: 4rem; color: var(--soft); font: .75rem/1.5 var(--mono); }
     </ul>
   </nav>
   <header class="gallery-hero">
-    <div><p class="eyebrow">Eight reading patterns · eighteen types</p><h1>Different questions need different pages.</h1><p class="lead">A runbook should move like a safe procedure. A postmortem should reveal impact and time. A contract should make exact rules effortless to find. Choose the reading pattern first; choose the visual voice separately.</p></div>
+    <div><p class="eyebrow">Eleven reading patterns · thirty-four canonical types</p><h1>Different questions need different pages.</h1><p class="lead">A delivery plan should expose gates. An assurance review should put evidence beside risk. A live brief should make the next update impossible to miss. Choose the reading pattern first; choose the visual voice separately.</p></div>
     <aside class="axis-note" aria-label="Pattern and theme distinction"><p><strong>Pattern</strong> changes structure and reading movement.</p><p><strong>Theme</strong> changes tokens, typography, and visual voice.</p><p>The same pattern can wear any compliant theme.</p></aside>
   </header>
-  <nav class="pattern-jump" aria-label="Document patterns"><a href="#decision">Decision</a><a href="#record">Record</a><a href="#contract">Contract</a><a href="#procedure">Procedure</a><a href="#learning">Learning</a><a href="#system">System</a><a href="#incident">Incident</a><a href="#suite">Suite</a></nav>
+  <nav class="pattern-jump" aria-label="Document patterns"><a href="#decision">Decision</a><a href="#record">Record</a><a href="#contract">Contract</a><a href="#procedure">Procedure</a><a href="#learning">Learning</a><a href="#system">System</a><a href="#incident">Incident</a><a href="#suite">Suite</a><a href="#plan">Plan</a><a href="#assurance">Assurance</a><a href="#brief">Brief</a></nav>
+  <section class="catalog-orientation" aria-labelledby="lifecycle-title">
+    <p class="eyebrow">Find by engagement stage</p><h2 id="lifecycle-title">One catalog across the delivery lifecycle</h2>
+    <p>Start with the reader's decision, not the familiar filename. These maps link to the canonical owner; aliases never create duplicate document types.</p>
+    <div class="lifecycle-map">
+      <section><span class="component-label">01</span><h3>Frame and agree</h3><p><a href="#type-discovery">Discovery</a>, <a href="#type-proposal">proposal</a>, <a href="#type-estimate">estimate</a>, <a href="#type-project-charter">charter</a>, <a href="#type-statement-of-work">statement of work</a>.</p></section>
+      <section><span class="component-label">02</span><h3>Define</h3><p><a href="#type-requirements">Requirements</a>, <a href="#type-design-doc">design</a>, <a href="#type-architecture">architecture</a>, <a href="#type-api-contract">interfaces</a>, <a href="#type-threat-model">threats</a>.</p></section>
+      <section><span class="component-label">03</span><h3>Plan and govern</h3><p><a href="#type-delivery-plan">Delivery</a>, <a href="#type-test-strategy">quality</a>, <a href="#type-risk-register">RAID</a>, <a href="#type-status-report">status</a>, <a href="#type-change-request">change</a>.</p></section>
+      <section><span class="component-label">04</span><h3>Verify and transition</h3><p><a href="#type-readiness-review">Readiness</a>, <a href="#type-test-report">test verdict</a>, <a href="#type-migration-plan">cutover</a>, <a href="#type-release-notes">release</a>, <a href="#type-handoff">handoff</a>.</p></section>
+      <section><span class="component-label">05</span><h3>Operate and improve</h3><p><a href="#type-service-docs">Service docs</a>, <a href="#type-support-model">support</a>, <a href="#type-runbook">runbook</a>, <a href="#type-incident-update">incident update</a>, <a href="#type-postmortem">postmortem</a>.</p></section>
+    </div>
+    <p class="eyebrow">Common names, canonical owners</p>
+    <div class="common-names"><p><strong>TDD / proposed HLD</strong> → <a href="#type-design-doc">design doc</a></p><p><strong>Current HLD</strong> → <a href="#type-architecture">architecture</a></p><p><strong>LLD / technical spec</strong> → <a href="#type-spec">spec</a></p><p><strong>PRD / BRD / SRS</strong> → <a href="#type-requirements">requirements</a></p><p><strong>API spec</strong> → machine source + <a href="#type-api-contract">API contract</a></p><p><strong>PRR / ORR</strong> → <a href="#type-readiness-review">readiness review</a></p><p><strong>Project plan</strong> → <a href="#type-delivery-plan">delivery plan</a></p><p><strong>Cutover</strong> → <a href="#type-migration-plan">migration plan</a></p><p><strong>RAID</strong> → <a href="#type-risk-register">risk register</a></p></div>
+  </section>
   <main id="patterns"><section class="pattern-section pattern-decision" id="decision">
   <header><span class="pattern-index">01</span><div><p class="eyebrow">decision pattern</p><h2>Decision</h2><p>Put the ask and trade-offs before the implementation detail.</p></div></header>
   <div class="type-cards">
-    <a class="type-card" href="design-doc.html">
+    <a class="type-card" id="type-design-doc" href="design-doc.html">
   <img src="../docs/screenshots/thumbs/design-doc.png" alt="" width="640" height="400" loading="lazy" decoding="async">
   <div class="pad">
     <span class="kind">design-doc</span><span class="theme">field-notes</span>
     <h3>Should we do this, and is the approach sound?</h3>
   </div>
 </a>
-    <a class="type-card" href="discovery.html">
+    <a class="type-card" id="type-discovery" href="discovery.html">
   <img src="../docs/screenshots/thumbs/discovery.png" alt="" width="640" height="400" loading="lazy" decoding="async">
   <div class="pad">
     <span class="kind">discovery</span><span class="theme">field-notes</span>
     <h3>What did we learn, and should we proceed?</h3>
   </div>
 </a>
-    <a class="type-card" href="proposal.html">
+    <a class="type-card" id="type-proposal" href="proposal.html">
   <img src="../docs/screenshots/thumbs/proposal.png" alt="" width="640" height="400" loading="lazy" decoding="async">
   <div class="pad">
     <span class="kind">proposal</span><span class="theme">executive-navy</span>
     <h3>Should I approve this?</h3>
+  </div>
+</a>
+    <a class="type-card" id="type-project-charter" href="project-charter.html">
+  <img src="../docs/screenshots/thumbs/project-charter.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">project-charter</span><span class="theme">executive-navy</span>
+    <h3>What are we committing to, and who can decide?</h3>
+  </div>
+</a>
+    <a class="type-card" id="type-estimate" href="estimate.html">
+  <img src="../docs/screenshots/thumbs/estimate.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">estimate</span><span class="theme">executive-navy</span>
+    <h3>What will this take, and how confident are we?</h3>
+  </div>
+</a>
+    <a class="type-card" id="type-change-request" href="change-request.html">
+  <img src="../docs/screenshots/thumbs/change-request.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">change-request</span><span class="theme">executive-navy</span>
+    <h3>Should we change the agreed baseline?</h3>
   </div>
 </a>
   </div>
@@ -596,7 +641,7 @@ footer { margin-top: 4rem; color: var(--soft); font: .75rem/1.5 var(--mono); }
 <section class="pattern-section pattern-record" id="record">
   <header><span class="pattern-index">02</span><div><p class="eyebrow">record pattern</p><h2>Record</h2><p>Preserve one settled choice and make its consequences traceable.</p></div></header>
   <div class="type-cards">
-    <a class="type-card" href="adr.html">
+    <a class="type-card" id="type-adr" href="adr.html">
   <img src="../docs/screenshots/thumbs/adr.png" alt="" width="640" height="400" loading="lazy" decoding="async">
   <div class="pad">
     <span class="kind">adr</span><span class="theme">field-notes</span>
@@ -608,32 +653,46 @@ footer { margin-top: 4rem; color: var(--soft); font: .75rem/1.5 var(--mono); }
 <section class="pattern-section pattern-contract" id="contract">
   <header><span class="pattern-index">03</span><div><p class="eyebrow">contract pattern</p><h2>Contract</h2><p>Make exact rules, specimens, and compliance conditions easy to scan.</p></div></header>
   <div class="type-cards">
-    <a class="type-card" href="spec.html">
+    <a class="type-card" id="type-spec" href="spec.html">
   <img src="../docs/screenshots/thumbs/spec.png" alt="" width="640" height="400" loading="lazy" decoding="async">
   <div class="pad">
     <span class="kind">spec</span><span class="theme">field-notes</span>
     <h3>What exactly must I build, and how do I know I am done?</h3>
   </div>
 </a>
-    <a class="type-card" href="api-contract.html">
+    <a class="type-card" id="type-api-contract" href="api-contract.html">
   <img src="../docs/screenshots/thumbs/api-contract.png" alt="" width="640" height="400" loading="lazy" decoding="async">
   <div class="pad">
     <span class="kind">api-contract</span><span class="theme">console-violet</span>
     <h3>How do I call this correctly, and what happens when I do it wrong?</h3>
   </div>
 </a>
-    <a class="type-card" href="test-report.html">
-  <img src="../docs/screenshots/thumbs/test-report.png" alt="" width="640" height="400" loading="lazy" decoding="async">
-  <div class="pad">
-    <span class="kind">test-report</span><span class="theme">editorial-coral</span>
-    <h3>Can we ship, on this build?</h3>
-  </div>
-</a>
-    <a class="type-card" href="reference.html">
+    <a class="type-card" id="type-reference" href="reference.html">
   <img src="../docs/screenshots/thumbs/reference.png" alt="" width="640" height="400" loading="lazy" decoding="async">
   <div class="pad">
     <span class="kind">reference</span><span class="theme">console-violet</span>
     <h3>What is the exact fact?</h3>
+  </div>
+</a>
+    <a class="type-card" id="type-requirements" href="requirements.html">
+  <img src="../docs/screenshots/thumbs/requirements.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">requirements</span><span class="theme">field-notes</span>
+    <h3>What outcome and behavior must delivery satisfy?</h3>
+  </div>
+</a>
+    <a class="type-card" id="type-statement-of-work" href="statement-of-work.html">
+  <img src="../docs/screenshots/thumbs/statement-of-work.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">statement-of-work</span><span class="theme">executive-navy</span>
+    <h3>What services and acceptance are agreed?</h3>
+  </div>
+</a>
+    <a class="type-card" id="type-support-model" href="support-model.html">
+  <img src="../docs/screenshots/thumbs/support-model.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">support-model</span><span class="theme">field-notes</span>
+    <h3>Who supports this service, and under what rules?</h3>
   </div>
 </a>
   </div>
@@ -641,21 +700,21 @@ footer { margin-top: 4rem; color: var(--soft); font: .75rem/1.5 var(--mono); }
 <section class="pattern-section pattern-procedure" id="procedure">
   <header><span class="pattern-index">04</span><div><p class="eyebrow">procedure pattern</p><h2>Procedure</h2><p>Keep safe execution, verification, and recovery in one visible path.</p></div></header>
   <div class="type-cards">
-    <a class="type-card" href="handoff.html">
+    <a class="type-card" id="type-handoff" href="handoff.html">
   <img src="../docs/screenshots/thumbs/handoff.png" alt="" width="640" height="400" loading="lazy" decoding="async">
   <div class="pad">
     <span class="kind">handoff</span><span class="theme">field-notes</span>
     <h3>What do I run, change, and not break after you leave?</h3>
   </div>
 </a>
-    <a class="type-card" href="how-to.html">
+    <a class="type-card" id="type-how-to" href="how-to.html">
   <img src="../docs/screenshots/thumbs/how-to.png" alt="" width="640" height="400" loading="lazy" decoding="async">
   <div class="pad">
     <span class="kind">how-to</span><span class="theme">editorial-coral</span>
     <h3>How do I get this job done?</h3>
   </div>
 </a>
-    <a class="type-card" href="runbook.html">
+    <a class="type-card" id="type-runbook" href="runbook.html">
   <img src="../docs/screenshots/thumbs/runbook.png" alt="" width="640" height="400" loading="lazy" decoding="async">
   <div class="pad">
     <span class="kind">runbook</span><span class="theme">console-violet</span>
@@ -667,21 +726,21 @@ footer { margin-top: 4rem; color: var(--soft); font: .75rem/1.5 var(--mono); }
 <section class="pattern-section pattern-learning" id="learning">
   <header><span class="pattern-index">05</span><div><p class="eyebrow">learning pattern</p><h2>Learning</h2><p>Build understanding through staged context, practice, and checkpoints.</p></div></header>
   <div class="type-cards">
-    <a class="type-card" href="explanation.html">
+    <a class="type-card" id="type-explanation" href="explanation.html">
   <img src="../docs/screenshots/thumbs/explanation.png" alt="" width="640" height="400" loading="lazy" decoding="async">
   <div class="pad">
     <span class="kind">explanation</span><span class="theme">field-notes</span>
     <h3>Why is it like this?</h3>
   </div>
 </a>
-    <a class="type-card" href="onboarding.html">
+    <a class="type-card" id="type-onboarding" href="onboarding.html">
   <img src="../docs/screenshots/thumbs/onboarding.png" alt="" width="640" height="400" loading="lazy" decoding="async">
   <div class="pad">
     <span class="kind">onboarding</span><span class="theme">field-notes</span>
     <h3>How do I get it running and prove it works?</h3>
   </div>
 </a>
-    <a class="type-card" href="tutorial.html">
+    <a class="type-card" id="type-tutorial" href="tutorial.html">
   <img src="../docs/screenshots/thumbs/tutorial.png" alt="" width="640" height="400" loading="lazy" decoding="async">
   <div class="pad">
     <span class="kind">tutorial</span><span class="theme">editorial-coral</span>
@@ -693,14 +752,14 @@ footer { margin-top: 4rem; color: var(--soft); font: .75rem/1.5 var(--mono); }
 <section class="pattern-section pattern-system" id="system">
   <header><span class="pattern-index">06</span><div><p class="eyebrow">system pattern</p><h2>System</h2><p>Use maps, boundaries, interfaces, and states to build a spatial model.</p></div></header>
   <div class="type-cards">
-    <a class="type-card" href="architecture.html">
+    <a class="type-card" id="type-architecture" href="architecture.html">
   <img src="../docs/screenshots/thumbs/architecture.png" alt="" width="640" height="400" loading="lazy" decoding="async">
   <div class="pad">
     <span class="kind">architecture</span><span class="theme">field-notes</span>
     <h3>How is it arranged today?</h3>
   </div>
 </a>
-    <a class="type-card" href="design-handoff.html">
+    <a class="type-card" id="type-design-handoff" href="design-handoff.html">
   <img src="../docs/screenshots/thumbs/design-handoff.png" alt="" width="640" height="400" loading="lazy" decoding="async">
   <div class="pad">
     <span class="kind">design-handoff</span><span class="theme">editorial-coral</span>
@@ -712,7 +771,7 @@ footer { margin-top: 4rem; color: var(--soft); font: .75rem/1.5 var(--mono); }
 <section class="pattern-section pattern-incident" id="incident">
   <header><span class="pattern-index">07</span><div><p class="eyebrow">incident pattern</p><h2>Incident</h2><p>Lead with impact, reconstruct time, then connect cause to owned action.</p></div></header>
   <div class="type-cards">
-    <a class="type-card" href="postmortem.html">
+    <a class="type-card" id="type-postmortem" href="postmortem.html">
   <img src="../docs/screenshots/thumbs/postmortem.png" alt="" width="640" height="400" loading="lazy" decoding="async">
   <div class="pad">
     <span class="kind">postmortem</span><span class="theme">console-violet</span>
@@ -724,15 +783,117 @@ footer { margin-top: 4rem; color: var(--soft); font: .75rem/1.5 var(--mono); }
 <section class="pattern-section pattern-suite" id="suite">
   <header><span class="pattern-index">08</span><div><p class="eyebrow">suite pattern</p><h2>Suite</h2><p>Orient readers across a linked set with ownership and freshness visible.</p></div></header>
   <div class="type-cards">
-    <a class="type-card" href="mulesoft.html">
-  <img src="../docs/screenshots/thumbs/mulesoft.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+    <a class="type-card" id="type-service-docs" href="service-docs.html">
+  <img src="../docs/screenshots/thumbs/service-docs.png" alt="" width="640" height="400" loading="lazy" decoding="async">
   <div class="pad">
-    <span class="kind">mulesoft</span><span class="theme">field-notes</span>
-    <h3>What does this application do, and where is each fact owned?</h3>
+    <span class="kind">service-docs</span><span class="theme">field-notes</span>
+    <h3>What does this service do, and where is each fact owned?</h3>
+  </div>
+</a>
+  </div>
+</section>
+<section class="pattern-section pattern-plan" id="plan">
+  <header><span class="pattern-index">09</span><div><p class="eyebrow">plan pattern</p><h2>Plan</h2><p>Make workstreams, dependencies, gates, and forecast movement visible.</p></div></header>
+  <div class="type-cards">
+    <a class="type-card" id="type-delivery-plan" href="delivery-plan.html">
+  <img src="../docs/screenshots/thumbs/delivery-plan.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">delivery-plan</span><span class="theme">executive-navy</span>
+    <h3>How will the agreed outcome be delivered and governed?</h3>
+  </div>
+</a>
+    <a class="type-card" id="type-migration-plan" href="migration-plan.html">
+  <img src="../docs/screenshots/thumbs/migration-plan.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">migration-plan</span><span class="theme">console-violet</span>
+    <h3>How do we move safely and back out?</h3>
+  </div>
+</a>
+    <a class="type-card" id="type-test-strategy" href="test-strategy.html">
+  <img src="../docs/screenshots/thumbs/test-strategy.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">test-strategy</span><span class="theme">editorial-coral</span>
+    <h3>How will quality risks be tested?</h3>
+  </div>
+</a>
+  </div>
+</section>
+<section class="pattern-section pattern-assurance" id="assurance">
+  <header><span class="pattern-index">10</span><div><p class="eyebrow">assurance pattern</p><h2>Assurance</h2><p>Put the verdict beside the evidence, findings, and residual risk.</p></div></header>
+  <div class="type-cards">
+    <a class="type-card" id="type-test-report" href="test-report.html">
+  <img src="../docs/screenshots/thumbs/test-report.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">test-report</span><span class="theme">editorial-coral</span>
+    <h3>Can we ship, on this build?</h3>
+  </div>
+</a>
+    <a class="type-card" id="type-threat-model" href="threat-model.html">
+  <img src="../docs/screenshots/thumbs/threat-model.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">threat-model</span><span class="theme">console-violet</span>
+    <h3>What can go wrong, and what will we do?</h3>
+  </div>
+</a>
+    <a class="type-card" id="type-readiness-review" href="readiness-review.html">
+  <img src="../docs/screenshots/thumbs/readiness-review.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">readiness-review</span><span class="theme">console-violet</span>
+    <h3>Is this change ready for production?</h3>
+  </div>
+</a>
+    <a class="type-card" id="type-risk-register" href="risk-register.html">
+  <img src="../docs/screenshots/thumbs/risk-register.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">risk-register</span><span class="theme">executive-navy</span>
+    <h3>Where is delivery exposed, and who owns it?</h3>
+  </div>
+</a>
+  </div>
+</section>
+<section class="pattern-section pattern-brief" id="brief">
+  <header><span class="pattern-index">11</span><div><p class="eyebrow">brief pattern</p><h2>Brief</h2><p>Expose current state, material change, required action, and next update.</p></div></header>
+  <div class="type-cards">
+    <a class="type-card" id="type-status-report" href="status-report.html">
+  <img src="../docs/screenshots/thumbs/status-report.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">status-report</span><span class="theme">executive-navy</span>
+    <h3>Where are we now, and what needs attention?</h3>
+  </div>
+</a>
+    <a class="type-card" id="type-release-notes" href="release-notes.html">
+  <img src="../docs/screenshots/thumbs/release-notes.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">release-notes</span><span class="theme">editorial-coral</span>
+    <h3>What changed, and what must readers do?</h3>
+  </div>
+</a>
+    <a class="type-card" id="type-workshop-summary" href="workshop-summary.html">
+  <img src="../docs/screenshots/thumbs/workshop-summary.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">workshop-summary</span><span class="theme">field-notes</span>
+    <h3>What did the workshop establish and leave open?</h3>
+  </div>
+</a>
+    <a class="type-card" id="type-incident-update" href="incident-update.html">
+  <img src="../docs/screenshots/thumbs/incident-update.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">incident-update</span><span class="theme">console-violet</span>
+    <h3>What is happening now, and when is the next update?</h3>
   </div>
 </a>
   </div>
 </section></main>
+  <section class="group" id="profiles">
+  <h2>Compatibility profiles</h2>
+  <p class="lead">Existing specialized commands remain supported while the canonical suite stays general.</p>
+  <div class="cards">
+    <a class="card" href="mulesoft.html">
+  <img src="../docs/screenshots/thumbs/mulesoft.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad"><span class="kind">mulesoft</span><h3>Backward-compatible specialized profile of service-docs</h3></div>
+</a>
+  </div>
+</section>
   <section class="group">
   <h2>Voices</h2>
   <p class="lead">The same proposal in three themes, then how the client brand was built.</p>
@@ -802,7 +963,7 @@ footer { margin-top: 4rem; color: var(--soft); font: .75rem/1.5 var(--mono); }
   <img src="../docs/screenshots/thumbs/design-doc.png" alt="" width="640" height="400" loading="lazy" decoding="async">
   <div class="pad">
     <span class="kind">writing-documents</span>
-    <h3>Eighteen types, Markdown by default</h3>
+    <h3>Thirty-four types, Markdown by default</h3>
   </div>
 </a>
     <a class="card" href="themes-light.html">

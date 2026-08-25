@@ -142,6 +142,68 @@ seconds and supports keyboard navigation in document order.
 - The engineering handoff is from Platform to an **incoming owner**; examples do
   not use personal names.
 
+## Engagement and delivery baseline
+
+The split-queue change is treated as one fictional delivery engagement so the
+consultancy examples can share dates, scope, status, and governance without
+inventing another organisation.
+
+- Mobilisation begins on **2026-08-31**, subject to the RFC 014 decision due on
+  **2026-09-01**. Production release is planned for **2026-11-02** and handoff
+  closes on **2026-11-20**.
+- The baseline authorises **24 engineer-weeks**: two Platform engineers across
+  the twelve-week window. The estimate range is **22–28 engineer-weeks** with
+  medium confidence because the two-queue chaos environment does not yet exist.
+- The commercial basis is time and materials capped at the authorised effort.
+  Rates, payment terms, legal clauses, and named contracting parties are not in
+  this fact ledger and must never be invented.
+- Milestone gates are: design accepted by 2026-09-01; chaos environment ready
+  by 2026-09-18; staging dual-write on 2026-10-12; readiness decision on
+  2026-10-28; production cutover on 2026-11-02; handoff on 2026-11-20.
+- Status on **2026-08-26** is **Amber — decision and environment dependency**.
+  Discovery is complete, RFC 014 is proposed, and the chaos environment owner
+  has not confirmed the 2026-09-18 gate.
+- Change request **CR-003** asks for a seven-day event-history panel on the
+  operator overview. It adds **3 engineer-weeks**. The recommended option keeps
+  the production date by moving the extended onboarding lab one week later.
+- Release **v2.0.0** introduces the dispatcher, two independently recoverable
+  queues, split consumer groups, and operator overview. Producer payload,
+  authentication, lookup, warehouse schema, batch path, and retention do not
+  change.
+
+## Governance, risk, and assurance facts
+
+- Platform is accountable for delivery. Reliability approves failure behavior
+  and the readiness gate. Producer teams validate retries. The Platform
+  director approves scope, effort, and CR-003.
+- RAID-01: the chaos environment may miss 2026-09-18; high exposure, Platform
+  owns the environment and Reliability reviews it weekly.
+- RAID-02: shed-and-alert API behavior is unresolved; high exposure, Reliability
+  owns the decision due 2026-09-01.
+- RAID-03: producer retry validation depends on Checkout, Catalog, and Inventory;
+  medium exposure, each producer team owns its fixture by 2026-10-16.
+- Readiness is conditional until one failed queue leaves the other accepting
+  events, dashboards identify the affected producer set, rollback is rehearsed,
+  and the two skipped chaos tests have executed.
+- Security review uses four threats: forged caller audience, replayed event ID,
+  queue-flood denial of service, and operator metadata exposure. Existing mTLS,
+  audience claims, idempotency, bounded shedding, and read-only operator access
+  are controls; the shed response remains unresolved.
+- Support after release is owned by Platform during business hours with the
+  existing on-call path for P1/P2 incidents. Reliability is the second-line
+  escalation for lag that does not fall after 15 minutes or any crash loop.
+
+## Communication facts
+
+- The 2026-08-18 design workshop agreed that queue isolation, not alert tuning,
+  is the target outcome. It left shed response and chaos ownership open.
+- A live update during the 2026-07-30 incident at **14:31 UTC** reported P1,
+  rising lag, all three producer teams affected, one extra consumer replica in
+  progress, and the next update due at **14:45 UTC**. Cause was not yet known.
+- Release notes for v2.0.0 require no producer payload change. Producers must
+  retain bounded retry behavior and verify correlation IDs; the shed response
+  is not announced until approved.
+
 ## Theme use
 
 Internal working documents use `field-notes` or `console-violet`. Leadership

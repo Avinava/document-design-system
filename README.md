@@ -1,18 +1,18 @@
 <p align="center">
-  <img src="assets/banner.svg" alt="document-design-system — reports, diagrams, charts, decks, and eighteen document types as self-contained HTML" width="960" />
+  <img src="assets/banner.svg" alt="document-design-system — reports, diagrams, charts, decks, and thirty-four document types as self-contained HTML" width="960" />
 </p>
 
 <p align="center">
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/license-MIT-2d3142"></a>
   <img alt="6 skills" src="https://img.shields.io/badge/skills-6-eb6c36">
-  <img alt="18 document types" src="https://img.shields.io/badge/document%20types-18-2d3142">
+  <img alt="34 document types" src="https://img.shields.io/badge/document%20types-34-2d3142">
   <img alt="no runtime dependencies" src="https://img.shields.io/badge/runtime%20deps-none-2d3142">
   <a href="https://github.com/Avinava/document-design-system/actions/workflows/validate.yml"><img alt="validate" src="https://github.com/Avinava/document-design-system/actions/workflows/validate.yml/badge.svg"></a>
 </p>
 
 ---
 
-**A design system for documents, and a skill that writes them.** Six skills over one token contract — analytical reports, diagrams, charts, decks, eighteen document types, and brand theming. Writing lands as Markdown in your repo by default. Designed HTML is opt-in: no JavaScript to read, no build step to open, and it prints.
+**A design system for documents, and a skill that writes them.** Six skills over one token contract — analytical reports, diagrams, charts, decks, thirty-four document types, and brand theming. Writing lands as Markdown in your repo by default. Designed HTML is opt-in: no JavaScript to read, no build step to open, and it prints.
 
 Most document tooling is welded to one output format or one client's brand. This is the discipline itself: what to measure, when a chart earns its place, how to structure an argument, and one shared set of semantic tokens underneath so a report, the diagram inside it, and the deck derived from it all look like one system.
 
@@ -92,7 +92,7 @@ Further down the same document — cohort columns and an attribution table that 
 
 ### Document types — the writing gallery
 
-`writing-documents` writes Markdown in *your* repo by default (`/document-design-system:handoff`, `adr`, `design-doc`, …). Designed HTML is opt-in. The files below are the designed gallery: one Northwind Ingestion world, eighteen shapes.
+`writing-documents` writes Markdown in *your* repo by default (`/document-design-system:handoff`, `requirements`, `delivery-plan`, …). Designed HTML is opt-in. The files below are the designed gallery: one Northwind Ingestion world, thirty-four canonical shapes.
 
 Browse them on the [live site](https://avinava.github.io/document-design-system/types.html), or [`examples/index.html`](examples/index.html) locally.
 
@@ -102,14 +102,17 @@ maps, tables, timelines, comparisons, and registers use the space they need.
 
 | Pattern | Reading movement | Types |
 |---|---|---|
-| `decision` | ask → choices → trade-offs → next move | `design-doc`, `discovery`, `proposal` |
+| `decision` | ask → choices → trade-offs → next move | `design-doc`, `discovery`, `proposal`, `project-charter`, `estimate`, `change-request` |
 | `record` | status → decision → consequences | `adr` |
-| `contract` | definitions → exact rules → specimens → compliance | `spec`, `api-contract`, `test-report`, `reference` |
+| `contract` | definitions → exact rules → specimens → compliance | `spec`, `api-contract`, `reference`, `requirements`, `statement-of-work`, `support-model` |
 | `procedure` | safety → steps → verification → recovery | `handoff`, `how-to`, `runbook` |
 | `learning` | context → practice → checkpoint → takeaway | `explanation`, `onboarding`, `tutorial` |
 | `system` | map → boundaries → interfaces → states | `architecture`, `design-handoff` |
 | `incident` | impact → timeline → cause → owned action | `postmortem` |
-| `suite` | document map → ownership → freshness | `mulesoft` |
+| `suite` | document map → ownership → freshness | `service-docs` |
+| `plan` | baseline → workstreams → dependencies → gates | `delivery-plan`, `migration-plan`, `test-strategy` |
+| `assurance` | verdict → evidence → findings → residual risk | `test-report`, `threat-model`, `readiness-review`, `risk-register` |
+| `brief` | current state → material change → action → next update | `status-report`, `release-notes`, `workshop-summary`, `incident-update` |
 
 | | |
 |---|---|
@@ -118,36 +121,44 @@ maps, tables, timelines, comparisons, and registers use the space they need.
 | [![Procedure pattern](docs/screenshots/runbook.png)](examples/runbook.html) | [![Incident pattern](docs/screenshots/postmortem.png)](examples/postmortem.html) |
 | `procedure` — safety and checkpoints | `incident` — impact strip and timeline |
 
+| | |
+|---|---|
+| [![Plan pattern](docs/screenshots/delivery-plan.png)](examples/delivery-plan.html) | [![Assurance pattern](docs/screenshots/threat-model.png)](examples/threat-model.html) |
+| `plan` — milestone rail, workstreams, dependencies, gates | `assurance` — verdict beside evidence and residual risk |
+| [![Brief pattern](docs/screenshots/status-report.png)](examples/status-report.html) | [![Suite pattern](docs/screenshots/service-docs.png)](examples/service-docs.html) |
+| `brief` — health, material movement, required action | `suite` — document ownership and freshness |
+
 The [live pattern gallery](https://avinava.github.io/document-design-system/types.html)
-shows all eight families and all eighteen types. The full contract lives in
+shows all eleven families and all thirty-four canonical types. The full contract lives in
 [`core/document-patterns.md`](core/document-patterns.md).
 
-[![Eight document patterns in the type gallery](docs/screenshots/patterns-gallery.png)](examples/index.html)
+[![Eleven document patterns and consultancy lifecycle navigation](docs/screenshots/patterns-gallery.png)](examples/index.html)
 
 <sub>Pattern-first navigation, reader questions, default themes, and lightweight previews. [Open locally](examples/index.html).</sub>
 
-#### Catalog
+#### Canonical catalog
 
-| Slug | Command | HTML | Markdown |
-|---|---|---|---|
-| `design-doc` | `/document-design-system:design-doc` | [html](examples/design-doc.html) | [md](examples/design-doc.md) |
-| `adr` | `/document-design-system:adr` | [html](examples/adr.html) | [md](examples/adr.md) |
-| `spec` | `/document-design-system:spec` | [html](examples/spec.html) | [md](examples/spec.md) |
-| `proposal` | `/document-design-system:proposal` | [html](examples/proposal.html) | [md](examples/proposal.md) |
-| `handoff` | `/document-design-system:handoff` | [html](examples/handoff.html) | [md](examples/handoff.md) |
-| `design-handoff` | `/document-design-system:design-handoff` | [html](examples/design-handoff.html) | [md](examples/design-handoff.md) |
-| `architecture` | `/document-design-system:architecture` | [html](examples/architecture.html) | [md](examples/architecture.md) |
-| `runbook` | `/document-design-system:runbook` | [html](examples/runbook.html) | [md](examples/runbook.md) |
-| `postmortem` | `/document-design-system:postmortem` | [html](examples/postmortem.html) | [md](examples/postmortem.md) |
-| `onboarding` | `/document-design-system:onboarding` | [html](examples/onboarding.html) | [md](examples/onboarding.md) |
-| `api-contract` | `/document-design-system:api-contract` | [html](examples/api-contract.html) | [md](examples/api-contract.md) |
-| `test-report` | `/document-design-system:test-report` | [html](examples/test-report.html) | [md](examples/test-report.md) |
-| `reference` | `/document-design-system:reference` | [html](examples/reference.html) | [md](examples/reference.md) |
-| `discovery` | `/document-design-system:discovery` | [html](examples/discovery.html) | [md](examples/discovery.md) |
-| `tutorial` | `/document-design-system:tutorial` | [html](examples/tutorial.html) | [md](examples/tutorial.md) |
-| `how-to` | `/document-design-system:how-to` | [html](examples/how-to.html) | [md](examples/how-to.md) |
-| `explanation` | `/document-design-system:explanation` | [html](examples/explanation.html) | [md](examples/explanation.md) |
-| `mulesoft` | `/document-design-system:mulesoft` | [html](examples/mulesoft.html) | [md](examples/mulesoft.md) |
+Every slug is a `/document-design-system:<slug>` command with paired HTML and
+Markdown in [`examples/`](examples/). Familiar names such as HLD, LLD, TDD,
+PRD, API spec, PRR, and RAID route to these owners instead of becoming duplicate
+types.
+
+| Pattern | Canonical slugs |
+|---|---|
+| Decision | `design-doc`, `discovery`, `proposal`, `project-charter`, `estimate`, `change-request` |
+| Record | `adr` |
+| Contract | `spec`, `api-contract`, `reference`, `requirements`, `statement-of-work`, `support-model` |
+| Procedure | `handoff`, `how-to`, `runbook` |
+| Learning | `explanation`, `onboarding`, `tutorial` |
+| System | `architecture`, `design-handoff` |
+| Incident | `postmortem` |
+| Suite | `service-docs` |
+| Plan | `delivery-plan`, `migration-plan`, `test-strategy` |
+| Assurance | `test-report`, `threat-model`, `readiness-review`, `risk-register` |
+| Brief | `status-report`, `release-notes`, `workshop-summary`, `incident-update` |
+
+`/document-design-system:mulesoft` remains a backward-compatible specialized
+profile of `service-docs`.
 
 ### Deck — a presented ask, not a document with page breaks
 
@@ -288,7 +299,7 @@ All of it runs on the authoring machine. The delivered artifact is plain HTML an
 npm install beautiful-mermaid @observablehq/plot jsdom     # renderers
 pip install playwright && playwright install chromium      # PDF + screenshots
 
-python3 scripts/build_examples.py       # reports, decks, figures, all 18 types, gallery index
+python3 scripts/build_examples.py       # reports, decks, figures, all 34 types, gallery index
 python3 scripts/shoot_examples.py       # refresh the screenshots above
 python3 scripts/build_site.py           # GitHub Pages homepage + types gallery in site/ (gitignored)
 python3 scripts/inline_fonts.py rfc.html --font "Geist:400:geist.woff2" --out offline.html
@@ -318,7 +329,7 @@ Print is verified by exporting a PDF and looking at it, not by the presence of `
 - [`examples/index.html`](examples/index.html) opens offline and every card reaches a real HTML example.
 - `python3 scripts/validate_repository.py .` and `python3 -m unittest discover -s tests` pass.
 
-The live site is [avinava.github.io/document-design-system](https://avinava.github.io/document-design-system/) — homepage for all six skills, [types](https://avinava.github.io/document-design-system/types.html) for the eighteen writing-documents cards. Pushes to `main` deploy it via [`.github/workflows/pages.yml`](.github/workflows/pages.yml).
+The live site is [avinava.github.io/document-design-system](https://avinava.github.io/document-design-system/) — homepage for all six skills, [types](https://avinava.github.io/document-design-system/types.html) for the thirty-four canonical writing-document cards and compatibility profiles. Pushes to `main` deploy it via [`.github/workflows/pages.yml`](.github/workflows/pages.yml).
 
 ## Attribution
 
