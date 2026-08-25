@@ -1,0 +1,60 @@
+<article class="doc">
+  <header class="doc-hero">
+    <p class="eyebrow">Release evidence · RC 2026.08.12</p>
+    <h1>Current ingestion build can ship with two explicit waivers</h1>
+    <p class="lede">All 38 executed tests passed. Two chaos scenarios were skipped because the current build has only one queue; they remain release risks rather than invisible passes.</p>
+    <div class="doc-meta" aria-label="Test report metadata">
+      <span><strong>Build:</strong> sha-8132c3</span>
+      <span><strong>Environment:</strong> staging</span>
+      <span><strong>Data:</strong> 2026-08-12</span>
+      <span><strong>Author:</strong> Platform</span>
+    </div>
+  </header>
+
+  <div class="contract-layout">
+    <nav class="contract-index" aria-label="Test report sections"><p class="component-label">Evidence</p><ol><li><a href="#verdict">Verdict</a></li><li><a href="#scope">Scope</a></li><li><a href="#results">Results</a></li><li><a href="#defects">Defects</a></li><li><a href="#criteria">Exit criteria</a></li><li><a href="#risk">Residual risk</a></li></ol></nav>
+    <div>
+      <section id="verdict">
+        <p class="component-label">Release verdict</p>
+        <div class="verdict"><h2>Go with waivers</h2><p>Functional and regression behavior passed on the current single-queue build. Release approval does not claim partial-failure isolation.</p></div>
+      </section>
+
+      <section class="section" id="scope">
+        <h2>Objective and scope</h2>
+        <p>Verify producer acceptance, idempotency, lookup, authentication, current overload behavior, consumer drain, and warehouse landing for <code>sha-8132c3</code>. Dispatcher partitioning and one-queue-down recovery are outside this build.</p>
+      </section>
+
+      <section class="section" id="results">
+        <h2>Results with denominators</h2>
+        <div class="impact-strip">
+          <div><span class="impact-value">38 / 40</span><span class="impact-label">executed / planned</span></div>
+          <div><span class="impact-value">36 / 36</span><span class="impact-label">passed / expected pass</span></div>
+          <div><span class="impact-value">2</span><span class="impact-label">skipped chaos cases</span></div>
+        </div>
+        <div class="table-scroll"><table><caption>Counts for this build only</caption><thead><tr><th scope="col">Suite</th><th scope="col">Planned</th><th scope="col">Executed</th><th scope="col">Passed</th><th scope="col">Skipped</th></tr></thead><tbody>
+          <tr><td>Gateway contract</td><td>18</td><td>18</td><td>18</td><td>0</td></tr>
+          <tr><td>Consumer and warehouse</td><td>14</td><td>14</td><td>14</td><td>0</td></tr>
+          <tr><td>Failure and recovery</td><td>8</td><td>6</td><td>4 pass + 2 expected current failures</td><td>2</td></tr>
+        </tbody></table></div>
+        <p class="evidence">Executed denominator: 38. Pass denominator: 36 tests whose expected result was pass. Two current-overload tests correctly observed <code>503</code>.</p>
+      </section>
+
+      <section class="section" id="defects">
+        <h2>Defects and waivers</h2>
+        <div class="requirement"><span class="requirement-id">WAIVER-01</span><div><strong>No two-queue chaos environment.</strong> One selected queue cannot be failed independently until RFC 014 exists in staging.</div></div>
+        <div class="requirement"><span class="requirement-id">WAIVER-02</span><div><strong>Shed contract unresolved.</strong> Current behavior remains <code>503</code>; producer retry guidance must not claim the proposed response.</div></div>
+        <p>No open functional defect was found in the current release scope.</p>
+      </section>
+
+      <section class="section" id="criteria">
+        <h2>Exit criteria</h2>
+        <ul><li>All executed release-blocking tests pass.</li><li>Both waivers are named in release notes.</li><li>Production monitoring has no new alert or dashboard dependency.</li><li>Rollback remains the prior container image.</li></ul>
+      </section>
+
+      <section class="section" id="risk">
+        <h2>Residual risk</h2>
+        <p>This build preserves the single shared queue. It can ship because it does not worsen that risk, but it does not mitigate the incident pattern documented in RFC 014.</p>
+      </section>
+    </div>
+  </div>
+</article>

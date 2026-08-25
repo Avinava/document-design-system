@@ -1,6 +1,6 @@
 /* field-notes — research findings, audits, operational workshops.
  *
- * Tactile but still professional. Warm paper, near-zero radii, a rust accent.
+ * Tactile but still professional. Warm paper, near-zero radii, a plum accent.
  *
  * This theme may use a very subtle paper texture, but only when requested.
  * Texture must disappear in print and must never reduce contrast.
@@ -15,13 +15,13 @@
 
   --ink: #28312d;
   --muted: #59665f;
-  --soft: #7b857f;
+  --soft: #65716a;
 
   --rule: rgba(40, 49, 45, 0.14);
   --rule-strong: rgba(40, 49, 45, 0.34);
 
-  --accent: #b65332;
-  --accent-tint: rgba(182, 83, 50, 0.10);
+  --accent: #864b72;
+  --accent-tint: rgba(134, 75, 114, 0.10);
   --accent-ink: #ffffff;
 
   --positive: #46725a;

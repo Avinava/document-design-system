@@ -1,0 +1,1192 @@
+<!doctype html>
+<!--
+  Long-form shell — bodies live in templates/types/<slug>.html.
+
+  Assemble with:
+      python scripts/build_examples.py
+  or, for a one-off:
+      python scripts/build_document.py templates/longform.html \
+             --theme field-notes --out document.html
+
+  Type files own section order and semantic components. This shell owns the
+  theme, document-pattern contract, responsive behavior, and print.
+-->
+<html lang="en" data-theme="field-notes" data-pattern="learning">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build the right model of Northwind Ingestion before you operate it</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ---- inlined from core/themes/field-notes.css ---- */
+/* field-notes — research findings, audits, operational workshops.
+ *
+ * Tactile but still professional. Warm paper, near-zero radii, a plum accent.
+ *
+ * This theme may use a very subtle paper texture, but only when requested.
+ * Texture must disappear in print and must never reduce contrast.
+ *
+ * Fonts: Source Sans 3 (display + sans), Source Code Pro (mono).
+ */
+
+[data-theme="field-notes"] {
+  --paper: #f4f0e7;
+  --surface: #fffdf7;
+  --surface-muted: #ebe5d8;
+
+  --ink: #28312d;
+  --muted: #59665f;
+  --soft: #65716a;
+
+  --rule: rgba(40, 49, 45, 0.14);
+  --rule-strong: rgba(40, 49, 45, 0.34);
+
+  --accent: #864b72;
+  --accent-tint: rgba(134, 75, 114, 0.10);
+  --accent-ink: #ffffff;
+
+  --positive: #46725a;
+  --warning: #9a681d;
+  --critical: #9b4343;
+
+  --method-bg: #28312d;
+  --method-ink: #f4f0e7;
+  --method-muted: #c7cec8;
+
+  --display: 'Source Sans 3', 'Manrope', system-ui, sans-serif;
+  --sans: 'Source Sans 3', 'Geist', system-ui, sans-serif;
+  --mono: 'Source Code Pro', 'Geist Mono', ui-monospace, monospace;
+
+  --radius-sm: 0;
+  --radius-md: 2px;
+}
+/* ---- inlined from core/base.css ---- */
+/* base.css — component-to-token mapping.
+ *
+ * This file contains NO color literals. Every visual decision resolves through
+ * a token defined in core/themes/. That is what makes theme swapping, print
+ * normalization, and grayscale survival work without editing components.
+ *
+ * Load order matters:
+ *   1. a theme from core/themes/
+ *   2. this file
+ *   3. core/print.css   (last, so its overrides beat responsive rules)
+ */
+
+/* ---------------------------------------------------------------- reset */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ----------------------------------------------------------- derived */
+
+/* Derived from the base tokens so themes do not have to restate them.
+ * If color-mix() is unavailable in a target environment, define
+ * --comparison-fill and --track-fill explicitly in the theme instead.
+ *
+ * Declared on [data-theme] as well as :root so they re-derive at every theme
+ * boundary. Defined on :root alone they would resolve once, against the root
+ * theme, and a nested [data-theme="…"] section would keep the root's greys
+ * while everything around them changed — a subtle wrong that only shows up
+ * when two themes appear on one page. */
+:root,
+[data-theme] {
+  --comparison-fill: color-mix(in srgb, var(--muted) 16%, transparent);
+  --track-fill: color-mix(in srgb, var(--muted) 10%, transparent);
+}
+
+/* --- token aliases for embedded renderers ---------------------------
+ *
+ * Third-party renderers set their own theme variables on the element they
+ * emit. beautiful-mermaid, for example, writes --accent, --muted, and
+ * --surface onto its <svg> — names this system already uses.
+ *
+ * Emitting `--accent: var(--accent)` on that <svg> would be a self-reference,
+ * which CSS treats as invalid at computed-value time, so the diagram would
+ * lose its colors. Routing through these aliases breaks the cycle: the
+ * renderer writes `--accent: var(--dds-accent)`, and --dds-accent resolves
+ * here, on :root, where there is no collision.
+ *
+ * Add an alias whenever a renderer's namespace overlaps a token name.
+ *
+ * On [data-theme] too, for the same reason as the derived tokens above: a
+ * prerendered diagram inside a scoped theme must resolve against that theme. */
+:root,
+[data-theme] {
+  --dds-paper: var(--paper);
+  --dds-surface: var(--surface);
+  --dds-surface-muted: var(--surface-muted);
+  --dds-ink: var(--ink);
+  --dds-muted: var(--muted);
+  --dds-soft: var(--soft);
+  --dds-rule: var(--rule);
+  --dds-rule-strong: var(--rule-strong);
+  --dds-accent: var(--accent);
+  --dds-accent-tint: var(--accent-tint);
+}
+
+/* ------------------------------------------------------- typography */
+
+h1, h2, h3,
+.metric-value,
+.focal-value {
+  font-family: var(--display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+h1 { font-size: 2rem; margin: 0 0 0.5rem; }
+h2 { font-size: 1.375rem; margin: 2.5rem 0 0.75rem; }
+h3 { font-size: 1.0625rem; margin: 1.75rem 0 0.5rem; }
+
+p { margin: 0 0 1rem; max-width: 68ch; }
+
+/* Mono is for technical metadata only: dates, versions, identifiers, source
+ * names, compact labels. Body copy in mono is harder to read, not more
+ * credible. */
+.meta,
+.eyebrow,
+time,
+code,
+.identifier,
+.version {
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.01em;
+}
+
+.eyebrow {
+  color: var(--soft);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.subtle { color: var(--muted); }
+
+/* ---------------------------------------------------------- surfaces */
+
+/* Hierarchy comes from borders and spacing, not shadows. */
+.card,
+.table-wrap,
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.375rem;
+}
+
+.chart-frame {
+  background: var(--surface-muted);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+}
+
+.tag {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--rule);
+  padding: 0.125rem 0.4375rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+hr,
+.rule {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 2rem 0;
+}
+
+/* ------------------------------------------------------------ accent */
+
+/* One accent per visual region. Repeating it across every heading and card
+ * destroys the hierarchy it exists to create. */
+.focal-value,
+.focal-label {
+  color: var(--accent);
+}
+
+.accent-surface {
+  background: var(--accent-tint);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+}
+
+.accent-solid {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* ------------------------------------------------------------ status */
+
+/* Color alone never carries meaning — every status element also needs a
+ * written label, so it survives grayscale and color-blind reading. */
+.status-positive { color: var(--positive); }
+.status-warning  { color: var(--warning); }
+.status-critical { color: var(--critical); }
+
+/* ------------------------------------------------------- methodology */
+
+.methodology {
+  background: var(--method-bg);
+  color: var(--method-ink);
+  border-radius: var(--radius-md);
+  padding: 1.5rem 1.625rem;
+}
+
+.methodology h2,
+.methodology h3 { color: var(--method-ink); }
+.methodology .subtle,
+.methodology p { color: var(--method-muted); }
+
+/* ------------------------------------------------------------ tables */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 1px solid var(--rule-strong);
+  padding: 0.5rem 0.625rem;
+}
+
+td {
+  border-bottom: 1px solid var(--rule);
+  padding: 0.5rem 0.625rem;
+}
+
+/* Numbers align right and use tabular figures so columns scan vertically. */
+.num,
+td.num,
+th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+tbody tr:nth-child(even) { background: var(--surface-muted); }
+
+/* On small screens, let wide tables scroll rather than crushing columns.
+ * core/print.css unsets this — a scroll container clips in print. */
+.table-scroll,
+.diagram-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* -------------------------------------------------------------- SVG */
+
+/* Charts and diagrams style through these classes rather than through
+ * presentation attributes, so one stylesheet retheme reaches every figure. */
+.bar-focal      { fill: var(--accent-tint); stroke: var(--accent); }
+.bar-comparison { fill: var(--comparison-fill); stroke: var(--muted); }
+.track          { fill: var(--track-fill); }
+.axis-line      { stroke: var(--rule-strong); }
+.grid-line      { stroke: var(--rule); }
+.chart-label    { fill: var(--muted); font-family: var(--sans); font-size: 12px; }
+.chart-value    { fill: var(--ink); font-family: var(--sans); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+svg { max-width: 100%; height: auto; }
+
+/* --------------------------------------------------------- utilities */
+
+.print-only { display: none; }
+
+a { color: inherit; text-underline-offset: 2px; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+/* ---- inlined from core/document-patterns.css ---- */
+/* document-patterns.css — structure for prose-first technical documents.
+ *
+ * Themes answer "what voice does this use?" through semantic tokens.
+ * Patterns answer "how should this information be read?" through layout and
+ * component choice. Pattern CSS therefore contains no colour literals.
+ *
+ * Root contract:
+ *   <html data-theme="field-notes" data-pattern="decision">
+ */
+
+/* ---------------------------------------------------------------- shell */
+
+.doc {
+  --doc-max: 960px;
+  --content-measure: 68ch;
+  max-width: var(--doc-max);
+  margin: 0 auto;
+  padding: 48px 32px 80px;
+}
+
+.doc-hero {
+  border-top: 3px solid var(--accent);
+  padding-top: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+
+.doc-hero h1 {
+  max-width: 24ch;
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  letter-spacing: -0.03em;
+  margin-bottom: 0.75rem;
+}
+
+.doc-hero .lede {
+  max-width: 62ch;
+  color: var(--muted);
+  font-size: 1.125rem;
+}
+
+.doc-meta,
+.status-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 1.25rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  margin: 1.25rem 0 0;
+  font-size: 0.875rem;
+}
+
+.doc-meta span,
+.status-banner span { white-space: nowrap; }
+
+.doc-meta strong,
+.status-banner strong { font-weight: 600; }
+
+.section {
+  border-top: 1px solid var(--rule-strong);
+  margin-top: 3.5rem;
+  padding-top: 1.5rem;
+}
+
+.section-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.section-head h2 { margin: 0; }
+
+.section-num {
+  display: inline-grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font: 600 0.8125rem/1 var(--mono);
+}
+
+.reading-time,
+.component-label {
+  color: var(--soft);
+  font: 500 0.6875rem/1.3 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.toc {
+  border-left: 2px solid var(--rule-strong);
+  padding-left: 1.25rem;
+  margin: 2rem 0 3rem;
+}
+
+.toc ol { margin: 0; padding-left: 1.25rem; }
+.toc li { margin: 0.3rem 0; }
+
+.keypoint,
+.non-goals,
+.checkpoint,
+.takeaway,
+.danger,
+.verdict {
+  margin: 1.5rem 0;
+  padding: 1rem 1.2rem;
+  border-radius: var(--radius-md);
+}
+
+.keypoint,
+.non-goals {
+  background: var(--accent-tint);
+  border-left: 3px solid var(--accent);
+}
+
+.checkpoint,
+.takeaway,
+.verdict {
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+}
+
+.danger {
+  border: 1px solid var(--critical);
+  border-left: 4px solid var(--critical);
+}
+
+.danger > :first-child,
+.keypoint > :first-child,
+.non-goals > :first-child,
+.checkpoint > :first-child,
+.takeaway > :first-child,
+.verdict > :first-child { margin-top: 0; }
+
+.danger > :last-child,
+.keypoint > :last-child,
+.non-goals > :last-child,
+.checkpoint > :last-child,
+.takeaway > :last-child,
+.verdict > :last-child { margin-bottom: 0; }
+
+.evidence {
+  color: var(--soft);
+  font-size: 0.8125rem;
+}
+
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+  background: var(--surface-muted);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.1rem;
+  font: 0.875rem/1.55 var(--mono);
+}
+
+pre .lang {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--soft);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.specimen { margin: 1.75rem 0; }
+.specimen pre { margin: 0; }
+.specimen figcaption,
+.figure figcaption {
+  margin-top: 0.5rem;
+  color: var(--soft);
+  font: 0.6875rem/1.45 var(--mono);
+}
+
+.comparison-grid,
+.state-grid,
+.document-map {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.comparison-grid > *,
+.state-grid > *,
+.document-map > * {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.15rem;
+}
+
+.comparison-grid .recommended {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+}
+
+.table-scroll { overflow-x: auto; margin: 1.5rem 0; }
+.table-scroll table { min-width: 620px; }
+
+.footnotes {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.9375rem;
+}
+
+/* ------------------------------------------------------------- decision */
+
+html[data-pattern="decision"] .doc { --doc-max: 1100px; }
+
+.doc-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.decision-rail {
+  position: sticky;
+  top: 1.5rem;
+  background: var(--method-bg);
+  color: var(--method-ink);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+}
+
+.decision-rail h2,
+.decision-rail h3 { color: inherit; margin-top: 0; }
+.decision-rail p,
+.decision-rail li { color: var(--method-muted); }
+
+/* --------------------------------------------------------------- record */
+
+html[data-pattern="record"] .doc { --doc-max: 860px; }
+html[data-pattern="record"] .doc-hero { margin-bottom: 1.75rem; }
+
+.decision-statement {
+  margin: 1.5rem 0 2.25rem;
+  padding: 1.4rem 1.5rem;
+  background: var(--accent-tint);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  font-size: 1.125rem;
+}
+
+.consequence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.consequence-grid > * { padding: 1rem 1.15rem; }
+.consequence-grid > * + * { border-left: 1px solid var(--rule); }
+
+/* ------------------------------------------------------------- contract */
+
+html[data-pattern="contract"] .doc { --doc-max: 1160px; }
+
+.contract-layout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.doc-grid > *,
+.contract-layout > *,
+.system-layout > * { min-width: 0; }
+
+.contract-index {
+  position: sticky;
+  top: 1.5rem;
+  border-top: 2px solid var(--rule-strong);
+  padding-top: 1rem;
+  font-size: 0.875rem;
+}
+
+.contract-index ol { padding-left: 1.1rem; }
+
+.requirement,
+.endpoint {
+  display: grid;
+  grid-template-columns: minmax(90px, auto) minmax(0, 1fr);
+  gap: 1rem;
+  border-top: 1px solid var(--rule);
+  padding: 1rem 0;
+}
+
+.requirement-id,
+.http-method {
+  color: var(--accent);
+  font: 600 0.8125rem/1.4 var(--mono);
+}
+
+/* ------------------------------------------------------------ procedure */
+
+html[data-pattern="procedure"] .doc { --doc-max: 1000px; }
+
+.procedure-steps {
+  list-style: none;
+  counter-reset: procedure;
+  padding: 0;
+}
+
+.procedure-steps > li {
+  counter-increment: procedure;
+  position: relative;
+  padding: 0 0 2.25rem 3.5rem;
+  margin: 0;
+  border-left: 1px solid var(--rule-strong);
+}
+
+.procedure-steps > li::before {
+  content: counter(procedure, decimal-leading-zero);
+  position: absolute;
+  left: -1.05rem;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-radius: 50%;
+  font: 600 0.75rem/1 var(--mono);
+}
+
+.procedure-steps h3 { margin-top: 0; }
+
+.outcome {
+  border-left: 2px solid var(--positive);
+  padding-left: 0.85rem;
+  color: var(--muted);
+}
+
+.response-band {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.response-band > * {
+  border-top: 3px solid var(--rule-strong);
+  padding-top: 0.85rem;
+}
+
+/* ------------------------------------------------------------- learning */
+
+html[data-pattern="learning"] .doc {
+  --doc-max: 960px;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+
+html[data-pattern="learning"] .section {
+  border-top-width: 2px;
+  margin-top: 4.5rem;
+  padding-top: 2rem;
+}
+
+/* --------------------------------------------------------------- system */
+
+html[data-pattern="system"] .doc { --doc-max: 1180px; }
+
+.system-map {
+  margin: 2rem 0;
+  padding: 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+}
+
+.system-map svg { display: block; width: 100%; height: auto; }
+
+.system-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.system-rail {
+  border-left: 2px solid var(--rule-strong);
+  padding-left: 1.25rem;
+}
+
+/* ------------------------------------------------------------- incident */
+
+html[data-pattern="incident"] .doc { --doc-max: 1080px; }
+
+.impact-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin: 2rem 0 3rem;
+  background: var(--rule-strong);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.impact-strip > * {
+  background: var(--surface);
+  padding: 1.2rem;
+}
+
+.impact-value {
+  display: block;
+  color: var(--accent);
+  font: 600 2rem/1.1 var(--display);
+}
+
+.impact-label { color: var(--muted); font-size: 0.8125rem; }
+
+.timeline {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0 2.5rem;
+}
+
+.timeline li {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 1.25rem;
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.timeline time {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.cause-chain {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.cause-chain > * {
+  position: relative;
+  border: 1px solid var(--rule);
+  border-top: 3px solid var(--accent);
+  padding: 1rem;
+  background: var(--surface);
+}
+
+.action-register { margin: 1.5rem 0; }
+
+/* ---------------------------------------------------------------- suite */
+
+html[data-pattern="suite"] .doc { --doc-max: 1120px; }
+.document-map { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.document-map a { text-decoration: none; }
+
+/* ------------------------------------------------------------ responsive */
+
+@media (max-width: 860px) {
+  .doc { padding: 32px 20px 56px; }
+  .doc-grid,
+  .contract-layout,
+  .system-layout { grid-template-columns: 1fr; }
+  .decision-rail,
+  .contract-index { position: static; }
+  .contract-index { display: none; }
+  .response-band,
+  .document-map { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 620px) {
+  .doc { padding-inline: 16px; }
+  .doc-hero h1 { font-size: 2rem; }
+  .doc-meta,
+  .status-banner { display: grid; gap: 0.45rem; }
+  .doc-meta span,
+  .status-banner span { white-space: normal; }
+  .section-head { grid-template-columns: auto minmax(0, 1fr); }
+  .section-head .reading-time { grid-column: 2; }
+  .comparison-grid,
+  .state-grid,
+  .consequence-grid,
+  .impact-strip,
+  .cause-chain { grid-template-columns: 1fr; }
+  .consequence-grid > * + * {
+    border-left: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .timeline li { grid-template-columns: 70px minmax(0, 1fr); gap: 0.75rem; }
+  .procedure-steps > li { padding-left: 2.75rem; }
+}
+
+@media print {
+  .doc { max-width: none; padding: 0; }
+  .doc-hero { margin-bottom: 1.5rem; }
+  .section { margin-top: 1.75rem; padding-top: 1rem; }
+  .danger { margin: 0.75rem 0; padding: 0.75rem 1rem; }
+  .section-head {
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+  .doc-grid,
+  .contract-layout,
+  .system-layout { display: block; }
+  .decision-rail,
+  .contract-index { position: static; }
+  .contract-index { display: none; }
+  .decision-rail {
+    margin: 1.5rem 0;
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--rule-strong);
+  }
+  .decision-rail p,
+  .decision-rail li { color: var(--muted); }
+  .impact-strip,
+  .cause-chain,
+  .response-band,
+  .comparison-grid,
+  .state-grid,
+  .document-map { break-inside: avoid; }
+  .procedure-steps > li { break-inside: avoid; }
+}
+
+/* ---- inlined from core/print.css ---- */
+/* print.css — print and PDF as a distinct output mode.
+ *
+ * Load this LAST. Print rendering can match a narrow-viewport media query, so
+ * without explicit overrides a desktop grid collapses to one column in the PDF.
+ * Placing this after the responsive rules is what prevents that.
+ *
+ * Browser-added headers and footers (URL, date, page number) are controlled by
+ * the print dialog, not by CSS. When a clean PDF matters, tell the user to
+ * disable them. Do not claim CSS suppresses them.
+ */
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 14mm 14mm 16mm;
+  }
+
+  /* --- theme normalization ------------------------------------------
+   * Print normalizes to white paper while keeping theme identity through
+   * ink, rules, and the accent. Dark methodology panels invert so they do
+   * not consume ink or reproduce badly in grayscale. */
+  :root,
+  [data-theme] {
+    --paper: #ffffff;
+    --surface: #ffffff;
+    --surface-muted: #f3f3f3;
+    --method-bg: #ffffff;
+    --method-ink: var(--ink);
+    --method-muted: var(--muted);
+  }
+
+  .methodology {
+    border: 1px solid var(--rule-strong);
+  }
+
+  html {
+    font-size: 10pt;
+    background: #fff;
+  }
+
+  body {
+    min-height: auto;
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* --- layout -------------------------------------------------------- */
+
+  .report-shell,
+  main {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .screen-only,
+  nav,
+  button,
+  [role="navigation"] {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  /* --- fragmentation --------------------------------------------------
+   * Protect small self-contained things. Let big things flow. Setting
+   * break-inside: avoid on every section produces half-empty pages when a
+   * section is taller than one page. */
+
+  h1, h2, h3 {
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+
+  p, li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  .metric-card,
+  .chart,
+  figure,
+  blockquote,
+  .callout,
+  .methodology {
+    break-inside: avoid-page;
+    page-break-inside: avoid;
+  }
+
+  section {
+    break-before: auto;
+  }
+
+  .page-break-before {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    break-after: page;
+    page-break-after: always;
+  }
+
+  /* --- tables ---------------------------------------------------------
+   * Long tables span pages with repeating headers. Never break-inside:
+   * avoid a whole table — it overflows or leaves large gaps. */
+
+  table {
+    width: 100%;
+    min-width: 0;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+  }
+
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
+
+  tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  th, td {
+    padding: 2.2mm 1.6mm;
+  }
+
+  /* --- overflow containers --------------------------------------------
+   * Changing overflow alone does not stop an oversized child clipping. The
+   * min-width reset is the part that actually matters. */
+
+  .table-scroll,
+  .diagram-scroll {
+    overflow: visible;
+  }
+
+  .table-scroll table,
+  .diagram-scroll svg {
+    min-width: 0 !important;
+  }
+
+  svg,
+  img,
+  canvas {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* --- compound components --------------------------------------------
+   * Generic structural rules above can strip padding from compound-class
+   * elements such as <section class="section methodology">. Restore it with
+   * a more specific selector, then check all four insets in the PDF. */
+
+  section.methodology {
+    padding: 18px 20px;
+  }
+
+  /* --- links -----------------------------------------------------------
+   * Append URLs only where the destination matters on paper. Never for
+   * fragment-only or javascript: links. */
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  a.external[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-family: ui-monospace, monospace;
+    font-size: 0.82em;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* US Letter alternative — swap the @page block above when the target
+ * organization requires it:
+ *
+ *   @page { size: Letter portrait; margin: 0.55in 0.55in 0.65in; }
+ *
+ * Do not switch the whole document to landscape because one table is wide.
+ * Simplify the printed columns first, or build a separate landscape appendix.
+ */
+</style>
+</head>
+<body>
+<article class="doc">
+  <header class="doc-hero">
+    <p class="eyebrow">Engineering onboarding · 55 minutes</p>
+    <h1>Build the right model of Northwind Ingestion before you operate it</h1>
+    <p class="lede">Read the current path, learn where familiar queue assumptions fail, run one event locally, and finish with the questions worth asking on your first on-call review.</p>
+    <div class="doc-meta" aria-label="Onboarding metadata"><span><strong>Audience:</strong> incoming platform engineer</span><span><strong>Environment:</strong> local only</span><span><strong>Owner:</strong> Platform</span><span><strong>Outcome:</strong> explain, run, verify</span></div>
+  </header>
+
+  <nav class="toc" aria-label="Onboarding contents"><p class="component-label">Learning path</p><ol><li><a href="#model">The working model</a></li><li><a href="#boundaries">Boundaries that matter</a></li><li><a href="#read">Read the request path</a></li><li><a href="#run">Run one event</a></li><li><a href="#ready">Prove readiness</a></li></ol></nav>
+
+  <section class="section" id="model">
+    <div class="section-head"><span class="section-num">01</span><h2>The working model</h2><span class="reading-time">8 min</span></div>
+    <p>Northwind Ingestion is an internal acceptance and landing path. Producers send events to the gateway; one shared queue buffers them; consumers validate and write them to the warehouse.</p>
+    <div class="keypoint"><p><strong>Carry this sentence:</strong> the current queue is both the buffer and the failure boundary for every first-party producer.</p></div>
+    <div class="system-map diagram-scroll"><svg role="img" aria-labelledby="arch-title arch-desc" viewBox="0 0 720 340" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+  <title id="arch-title">Ingestion architecture</title>
+  <desc id="arch-desc">Producers enter through a gateway inside the trust boundary, buffer in a queue, and are consumed into the warehouse. The queue is the only component without a failover, and it carries the whole ingestion path.</desc>
+
+  <defs>
+    <marker id="arch-arrow" viewBox="0 0 8 8" refX="7" refY="4"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arch-arrow-focal" viewBox="0 0 8 8" refX="7" refY="4"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+    </marker>
+  </defs>
+
+  <!-- boundaries -->
+  <g>
+    <rect x="128" y="56" width="404" height="152" rx="6"
+          fill="none" stroke="var(--rule-strong)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="140" y="76" font-family="var(--sans)" font-size="11" fill="var(--soft)"
+          letter-spacing="0.06em">TRUST BOUNDARY</text>
+  </g>
+
+  <!-- edges (drawn before nodes so line ends sit behind the boxes) -->
+  <path d="M104 132 H 152" fill="none" stroke="var(--muted)" stroke-width="1"
+        marker-end="url(#arch-arrow)"/>
+  <path d="M312 132 H 360" fill="none" stroke="var(--accent)" stroke-width="1.5"
+        marker-end="url(#arch-arrow-focal)"/>
+  <path d="M520 132 H 568" fill="none" stroke="var(--muted)" stroke-width="1"
+        marker-end="url(#arch-arrow)"/>
+
+  <!-- edge labels on a paper-colored backing so the line does not strike through -->
+  <rect x="316" y="116" width="40" height="16" fill="var(--paper)"/>
+  <text x="336" y="128" text-anchor="middle" font-family="var(--sans)"
+        font-size="11" fill="var(--muted)">async</text>
+
+  <!-- nodes -->
+  <g>
+    <rect x="24" y="100" width="80" height="64" rx="6"
+          fill="var(--surface)" stroke="var(--rule)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="64" y="136" text-anchor="middle" font-family="var(--sans)"
+          font-size="13" fill="var(--soft)">Producers</text>
+  </g>
+
+  <g>
+    <rect x="152" y="100" width="160" height="64" rx="6"
+          fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="232" y="130" text-anchor="middle" font-family="var(--sans)"
+          font-size="13" fill="var(--ink)">Gateway</text>
+    <text x="232" y="146" text-anchor="middle" font-family="var(--mono)"
+          font-size="11" fill="var(--muted)">:8443</text>
+  </g>
+
+  <!-- focal node: the one thing the diagram is about -->
+  <g>
+    <rect x="360" y="100" width="160" height="64" rx="6"
+          fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="440" y="130" text-anchor="middle" font-family="var(--sans)"
+          font-size="13" fill="var(--ink)">Queue</text>
+    <text x="440" y="146" text-anchor="middle" font-family="var(--mono)"
+          font-size="11" fill="var(--muted)">single instance</text>
+  </g>
+
+  <g>
+    <rect x="568" y="100" width="128" height="64" rx="6"
+          fill="var(--surface)" stroke="var(--rule)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="632" y="136" text-anchor="middle" font-family="var(--sans)"
+          font-size="13" fill="var(--soft)">Warehouse</text>
+  </g>
+
+  <!-- callout: dashed Bezier leader, no arrowhead. At most two per diagram. -->
+  <g>
+    <path d="M440 100 C 440 72, 456 48, 492 48"
+          fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="500" y="52" font-family="var(--sans)" font-size="12"
+          font-style="italic" fill="var(--ink)">no failover</text>
+  </g>
+
+  <!-- legend: inside the viewBox, or it is lost on export and in print -->
+  <g>
+    <path d="M24 268 H 700" stroke="var(--rule)" stroke-width="1"/>
+    <text x="24" y="292" font-family="var(--mono)" font-size="10"
+          fill="var(--soft)" letter-spacing="0.14em">LEGEND</text>
+    <rect x="104" y="282" width="20" height="12" rx="2" fill="var(--surface)"
+          stroke="var(--rule)" stroke-dasharray="4 3"/>
+    <text x="132" y="292" font-family="var(--sans)" font-size="11" fill="var(--muted)">external</text>
+    <rect x="212" y="282" width="20" height="12" rx="2" fill="var(--accent-tint)" stroke="var(--accent)"/>
+    <text x="240" y="292" font-family="var(--sans)" font-size="11" fill="var(--muted)">focal</text>
+  </g>
+</svg></div>
+    <p>The diagram also shows the proposed dispatcher and split queues. Those components are not production facts yet; they belong to RFC 014.</p>
+  </section>
+
+  <section class="section" id="boundaries">
+    <div class="section-head"><span class="section-num">02</span><h2>Four boundaries that prevent wrong assumptions</h2><span class="reading-time">12 min</span></div>
+    <div class="comparison-grid">
+      <div><p class="component-label">Acceptance</p><h3><code>202</code> is queued, not warehoused</h3><p>Lookup and freshness are later concerns. Do not promise downstream visibility at gateway acceptance time.</p></div>
+      <div><p class="component-label">Identity</p><h3>Event ID is the retry anchor</h3><p>Reuse it. A new ID turns a retry into a second logical event.</p></div>
+      <div><p class="component-label">Ordering</p><h3>Producer-local order is not guaranteed</h3><p>The proposed split does not remove a promise because that promise does not exist today.</p></div>
+      <div><p class="component-label">Rollback</p><h3>Queues are retained, never deleted</h3><p>Cutovers flip traffic. Destructive queue actions are not a rollback strategy.</p></div>
+    </div>
+    <div class="takeaway"><p>If a design or incident response crosses one of these boundaries, stop and open the owning contract or runbook before acting.</p></div>
+  </section>
+
+  <section class="section" id="read">
+    <div class="section-head"><span class="section-num">03</span><h2>Read the request path without running it</h2><span class="reading-time">12 min</span></div>
+    <figure class="specimen"><pre><span class="lang">http</span>POST /events
+X-Request-Id: req_7f3
+
+{"id":"evt_01","type":"checkout.paid"}
+
+202 {"id":"evt_01","status":"accepted"}</pre><figcaption>Follow three values through code: event ID for idempotency, request ID for tracing, and status for caller behavior.</figcaption></figure>
+    <p>Then read configuration in this order: required queue URI, bind address, health endpoints, and alert thresholds. The reference page owns exact keys; onboarding owns the mental path through them.</p>
+  </section>
+
+  <section class="section" id="run">
+    <div class="section-head"><span class="section-num">04</span><h2>Run one event locally</h2><span class="reading-time">15 min</span></div>
+    <ol class="procedure-steps">
+      <li><h3>Run the tests</h3><pre><span class="lang">bash</span>make ingest-test</pre><p class="outcome">Success: contract and consumer tests pass.</p></li>
+      <li><h3>Start the gateway</h3><pre><span class="lang">bash</span>make ingest-run</pre><p class="outcome">Success: the log contains <code>listening</code> on 8443.</p></li>
+      <li><h3>Post the synthetic event</h3><pre><span class="lang">bash</span>curl -k https://127.0.0.1:8443/events \
+  -d '{"id":"evt_learn","type":"onboarding.ping"}'</pre><p class="outcome">Success: <code>202</code> repeats <code>evt_learn</code>.</p></li>
+    </ol>
+  </section>
+
+  <section class="section" id="ready">
+    <div class="section-head"><span class="section-num">05</span><h2>Prove readiness with understanding, not task completion</h2><span class="reading-time">8 min</span></div>
+    <ul><li>Draw the current path and mark its single failure boundary.</li><li>Explain why scaling consumers recovers an incident but does not remove recurrence.</li><li>Name the current and proposed overload responses without mixing them.</li><li>Locate the runbook, API source, RFC, ADR, dashboard, and latest postmortem.</li><li>Ask who can approve shed behavior and where the chaos environment will live.</li></ul>
+    <div class="takeaway"><p><strong>You are ready for the next document when:</strong> you can explain what is current, proposed, unresolved, and safe to change without relying on memory or access to production.</p></div>
+  </section>
+</article>
+
+</body>
+</html>

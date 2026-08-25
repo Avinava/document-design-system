@@ -1,0 +1,131 @@
+<!doctype html>
+<!--
+  How horizon was built — the brand-theme-design exhibit.
+
+  Assemble via scripts/build_examples.py / build_site.py.
+  @@SHOT is the screenshot directory.
+-->
+<html lang="en" data-theme="editorial-coral">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How the Horizon brand was built</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* @@INLINE core/themes/${THEME}.css @@ */
+/* @@INLINE core/base.css @@ */
+
+.shell { max-width: 760px; margin: 0 auto; padding: 48px 32px 80px; }
+.wordmark {
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  color: var(--muted);
+}
+.shot {
+  display: block;
+  margin: 1rem 0;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.shot img { display: block; width: 100%; height: auto; }
+pre {
+  padding: 14px 16px;
+  background: var(--surface-muted);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  font-size: 0.8125rem;
+}
+table { font-size: 0.9375rem; }
+.why { color: var(--muted); font-size: 0.875rem; }
+.step { margin: 2.5rem 0; }
+.step h2 { margin-bottom: 0.5rem; }
+
+/* @@INLINE core/print.css @@ */
+</style>
+</head>
+<body>
+<div class="shell">
+  <p><a class="wordmark" href="index.html">document-design-system</a></p>
+  <p class="eyebrow">brand-theme-design</p>
+  <h1>How the Horizon brand was built</h1>
+  <p>
+    <code>brand-theme-design</code> turns a guide into a theme that satisfies
+    the token contract — and says so when the brand cannot do what was asked.
+    <code>horizon</code> is that process, finished. The proposal wearing it is
+    <a href="proposal-horizon.html">proposal-horizon.html</a>.
+  </p>
+
+  <section class="step" id="input">
+    <h2>1. Input</h2>
+    <p>A fictional brand guide. Hex as text, not sampled from a PNG.</p>
+    <table>
+      <thead>
+        <tr><th>Guide role</th><th>Value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Primary</td><td><code>#0B5FFF</code></td></tr>
+        <tr><td>Ink</td><td><code>#101828</code></td></tr>
+        <tr><td>Slate</td><td><code>#475467</code></td></tr>
+        <tr><td>Cloud</td><td><code>#F2F4F7</code></td></tr>
+        <tr><td>Success / warning / error</td><td><code>#12B76A</code> / <code>#F79009</code> / <code>#F04438</code></td></tr>
+        <tr><td>Display + body</td><td>Söhne (licensed — not redistributed)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="step" id="map">
+    <h2>2. Map</h2>
+    <p>
+      Subtraction first. The primary is accent <em>only</em> because the rest of
+      the palette is neutral. A color used on every surface cannot also mean
+      “look here.”
+    </p>
+    <table>
+      <thead>
+        <tr><th>Token</th><th>Value</th><th>Why</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>--ink</code></td><td><code>#101828</code></td><td class="why">Brand ink is already body text. 16:1 on white.</td></tr>
+        <tr><td><code>--muted</code></td><td><code>#475467</code></td><td class="why">Brand slate. 7.5:1.</td></tr>
+        <tr><td><code>--paper</code></td><td><code>#F9FAFB</code></td><td class="why">Cloud, lifted so surface can sit above it.</td></tr>
+        <tr><td><code>--surface-muted</code></td><td><code>#F2F4F7</code></td><td class="why">Cloud proper, as the recess.</td></tr>
+        <tr><td><code>--accent</code></td><td><code>#0B5FFF</code></td><td class="why">Primary. Qualifies because the brand is otherwise neutral.</td></tr>
+        <tr><td><code>--accent-ink</code></td><td><code>#FFFFFF</code></td><td class="why">4.9:1 on that blue. Would fail on a lighter blue.</td></tr>
+        <tr><td>Status</td><td>darkened brand values</td><td class="why">Logo green/orange/red fail as text on <code>--surface</code>. Remedy 2: hold hue, shift lightness.</td></tr>
+        <tr><td>Type</td><td>Inter, not Söhne</td><td class="why">Söhne is licensed. Inter is close in metrics.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="step" id="audit">
+    <h2>3. Audit</h2>
+    <p>Do not eyeball contrast. The auditor is the part that matters.</p>
+    <pre>python3 scripts/audit_theme.py core/themes/horizon.css</pre>
+    <p>
+      The call we actually made: brand success <code>#12B76A</code>, warning
+      <code>#F79009</code>, and error <code>#F04438</code> were darkened until
+      they cleared on white. The accent itself passed. Source:
+      <code>core/themes/horizon.css</code>.
+    </p>
+  </section>
+
+  <section class="step" id="output">
+    <h2>4. Output</h2>
+    <p>
+      The same proposal as <a href="proposal.html">executive-navy</a> (the
+      system's board voice) and <a href="proposal-coral.html">editorial-coral</a>.
+      Only <code>data-theme</code> changed. This is the one you send.
+    </p>
+    <a class="shot" href="proposal-horizon.html">
+      <img alt="Proposal wearing the Horizon client brand" src="@@SHOT/proposal-horizon.png" width="1280" height="800">
+    </a>
+    <p><a href="proposal-horizon.html">Open the Horizon proposal</a> · <a href="themes-light.html">See it beside the other voices</a></p>
+  </section>
+</div>
+</body>
+</html>

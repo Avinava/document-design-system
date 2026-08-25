@@ -1,0 +1,71 @@
+<article class="doc">
+  <header class="doc-hero">
+    <p class="eyebrow">Incident review · INC-2026-07-30</p>
+    <h1>One full queue stopped every ingestion producer</h1>
+    <p class="lede">For 1 hour 52 minutes, a single saturated queue turned local backpressure into a platform-wide halt. Consumer scaling restored service; it did not remove the failure mode.</p>
+    <div class="doc-meta" aria-label="Incident metadata">
+      <span><strong>Status:</strong> Final</span>
+      <span><strong>Window:</strong> 2026-07-30 14:12–16:04 UTC</span>
+      <span><strong>Owner:</strong> Platform</span>
+      <span><strong>Severity:</strong> SEV-1</span>
+    </div>
+  </header>
+
+  <section aria-labelledby="impact">
+    <p class="component-label" id="impact">Impact at a glance</p>
+    <div class="impact-strip">
+      <div><span class="impact-value">1h 52m</span><span class="impact-label">producer disruption</span></div>
+      <div><span class="impact-value">118 min</span><span class="impact-label">peak warehouse lag</span></div>
+      <div><span class="impact-value">3</span><span class="impact-label">producer domains affected</span></div>
+    </div>
+    <p>Checkout, Catalog, and Inventory returned <code>503</code> or blocked while the gateway waited on the queue. No events were corrupted; freshness and acceptance were unavailable.</p>
+    <p class="evidence">Verified from pager timestamps, gateway 5xx counts, queue depth, and warehouse freshness for the incident window.</p>
+  </section>
+
+  <section class="section" aria-labelledby="timeline">
+    <div class="section-head"><span class="section-num">01</span><h2 id="timeline">Timeline</h2><span class="reading-time">UTC</span></div>
+    <ol class="timeline">
+      <li><time datetime="2026-07-30T14:12:00Z">14:12</time><div><strong>Detected.</strong> Lag crossed 120 seconds for five minutes; the on-call page fired.</div></li>
+      <li><time datetime="2026-07-30T14:18:00Z">14:18</time><div><strong>Scoped.</strong> Consumers were alive, but queue depth continued to rise faster than drain rate.</div></li>
+      <li><time datetime="2026-07-30T14:31:00Z">14:31</time><div><strong>Mitigated.</strong> The on-call added one consumer replica. Lag flattened briefly, then resumed climbing.</div></li>
+      <li><time datetime="2026-07-30T15:40:00Z">15:40</time><div><strong>Escalated.</strong> Gateway requests began timing out; every producer entered hard failure.</div></li>
+      <li><time datetime="2026-07-30T16:04:00Z">16:04</time><div><strong>Recovered.</strong> A second scale-up drained the queue and producer acceptance returned.</div></li>
+      <li><time datetime="2026-07-30T17:22:00Z">17:22</time><div><strong>Validated.</strong> Warehouse freshness returned below ten minutes and no replay gap remained.</div></li>
+    </ol>
+  </section>
+
+  <section class="section" aria-labelledby="cause">
+    <div class="section-head"><span class="section-num">02</span><h2 id="cause">Cause, not symptom</h2><span class="reading-time">3 links</span></div>
+    <div class="cause-chain">
+      <div><p class="component-label">Trigger</p><h3>Burst exceeded drain rate</h3><p>Checkout traffic rose while one consumer was recycling.</p></div>
+      <div><p class="component-label">Amplifier</p><h3>One queue held every producer</h3><p>Healthy producers had no independent path or bounded shed behavior.</p></div>
+      <div><p class="component-label">Outcome</p><h3>Backpressure reached the gateway</h3><p>Requests blocked until clients saw timeouts and <code>503</code> responses.</p></div>
+    </div>
+    <div class="keypoint"><p><strong>Root cause:</strong> ingestion had one queue and no failure boundary. Scaling consumers changed recovery time, not the architecture that allowed one queue to stop all producers.</p></div>
+  </section>
+
+  <section class="section" aria-labelledby="response">
+    <div class="section-head"><span class="section-num">03</span><h2 id="response">Response review</h2><span class="reading-time">people + process</span></div>
+    <div class="comparison-grid">
+      <div><p class="component-label">Worked</p><h3>The runbook found the right control</h3><p>The on-call opened the lag dashboard immediately and the documented scale command was safe to repeat.</p></div>
+      <div><p class="component-label">Failed</p><h3>The alert described lag, not blast radius</h3><p>The first page did not say every producer shared the queue, delaying escalation until hard failures began.</p></div>
+    </div>
+    <p>Detection also waited for five minutes above 120 seconds. That protected against noisy pages but consumed most of the buffer before a human could respond.</p>
+  </section>
+
+  <section class="section" aria-labelledby="actions">
+    <div class="section-head"><span class="section-num">04</span><h2 id="actions">Actions that change the next incident</h2><span class="reading-time">owned</span></div>
+    <div class="table-scroll action-register">
+      <table>
+        <caption>Corrective action register</caption>
+        <thead><tr><th scope="col">Action</th><th scope="col">Owner</th><th scope="col">Due</th><th scope="col">Proof</th></tr></thead>
+        <tbody>
+          <tr><td>Split ingestion into two independently recoverable queues</td><td>Platform</td><td>2026-09-30</td><td>Chaos test isolates one failed queue</td></tr>
+          <tr><td>Page at 60 seconds of lag with producer blast radius in the message</td><td>Reliability</td><td>2026-08-21</td><td>Alert fixture and game-day page</td></tr>
+          <tr><td>Add bounded shed counts and retry guidance to the gateway dashboard</td><td>Platform</td><td>2026-09-05</td><td>Dashboard review with producer teams</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="takeaway"><p><strong>Closure condition:</strong> this review closes when the alert and dashboard actions are verified. The architectural action remains tracked by RFC 014 until its isolation test passes.</p></div>
+  </section>
+</article>

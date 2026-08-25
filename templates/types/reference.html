@@ -1,0 +1,52 @@
+<article class="doc">
+  <header class="doc-hero">
+    <p class="eyebrow">Runtime reference · gateway</p>
+    <h1>Gateway configuration and process behavior</h1>
+    <p class="lede">Lookup facts only: required keys, defaults, health paths, exit codes, and the commands that prove the service is configured correctly.</p>
+    <div class="doc-meta" aria-label="Reference metadata">
+      <span><strong>Applies to:</strong> gateway v1</span>
+      <span><strong>Reviewed:</strong> 2026-08-18</span>
+      <span><strong>Source:</strong> deployment manifest + CI</span>
+    </div>
+  </header>
+
+  <div class="contract-layout">
+    <nav class="contract-index" aria-label="Reference sections"><p class="component-label">Lookup</p><ol><li><a href="#configuration">Configuration</a></li><li><a href="#endpoints">Process endpoints</a></li><li><a href="#exit-codes">Exit codes</a></li><li><a href="#validation">Validation</a></li></ol></nav>
+    <div>
+      <section id="configuration">
+        <h2>Configuration keys</h2>
+        <div class="table-scroll"><table><caption>Gateway environment</caption><thead><tr><th scope="col">Key</th><th scope="col">Required</th><th scope="col">Default</th><th scope="col">Meaning</th></tr></thead><tbody>
+          <tr><td><code>INGEST_QUEUE_URI</code></td><td>Yes</td><td>—</td><td>Current queue endpoint; dispatcher URI after RFC 014</td></tr>
+          <tr><td><code>INGEST_GATEWAY_ADDR</code></td><td>No</td><td><code>127.0.0.1:8443</code></td><td>Bind address</td></tr>
+          <tr><td><code>INGEST_SHED_MS</code></td><td>No</td><td><code>200</code></td><td>Maximum proposed dispatcher wait</td></tr>
+          <tr><td><code>INGEST_LOG_LEVEL</code></td><td>No</td><td><code>info</code></td><td><code>debug</code>, <code>info</code>, <code>warn</code>, or <code>error</code></td></tr>
+        </tbody></table></div>
+      </section>
+
+      <section class="section" id="endpoints">
+        <h2>Process endpoints</h2>
+        <div class="endpoint"><span class="http-method">GET</span><div><h3><code>/health/live</code></h3><p>Process is running. Does not prove queue access.</p></div></div>
+        <div class="endpoint"><span class="http-method">GET</span><div><h3><code>/health/ready</code></h3><p>Required configuration is present and the current queue is reachable.</p></div></div>
+        <div class="endpoint"><span class="http-method">GET</span><div><h3><code>/metrics</code></h3><p>Prometheus metrics including request count, enqueue latency, shed count, and errors.</p></div></div>
+      </section>
+
+      <section class="section" id="exit-codes">
+        <h2>Process exit codes</h2>
+        <div class="table-scroll"><table><caption>Stable exits used by deployment automation</caption><thead><tr><th scope="col">Code</th><th scope="col">Meaning</th><th scope="col">Operator response</th></tr></thead><tbody>
+          <tr><td><code>0</code></td><td>Clean shutdown</td><td>None</td></tr>
+          <tr><td><code>2</code></td><td>Required configuration missing</td><td>Check <code>INGEST_QUEUE_URI</code></td></tr>
+          <tr><td><code>3</code></td><td>Bind failed</td><td>Check address and port ownership</td></tr>
+          <tr><td><code>4</code></td><td>Queue unavailable during startup</td><td>Check dependency and readiness policy</td></tr>
+        </tbody></table></div>
+      </section>
+
+      <section class="section" id="validation">
+        <h2>Validation commands</h2>
+        <pre><span class="lang">bash</span>make ingest-test
+make ingest-run
+curl -k https://127.0.0.1:8443/health/ready</pre>
+        <p>Expected readiness response: <code>200</code> with <code>{"status":"ready"}</code>. Procedures, rationale, and incident response live in their owning documents rather than this lookup page.</p>
+      </section>
+    </div>
+  </div>
+</article>

@@ -1,0 +1,64 @@
+<article class="doc">
+  <header class="doc-hero">
+    <p class="eyebrow">Discovery brief · DISC-012</p>
+    <h1>The queue is the failure boundary; faster detection alone will not fix it</h1>
+    <p class="lede">Incident evidence supports changing the architecture, while a one-queue-down test remains the fastest way to validate the proposed split before full build.</p>
+    <div class="doc-meta" aria-label="Discovery metadata">
+      <span><strong>Window:</strong> 2026-07-01–2026-08-18</span>
+      <span><strong>Decision enabled:</strong> go / stop / reframe RFC 014</span>
+      <span><strong>Owner:</strong> Platform</span>
+    </div>
+  </header>
+
+  <div class="doc-grid">
+    <div>
+      <section aria-labelledby="question">
+        <h2 id="question">Question and method</h2>
+        <p>Is the right investment a queue split, better detection, more consumer capacity, or a producer-side change?</p>
+        <p>We reviewed six incidents, the inventory snapshot, gateway and queue telemetry, the current runbook, and short interviews with the three producer teams and Reliability.</p>
+      </section>
+
+      <section class="section" aria-labelledby="evidence">
+        <div class="section-head"><span class="section-num">01</span><h2 id="evidence">Evidence converges on one shared boundary</h2><span class="reading-time">verified</span></div>
+        <ul>
+          <li>Four of six incidents follow the same backpressure-to-gateway chain.</li>
+          <li>Checkout dominates volume, but all three producers fail together.</li>
+          <li>Consumer scaling restores service and has not prevented recurrence.</li>
+          <li>Producers can retry, but the API does not expose a bounded shed signal today.</li>
+        </ul>
+      </section>
+
+      <section class="section" aria-labelledby="opportunities">
+        <div class="section-head"><span class="section-num">02</span><h2 id="opportunities">Opportunities ranked by learning value</h2><span class="reading-time">next tests</span></div>
+        <div class="comparison-grid">
+          <div class="recommended"><p class="component-label">Test first</p><h3>One-queue-down prototype</h3><p>Proves whether the healthy partition continues and exposes rebalance behavior before the full quarter.</p></div>
+          <div><p class="component-label">Do regardless</p><h3>Earlier alert with blast radius</h3><p>Reduces response time but does not change how many producers fail.</p></div>
+          <div><p class="component-label">Insufficient</p><h3>More default consumers</h3><p>Adds cost and buffer while retaining one recovery path.</p></div>
+          <div><p class="component-label">Too broad</p><h3>Producer-specific queues</h3><p>Strong isolation at a larger policy and operations cost than evidence supports.</p></div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="constraints">
+        <div class="section-head"><span class="section-num">03</span><h2 id="constraints">Constraints and unresolved assumptions</h2><span class="reading-time">open</span></div>
+        <ul>
+          <li>The producer API and warehouse schema must remain stable.</li>
+          <li>Reliability has not approved shed-and-alert behavior.</li>
+          <li>Consumer rebalance under one failed queue is not yet observed.</li>
+          <li>Ordering is not guaranteed today and should not enter this change indirectly.</li>
+        </ul>
+      </section>
+    </div>
+
+    <aside class="decision-rail" aria-labelledby="recommendation">
+      <p class="component-label">Recommendation</p>
+      <h2 id="recommendation">Proceed to a bounded prototype</h2>
+      <p>Build the dispatcher and two staging queues, then fail one queue deliberately.</p>
+      <h3>Go if</h3>
+      <p>The healthy queue continues below 200 ms gateway p99 and retries remain deterministic.</p>
+      <h3>Reframe if</h3>
+      <p>Consumer rebalance couples both queues or the gateway cannot bound its wait.</p>
+      <h3>Stop if</h3>
+      <p>Isolation requires a producer or warehouse contract change.</p>
+    </aside>
+  </div>
+</article>

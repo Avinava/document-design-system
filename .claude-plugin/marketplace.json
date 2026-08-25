@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "document-design-system",
-  "description": "Design system for documents — analytical reports, diagrams, charts, decks, and long-form specs as self-contained HTML.",
+  "description": "Design system for documents — analytical reports, diagrams, charts, decks, and eighteen document types, sharing one token contract.",
   "owner": {
     "name": "Avi",
     "url": "https://github.com/Avinava"
@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "document-design-system",
-      "description": "A design system for documents: evidence-led analytical reports, diagrams, charts, decks, and long-form specs — plus guided brand theming — all sharing one semantic token contract and shipping as self-contained HTML that needs no JavaScript to read.",
+      "description": "A design system for documents: evidence-led analytical reports, diagrams, charts, decks, and eighteen prose types — plus guided brand theming — all sharing one semantic token contract. Writing lands as Markdown by default; designed HTML needs no JavaScript to read.",
       "author": {
         "name": "Avi",
         "url": "https://github.com/Avinava"
@@ -21,6 +21,7 @@
         "reports",
         "diagrams",
         "charts",
+        "slides",
         "data-visualization",
         "print",
         "pdf",

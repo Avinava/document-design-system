@@ -1,0 +1,42 @@
+<article class="doc">
+  <header class="doc-hero">
+    <p class="eyebrow">Mule application documentation suite</p>
+    <h1>Northwind partner ingest: start with the map, then open the owning document</h1>
+    <p class="lede">This landing page routes readers to the smallest document that owns their question. It does not duplicate RAML, flow behavior, deployment procedure, or incident response.</p>
+    <div class="doc-meta" aria-label="Suite metadata"><span><strong>Kind:</strong> adaptive suite</span><span><strong>Application:</strong> partner-ingest</span><span><strong>Owner:</strong> Platform</span><span><strong>Reviewed:</strong> 2026-08-18</span></div>
+  </header>
+
+  <section aria-labelledby="orientation">
+    <h2 id="orientation">Two-minute orientation</h2>
+    <p>The application accepts partner events over HTTP, validates them against the RAML contract, transforms them into the Northwind event envelope, and posts them to <code>/events</code>. It does not own warehouse schema, producer identity policy, or ingestion queue topology.</p>
+    <div class="keypoint"><p><strong>Boundary:</strong> partner-specific shape ends at the transformation. Retry and event identity after that point follow the Northwind Events API.</p></div>
+  </section>
+
+  <section class="section" aria-labelledby="map">
+    <div class="section-head"><span class="section-num">01</span><h2 id="map">Documents in this set</h2><span class="reading-time">open by question</span></div>
+    <div class="document-map">
+      <a href="#"><p class="component-label">Start here</p><h3><code>README.md</code></h3><p>Purpose, boundaries, local proof, and links to every owning page.</p></a>
+      <a href="#"><p class="component-label">How it works</p><h3><code>docs/architecture.md</code></h3><p>Listeners, flows, transforms, dependencies, error routes, and trust boundaries.</p></a>
+      <a href="#"><p class="component-label">Wire contract</p><h3><code>docs/api-contract.md</code></h3><p>RAML source, authentication, examples, stable errors, and downstream mapping.</p></a>
+      <a href="#"><p class="component-label">Get productive</p><h3><code>docs/onboarding.md</code></h3><p>Prerequisites, local runtime, one partner fixture, and readiness proof.</p></a>
+      <a href="#"><p class="component-label">Operate</p><h3><code>docs/runbook.md</code></h3><p>Only emitted when the repository contains application-specific operational controls.</p></a>
+      <a href="#"><p class="component-label">Test evidence</p><h3><code>docs/test-report.md</code></h3><p>Only emitted for a named build or release decision, never as a permanent stub.</p></a>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="ownership">
+    <div class="section-head"><span class="section-num">02</span><h2 id="ownership">Ownership and flow inventory</h2><span class="reading-time">current state</span></div>
+    <div class="table-scroll"><table><caption>Application-owned behavior</caption><thead><tr><th scope="col">Flow</th><th scope="col">Trigger</th><th scope="col">Responsibility</th><th scope="col">Failure owner</th></tr></thead><tbody>
+      <tr><td><code>partner-http</code></td><td>Partner POST</td><td>Authenticate, validate RAML, assign request ID</td><td>partner-ingest</td></tr>
+      <tr><td><code>to-northwind-event</code></td><td>Validated message</td><td>Map partner fields to event envelope</td><td>partner-ingest</td></tr>
+      <tr><td><code>publish-event</code></td><td>Mapped event</td><td>Call Northwind <code>POST /events</code> with stable ID</td><td>Shared with Events API</td></tr>
+      <tr><td><code>retry-or-dead-letter</code></td><td>Retryable failure</td><td>Bound retries and preserve identity</td><td>partner-ingest</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="section" aria-labelledby="evidence">
+    <div class="section-head"><span class="section-num">03</span><h2 id="evidence">Evidence and freshness rules</h2><span class="reading-time">trust</span></div>
+    <ol><li>RAML and Mule configuration are the source for listeners, routes, properties, and transformations.</li><li>MUnit results support named test claims; absent tests are not inferred passes.</li><li>Deployment files own environment names and required configuration.</li><li>The Northwind OpenAPI file owns downstream event behavior.</li><li>When evidence conflicts, record the mismatch in the owning document instead of smoothing it over here.</li></ol>
+    <div class="takeaway"><p>Generate only documents supported by real evidence. A short suite with four complete pages is better than a catalog of empty headings.</p></div>
+  </section>
+</article>

@@ -3,6 +3,48 @@
 All notable changes to this project are documented here. Versions refer to the
 `version` field in `.claude-plugin/plugin.json`.
 
+## Unreleased
+
+## 0.2.0
+
+`writing-documents` replaces `longform-document-design`. Eighteen types,
+Markdown by default, eight structural reading patterns, a pattern-first gallery,
+and a fourteen-slide RFC 014 deck.
+
+### Changed
+
+- Replaced the single longform layout with eight structural document patterns:
+  decision, record, contract, procedure, learning, system, incident, and suite.
+  Pattern and theme are independent root attributes.
+- Rewrote all eighteen Markdown and HTML examples against one explicit fact
+  ledger, with parity checks to keep the two formats aligned.
+- Redesigned the homepage and type catalog around reader movement rather than a
+  uniform card grid. GitHub Pages now rebuilds examples from source before
+  assembling and validating the deployable site.
+- Increased tertiary-text contrast across the light themes and moved the
+  field-notes accent from rust to plum so every shipped theme is distinguishable
+  at thumbnail scale. The full theme audit now reports no warnings.
+- **`longform-document-design` is now `writing-documents`.** Markdown in the user's repo is the default. Designed HTML/PDF only when asked. Slash commands: `/document-design-system:<slug>`.
+- Existing RFC/ADR/spec/postmortem/proposal/runbook shapes live as `references/type-<slug>.md`.
+- Plugin and marketplace descriptions name eighteen prose types, not "long-form specs". Writing is Markdown by default.
+
+### Added
+
+- `core/document-patterns.md` and `core/document-patterns.css`, including
+  responsive and print behavior for pattern-specific modules.
+- Lightweight gallery thumbnails, lazy image loading, Pages back-navigation,
+  favicon metadata, and mobile overflow handling.
+- Repository agent guidance and a pattern-first skill routing table, keeping
+  future document changes aligned with the eight-family contract.
+- Types: `api-contract`, `architecture`, `handoff`, `design-handoff`, `discovery`, `test-report`, `onboarding`, `tutorial`, `how-to`, `reference`, `explanation`, `mulesoft`.
+- Shared `evidence.md`, `writing.md`, `output.md`, `suites.md`, `type-index.md`.
+- Gallery: `examples/<slug>.html` + `.md` for every type, rebuilt from `templates/types/`. Shared fiction in `examples/WORLD.md`. Screenshots in `docs/screenshots/<slug>.png`.
+- Document-type gallery page at `examples/index.html`. GitHub Pages workflow deploys `site/` from `scripts/build_site.py`.
+- Richer 14-slide RFC 014 capacity deck: title, agenda, statement, divider, table, metric, chart, diagram, comparison, cost, closing.
+- README skills table links each skill to its `SKILL.md` and a committed example. The type gallery opens with the same six-skill map.
+- GitHub Pages site at https://avinava.github.io/document-design-system/ — homepage covers all six skills; eighteen types live at `/types.html`.
+- `horizon` theme: a client brand from `brand-theme-design`. Same proposal in navy, horizon, and coral. Exhibit at `examples/brand.html`.
+
 ## 0.1.2
 
 Marketplace listing metadata, and validation that the packaging invariants stay true.

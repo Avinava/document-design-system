@@ -8,6 +8,7 @@ Standard library only, so CI needs no install step.
 from __future__ import annotations
 
 import re
+import html as html_lib
 import subprocess
 import sys
 import unittest
@@ -27,9 +28,30 @@ EXPECTED_SKILLS = {
     "analytical-document-design",
     "chart-design",
     "diagram-design",
-    "longform-document-design",
+    "writing-documents",
     "presentation-design",
     "brand-theme-design",
+}
+
+EXPECTED_PATTERNS = {
+    "design-doc": ("field-notes", "decision"),
+    "adr": ("field-notes", "record"),
+    "spec": ("field-notes", "contract"),
+    "api-contract": ("console-violet", "contract"),
+    "architecture": ("field-notes", "system"),
+    "handoff": ("field-notes", "procedure"),
+    "design-handoff": ("editorial-coral", "system"),
+    "discovery": ("field-notes", "decision"),
+    "test-report": ("editorial-coral", "contract"),
+    "postmortem": ("console-violet", "incident"),
+    "proposal": ("executive-navy", "decision"),
+    "runbook": ("console-violet", "procedure"),
+    "onboarding": ("field-notes", "learning"),
+    "tutorial": ("editorial-coral", "learning"),
+    "how-to": ("editorial-coral", "procedure"),
+    "reference": ("console-violet", "contract"),
+    "explanation": ("field-notes", "learning"),
+    "mulesoft": ("field-notes", "suite"),
 }
 
 
@@ -85,6 +107,189 @@ class TestSkills(unittest.TestCase):
                         f"{skill.name}/references/{ref.name} is never referenced "
                         "from SKILL.md, so it will never be loaded",
                     )
+
+
+class TestWritingTypes(unittest.TestCase):
+    def test_type_slugs_match_filenames(self):
+        ref_dir = SKILLS / "writing-documents" / "references"
+        for path in sorted(ref_dir.glob("type-*.md")):
+            if path.name == "type-index.md":
+                continue
+            with self.subTest(ref=path.name):
+                expected = path.name[len("type-") : -len(".md")]
+                text = path.read_text(encoding="utf-8")
+                self.assertIn(f"slug: {expected}", text)
+                self.assertIn("Reader's question", text)
+                self.assertIn(f"/document-design-system:{expected}", text)
+
+    def test_type_index_lists_every_shipped_type(self):
+        ref_dir = SKILLS / "writing-documents" / "references"
+        index = (ref_dir / "type-index.md").read_text(encoding="utf-8")
+        for path in sorted(ref_dir.glob("type-*.md")):
+            if path.name == "type-index.md":
+                continue
+            slug = path.name[len("type-") : -len(".md")]
+            with self.subTest(slug=slug):
+                self.assertIn(f"`{slug}`", index)
+
+    def test_gallery_lists_every_type(self):
+        from build_examples import LONGFORM, TYPE_GALLERY
+
+        listed = {slug for _, _, _, items in TYPE_GALLERY for slug, _ in items}
+        self.assertEqual(listed, set(LONGFORM))
+        index = ROOT / "examples" / "index.html"
+        if index.is_file():
+            text = index.read_text(encoding="utf-8")
+            for slug in LONGFORM:
+                with self.subTest(slug=slug):
+                    self.assertIn(f'href="{slug}.html"', text)
+
+    def test_gallery_covers_every_skill(self):
+        from build_examples import SKILL_GALLERY
+
+        listed = {name for name, *_ in SKILL_GALLERY}
+        self.assertEqual(listed, EXPECTED_SKILLS)
+        index = ROOT / "examples" / "index.html"
+        if index.is_file():
+            text = index.read_text(encoding="utf-8")
+            for name, href, shot, _ in SKILL_GALLERY:
+                with self.subTest(skill=name):
+                    self.assertIn(name, text)
+                    self.assertIn(href, text)
+                    self.assertIn(shot, text)
+
+    def test_example_html_exists_for_every_type(self):
+        ref_dir = SKILLS / "writing-documents" / "references"
+        for path in sorted(ref_dir.glob("type-*.md")):
+            if path.name == "type-index.md":
+                continue
+            slug = path.name[len("type-") : -len(".md")]
+            with self.subTest(slug=slug):
+                self.assertTrue(
+                    (ROOT / "examples" / f"{slug}.html").is_file(),
+                    f"missing examples/{slug}.html",
+                )
+                self.assertTrue(
+                    (ROOT / "templates" / "types" / f"{slug}.html").is_file(),
+                    f"missing templates/types/{slug}.html",
+                )
+                self.assertTrue(
+                    (ROOT / "examples" / f"{slug}.md").is_file(),
+                    f"missing examples/{slug}.md",
+                )
+                self.assertTrue(
+                    (ROOT / "docs" / "screenshots" / f"{slug}.png").is_file(),
+                    f"missing docs/screenshots/{slug}.png",
+                )
+                self.assertTrue(
+                    (ROOT / "docs" / "screenshots" / "thumbs" / f"{slug}.png").is_file(),
+                    f"missing docs/screenshots/thumbs/{slug}.png",
+                )
+
+    def test_command_exists_for_every_type(self):
+        ref_dir = SKILLS / "writing-documents" / "references"
+        commands = ROOT / "commands"
+        for path in sorted(ref_dir.glob("type-*.md")):
+            if path.name == "type-index.md":
+                continue
+            slug = path.name[len("type-") : -len(".md")]
+            with self.subTest(slug=slug):
+                cmd = commands / f"{slug}.md"
+                self.assertTrue(cmd.is_file(), f"missing commands/{slug}.md")
+                body = cmd.read_text(encoding="utf-8")
+                self.assertTrue(body.startswith("---\n"), f"{slug} missing frontmatter")
+                self.assertIn("description:", body)
+                self.assertIn(f"Type slug: {slug}", body)
+                self.assertIn("Markdown", body)
+
+    def test_proposal_variants_share_a_body(self):
+        from build_examples import LONGFORM_VARIANTS
+
+        self.assertIn("proposal-horizon", LONGFORM_VARIANTS)
+        self.assertIn("proposal-coral", LONGFORM_VARIANTS)
+        for out_slug, (body_slug, theme, _) in LONGFORM_VARIANTS.items():
+            with self.subTest(out=out_slug):
+                self.assertEqual(body_slug, "proposal")
+                html = (ROOT / "examples" / f"{out_slug}.html").read_text(
+                    encoding="utf-8"
+                )
+                self.assertIn(f'data-theme="{theme}"', html)
+                self.assertIn('data-pattern="decision"', html)
+                self.assertIn("Two engineers for one quarter", html)
+
+    def test_pattern_contract_is_complete_and_consistent(self):
+        from build_examples import LONGFORM, TYPE_GALLERY
+
+        self.assertEqual(LONGFORM, EXPECTED_PATTERNS)
+        self.assertEqual(
+            {pattern for pattern, *_ in TYPE_GALLERY},
+            {"decision", "record", "contract", "procedure", "learning", "system", "incident", "suite"},
+        )
+        ref_dir = SKILLS / "writing-documents" / "references"
+        for slug, (theme, pattern) in EXPECTED_PATTERNS.items():
+            with self.subTest(slug=slug):
+                ref = (ref_dir / f"type-{slug}.md").read_text(encoding="utf-8")
+                self.assertRegex(ref, rf"(?m)^pattern: {re.escape(pattern)}$")
+                self.assertRegex(ref, rf"(?m)^default-theme: {re.escape(theme)}$")
+                generated = (ROOT / "examples" / f"{slug}.html").read_text(encoding="utf-8")
+                self.assertIn(f'data-pattern="{pattern}"', generated)
+                self.assertIn(f'data-theme="{theme}"', generated)
+
+    def test_every_pattern_uses_its_characteristic_module(self):
+        required = {
+            "decision": "decision-rail",
+            "record": "decision-statement",
+            "contract": "contract-layout",
+            "procedure": "procedure-steps",
+            "learning": "takeaway",
+            "system": "system-map",
+            "incident": "impact-strip",
+            "suite": "document-map",
+        }
+        for slug, (_, pattern) in EXPECTED_PATTERNS.items():
+            with self.subTest(slug=slug, pattern=pattern):
+                body = (ROOT / "templates" / "types" / f"{slug}.html").read_text(encoding="utf-8")
+                self.assertIn(required[pattern], body)
+
+    def test_markdown_and_html_share_titles_and_fact_tokens(self):
+        """The paired formats may compose differently, but not contradict facts."""
+        fact = re.compile(
+            r"(?:\b(?:ADR|RFC|REQ|INC|NWI)-[A-Z0-9-]+\b|"
+            r"/v\d+/[a-z0-9_/{}/-]+|\b\d{4}-\d{2}-\d{2}\b|"
+            r"\b\d+(?:\.\d+)?(?:%|ms|s|m|h|×)\b)",
+            re.I,
+        )
+        for slug in EXPECTED_PATTERNS:
+            with self.subTest(slug=slug):
+                markdown = (ROOT / "examples" / f"{slug}.md").read_text(encoding="utf-8")
+                source = (ROOT / "templates" / "types" / f"{slug}.html").read_text(encoding="utf-8")
+                markdown_title = re.search(r"(?m)^# (.+)$", markdown).group(1).strip()
+                html_title = re.search(r"<h1>(.*?)</h1>", source, re.S).group(1)
+                html_title = html_lib.unescape(re.sub(r"<[^>]+>", "", html_title)).strip()
+                self.assertEqual(markdown_title, html_title)
+                visible = html_lib.unescape(re.sub(r"<[^>]+>", " ", source))
+                missing = sorted({token for token in fact.findall(markdown) if token not in visible})
+                self.assertEqual(missing, [], f"facts present only in Markdown: {missing}")
+
+    def test_pages_site_is_homepage_plus_types(self):
+        result = subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / "build_site.py"), "--check"],
+            capture_output=True,
+            text=True,
+            cwd=str(ROOT),
+        )
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertIn("homepage", result.stdout)
+
+    def test_no_orphan_commands(self):
+        ref_dir = SKILLS / "writing-documents" / "references"
+        types = {
+            p.name[len("type-") : -len(".md")]
+            for p in ref_dir.glob("type-*.md")
+            if p.name != "type-index.md"
+        }
+        commands = {p.stem for p in (ROOT / "commands").glob("*.md")}
+        self.assertEqual(commands, types)
 
 
 class TestPortability(unittest.TestCase):
@@ -192,6 +397,11 @@ class TestTokenContract(unittest.TestCase):
         css = (CORE / "base.css").read_text(encoding="utf-8")
         found = [h for h in re.findall(r"#[0-9a-fA-F]{3,8}\b", css)]
         self.assertEqual(found, [], f"base.css contains color literals: {found}")
+
+    def test_document_pattern_css_has_no_hex(self):
+        css = (CORE / "document-patterns.css").read_text(encoding="utf-8")
+        found = re.findall(r"#[0-9a-fA-F]{3,8}\b", css)
+        self.assertEqual(found, [], f"document-patterns.css contains color literals: {found}")
 
     def test_renderer_aliases_exist(self):
         """render_diagram.mjs maps a renderer's namespace onto --dds-* aliases.

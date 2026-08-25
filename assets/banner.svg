@@ -2,7 +2,7 @@
      viewBox="0 0 960 300" width="960" height="300"
      role="img" aria-labelledby="banner-title banner-desc">
   <title id="banner-title">document-design-system</title>
-  <desc id="banner-desc">Six Claude Code skills over one semantic token contract — analytical reports, diagrams, charts, decks, and long-form specs, produced as self-contained HTML. The panel on the right is a miniature of the system's own output: a ranked bar chart with one focal bar and a limit ledger.</desc>
+  <desc id="banner-desc">Six Claude Code skills over one semantic token contract — analytical reports, diagrams, charts, decks, and eighteen document types, produced as self-contained HTML. The panel on the right is a miniature of the system's own output: a ranked bar chart with one focal bar and a limit ledger.</desc>
 
   <!--
     A banner renders inside <img>, which is an isolated document — the page's
@@ -59,7 +59,7 @@
 
   <text class="display ink" x="48" y="112" font-size="36" font-weight="600" letter-spacing="-0.8">document-design-system</text>
 
-  <text class="sans muted" x="48" y="146" font-size="14.5">Analytical reports, diagrams, charts, decks, and long-form specs —</text>
+  <text class="sans muted" x="48" y="146" font-size="14.5">Analytical reports, diagrams, charts, decks, and eighteen types —</text>
   <text class="sans muted" x="48" y="168" font-size="14.5">as self-contained HTML that needs no JavaScript to read.</text>
 
   <!-- the six skills, as hairline chips on the 4px grid -->
@@ -82,7 +82,7 @@
 
     <rect x="400" y="200" width="80" height="24" rx="4" class="surface"/>
     <rect x="400" y="200" width="80" height="24" rx="4" fill="none" class="rule" stroke-width="1"/>
-    <text x="440" y="215.5" class="muted" text-anchor="middle">long-form</text>
+    <text x="440" y="215.5" class="muted" text-anchor="middle">writing</text>
 
     <rect x="488" y="200" width="80" height="24" rx="4" class="surface"/>
     <rect x="488" y="200" width="80" height="24" rx="4" fill="none" class="rule" stroke-width="1"/>

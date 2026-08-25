@@ -1,0 +1,40 @@
+<article class="doc">
+  <header class="doc-hero">
+    <p class="eyebrow">Operational runbook · RB-INGEST-01</p>
+    <h1>Recover when ingestion queue lag keeps climbing</h1>
+    <p class="lede">Use this procedure after <code>ingest_lag_seconds</code> exceeds 120 for five minutes or producers report blocked or failed event acceptance.</p>
+    <div class="doc-meta" aria-label="Runbook metadata">
+      <span><strong>Owner:</strong> Platform</span>
+      <span><strong>Reviewed:</strong> 2026-08-18</span>
+      <span><strong>Maximum local change:</strong> +1 replica</span>
+      <span><strong>Escalate at:</strong> 15 minutes</span>
+    </div>
+  </header>
+
+  <section aria-labelledby="before">
+    <h2 id="before">Before changing anything</h2>
+    <ul><li>Confirm access to the <code>ingest</code> namespace and the <em>Ingestion / lag</em> dashboard.</li><li>Start an incident note with the page time, current lag, queue depth, replica count, and request p99.</li><li>Do not restart the gateway or delete a queue.</li></ul>
+  </section>
+
+  <section class="section" aria-labelledby="steps">
+    <div class="section-head"><span class="section-num">01</span><h2 id="steps">Recovery procedure</h2><span class="reading-time">target: 15 min</span></div>
+    <ol class="procedure-steps">
+      <li><h3>Name the failing boundary</h3><p>Open the lag dashboard and identify the queue whose lag is rising. On the current system this is <code>ingest</code>; after RFC 014 it is <code>ingest-a</code> or <code>ingest-b</code>.</p><p class="outcome"><strong>Success:</strong> the incident note names one queue, current lag slope, and affected producers.</p></li>
+      <li><h3>Check consumer health before scaling</h3><p>Inspect ready replicas and restart count. If any consumer is crash-looping, do not scale around it; go directly to escalation.</p><pre><span class="lang">bash</span>kubectl -n ingest get deploy/ingest-consumer
+kubectl -n ingest get pods -l app=ingest-consumer</pre><p class="outcome"><strong>Success:</strong> all current replicas are ready and restart count is stable.</p></li>
+      <li><h3>Add one consumer replica</h3><p>Increase the deployment by exactly one replica. Do not exceed six total replicas without Reliability approval.</p><pre><span class="lang">bash</span>kubectl -n ingest scale deploy/ingest-consumer \
+  --replicas=$((CURRENT_REPLICAS + 1))</pre><p class="outcome"><strong>Success:</strong> the new replica becomes ready and lag slope flattens within three minutes.</p></li>
+      <li><h3>Observe, then choose</h3><p>Watch lag, queue depth, gateway p99, and consumer errors for three minutes.</p><div class="checkpoint"><p><strong>If lag falls:</strong> continue to verification. <strong>If lag is flat:</strong> observe for two more minutes. <strong>If lag rises or a consumer crashes:</strong> escalate.</p></div></li>
+    </ol>
+  </section>
+
+  <section class="section" aria-labelledby="close">
+    <div class="section-head"><span class="section-num">02</span><h2 id="close">Verify, rollback, or escalate</h2><span class="reading-time">decision</span></div>
+    <div class="response-band">
+      <div><p class="component-label">Verify</p><h3>Close only on sustained recovery</h3><p>Lag falls for ten minutes and <code>POST /events</code> p99 remains below 200 ms.</p></div>
+      <div><p class="component-label">Rollback</p><h3>Remove the added replica</h3><p>Return to the previous count if the new replica causes errors. Never delete queues.</p></div>
+      <div><p class="component-label">Escalate</p><h3>Stop local changes</h3><p>After 15 minutes, any crash loop, or rising 5xx: page Platform primary and Reliability.</p></div>
+    </div>
+    <div class="takeaway"><p>Record the final replica count, recovery time, peak lag, and whether the documented control changed the slope. Link the incident note before handing back.</p></div>
+  </section>
+</article>

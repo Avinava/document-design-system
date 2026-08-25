@@ -27,7 +27,7 @@
    * readable; do not use low contrast merely to look refined. */
   --ink: #23262b;            /* TODO: brand primary text */
   --muted: #55595f;          /* TODO: brand secondary text */
-  --soft: #83878d;           /* TODO: brand tertiary/metadata text */
+  --soft: #6b6f75;           /* TODO: brand tertiary/metadata text */
 
   /* --- Structure ------------------------------------------------------
    * Hierarchy comes from these plus spacing — not from shadows. */
@@ -37,8 +37,8 @@
   /* --- Accent ---------------------------------------------------------
    * ONE accent. This is the focal signal, not the brand's whole palette.
    * --accent-ink must be readable on --accent. */
-  --accent: #4a5568;         /* TODO: brand primary accent */
-  --accent-tint: rgba(74, 85, 104, 0.10); /* TODO: same hue at ~10% */
+  --accent: #714c83;         /* TODO: brand primary accent */
+  --accent-tint: rgba(113, 76, 131, 0.10); /* TODO: same hue at ~10% */
   --accent-ink: #ffffff;     /* TODO: text color on --accent */
 
   /* --- Status ---------------------------------------------------------

@@ -1,0 +1,31 @@
+<article class="doc">
+  <header class="doc-hero">
+    <p class="eyebrow">How-to · producer recovery</p>
+    <h1>Replay a shed event without creating a duplicate</h1>
+    <p class="lede">Use the original event ID, confirm it did not already land, and retry only when the response marks the failure as retryable.</p>
+    <div class="doc-meta" aria-label="How-to metadata"><span><strong>Audience:</strong> producer engineers</span><span><strong>Time:</strong> 10 minutes</span><span><strong>Applies after:</strong> RFC 014 shed behavior ships</span></div>
+  </header>
+
+  <section aria-labelledby="before">
+    <h2 id="before">Before you start</h2>
+    <ul><li>You have the event ID and request ID from the original response.</li><li>The response code is <code>INGEST_SHED</code> with <code>retryable: true</code>.</li><li>You have not changed the payload. A corrected invalid payload is a new operation, not this replay.</li></ul>
+    <div class="danger"><p><strong>Do not invent a new ID.</strong> A new ID bypasses the idempotency rule and may create a second warehouse row.</p></div>
+  </section>
+
+  <section class="section" aria-labelledby="steps">
+    <div class="section-head"><span class="section-num">01</span><h2 id="steps">Replay procedure</h2><span class="reading-time">4 steps</span></div>
+    <ol class="procedure-steps">
+      <li><h3>Check whether the event already landed</h3><pre><span class="lang">bash</span>curl -s https://api.example.invalid/events/evt_02</pre><p class="outcome"><strong>Continue only if:</strong> the response is <code>404</code>. A <code>200</code> means the original attempt succeeded.</p></li>
+      <li><h3>Wait for the retry window</h3><p>Use bounded exponential backoff from the producer policy. Do not loop immediately against an unavailable partition.</p></li>
+      <li><h3>Resend the unchanged event</h3><pre><span class="lang">bash</span>curl -X POST https://api.example.invalid/events \
+  -H 'X-Request-Id: req_replay_01' \
+  -d '{"id":"evt_02","type":"checkout.paid"}'</pre><p class="outcome"><strong>Expected:</strong> <code>202</code> with status <code>accepted</code>.</p></li>
+      <li><h3>Verify by ID</h3><p>Repeat the lookup until it returns one event. Stop after the producer policy’s maximum attempts and escalate rather than changing identity.</p></li>
+    </ol>
+  </section>
+
+  <section class="section" aria-labelledby="done">
+    <div class="section-head"><span class="section-num">02</span><h2 id="done">You are done when</h2><span class="reading-time">success</span></div>
+    <div class="takeaway"><p>The lookup returns exactly one event with <code>id=evt_02</code>, the replay response is recorded with its request ID, and the producer’s shed counter does not increase again for that attempt.</p></div>
+  </section>
+</article>

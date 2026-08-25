@@ -1,0 +1,54 @@
+<article class="doc">
+  <header class="doc-hero">
+    <p class="eyebrow">Design handoff · operator overview</p>
+    <h1>Show whether ingestion is healthy without requiring dashboard archaeology</h1>
+    <p class="lede">Build a read-only overview that names the current state, exposes queue lag and shed behavior, and routes operators to the existing runbook rather than inventing control UI.</p>
+    <div class="doc-meta" aria-label="Design handoff metadata"><span><strong>For:</strong> Platform UI</span><span><strong>File:</strong> operator-overview</span><span><strong>As of:</strong> 2026-08-18</span><span><strong>Owner:</strong> Platform</span></div>
+  </header>
+
+  <section aria-labelledby="flow">
+    <h2 id="flow">Primary user flow</h2>
+    <ol><li>Open the overview from the on-call page.</li><li>Read the global written status and last refresh time.</li><li>Identify the queue with rising lag or shed count.</li><li>Open the existing runbook; do not operate the service from this page.</li></ol>
+  </section>
+
+  <section class="section" aria-labelledby="anatomy">
+    <div class="section-head"><span class="section-num">01</span><h2 id="anatomy">Screen anatomy</h2><span class="reading-time">desktop + mobile</span></div>
+    <div class="system-map">
+      <div class="state-grid">
+        <div><p class="component-label">Global status</p><h3>Degraded — queue B unavailable</h3><p>Written label, last updated time, environment, and active incident link.</p></div>
+        <div><p class="component-label">Queue A</p><h3>Healthy · 24s lag</h3><p>Lag, depth, shed count, last event, and trend description.</p></div>
+        <div><p class="component-label">Queue B</p><h3>Unavailable · 184 sheds</h3><p>Error text plus the time the state began; never color alone.</p></div>
+        <div><p class="component-label">Next action</p><h3>Open queue-lag runbook</h3><p>One link. No scale, restart, or destructive control on this surface.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="states">
+    <div class="section-head"><span class="section-num">02</span><h2 id="states">Required states</h2><span class="reading-time">acceptance</span></div>
+    <div class="state-grid">
+      <div><h3>Happy</h3><p>All queues written as healthy; lag and shed values visible.</p></div>
+      <div><h3>Idle</h3><p>No recent events; explain that zero traffic is not a failure.</p></div>
+      <div><h3>Loading</h3><p>Reserve layout and announce refresh without presenting stale values as current.</p></div>
+      <div><h3>Partial data</h3><p>Show available queues and name the missing source.</p></div>
+      <div><h3>Error</h3><p>Written failure, last known update, retry behavior, and runbook link.</p></div>
+      <div><h3>Recovered</h3><p>Success label with recovery time; avoid celebratory animation during incidents.</p></div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="components">
+    <div class="section-head"><span class="section-num">03</span><h2 id="components">Components and interaction</h2><span class="reading-time">system-first</span></div>
+    <div class="table-scroll"><table><caption>Component contract</caption><thead><tr><th scope="col">Component</th><th scope="col">Use</th><th scope="col">Do not add</th></tr></thead><tbody>
+      <tr><td>Status banner</td><td>Global written state, environment, refresh time</td><td>Color-only state</td></tr>
+      <tr><td>Queue card</td><td>Lag, depth, shed, last event, written trend</td><td>Custom charts or hidden hover facts</td></tr>
+      <tr><td>Runbook link</td><td>Primary recovery action</td><td>Inline operational controls</td></tr>
+      <tr><td>Incident link</td><td>Visible only when an active incident exists</td><td>Automatic incident creation</td></tr>
+    </tbody></table></div>
+    <p>Refresh every 15 seconds. Preserve keyboard focus across refresh. The tab order follows global status, queue cards, runbook, then incident link.</p>
+  </section>
+
+  <section class="section" aria-labelledby="responsive">
+    <div class="section-head"><span class="section-num">04</span><h2 id="responsive">Responsive, content, and accessibility rules</h2><span class="reading-time">non-negotiable</span></div>
+    <ul><li>Desktop uses a two-column queue grid; mobile uses one column in the same information order.</li><li>Never truncate queue names, status labels, timestamps, or error messages.</li><li>Announce status changes through a polite live region; do not announce every unchanged refresh.</li><li>Meet AA contrast and keep visible focus on every link.</li><li>Use real headings and lists; cards do not replace document structure.</li></ul>
+    <div class="takeaway"><p><strong>Acceptance:</strong> all six states render at 390 and 1440 pixels, status survives grayscale, keyboard order is stable during refresh, and every failure path still exposes the runbook link.</p></div>
+  </section>
+</article>

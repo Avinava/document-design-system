@@ -1,0 +1,820 @@
+<!doctype html>
+<!-- Pattern-first type gallery. Assemble with scripts/build_examples.py. -->
+<html lang="en" data-theme="field-notes">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Document patterns and types — document-design-system</title>
+<link rel="icon" href="assets/banner.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ---- inlined from core/themes/field-notes.css ---- */
+/* field-notes — research findings, audits, operational workshops.
+ *
+ * Tactile but still professional. Warm paper, near-zero radii, a plum accent.
+ *
+ * This theme may use a very subtle paper texture, but only when requested.
+ * Texture must disappear in print and must never reduce contrast.
+ *
+ * Fonts: Source Sans 3 (display + sans), Source Code Pro (mono).
+ */
+
+[data-theme="field-notes"] {
+  --paper: #f4f0e7;
+  --surface: #fffdf7;
+  --surface-muted: #ebe5d8;
+
+  --ink: #28312d;
+  --muted: #59665f;
+  --soft: #65716a;
+
+  --rule: rgba(40, 49, 45, 0.14);
+  --rule-strong: rgba(40, 49, 45, 0.34);
+
+  --accent: #864b72;
+  --accent-tint: rgba(134, 75, 114, 0.10);
+  --accent-ink: #ffffff;
+
+  --positive: #46725a;
+  --warning: #9a681d;
+  --critical: #9b4343;
+
+  --method-bg: #28312d;
+  --method-ink: #f4f0e7;
+  --method-muted: #c7cec8;
+
+  --display: 'Source Sans 3', 'Manrope', system-ui, sans-serif;
+  --sans: 'Source Sans 3', 'Geist', system-ui, sans-serif;
+  --mono: 'Source Code Pro', 'Geist Mono', ui-monospace, monospace;
+
+  --radius-sm: 0;
+  --radius-md: 2px;
+}
+/* ---- inlined from core/base.css ---- */
+/* base.css — component-to-token mapping.
+ *
+ * This file contains NO color literals. Every visual decision resolves through
+ * a token defined in core/themes/. That is what makes theme swapping, print
+ * normalization, and grayscale survival work without editing components.
+ *
+ * Load order matters:
+ *   1. a theme from core/themes/
+ *   2. this file
+ *   3. core/print.css   (last, so its overrides beat responsive rules)
+ */
+
+/* ---------------------------------------------------------------- reset */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ----------------------------------------------------------- derived */
+
+/* Derived from the base tokens so themes do not have to restate them.
+ * If color-mix() is unavailable in a target environment, define
+ * --comparison-fill and --track-fill explicitly in the theme instead.
+ *
+ * Declared on [data-theme] as well as :root so they re-derive at every theme
+ * boundary. Defined on :root alone they would resolve once, against the root
+ * theme, and a nested [data-theme="…"] section would keep the root's greys
+ * while everything around them changed — a subtle wrong that only shows up
+ * when two themes appear on one page. */
+:root,
+[data-theme] {
+  --comparison-fill: color-mix(in srgb, var(--muted) 16%, transparent);
+  --track-fill: color-mix(in srgb, var(--muted) 10%, transparent);
+}
+
+/* --- token aliases for embedded renderers ---------------------------
+ *
+ * Third-party renderers set their own theme variables on the element they
+ * emit. beautiful-mermaid, for example, writes --accent, --muted, and
+ * --surface onto its <svg> — names this system already uses.
+ *
+ * Emitting `--accent: var(--accent)` on that <svg> would be a self-reference,
+ * which CSS treats as invalid at computed-value time, so the diagram would
+ * lose its colors. Routing through these aliases breaks the cycle: the
+ * renderer writes `--accent: var(--dds-accent)`, and --dds-accent resolves
+ * here, on :root, where there is no collision.
+ *
+ * Add an alias whenever a renderer's namespace overlaps a token name.
+ *
+ * On [data-theme] too, for the same reason as the derived tokens above: a
+ * prerendered diagram inside a scoped theme must resolve against that theme. */
+:root,
+[data-theme] {
+  --dds-paper: var(--paper);
+  --dds-surface: var(--surface);
+  --dds-surface-muted: var(--surface-muted);
+  --dds-ink: var(--ink);
+  --dds-muted: var(--muted);
+  --dds-soft: var(--soft);
+  --dds-rule: var(--rule);
+  --dds-rule-strong: var(--rule-strong);
+  --dds-accent: var(--accent);
+  --dds-accent-tint: var(--accent-tint);
+}
+
+/* ------------------------------------------------------- typography */
+
+h1, h2, h3,
+.metric-value,
+.focal-value {
+  font-family: var(--display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+h1 { font-size: 2rem; margin: 0 0 0.5rem; }
+h2 { font-size: 1.375rem; margin: 2.5rem 0 0.75rem; }
+h3 { font-size: 1.0625rem; margin: 1.75rem 0 0.5rem; }
+
+p { margin: 0 0 1rem; max-width: 68ch; }
+
+/* Mono is for technical metadata only: dates, versions, identifiers, source
+ * names, compact labels. Body copy in mono is harder to read, not more
+ * credible. */
+.meta,
+.eyebrow,
+time,
+code,
+.identifier,
+.version {
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.01em;
+}
+
+.eyebrow {
+  color: var(--soft);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.subtle { color: var(--muted); }
+
+/* ---------------------------------------------------------- surfaces */
+
+/* Hierarchy comes from borders and spacing, not shadows. */
+.card,
+.table-wrap,
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.375rem;
+}
+
+.chart-frame {
+  background: var(--surface-muted);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+}
+
+.tag {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--rule);
+  padding: 0.125rem 0.4375rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+hr,
+.rule {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 2rem 0;
+}
+
+/* ------------------------------------------------------------ accent */
+
+/* One accent per visual region. Repeating it across every heading and card
+ * destroys the hierarchy it exists to create. */
+.focal-value,
+.focal-label {
+  color: var(--accent);
+}
+
+.accent-surface {
+  background: var(--accent-tint);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+}
+
+.accent-solid {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* ------------------------------------------------------------ status */
+
+/* Color alone never carries meaning — every status element also needs a
+ * written label, so it survives grayscale and color-blind reading. */
+.status-positive { color: var(--positive); }
+.status-warning  { color: var(--warning); }
+.status-critical { color: var(--critical); }
+
+/* ------------------------------------------------------- methodology */
+
+.methodology {
+  background: var(--method-bg);
+  color: var(--method-ink);
+  border-radius: var(--radius-md);
+  padding: 1.5rem 1.625rem;
+}
+
+.methodology h2,
+.methodology h3 { color: var(--method-ink); }
+.methodology .subtle,
+.methodology p { color: var(--method-muted); }
+
+/* ------------------------------------------------------------ tables */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 1px solid var(--rule-strong);
+  padding: 0.5rem 0.625rem;
+}
+
+td {
+  border-bottom: 1px solid var(--rule);
+  padding: 0.5rem 0.625rem;
+}
+
+/* Numbers align right and use tabular figures so columns scan vertically. */
+.num,
+td.num,
+th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+tbody tr:nth-child(even) { background: var(--surface-muted); }
+
+/* On small screens, let wide tables scroll rather than crushing columns.
+ * core/print.css unsets this — a scroll container clips in print. */
+.table-scroll,
+.diagram-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* -------------------------------------------------------------- SVG */
+
+/* Charts and diagrams style through these classes rather than through
+ * presentation attributes, so one stylesheet retheme reaches every figure. */
+.bar-focal      { fill: var(--accent-tint); stroke: var(--accent); }
+.bar-comparison { fill: var(--comparison-fill); stroke: var(--muted); }
+.track          { fill: var(--track-fill); }
+.axis-line      { stroke: var(--rule-strong); }
+.grid-line      { stroke: var(--rule); }
+.chart-label    { fill: var(--muted); font-family: var(--sans); font-size: 12px; }
+.chart-value    { fill: var(--ink); font-family: var(--sans); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+svg { max-width: 100%; height: auto; }
+
+/* --------------------------------------------------------- utilities */
+
+.print-only { display: none; }
+
+a { color: inherit; text-underline-offset: 2px; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.skip-link { position: absolute; left: -9999px; }
+.skip-link:focus { left: 1rem; top: 1rem; z-index: 10; padding: .6rem .8rem; background: var(--paper); color: var(--ink); }
+.shell { max-width: 1180px; margin: 0 auto; padding: 32px 32px 80px; }
+.site-nav { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-bottom: 16px; border-bottom: 1px solid var(--rule); }
+.wordmark { color: var(--ink); font: 600 .8125rem/1 var(--mono); text-decoration: none; }
+.site-nav ul { display: flex; gap: 1rem; list-style: none; margin: 0; padding: 0; white-space: nowrap; }
+.site-nav a { color: var(--muted); text-decoration: none; }
+.site-nav a:hover, .site-nav a[aria-current="page"] { color: var(--ink); }
+.gallery-hero { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(260px, .65fr); gap: 3rem; align-items: end; padding: 5rem 0 3rem; }
+.gallery-hero h1 { max-width: 13ch; margin: .3rem 0 1rem; font-size: clamp(2.6rem, 7vw, 5.8rem); letter-spacing: -.055em; line-height: .94; }
+.gallery-hero .lead { max-width: 58ch; color: var(--muted); font-size: 1.15rem; }
+.axis-note { border: 1px solid var(--rule-strong); border-radius: var(--radius-md); padding: 1.25rem; background: var(--surface); }
+.axis-note p { margin: 0 0 .75rem; }
+.axis-note p:last-child { margin-bottom: 0; }
+.axis-note strong { display: inline-block; min-width: 5rem; color: var(--ink); }
+.pattern-jump { display: flex; gap: .5rem; overflow-x: auto; padding: .25rem 0 1.25rem; border-bottom: 1px solid var(--rule); scrollbar-width: thin; }
+.pattern-jump a { flex: 0 0 auto; border: 1px solid var(--rule); border-radius: 999px; padding: .42rem .72rem; color: var(--muted); text-decoration: none; font: 500 .75rem/1 var(--mono); }
+.pattern-jump a:hover { border-color: var(--accent); color: var(--ink); }
+.pattern-section { display: grid; grid-template-columns: minmax(230px, .35fr) minmax(0, 1fr); gap: 2.5rem; padding: 4rem 0; border-bottom: 1px solid var(--rule-strong); scroll-margin-top: 1rem; }
+.pattern-section > header { display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-content: start; position: sticky; top: 1rem; align-self: start; }
+.pattern-index { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: var(--radius-sm); background: var(--accent); color: var(--accent-ink); font: 600 .75rem/1 var(--mono); }
+.pattern-section h2 { margin: .1rem 0 .5rem; font-size: 2rem; }
+.pattern-section header p:last-child { margin: 0; color: var(--muted); }
+.type-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.type-card { display: grid; grid-template-rows: 175px 1fr; min-width: 0; color: inherit; text-decoration: none; background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius-md); overflow: hidden; transition: transform .16s ease, border-color .16s ease; }
+.type-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+.type-card img { display: block; width: 100%; height: 175px; object-fit: cover; object-position: top; background: var(--surface-muted); border-bottom: 1px solid var(--rule); }
+.type-card .pad { padding: .9rem 1rem 1.1rem; }
+.kind, .theme { color: var(--soft); font: 500 .6875rem/1 var(--mono); letter-spacing: .04em; text-transform: uppercase; }
+.theme { float: right; text-transform: none; letter-spacing: 0; }
+.type-card h3 { margin: .45rem 0 0; font-size: 1.03rem; line-height: 1.35; }
+.pattern-record .type-cards, .pattern-incident .type-cards, .pattern-suite .type-cards { grid-template-columns: 1fr; }
+.pattern-record .type-card, .pattern-incident .type-card, .pattern-suite .type-card { grid-template-columns: minmax(240px, .7fr) 1fr; grid-template-rows: minmax(210px, auto); }
+.pattern-record .type-card img, .pattern-incident .type-card img, .pattern-suite .type-card img { height: 100%; border: 0; border-right: 1px solid var(--rule); }
+.pattern-incident { background: var(--surface-muted); margin-inline: -2rem; padding-inline: 2rem; }
+.group { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--rule-strong); }
+.group .lead { color: var(--muted); }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.card { display: block; color: inherit; text-decoration: none; border: 1px solid var(--rule); border-radius: var(--radius-md); overflow: hidden; background: var(--surface); }
+.card img { display: block; width: 100%; height: 130px; object-fit: cover; object-position: top; border-bottom: 1px solid var(--rule); }
+.card .pad { padding: .8rem 1rem 1rem; }
+.card h3 { margin: .35rem 0 0; font-size: .95rem; }
+footer { margin-top: 4rem; color: var(--soft); font: .75rem/1.5 var(--mono); }
+@media (max-width: 760px) {
+  .shell { padding: 20px 16px 48px; }
+  .site-nav { align-items: flex-start; }
+  .site-nav ul { max-width: 68vw; overflow-x: auto; padding-bottom: .4rem; }
+  .gallery-hero { grid-template-columns: 1fr; gap: 1.5rem; padding: 3.5rem 0 2rem; }
+  .gallery-hero h1 { font-size: clamp(2.7rem, 15vw, 4.4rem); }
+  .pattern-section { grid-template-columns: 1fr; gap: 1.25rem; padding: 3rem 0; }
+  .pattern-section > header { position: static; }
+  .type-cards { grid-template-columns: 1fr; }
+  .pattern-record .type-card, .pattern-incident .type-card, .pattern-suite .type-card { grid-template-columns: 1fr; grid-template-rows: 155px 1fr; }
+  .pattern-record .type-card img, .pattern-incident .type-card img, .pattern-suite .type-card img { height: 155px; border-right: 0; border-bottom: 1px solid var(--rule); }
+  .pattern-incident { margin-inline: -1rem; padding-inline: 1rem; }
+}
+/* ---- inlined from core/print.css ---- */
+/* print.css — print and PDF as a distinct output mode.
+ *
+ * Load this LAST. Print rendering can match a narrow-viewport media query, so
+ * without explicit overrides a desktop grid collapses to one column in the PDF.
+ * Placing this after the responsive rules is what prevents that.
+ *
+ * Browser-added headers and footers (URL, date, page number) are controlled by
+ * the print dialog, not by CSS. When a clean PDF matters, tell the user to
+ * disable them. Do not claim CSS suppresses them.
+ */
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 14mm 14mm 16mm;
+  }
+
+  /* --- theme normalization ------------------------------------------
+   * Print normalizes to white paper while keeping theme identity through
+   * ink, rules, and the accent. Dark methodology panels invert so they do
+   * not consume ink or reproduce badly in grayscale. */
+  :root,
+  [data-theme] {
+    --paper: #ffffff;
+    --surface: #ffffff;
+    --surface-muted: #f3f3f3;
+    --method-bg: #ffffff;
+    --method-ink: var(--ink);
+    --method-muted: var(--muted);
+  }
+
+  .methodology {
+    border: 1px solid var(--rule-strong);
+  }
+
+  html {
+    font-size: 10pt;
+    background: #fff;
+  }
+
+  body {
+    min-height: auto;
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* --- layout -------------------------------------------------------- */
+
+  .report-shell,
+  main {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .screen-only,
+  nav,
+  button,
+  [role="navigation"] {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  /* --- fragmentation --------------------------------------------------
+   * Protect small self-contained things. Let big things flow. Setting
+   * break-inside: avoid on every section produces half-empty pages when a
+   * section is taller than one page. */
+
+  h1, h2, h3 {
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+
+  p, li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  .metric-card,
+  .chart,
+  figure,
+  blockquote,
+  .callout,
+  .methodology {
+    break-inside: avoid-page;
+    page-break-inside: avoid;
+  }
+
+  section {
+    break-before: auto;
+  }
+
+  .page-break-before {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    break-after: page;
+    page-break-after: always;
+  }
+
+  /* --- tables ---------------------------------------------------------
+   * Long tables span pages with repeating headers. Never break-inside:
+   * avoid a whole table — it overflows or leaves large gaps. */
+
+  table {
+    width: 100%;
+    min-width: 0;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+  }
+
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
+
+  tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  th, td {
+    padding: 2.2mm 1.6mm;
+  }
+
+  /* --- overflow containers --------------------------------------------
+   * Changing overflow alone does not stop an oversized child clipping. The
+   * min-width reset is the part that actually matters. */
+
+  .table-scroll,
+  .diagram-scroll {
+    overflow: visible;
+  }
+
+  .table-scroll table,
+  .diagram-scroll svg {
+    min-width: 0 !important;
+  }
+
+  svg,
+  img,
+  canvas {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* --- compound components --------------------------------------------
+   * Generic structural rules above can strip padding from compound-class
+   * elements such as <section class="section methodology">. Restore it with
+   * a more specific selector, then check all four insets in the PDF. */
+
+  section.methodology {
+    padding: 18px 20px;
+  }
+
+  /* --- links -----------------------------------------------------------
+   * Append URLs only where the destination matters on paper. Never for
+   * fragment-only or javascript: links. */
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  a.external[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-family: ui-monospace, monospace;
+    font-size: 0.82em;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* US Letter alternative — swap the @page block above when the target
+ * organization requires it:
+ *
+ *   @page { size: Letter portrait; margin: 0.55in 0.55in 0.65in; }
+ *
+ * Do not switch the whole document to landscape because one table is wide.
+ * Simplify the printed columns first, or build a separate landscape appendix.
+ */
+</style>
+</head>
+<body>
+<a class="skip-link" href="#patterns">Skip to patterns</a>
+<div class="shell">
+  <nav class="site-nav" aria-label="Site">
+    <a class="wordmark" href="index.html">document-design-system</a>
+    <ul>
+      <li><a href="inventory-report.html">Report</a></li><li><a href="capacity-deck.html">Deck</a></li><li><a href="gallery-light.html">Figures</a></li><li><a href="#types" aria-current="page">Types</a></li><li><a href="themes-light.html">Themes</a></li><li><a href="brand.html">Brand</a></li><li><a href="https://github.com/Avinava/document-design-system">GitHub</a></li>
+    </ul>
+  </nav>
+  <header class="gallery-hero">
+    <div><p class="eyebrow">Eight reading patterns · eighteen types</p><h1>Different questions need different pages.</h1><p class="lead">A runbook should move like a safe procedure. A postmortem should reveal impact and time. A contract should make exact rules effortless to find. Choose the reading pattern first; choose the visual voice separately.</p></div>
+    <aside class="axis-note" aria-label="Pattern and theme distinction"><p><strong>Pattern</strong> changes structure and reading movement.</p><p><strong>Theme</strong> changes tokens, typography, and visual voice.</p><p>The same pattern can wear any compliant theme.</p></aside>
+  </header>
+  <nav class="pattern-jump" aria-label="Document patterns"><a href="#decision">Decision</a><a href="#record">Record</a><a href="#contract">Contract</a><a href="#procedure">Procedure</a><a href="#learning">Learning</a><a href="#system">System</a><a href="#incident">Incident</a><a href="#suite">Suite</a></nav>
+  <main id="patterns"><section class="pattern-section pattern-decision" id="decision">
+  <header><span class="pattern-index">01</span><div><p class="eyebrow">decision pattern</p><h2>Decision</h2><p>Put the ask and trade-offs before the implementation detail.</p></div></header>
+  <div class="type-cards">
+    <a class="type-card" href="design-doc.html">
+  <img src="../docs/screenshots/thumbs/design-doc.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">design-doc</span><span class="theme">field-notes</span>
+    <h3>Should we do this, and is the approach sound?</h3>
+  </div>
+</a>
+    <a class="type-card" href="discovery.html">
+  <img src="../docs/screenshots/thumbs/discovery.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">discovery</span><span class="theme">field-notes</span>
+    <h3>What did we learn, and should we proceed?</h3>
+  </div>
+</a>
+    <a class="type-card" href="proposal.html">
+  <img src="../docs/screenshots/thumbs/proposal.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">proposal</span><span class="theme">executive-navy</span>
+    <h3>Should I approve this?</h3>
+  </div>
+</a>
+  </div>
+</section>
+<section class="pattern-section pattern-record" id="record">
+  <header><span class="pattern-index">02</span><div><p class="eyebrow">record pattern</p><h2>Record</h2><p>Preserve one settled choice and make its consequences traceable.</p></div></header>
+  <div class="type-cards">
+    <a class="type-card" href="adr.html">
+  <img src="../docs/screenshots/thumbs/adr.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">adr</span><span class="theme">field-notes</span>
+    <h3>Why is it like this?</h3>
+  </div>
+</a>
+  </div>
+</section>
+<section class="pattern-section pattern-contract" id="contract">
+  <header><span class="pattern-index">03</span><div><p class="eyebrow">contract pattern</p><h2>Contract</h2><p>Make exact rules, specimens, and compliance conditions easy to scan.</p></div></header>
+  <div class="type-cards">
+    <a class="type-card" href="spec.html">
+  <img src="../docs/screenshots/thumbs/spec.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">spec</span><span class="theme">field-notes</span>
+    <h3>What exactly must I build, and how do I know I am done?</h3>
+  </div>
+</a>
+    <a class="type-card" href="api-contract.html">
+  <img src="../docs/screenshots/thumbs/api-contract.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">api-contract</span><span class="theme">console-violet</span>
+    <h3>How do I call this correctly, and what happens when I do it wrong?</h3>
+  </div>
+</a>
+    <a class="type-card" href="test-report.html">
+  <img src="../docs/screenshots/thumbs/test-report.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">test-report</span><span class="theme">editorial-coral</span>
+    <h3>Can we ship, on this build?</h3>
+  </div>
+</a>
+    <a class="type-card" href="reference.html">
+  <img src="../docs/screenshots/thumbs/reference.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">reference</span><span class="theme">console-violet</span>
+    <h3>What is the exact fact?</h3>
+  </div>
+</a>
+  </div>
+</section>
+<section class="pattern-section pattern-procedure" id="procedure">
+  <header><span class="pattern-index">04</span><div><p class="eyebrow">procedure pattern</p><h2>Procedure</h2><p>Keep safe execution, verification, and recovery in one visible path.</p></div></header>
+  <div class="type-cards">
+    <a class="type-card" href="handoff.html">
+  <img src="../docs/screenshots/thumbs/handoff.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">handoff</span><span class="theme">field-notes</span>
+    <h3>What do I run, change, and not break after you leave?</h3>
+  </div>
+</a>
+    <a class="type-card" href="how-to.html">
+  <img src="../docs/screenshots/thumbs/how-to.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">how-to</span><span class="theme">editorial-coral</span>
+    <h3>How do I get this job done?</h3>
+  </div>
+</a>
+    <a class="type-card" href="runbook.html">
+  <img src="../docs/screenshots/thumbs/runbook.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">runbook</span><span class="theme">console-violet</span>
+    <h3>What do I do right now?</h3>
+  </div>
+</a>
+  </div>
+</section>
+<section class="pattern-section pattern-learning" id="learning">
+  <header><span class="pattern-index">05</span><div><p class="eyebrow">learning pattern</p><h2>Learning</h2><p>Build understanding through staged context, practice, and checkpoints.</p></div></header>
+  <div class="type-cards">
+    <a class="type-card" href="explanation.html">
+  <img src="../docs/screenshots/thumbs/explanation.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">explanation</span><span class="theme">field-notes</span>
+    <h3>Why is it like this?</h3>
+  </div>
+</a>
+    <a class="type-card" href="onboarding.html">
+  <img src="../docs/screenshots/thumbs/onboarding.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">onboarding</span><span class="theme">field-notes</span>
+    <h3>How do I get it running and prove it works?</h3>
+  </div>
+</a>
+    <a class="type-card" href="tutorial.html">
+  <img src="../docs/screenshots/thumbs/tutorial.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">tutorial</span><span class="theme">editorial-coral</span>
+    <h3>Can I learn this by doing it once?</h3>
+  </div>
+</a>
+  </div>
+</section>
+<section class="pattern-section pattern-system" id="system">
+  <header><span class="pattern-index">06</span><div><p class="eyebrow">system pattern</p><h2>System</h2><p>Use maps, boundaries, interfaces, and states to build a spatial model.</p></div></header>
+  <div class="type-cards">
+    <a class="type-card" href="architecture.html">
+  <img src="../docs/screenshots/thumbs/architecture.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">architecture</span><span class="theme">field-notes</span>
+    <h3>How is it arranged today?</h3>
+  </div>
+</a>
+    <a class="type-card" href="design-handoff.html">
+  <img src="../docs/screenshots/thumbs/design-handoff.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">design-handoff</span><span class="theme">editorial-coral</span>
+    <h3>What do I build, in every state?</h3>
+  </div>
+</a>
+  </div>
+</section>
+<section class="pattern-section pattern-incident" id="incident">
+  <header><span class="pattern-index">07</span><div><p class="eyebrow">incident pattern</p><h2>Incident</h2><p>Lead with impact, reconstruct time, then connect cause to owned action.</p></div></header>
+  <div class="type-cards">
+    <a class="type-card" href="postmortem.html">
+  <img src="../docs/screenshots/thumbs/postmortem.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">postmortem</span><span class="theme">console-violet</span>
+    <h3>What happened, why, and what stops it recurring?</h3>
+  </div>
+</a>
+  </div>
+</section>
+<section class="pattern-section pattern-suite" id="suite">
+  <header><span class="pattern-index">08</span><div><p class="eyebrow">suite pattern</p><h2>Suite</h2><p>Orient readers across a linked set with ownership and freshness visible.</p></div></header>
+  <div class="type-cards">
+    <a class="type-card" href="mulesoft.html">
+  <img src="../docs/screenshots/thumbs/mulesoft.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">mulesoft</span><span class="theme">field-notes</span>
+    <h3>What does this application do, and where is each fact owned?</h3>
+  </div>
+</a>
+  </div>
+</section></main>
+  <section class="group">
+  <h2>Voices</h2>
+  <p class="lead">The same proposal in three themes, then how the client brand was built.</p>
+  <div class="cards">
+    <a class="card" href="proposal.html">
+  <img src="../docs/screenshots/thumbs/proposal.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">proposal</span>
+    <h3>executive-navy — board voice</h3>
+  </div>
+</a>
+    <a class="card" href="proposal-horizon.html">
+  <img src="../docs/screenshots/thumbs/proposal-horizon.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">proposal-horizon</span>
+    <h3>horizon — client brand</h3>
+  </div>
+</a>
+    <a class="card" href="proposal-coral.html">
+  <img src="../docs/screenshots/thumbs/proposal-coral.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">proposal-coral</span>
+    <h3>editorial-coral — default</h3>
+  </div>
+</a>
+    <a class="card" href="brand.html">
+  <img src="../docs/screenshots/thumbs/brand.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">brand</span>
+    <h3>How the Horizon brand was built</h3>
+  </div>
+</a>
+  </div>
+</section>
+  <section class="group">
+  <h2>The skills</h2>
+  <div class="cards">
+    <a class="card" href="inventory-report.html">
+  <img src="../docs/screenshots/thumbs/analytical-report.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">analytical-document-design</span>
+    <h3>Evidence-led reports from structured data</h3>
+  </div>
+</a>
+    <a class="card" href="gallery-light.html">
+  <img src="../docs/screenshots/thumbs/gallery-light.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">diagram-design</span>
+    <h3>Editorial SVG — architecture, sequence, maps</h3>
+  </div>
+</a>
+    <a class="card" href="gallery-light.html">
+  <img src="../docs/screenshots/thumbs/gallery-light.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">chart-design</span>
+    <h3>Honest charts as inline SVG</h3>
+  </div>
+</a>
+    <a class="card" href="capacity-deck.html">
+  <img src="../docs/screenshots/thumbs/deck-title.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">presentation-design</span>
+    <h3>16:9 decks, one idea per slide</h3>
+  </div>
+</a>
+    <a class="card" href="#types">
+  <img src="../docs/screenshots/thumbs/design-doc.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">writing-documents</span>
+    <h3>Eighteen types, Markdown by default</h3>
+  </div>
+</a>
+    <a class="card" href="themes-light.html">
+  <img src="../docs/screenshots/thumbs/themes-light.png" alt="" width="640" height="400" loading="lazy" decoding="async">
+  <div class="pad">
+    <span class="kind">brand-theme-design</span>
+    <h3>A brand in, a theme out</h3>
+  </div>
+</a>
+  </div>
+</section>
+  <footer>Markdown remains canonical. Designed HTML adds the selected pattern and theme, then prints from the same source facts.</footer>
+</div>
+</body>
+</html>

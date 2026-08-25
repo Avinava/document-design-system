@@ -1,0 +1,39 @@
+<article class="doc">
+  <header class="doc-hero">
+    <p class="eyebrow">Tutorial · first successful path</p>
+    <h1>Follow one event from local request to accepted identity</h1>
+    <p class="lede">You will start the local gateway, send one synthetic event, inspect its response, and prove that replaying the same identity does not create a second logical event.</p>
+    <div class="doc-meta" aria-label="Tutorial metadata"><span><strong>Time:</strong> 20 minutes</span><span><strong>Prerequisites:</strong> Go 1.22, Make, Docker</span><span><strong>Production access:</strong> none</span></div>
+  </header>
+
+  <section class="section">
+    <div class="section-head"><span class="section-num">01</span><h2>Start from a known-good build</h2><span class="reading-time">5 min</span></div>
+    <pre><span class="lang">bash</span>make ingest-test</pre>
+    <div class="checkpoint"><p><strong>Checkpoint:</strong> contract and consumer suites pass. If they do not, stop here; the tutorial should not teach around a broken baseline.</p></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><span class="section-num">02</span><h2>Start the local gateway</h2><span class="reading-time">4 min</span></div>
+    <pre><span class="lang">bash</span>make ingest-run</pre>
+    <p>Leave the process running when the log reports <code>listening</code> on port 8443. The local queue is provided by the development stack; no staging credential is required.</p>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><span class="section-num">03</span><h2>Send one synthetic event</h2><span class="reading-time">5 min</span></div>
+    <figure class="specimen"><pre><span class="lang">bash</span>curl -k -i https://127.0.0.1:8443/events \
+  -H 'X-Request-Id: req_tutorial_01' \
+  -d '{"id":"evt_learn","type":"tutorial.ping"}'</pre><figcaption>Use a synthetic type and stable ID so the next step can reason about identity.</figcaption></figure>
+    <div class="checkpoint"><p><strong>Checkpoint:</strong> response is <code>202</code>, echoes the request ID, and returns <code>{"id":"evt_learn","status":"accepted"}</code>.</p></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><span class="section-num">04</span><h2>Repeat the identity and inspect the result</h2><span class="reading-time">4 min</span></div>
+    <p>Run the same request again without changing <code>evt_learn</code>. The service may return the original acceptance or an idempotent acknowledgement, but it must not create a second warehouse row.</p>
+    <p>This is the most important lesson in the tutorial: request retries preserve event identity.</p>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><span class="section-num">05</span><h2>Stop at the lesson boundary</h2><span class="reading-time">2 min</span></div>
+    <div class="takeaway"><p>You can start the local service, send an event, read acceptance correctly, and explain why replay keeps the same ID. Failure recovery, queue partitioning, and production operation belong to the how-to, spec, and runbook.</p></div>
+  </section>
+</article>

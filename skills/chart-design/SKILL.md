@@ -117,7 +117,7 @@ To generate charts from data rather than hand-authoring them, `scripts/render_ch
 plugin your working directory is your own project, not the plugin, so prefix them:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/audit_theme.py" theme.css
+node "${CLAUDE_PLUGIN_ROOT}/scripts/render_chart.mjs" spec.json --out chart.svg
 ```
 
 `${CLAUDE_PLUGIN_ROOT}` is Claude Code's portable reference to the plugin's own

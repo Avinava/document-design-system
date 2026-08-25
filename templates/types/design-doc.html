@@ -1,0 +1,88 @@
+<article class="doc">
+  <header class="doc-hero">
+    <p class="eyebrow">Design document · RFC 014</p>
+    <h1>Split ingestion so one queue cannot stop every producer</h1>
+    <p class="lede">Introduce a stateless dispatcher and two independently recoverable queues while keeping the producer API, event payload, retention, and warehouse unchanged.</p>
+    <div class="doc-meta" aria-label="Document metadata">
+      <span><strong>Status:</strong> Proposed</span>
+      <span><strong>Decision by:</strong> 2026-09-01</span>
+      <span><strong>Owner:</strong> Platform</span>
+      <span><strong>Reviewers:</strong> Reliability, producer teams</span>
+    </div>
+  </header>
+
+  <div class="doc-grid">
+    <div>
+      <section aria-labelledby="summary">
+        <h2 id="summary">The recommendation</h2>
+        <p>Route accepted events through a stateless dispatcher that hashes event ID to <code>ingest-a</code> or <code>ingest-b</code>. Give each queue an independent consumer group and recovery path.</p>
+        <div class="keypoint"><p><strong>Success means degradation, not invisibility.</strong> Losing one queue may reduce throughput and require retries; it must not stop every producer.</p></div>
+      </section>
+
+      <section class="section" aria-labelledby="problem">
+        <div class="section-head"><span class="section-num">01</span><h2 id="problem">The shared queue is a platform-wide failure boundary</h2><span class="reading-time">problem</span></div>
+        <p>Ingestion holds 41% of the included platform footprint, or 1.84M of 2.50M units. Four of the last six incidents began as queue backpressure and ended with Checkout, Catalog, and Inventory unable to accept events.</p>
+        <p class="evidence">Verified from the inventory snapshot and incidents dated 2026-03-14, 2026-04-02, 2026-06-19, and 2026-07-30.</p>
+      </section>
+
+      <section class="section" aria-labelledby="goals">
+        <div class="section-head"><span class="section-num">02</span><h2 id="goals">Goals and boundaries</h2><span class="reading-time">scope</span></div>
+        <ul>
+          <li>Isolate a queue failure to roughly half the event partitions.</li>
+          <li>Recover one path without redeploying producers or the other consumer group.</li>
+          <li>Keep <code>POST /events</code>, authentication, payloads, retention, and warehouse schema stable.</li>
+        </ul>
+        <div class="non-goals"><p><strong>Not in this decision:</strong> replacing queue technology, redesigning the warehouse, changing the batch path, or promising global event ordering.</p></div>
+      </section>
+
+      <section class="section" aria-labelledby="design">
+        <div class="section-head"><span class="section-num">03</span><h2 id="design">Proposed runtime path</h2><span class="reading-time">design</span></div>
+        <div class="system-map diagram-scroll">
+          <!-- @FIG platform-architecture -->
+        </div>
+        <p>The gateway authenticates and validates as it does today. The dispatcher is stateless, hashes the opaque event ID, and writes to exactly one queue. Consumer groups scale and recover independently.</p>
+        <pre><span class="lang">yaml</span>dispatcher:
+  partition_key: event.id
+  routes: [ingest-a, ingest-b]
+  on_queue_unavailable: shed_and_alert
+  max_gateway_wait_ms: 200</pre>
+      </section>
+
+      <section class="section" aria-labelledby="options">
+        <div class="section-head"><span class="section-num">04</span><h2 id="options">Options considered on the same criteria</h2><span class="reading-time">trade-offs</span></div>
+        <div class="comparison-grid">
+          <div><p class="component-label">Keep one queue</p><h3>Lowest change cost</h3><p>Preserves the observed quarterly halt and leaves recovery coupled.</p></div>
+          <div><p class="component-label">Larger queue</p><h3>More buffer, same boundary</h3><p>Changes when saturation arrives, not how much of the platform it stops.</p></div>
+          <div class="recommended"><p class="component-label">Recommended</p><h3>Two partitioned queues</h3><p>Removes the shared recovery path with bounded operational growth.</p></div>
+          <div><p class="component-label">Queue per producer</p><h3>Maximum isolation</h3><p>Multiplies dashboards, policies, and on-call surface by producer count.</p></div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="rollout">
+        <div class="section-head"><span class="section-num">05</span><h2 id="rollout">Rollout and rollback</h2><span class="reading-time">12 weeks</span></div>
+        <ol>
+          <li>Build the dispatcher and deterministic partition tests.</li>
+          <li>Dual-write in staging and shadow-read both new queues for one week.</li>
+          <li>Run the one-queue-down chaos test and verify the healthy path continues.</li>
+          <li>Cut production reads behind a flag; keep the original queue through the observation week.</li>
+        </ol>
+        <p>Rollback flips reads and writes back to <code>ingest</code>. It never deletes the new queues or mutates warehouse data.</p>
+      </section>
+    </div>
+
+    <aside class="decision-rail" aria-labelledby="decision-needed">
+      <p class="component-label">Decision brief</p>
+      <h2 id="decision-needed">Approve two engineers for twelve weeks</h2>
+      <p>The opportunity cost is a one-quarter delay to the catalog backfill.</p>
+      <h3>Guardrails</h3>
+      <ul>
+        <li>No producer API change</li>
+        <li>No warehouse migration</li>
+        <li>One failed queue must not stall the other</li>
+      </ul>
+      <h3>Open before build</h3>
+      <p>Reliability owns the shed-versus-block decision. Platform owns partial-failure rebalance proof.</p>
+      <p><strong>Default without approval:</strong> keep the current single queue and record that choice.</p>
+    </aside>
+  </div>
+</article>

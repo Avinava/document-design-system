@@ -1,0 +1,11 @@
+---
+description: Write first-day onboarding docs as Markdown in the user's repository. Use when invoked as /document-design-system:onboarding. Produce designed HTML or PDF only when asked.
+---
+
+Use the `writing-documents` skill.
+Type slug: onboarding
+Load `references/type-onboarding.md`, `references/writing.md`, `references/evidence.md`.
+Default output is Markdown in the user's project at this type's conventional path.
+Do not assemble HTML, pick a theme, inline CSS, or run build_document.py unless
+the user asked for HTML, PDF, print, or designed output.
+If they did, also load `references/output.md` and `core/`.

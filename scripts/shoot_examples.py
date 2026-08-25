@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Screenshot the built examples into docs/screenshots/ for the README.
 
-    pip install playwright && playwright install chromium
+    pip install playwright pillow && playwright install chromium
     python scripts/build_examples.py
     python scripts/shoot_examples.py
 
-Serves examples/ over localhost rather than using file:// URLs — a file:// page
+Serves the repository root over localhost rather than using file:// URLs — a file:// page
 cannot load the Google Fonts stylesheet consistently, and the screenshots would
-show fallback metrics rather than what a reader sees.
+show fallback metrics rather than what a reader sees. Serving the root also lets
+the type gallery resolve its ../docs/screenshots/thumbs/ previews.
 """
 
 from __future__ import annotations
@@ -31,15 +32,36 @@ PORT = 8931
 # unreadable sliver — the point of these is to show what the system looks like,
 # not to reproduce the whole document.
 SHOTS = {
+    "patterns-gallery": ("index.html", (1280, 900), False),
     "analytical-report": ("inventory-report.html", (1280, 980), False),
     "analytical-report-detail": ("inventory-report.html", (1280, 980), False),
-    "longform-rfc": ("platform-rfc.html", (1280, 980), False),
+    "design-doc": ("design-doc.html", (1280, 980), False),
+    "adr": ("adr.html", (1280, 720), False),
+    "spec": ("spec.html", (1280, 980), False),
+    "api-contract": ("api-contract.html", (1280, 980), False),
+    "architecture": ("architecture.html", (1280, 980), False),
+    "handoff": ("handoff.html", (1280, 980), False),
+    "design-handoff": ("design-handoff.html", (1280, 980), False),
+    "discovery": ("discovery.html", (1280, 980), False),
+    "test-report": ("test-report.html", (1280, 980), False),
+    "postmortem": ("postmortem.html", (1280, 980), False),
+    "proposal": ("proposal.html", (1280, 800), False),
+    "proposal-horizon": ("proposal-horizon.html", (1280, 800), False),
+    "proposal-coral": ("proposal-coral.html", (1280, 800), False),
+    "brand": ("brand.html", (1280, 900), False),
+    "runbook": ("runbook.html", (1280, 980), False),
+    "onboarding": ("onboarding.html", (1280, 900), False),
+    "tutorial": ("tutorial.html", (1280, 900), False),
+    "how-to": ("how-to.html", (1280, 800), False),
+    "reference": ("reference.html", (1280, 800), False),
+    "explanation": ("explanation.html", (1280, 800), False),
+    "mulesoft": ("mulesoft.html", (1280, 900), False),
     # Light/dark pairs, for the README <picture> elements that follow the
     # reader's GitHub theme.
     "gallery-light": ("gallery-light.html", (1280, 1430), True),
     "gallery-dark": ("gallery-dark.html", (1280, 1430), True),
-    "themes-light": ("themes-light.html", (1280, 760), False),
-    "themes-dark": ("themes-dark.html", (1280, 760), False),
+    "themes-light": ("themes-light.html", (1280, 1180), False),
+    "themes-dark": ("themes-dark.html", (1280, 1180), False),
 }
 
 # Scroll offset in CSS pixels, for shots that should show a section further
@@ -52,9 +74,15 @@ SCROLL = {"analytical-report-detail": 1128}
 # deliberately sparse — one idea per slide — so a viewport shot of page one is
 # mostly empty paper and tells a reader nothing about the system.
 SLIDE_SHOTS = {
-    "deck-metric": ("capacity-deck.html", 3),
-    "deck-chart": ("capacity-deck.html", 4),
-    "deck-divider": ("capacity-deck.html", 2),
+    "deck-title": ("capacity-deck.html", 0),
+    "deck-statement": ("capacity-deck.html", 2),
+    "deck-divider": ("capacity-deck.html", 3),
+    "deck-table": ("capacity-deck.html", 4),
+    "deck-metric": ("capacity-deck.html", 5),
+    "deck-chart": ("capacity-deck.html", 6),
+    "deck-diagram": ("capacity-deck.html", 7),
+    "deck-compare": ("capacity-deck.html", 10),
+    "deck-close": ("capacity-deck.html", 13),
 }
 
 
@@ -67,7 +95,7 @@ class QuietHandler(http.server.SimpleHTTPRequestHandler):
 
 
 def serve() -> socketserver.TCPServer:
-    handler = functools.partial(QuietHandler, directory=str(EX))
+    handler = functools.partial(QuietHandler, directory=str(ROOT))
     socketserver.TCPServer.allow_reuse_address = True
     httpd = socketserver.TCPServer(("127.0.0.1", PORT), handler)
     threading.Thread(target=httpd.serve_forever, daemon=True).start()
@@ -75,16 +103,21 @@ def serve() -> socketserver.TCPServer:
 
 
 def main() -> None:
+    only = set(sys.argv[1:]) if len(sys.argv) > 1 else None
+
     try:
         from playwright.sync_api import sync_playwright
+        from PIL import Image, ImageOps
     except ImportError:
         sys.exit(
-            "playwright is not installed.\n"
-            "  pip install playwright && playwright install chromium\n"
-            "It is an authoring-time dependency only."
+            "playwright and Pillow are required.\n"
+            "  pip install playwright pillow && playwright install chromium\n"
+            "They are authoring-time dependencies only."
         )
 
     OUT.mkdir(parents=True, exist_ok=True)
+    thumbs = OUT / "thumbs"
+    thumbs.mkdir(exist_ok=True)
     httpd = serve()
 
     try:
@@ -92,9 +125,11 @@ def main() -> None:
             browser = p.chromium.launch()
 
             for name, (page_file, (w, h), full) in SHOTS.items():
+                if only and name not in only:
+                    continue
                 page = browser.new_page(viewport={"width": w, "height": h},
                                         device_scale_factor=2)
-                page.goto(f"http://127.0.0.1:{PORT}/{page_file}", wait_until="networkidle")
+                page.goto(f"http://127.0.0.1:{PORT}/examples/{page_file}", wait_until="networkidle")
                 # Web fonts render as fallbacks if the shot is taken before they
                 # load, and the result looks subtly wrong in a way that is easy
                 # to miss in a thumbnail.
@@ -105,12 +140,22 @@ def main() -> None:
                 target = OUT / f"{name}.png"
                 page.screenshot(path=str(target), full_page=full)
                 print(f"  {target.relative_to(ROOT)}")
+                with Image.open(target) as source:
+                    thumb = ImageOps.fit(
+                        source.convert("RGB"),
+                        (640, 400),
+                        method=Image.Resampling.LANCZOS,
+                        centering=(0.5, 0.0),
+                    )
+                    thumb.save(thumbs / target.name, optimize=True)
                 page.close()
 
             for name, (page_file, index) in SLIDE_SHOTS.items():
+                if only and name not in only:
+                    continue
                 page = browser.new_page(viewport={"width": 1280, "height": 760},
                                         device_scale_factor=2)
-                page.goto(f"http://127.0.0.1:{PORT}/{page_file}", wait_until="networkidle")
+                page.goto(f"http://127.0.0.1:{PORT}/examples/{page_file}", wait_until="networkidle")
                 page.evaluate("document.fonts.ready")
                 slide = page.locator("section.slide").nth(index)
                 slide.scroll_into_view_if_needed()

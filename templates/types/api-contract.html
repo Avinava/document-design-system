@@ -1,0 +1,64 @@
+<article class="doc">
+  <header class="doc-hero">
+    <p class="eyebrow">API companion · v1</p>
+    <h1>Events API: accept once, identify clearly, retry safely</h1>
+    <p class="lede">Use this page to understand producer behavior. The machine-readable source remains <code>openapi/events.yaml</code>; this companion explains the decisions callers most often get wrong.</p>
+    <div class="doc-meta" aria-label="API metadata">
+      <span><strong>Audience:</strong> producer teams</span>
+      <span><strong>Auth:</strong> mTLS + audience claim</span>
+      <span><strong>Version:</strong> v1</span>
+      <span><strong>Source:</strong> OpenAPI</span>
+    </div>
+  </header>
+
+  <div class="contract-layout">
+    <nav class="contract-index" aria-label="API sections"><p class="component-label">On this page</p><ol><li><a href="#operations">Operations</a></li><li><a href="#conventions">Conventions</a></li><li><a href="#examples">Examples</a></li><li><a href="#errors">Errors</a></li><li><a href="#drift">Known drift</a></li></ol></nav>
+    <div>
+      <section id="operations">
+        <h2>Operations</h2>
+        <div class="endpoint"><span class="http-method">POST</span><div><h3><code>/events</code></h3><p>Validate and accept one event. Returns <code>202</code> with the event ID and acceptance status.</p></div></div>
+        <div class="endpoint"><span class="http-method">GET</span><div><h3><code>/events/{id}</code></h3><p>Look up one event by opaque ID. Returns <code>200</code> or <code>404</code>; this is not a list endpoint.</p></div></div>
+      </section>
+
+      <section class="section" id="conventions">
+        <h2>Caller conventions</h2>
+        <div class="requirement"><span class="requirement-id">Identity</span><div>Send a stable opaque <code>id</code>. Reusing an accepted ID must not create a second warehouse row.</div></div>
+        <div class="requirement"><span class="requirement-id">Trace</span><div>Send <code>X-Request-Id</code>; the service echoes it on every response.</div></div>
+        <div class="requirement"><span class="requirement-id">Retry</span><div>Retry only responses whose body sets <code>retryable: true</code>, using bounded exponential backoff.</div></div>
+        <div class="requirement"><span class="requirement-id">Version</span><div>Breaking changes move to <code>/v2</code>. Adding an optional field is not a breaking change.</div></div>
+      </section>
+
+      <section class="section" id="examples">
+        <h2>Request and response specimens</h2>
+        <figure class="specimen"><pre><span class="lang">http</span>POST /events
+X-Request-Id: req_7f3
+Content-Type: application/json
+
+{"id":"evt_01","type":"checkout.paid"}
+
+202 Accepted
+{"id":"evt_01","status":"accepted"}</pre><figcaption>Acceptance means the event reached the current queue, not that the warehouse has already written it.</figcaption></figure>
+        <figure class="specimen"><pre><span class="lang">http · proposed RFC 014 behavior</span>202 Accepted
+X-Request-Id: req_7f4
+
+{"id":"evt_02","status":"shed",
+ "code":"INGEST_SHED","retryable":true}</pre><figcaption>Retry with backoff. Reuse the same event ID so idempotency and partitioning stay deterministic.</figcaption></figure>
+      </section>
+
+      <section class="section" id="errors">
+        <h2>Error catalog</h2>
+        <div class="table-scroll"><table><caption>Stable error codes</caption><thead><tr><th scope="col">Code</th><th scope="col">Meaning</th><th scope="col">Retry?</th><th scope="col">Caller action</th></tr></thead><tbody>
+          <tr><td><code>INGEST_SHED</code></td><td>Selected queue unavailable</td><td>Yes</td><td>Back off and resend the same ID</td></tr>
+          <tr><td><code>INVALID_EVENT</code></td><td>Envelope failed schema validation</td><td>No</td><td>Correct the payload</td></tr>
+          <tr><td><code>UNAUTHORIZED_PRODUCER</code></td><td>Identity or audience not accepted</td><td>No</td><td>Correct service identity or audience</td></tr>
+        </tbody></table></div>
+      </section>
+
+      <section class="section" id="drift">
+        <h2>Known specification drift</h2>
+        <div class="danger"><p><strong>Not shipped:</strong> OpenAPI and the current implementation still return <code>503</code> on queue overload. The <code>202 + INGEST_SHED</code> specimen is proposed by RFC 014 and must not be treated as current until the source file changes.</p></div>
+        <p>Last companion review: 2026-08-18. The OpenAPI file wins whenever this page disagrees.</p>
+      </section>
+    </div>
+  </div>
+</article>
