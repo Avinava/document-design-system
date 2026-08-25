@@ -98,11 +98,30 @@ The design system cannot rescue unclear writing, and clear writing survives bad 
 
 When format is `html` or `pdf`, `references/output.md` applies in full. Short version:
 
-- Assemble from `templates/longform.html`. Theme on `data-theme` (`field-notes` unless the type file or the user says otherwise).
-- Measure 62–72 characters. One column.
+- Assemble from `templates/longform.html`. The type reference declares the root `data-pattern`; theme stays independently selectable on `data-theme`.
+- Keep prose at 62–72 characters. Let maps, tables, timelines, comparisons, and registers use the wider shell when the pattern calls for them.
 - Diagrams from `diagram-design`; charts from `chart-design`.
 - Print via `core/print.css`. Inspect the PDF; do not claim print support from `@media print` alone.
 - No JavaScript required to read the file.
+
+### Pattern before theme
+
+Pattern answers how the reader moves; theme answers what visual voice they
+hear. Do not use theme changes to simulate structural distinction.
+
+| Pattern | Reading movement | Types |
+|---|---|---|
+| `decision` | ask → options → trade-offs → next move | design-doc, discovery, proposal |
+| `record` | status → settled choice → consequences | adr |
+| `contract` | definitions → rules → specimens → compliance | spec, api-contract, test-report, reference |
+| `procedure` | safety → steps → verification → recovery | handoff, how-to, runbook |
+| `learning` | context → practice → checkpoint → takeaway | explanation, onboarding, tutorial |
+| `system` | map → boundaries → interfaces → states | architecture, design-handoff |
+| `incident` | impact → timeline → cause → owned action | postmortem |
+| `suite` | document map → ownership → freshness | mulesoft |
+
+Use the type reference's default. The full layout and acceptance contract is
+`core/document-patterns.md`.
 
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/build_document.py" \

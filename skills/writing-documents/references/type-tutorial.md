@@ -6,6 +6,8 @@ title: Tutorial
 aliases: [lesson]
 example: examples/tutorial.html
 command: /document-design-system:tutorial
+pattern: learning
+default-theme: editorial-coral
 default-format: markdown
 path: docs/tutorials/
 ```

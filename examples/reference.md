@@ -1,71 +1,43 @@
-Reference
+# Gateway configuration and process behavior
 
-  # Gateway environment
+**Type:** Runtime reference · gateway v1
+**Reviewed:** 2026-08-18
+**Source:** deployment manifest and CI
 
-  
-Keys the gateway reads. Values are never documented here. Structure matches the binary's flag set.
+Lookup facts only: required keys, defaults, health paths, exit codes, and
+validation commands.
 
-  
+## Configuration keys
 
-    
-Gateway configuration keys
+| Key | Required | Default | Meaning |
+|---|---|---|---|
+| `INGEST_QUEUE_URI` | Yes | — | Queue endpoint; dispatcher URI after RFC 014 |
+| `INGEST_GATEWAY_ADDR` | No | `127.0.0.1:8443` | Bind address |
+| `INGEST_SHED_MS` | No | `200` | Proposed dispatcher wait |
+| `INGEST_LOG_LEVEL` | No | `info` | `debug`, `info`, `warn`, or `error` |
 
-    
+## Process endpoints
 
-      
+- `GET /health/live` — process is running; does not prove queue access.
+- `GET /health/ready` — required configuration exists and queue is reachable.
+- `GET /metrics` — request, enqueue, shed, and error metrics.
 
-        
-Key
-
-        
-Required
-
-        
-Meaning
-
-      
-
-    
-
-    
-
-      
-
-`INGEST_QUEUE_URI`
-
-yes
-
-Queue endpoint. Current single queue, or dispatcher later.
-
-      
-
-`INGEST_GATEWAY_ADDR`
-
-no
-
-Bind address. Default `127.0.0.1:8443`.
-
-      
-
-`INGEST_SHED_MS`
-
-no
-
-Max wait before shed. Default 200. Unused until RFC 014.
-
-    
-
-  
-
-  
 ## Process exit codes
 
-  
+| Code | Meaning | Operator response |
+|---:|---|---|
+| `0` | Clean shutdown | None |
+| `2` | Required configuration missing | Check `INGEST_QUEUE_URI` |
+| `3` | Bind failed | Check address and port ownership |
+| `4` | Queue unavailable at startup | Check dependency and readiness policy |
 
-    - 0 — clean shutdown.
-    - 2 — configuration missing (usually INGEST_QUEUE_URI).
-    - 3 — failed to bind INGEST_GATEWAY_ADDR.
-  
+## Validation commands
 
-  
-No getting-started. No opinion about RFC 014. Those live elsewhere.
+```bash
+make ingest-test
+make ingest-run
+curl -k https://127.0.0.1:8443/health/ready
+```
+
+Expected readiness response: `200` with `{"status":"ready"}`. Procedures and
+rationale live in their owning documents.

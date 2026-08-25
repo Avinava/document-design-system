@@ -1,45 +1,57 @@
 <article class="doc">
+  <header class="doc-hero">
+    <p class="eyebrow">Investment proposal</p>
+    <h1>Two engineers for one quarter to remove the shared ingestion failure</h1>
+    <p class="lede">Approve RFC 014 now so the next queue failure degrades throughput instead of stopping Checkout, Catalog, and Inventory together.</p>
+    <div class="doc-meta" aria-label="Proposal metadata">
+      <span><strong>Asked of:</strong> Platform director</span>
+      <span><strong>Decision by:</strong> 2026-09-01</span>
+      <span><strong>Author:</strong> Platform</span>
+    </div>
+  </header>
 
-  <p class="eyebrow">Proposal</p>
-  <h1>Two engineers, one quarter, to split ingestion</h1>
+  <div class="doc-grid">
+    <div>
+      <section aria-labelledby="rationale">
+        <h2 id="rationale">Why fund this now</h2>
+        <p>Four of the last six incidents ended in the same platform-wide halt. Ingestion represents 41% of the measured footprint, and the observed cadence is roughly one repeat per quarter if the boundary does not change.</p>
+        <p class="evidence">Verified from the incident register and 2026-08-12 inventory snapshot.</p>
+      </section>
 
-  <p class="status-banner">
-    <strong>Ask of:</strong> Platform director ·
-    <strong>Needed by:</strong> 2026-09-01 ·
-    <strong>Author:</strong> Platform
-  </p>
+      <section class="section" aria-labelledby="outcome">
+        <div class="section-head"><span class="section-num">01</span><h2 id="outcome">What the quarter buys</h2><span class="reading-time">outcome</span></div>
+        <ul>
+          <li>A stateless dispatcher that partitions accepted events by event ID.</li>
+          <li>Two queues and consumer groups that deploy and recover independently.</li>
+          <li>Dashboards, alerting, runbooks, and a one-queue-down chaos test.</li>
+          <li>A reversible production cutover with the original queue retained through observation.</li>
+        </ul>
+      </section>
 
-  <h2 id="the-ask">The ask</h2>
-  <p>
-    Two engineers for one quarter to ship RFC 014 — split the ingestion queue
-    so a single queue failure degrades throughput instead of stopping ingestion.
-  </p>
+      <section class="section" aria-labelledby="cost">
+        <div class="section-head"><span class="section-num">02</span><h2 id="cost">Cost and opportunity cost</h2><span class="reading-time">12 weeks</span></div>
+        <p>Two engineers for twelve weeks, plus Reliability review during the game day and cutover. The catalog backfill slips one quarter. Ongoing cost is one additional queue, consumer group, and dashboard lane.</p>
+      </section>
 
-  <h2 id="rationale">Rationale</h2>
-  <p>
-    Four of the last six incidents ended as a full ingestion stop. Ingestion is
-    41% of platform footprint. Doing this later, during a worse incident, costs
-    more than a planned quarter.
-  </p>
-  <p class="evidence">Verified: incident list and inventory snapshot in RFC 014.</p>
+      <section class="section" aria-labelledby="alternatives">
+        <div class="section-head"><span class="section-num">03</span><h2 id="alternatives">The alternatives preserve the failure mode</h2><span class="reading-time">options</span></div>
+        <div class="comparison-grid">
+          <div><h3>Do nothing</h3><p>No delivery cost this quarter; accept the observed halt cadence and recovery coupling.</p></div>
+          <div><h3>Increase queue capacity</h3><p>Lower delivery cost, but only delays saturation and leaves every producer behind one boundary.</p></div>
+          <div class="recommended"><h3>Split the path</h3><p>Best balance of isolation, reversibility, and bounded operational growth.</p></div>
+          <div><h3>Queue per producer</h3><p>Stronger isolation, but too much policy and on-call surface for the current producer set.</p></div>
+        </div>
+      </section>
+    </div>
 
-  <h2 id="cost">Cost</h2>
-  <ul>
-    <li>Two engineers, twelve weeks. Opportunity cost: the catalog backfill slips a quarter.</li>
-    <li>Ongoing: one extra queue and consumer group to operate.</li>
-    <li>Hard to quantify: pages we do not take when the next backpressure arrives.</li>
-  </ul>
-
-  <h2 id="alternatives">Alternatives</h2>
-  <ul>
-    <li><strong>Do nothing.</strong> Continue at roughly one halt per quarter.</li>
-    <li><strong>Larger single queue.</strong> Cheaper this quarter; does not remove the failure mode. Rejected in RFC 014.</li>
-  </ul>
-
-  <h2 id="decision-needed">Decision needed</h2>
-  <p>
-    Platform director, by 2026-09-01. If there is no decision, the default is
-    do nothing — which is a choice, and should be recorded as one.
-  </p>
-
+    <aside class="decision-rail" aria-labelledby="ask">
+      <p class="component-label">The ask</p>
+      <h2 id="ask">Approve the staffed quarter</h2>
+      <p><strong>Decision:</strong> fund two Platform engineers from 2026-09-07 through 2026-11-27.</p>
+      <h3>Release gate</h3>
+      <p>One failed queue cannot stall the other, and rollback returns traffic to <code>ingest</code> without data repair.</p>
+      <h3>If declined</h3>
+      <p>Record the current single queue as an accepted risk and keep the 60-second alert action.</p>
+    </aside>
+  </div>
 </article>

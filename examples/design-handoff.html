@@ -8,17 +8,14 @@
       python scripts/build_document.py templates/longform.html \
              --theme field-notes --out document.html
 
-  Prose-first: the measure is 62-72 characters. Full-width text on a wide
-  monitor is the most common readability failure in HTML technical documents.
-
-  Type files own section order. This shell owns tokens, measure, print.
-  Contract-heavy types set data-layout="contract" for a slightly wider shell.
+  Type files own section order and semantic components. This shell owns the
+  theme, document-pattern contract, responsive behavior, and print.
 -->
-<html lang="en" data-theme="editorial-coral">
+<html lang="en" data-theme="editorial-coral" data-pattern="system">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ingestion status — operator view</title>
+<title>Show whether ingestion is healthy without requiring dashboard archaeology</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,7 +39,7 @@
 
   --ink: #2d3142;
   --muted: #4f5d75;
-  --soft: #7a8399;
+  --soft: #687189;
 
   --rule: rgba(45, 49, 66, 0.12);
   --rule-strong: rgba(45, 49, 66, 0.32);
@@ -329,25 +326,97 @@ a { color: inherit; text-underline-offset: 2px; }
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+/* ---- inlined from core/document-patterns.css ---- */
+/* document-patterns.css — structure for prose-first technical documents.
+ *
+ * Themes answer "what voice does this use?" through semantic tokens.
+ * Patterns answer "how should this information be read?" through layout and
+ * component choice. Pattern CSS therefore contains no colour literals.
+ *
+ * Root contract:
+ *   <html data-theme="field-notes" data-pattern="decision">
+ */
 
-/* ---- long-form layout (not part of core) ---- */
+/* ---------------------------------------------------------------- shell */
 
 .doc {
-  max-width: 760px;      /* holds the measure near 68ch */
+  --doc-max: 960px;
+  --content-measure: 68ch;
+  max-width: var(--doc-max);
   margin: 0 auto;
   padding: 48px 32px 80px;
 }
 
-html[data-layout="contract"] .doc {
-  max-width: 880px;
+.doc-hero {
+  border-top: 3px solid var(--accent);
+  padding-top: 1.25rem;
+  margin-bottom: 2.5rem;
 }
 
+.doc-hero h1 {
+  max-width: 24ch;
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  letter-spacing: -0.03em;
+  margin-bottom: 0.75rem;
+}
+
+.doc-hero .lede {
+  max-width: 62ch;
+  color: var(--muted);
+  font-size: 1.125rem;
+}
+
+.doc-meta,
 .status-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 1.25rem;
   border: 1px solid var(--rule-strong);
   border-radius: var(--radius-md);
   padding: 0.75rem 1rem;
-  margin-bottom: 2rem;
-  font-size: 0.9375rem;
+  margin: 1.25rem 0 0;
+  font-size: 0.875rem;
+}
+
+.doc-meta span,
+.status-banner span { white-space: nowrap; }
+
+.doc-meta strong,
+.status-banner strong { font-weight: 600; }
+
+.section {
+  border-top: 1px solid var(--rule-strong);
+  margin-top: 3.5rem;
+  padding-top: 1.5rem;
+}
+
+.section-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.section-head h2 { margin: 0; }
+
+.section-num {
+  display: inline-grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font: 600 0.8125rem/1 var(--mono);
+}
+
+.reading-time,
+.component-label {
+  color: var(--soft);
+  font: 500 0.6875rem/1.3 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .toc {
@@ -355,50 +424,111 @@ html[data-layout="contract"] .doc {
   padding-left: 1.25rem;
   margin: 2rem 0 3rem;
 }
+
 .toc ol { margin: 0; padding-left: 1.25rem; }
-.toc li { margin: 0.25rem 0; }
+.toc li { margin: 0.3rem 0; }
 
-/* Non-goals earn a visual box because it is the section most often skipped
-   and most often the one that prevents a sprawling review. */
-.non-goals {
-  background: var(--surface-muted);
-  border-left: 3px solid var(--accent);
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
-  padding: 1rem 1.25rem;
-}
-
+.keypoint,
+.non-goals,
+.checkpoint,
+.takeaway,
+.danger,
 .verdict {
-  border: 1px solid var(--rule-strong);
+  margin: 1.5rem 0;
+  padding: 1rem 1.2rem;
   border-radius: var(--radius-md);
-  padding: 1rem 1.25rem;
-  margin: 1.5rem 0 2rem;
 }
+
+.keypoint,
+.non-goals {
+  background: var(--accent-tint);
+  border-left: 3px solid var(--accent);
+}
+
+.checkpoint,
+.takeaway,
+.verdict {
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+}
+
+.danger {
+  border: 1px solid var(--critical);
+  border-left: 4px solid var(--critical);
+}
+
+.danger > :first-child,
+.keypoint > :first-child,
+.non-goals > :first-child,
+.checkpoint > :first-child,
+.takeaway > :first-child,
+.verdict > :first-child { margin-top: 0; }
+
+.danger > :last-child,
+.keypoint > :last-child,
+.non-goals > :last-child,
+.checkpoint > :last-child,
+.takeaway > :last-child,
+.verdict > :last-child { margin-bottom: 0; }
 
 .evidence {
-  font-size: 0.8125rem;
   color: var(--soft);
+  font-size: 0.8125rem;
 }
 
 pre {
+  max-width: 100%;
+  overflow-x: auto;
   background: var(--surface-muted);
   border: 1px solid var(--rule);
   border-radius: var(--radius-md);
-  padding: 0.875rem 1rem;
-  overflow-x: auto;
-  font-family: var(--mono);
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
-pre .lang {
-  display: block;
-  font-size: 0.75rem;
-  color: var(--soft);
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  padding: 1rem 1.1rem;
+  font: 0.875rem/1.55 var(--mono);
 }
 
-.changelog { font-size: 0.875rem; margin-bottom: 2.5rem; }
+pre .lang {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--soft);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.specimen { margin: 1.75rem 0; }
+.specimen pre { margin: 0; }
+.specimen figcaption,
+.figure figcaption {
+  margin-top: 0.5rem;
+  color: var(--soft);
+  font: 0.6875rem/1.45 var(--mono);
+}
+
+.comparison-grid,
+.state-grid,
+.document-map {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.comparison-grid > *,
+.state-grid > *,
+.document-map > * {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.15rem;
+}
+
+.comparison-grid .recommended {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+}
+
+.table-scroll { overflow-x: auto; margin: 1.5rem 0; }
+.table-scroll table { min-width: 620px; }
 
 .footnotes {
   margin-top: 3rem;
@@ -406,11 +536,327 @@ pre .lang {
   border-top: 1px solid var(--rule);
   font-size: 0.9375rem;
 }
-.footnotes ol { padding-left: 1.25rem; }
 
-sup a { text-decoration: none; color: var(--accent); }
+/* ------------------------------------------------------------- decision */
 
-@media (max-width: 640px) { .doc { padding: 24px 16px 48px; } }
+html[data-pattern="decision"] .doc { --doc-max: 1100px; }
+
+.doc-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.decision-rail {
+  position: sticky;
+  top: 1.5rem;
+  background: var(--method-bg);
+  color: var(--method-ink);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+}
+
+.decision-rail h2,
+.decision-rail h3 { color: inherit; margin-top: 0; }
+.decision-rail p,
+.decision-rail li { color: var(--method-muted); }
+
+/* --------------------------------------------------------------- record */
+
+html[data-pattern="record"] .doc { --doc-max: 860px; }
+html[data-pattern="record"] .doc-hero { margin-bottom: 1.75rem; }
+
+.decision-statement {
+  margin: 1.5rem 0 2.25rem;
+  padding: 1.4rem 1.5rem;
+  background: var(--accent-tint);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  font-size: 1.125rem;
+}
+
+.consequence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.consequence-grid > * { padding: 1rem 1.15rem; }
+.consequence-grid > * + * { border-left: 1px solid var(--rule); }
+
+/* ------------------------------------------------------------- contract */
+
+html[data-pattern="contract"] .doc { --doc-max: 1160px; }
+
+.contract-layout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.doc-grid > *,
+.contract-layout > *,
+.system-layout > * { min-width: 0; }
+
+.contract-index {
+  position: sticky;
+  top: 1.5rem;
+  border-top: 2px solid var(--rule-strong);
+  padding-top: 1rem;
+  font-size: 0.875rem;
+}
+
+.contract-index ol { padding-left: 1.1rem; }
+
+.requirement,
+.endpoint {
+  display: grid;
+  grid-template-columns: minmax(90px, auto) minmax(0, 1fr);
+  gap: 1rem;
+  border-top: 1px solid var(--rule);
+  padding: 1rem 0;
+}
+
+.requirement-id,
+.http-method {
+  color: var(--accent);
+  font: 600 0.8125rem/1.4 var(--mono);
+}
+
+/* ------------------------------------------------------------ procedure */
+
+html[data-pattern="procedure"] .doc { --doc-max: 1000px; }
+
+.procedure-steps {
+  list-style: none;
+  counter-reset: procedure;
+  padding: 0;
+}
+
+.procedure-steps > li {
+  counter-increment: procedure;
+  position: relative;
+  padding: 0 0 2.25rem 3.5rem;
+  margin: 0;
+  border-left: 1px solid var(--rule-strong);
+}
+
+.procedure-steps > li::before {
+  content: counter(procedure, decimal-leading-zero);
+  position: absolute;
+  left: -1.05rem;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-radius: 50%;
+  font: 600 0.75rem/1 var(--mono);
+}
+
+.procedure-steps h3 { margin-top: 0; }
+
+.outcome {
+  border-left: 2px solid var(--positive);
+  padding-left: 0.85rem;
+  color: var(--muted);
+}
+
+.response-band {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.response-band > * {
+  border-top: 3px solid var(--rule-strong);
+  padding-top: 0.85rem;
+}
+
+/* ------------------------------------------------------------- learning */
+
+html[data-pattern="learning"] .doc {
+  --doc-max: 960px;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+
+html[data-pattern="learning"] .section {
+  border-top-width: 2px;
+  margin-top: 4.5rem;
+  padding-top: 2rem;
+}
+
+/* --------------------------------------------------------------- system */
+
+html[data-pattern="system"] .doc { --doc-max: 1180px; }
+
+.system-map {
+  margin: 2rem 0;
+  padding: 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+}
+
+.system-map svg { display: block; width: 100%; height: auto; }
+
+.system-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.system-rail {
+  border-left: 2px solid var(--rule-strong);
+  padding-left: 1.25rem;
+}
+
+/* ------------------------------------------------------------- incident */
+
+html[data-pattern="incident"] .doc { --doc-max: 1080px; }
+
+.impact-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin: 2rem 0 3rem;
+  background: var(--rule-strong);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.impact-strip > * {
+  background: var(--surface);
+  padding: 1.2rem;
+}
+
+.impact-value {
+  display: block;
+  color: var(--accent);
+  font: 600 2rem/1.1 var(--display);
+}
+
+.impact-label { color: var(--muted); font-size: 0.8125rem; }
+
+.timeline {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0 2.5rem;
+}
+
+.timeline li {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 1.25rem;
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.timeline time {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.cause-chain {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.cause-chain > * {
+  position: relative;
+  border: 1px solid var(--rule);
+  border-top: 3px solid var(--accent);
+  padding: 1rem;
+  background: var(--surface);
+}
+
+.action-register { margin: 1.5rem 0; }
+
+/* ---------------------------------------------------------------- suite */
+
+html[data-pattern="suite"] .doc { --doc-max: 1120px; }
+.document-map { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.document-map a { text-decoration: none; }
+
+/* ------------------------------------------------------------ responsive */
+
+@media (max-width: 860px) {
+  .doc { padding: 32px 20px 56px; }
+  .doc-grid,
+  .contract-layout,
+  .system-layout { grid-template-columns: 1fr; }
+  .decision-rail,
+  .contract-index { position: static; }
+  .contract-index { display: none; }
+  .response-band,
+  .document-map { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 620px) {
+  .doc { padding-inline: 16px; }
+  .doc-hero h1 { font-size: 2rem; }
+  .doc-meta,
+  .status-banner { display: grid; gap: 0.45rem; }
+  .doc-meta span,
+  .status-banner span { white-space: normal; }
+  .section-head { grid-template-columns: auto minmax(0, 1fr); }
+  .section-head .reading-time { grid-column: 2; }
+  .comparison-grid,
+  .state-grid,
+  .consequence-grid,
+  .impact-strip,
+  .cause-chain { grid-template-columns: 1fr; }
+  .consequence-grid > * + * {
+    border-left: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .timeline li { grid-template-columns: 70px minmax(0, 1fr); gap: 0.75rem; }
+  .procedure-steps > li { padding-left: 2.75rem; }
+}
+
+@media print {
+  .doc { max-width: none; padding: 0; }
+  .doc-hero { margin-bottom: 1.5rem; }
+  .section { margin-top: 1.75rem; padding-top: 1rem; }
+  .danger { margin: 0.75rem 0; padding: 0.75rem 1rem; }
+  .section-head {
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+  .doc-grid,
+  .contract-layout,
+  .system-layout { display: block; }
+  .decision-rail,
+  .contract-index { position: static; }
+  .contract-index { display: none; }
+  .decision-rail {
+    margin: 1.5rem 0;
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--rule-strong);
+  }
+  .decision-rail p,
+  .decision-rail li { color: var(--muted); }
+  .impact-strip,
+  .cause-chain,
+  .response-band,
+  .comparison-grid,
+  .state-grid,
+  .document-map { break-inside: avoid; }
+  .procedure-steps > li { break-inside: avoid; }
+}
 
 /* ---- inlined from core/print.css ---- */
 /* print.css — print and PDF as a distinct output mode.
@@ -602,60 +1048,58 @@ sup a { text-decoration: none; color: var(--accent); }
 </head>
 <body>
 <article class="doc">
+  <header class="doc-hero">
+    <p class="eyebrow">Design handoff · operator overview</p>
+    <h1>Show whether ingestion is healthy without requiring dashboard archaeology</h1>
+    <p class="lede">Build a read-only overview that names the current state, exposes queue lag and shed behavior, and routes operators to the existing runbook rather than inventing control UI.</p>
+    <div class="doc-meta" aria-label="Design handoff metadata"><span><strong>For:</strong> Platform UI</span><span><strong>File:</strong> operator-overview</span><span><strong>As of:</strong> 2026-08-18</span><span><strong>Owner:</strong> Platform</span></div>
+  </header>
 
-  <p class="eyebrow">Design handoff</p>
-  <h1>Ingestion status — operator view</h1>
+  <section aria-labelledby="flow">
+    <h2 id="flow">Primary user flow</h2>
+    <ol><li>Open the overview from the on-call page.</li><li>Read the global written status and last refresh time.</li><li>Identify the queue with rising lag or shed count.</li><li>Open the existing runbook; do not operate the service from this page.</li></ol>
+  </section>
 
-  <p class="status-banner">
-    <strong>For:</strong> Platform UI ·
-    <strong>File:</strong> Figma · Ingestion / status (link the file; this is the packet) ·
-    <strong>As of:</strong> 2026-08-12
-  </p>
+  <section class="section" aria-labelledby="anatomy">
+    <div class="section-head"><span class="section-num">01</span><h2 id="anatomy">Screen anatomy</h2><span class="reading-time">desktop + mobile</span></div>
+    <div class="system-map">
+      <div class="state-grid">
+        <div><p class="component-label">Global status</p><h3>Degraded — queue B unavailable</h3><p>Written label, last updated time, environment, and active incident link.</p></div>
+        <div><p class="component-label">Queue A</p><h3>Healthy · 24s lag</h3><p>Lag, depth, shed count, last event, and trend description.</p></div>
+        <div><p class="component-label">Queue B</p><h3>Unavailable · 184 sheds</h3><p>Error text plus the time the state began; never color alone.</p></div>
+        <div><p class="component-label">Next action</p><h3>Open queue-lag runbook</h3><p>One link. No scale, restart, or destructive control on this surface.</p></div>
+      </div>
+    </div>
+  </section>
 
-  <h2 id="overview">Overview</h2>
-  <p>Operators need to see whether ingestion is healthy without opening four dashboards. In-scope: a single status page for queue lag and shed count. Out of scope: producer configuration.</p>
+  <section class="section" aria-labelledby="states">
+    <div class="section-head"><span class="section-num">02</span><h2 id="states">Required states</h2><span class="reading-time">acceptance</span></div>
+    <div class="state-grid">
+      <div><h3>Happy</h3><p>All queues written as healthy; lag and shed values visible.</p></div>
+      <div><h3>Idle</h3><p>No recent events; explain that zero traffic is not a failure.</p></div>
+      <div><h3>Loading</h3><p>Reserve layout and announce refresh without presenting stale values as current.</p></div>
+      <div><h3>Partial data</h3><p>Show available queues and name the missing source.</p></div>
+      <div><h3>Error</h3><p>Written failure, last known update, retry behavior, and runbook link.</p></div>
+      <div><h3>Recovered</h3><p>Success label with recovery time; avoid celebratory animation during incidents.</p></div>
+    </div>
+  </section>
 
-  <h2 id="user-flow">User flow</h2>
-  <ol>
-    <li>Open Status.</li>
-    <li>See current lag and whether shed is active.</li>
-    <li>If lag is high, follow the runbook link.</li>
-  </ol>
+  <section class="section" aria-labelledby="components">
+    <div class="section-head"><span class="section-num">03</span><h2 id="components">Components and interaction</h2><span class="reading-time">system-first</span></div>
+    <div class="table-scroll"><table><caption>Component contract</caption><thead><tr><th scope="col">Component</th><th scope="col">Use</th><th scope="col">Do not add</th></tr></thead><tbody>
+      <tr><td>Status banner</td><td>Global written state, environment, refresh time</td><td>Color-only state</td></tr>
+      <tr><td>Queue card</td><td>Lag, depth, shed, last event, written trend</td><td>Custom charts or hidden hover facts</td></tr>
+      <tr><td>Runbook link</td><td>Primary recovery action</td><td>Inline operational controls</td></tr>
+      <tr><td>Incident link</td><td>Visible only when an active incident exists</td><td>Automatic incident creation</td></tr>
+    </tbody></table></div>
+    <p>Refresh every 15 seconds. Preserve keyboard focus across refresh. The tab order follows global status, queue cards, runbook, then incident link.</p>
+  </section>
 
-  <h2 id="screens">Screens</h2>
-  <ul>
-    <li><strong>Happy</strong> — lag under 30s, shed count zero.</li>
-    <li><strong>Empty</strong> — no events in 15 minutes. Copy: "No events in the last 15 minutes. Producers may be idle."</li>
-    <li><strong>Loading</strong> — skeleton bars, no fake numbers.</li>
-    <li><strong>Error</strong> — dashboard query failed. Copy: "Status unavailable. Try again, then page Platform."</li>
-    <li><strong>Success</strong> — not a toast; the happy state is the success.</li>
-  </ul>
-
-  <h2 id="components">Components</h2>
-  <p>Use <code>StatusBanner</code>, <code>MetricCard</code>, <code>Button</code> from the platform system. No custom chart — a number plus a 15-minute sparkline from <code>Sparkline</code>. Do not introduce a new accent; use the system danger token for shed-active.</p>
-
-  <h2 id="interaction">Interaction</h2>
-  <p>Focus order: title, lag metric, shed metric, runbook link. Keyboard: tab through; Enter on the runbook link. No motion beyond the existing 150ms fade on number change. Honour <code>prefers-reduced-motion</code>.</p>
-
-  <h2 id="responsive">Responsive</h2>
-  <p>One column below 720px. Two metric cards stack; do not shrink type below 16px.</p>
-
-  <h2 id="content">Content</h2>
-  <p>Lag label: "Queue lag". Units: seconds. Truncate shed counts with SI (1.2k), not "1200.00". Empty strings are the empty-state copy above — never blank cards.</p>
-
-  <h2 id="data">Data</h2>
-  <p>Lag from <code>ingest_lag_seconds</code>. Shed from <code>dispatcher_shed_total</code> (zero until RFC 014 ships — show the metric, value 0, no "coming soon"). If the operator lacks the dashboard role, hide the page behind the existing 403, do not show zeros.</p>
-
-  <h2 id="a11y">Accessibility</h2>
-  <p>Metric numbers have visible text, not colour-only. StatusBanner uses text + icon. Contrast already in the system; do not override.</p>
-
-  <h2 id="acceptance">Acceptance criteria</h2>
-  <ul>
-    <li>Given lag 12s and shed 0, when I open Status, then I see 12 and 0 and no error.</li>
-    <li>Given the query fails, when I open Status, then I see the error copy and no invented lag.</li>
-    <li>Given a viewport 375px wide, when I open Status, then both metrics remain fully visible without horizontal scroll.</li>
-  </ul>
-
+  <section class="section" aria-labelledby="responsive">
+    <div class="section-head"><span class="section-num">04</span><h2 id="responsive">Responsive, content, and accessibility rules</h2><span class="reading-time">non-negotiable</span></div>
+    <ul><li>Desktop uses a two-column queue grid; mobile uses one column in the same information order.</li><li>Never truncate queue names, status labels, timestamps, or error messages.</li><li>Announce status changes through a polite live region; do not announce every unchanged refresh.</li><li>Meet AA contrast and keep visible focus on every link.</li><li>Use real headings and lists; cards do not replace document structure.</li></ul>
+    <div class="takeaway"><p><strong>Acceptance:</strong> all six states render at 390 and 1440 pixels, status survives grayscale, keyboard order is stable during refresh, and every failure path still exposes the runbook link.</p></div>
+  </section>
 </article>
 
 </body>

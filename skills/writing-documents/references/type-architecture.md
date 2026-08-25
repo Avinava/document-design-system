@@ -6,6 +6,8 @@ title: Architecture guide
 aliases: [architecture-guide, c4]
 example: examples/architecture.html
 command: /document-design-system:architecture
+pattern: system
+default-theme: field-notes
 default-format: markdown
 path: docs/architecture.md
 ```

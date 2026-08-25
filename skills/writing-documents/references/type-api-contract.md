@@ -6,6 +6,8 @@ title: API contract
 aliases: [api-spec, openapi, raml-docs]
 example: examples/api-contract.html
 command: /document-design-system:api-contract
+pattern: contract
+default-theme: console-violet
 default-format: markdown
 path: docs/api.md
 ```
@@ -43,4 +45,4 @@ Dumping the OAS. Copying production payloads. Invented hostnames. Prose and spec
 
 ## Output
 
-Markdown at `docs/api.md`. HTML when sharing with non-git readers; `data-layout="contract"`. Theme `console-violet`.
+Markdown at `docs/api.md`. HTML when sharing with non-git readers; pattern `contract`, theme `console-violet`.

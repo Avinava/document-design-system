@@ -10,6 +10,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>document-design-system</title>
+<link rel="icon" href="assets/banner.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -164,6 +165,25 @@ section.block .lead { margin: 0 0 1.25rem; color: var(--muted); }
   font-size: 1rem;
   font-weight: 600;
 }
+.pattern-map {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  margin: 1.5rem 0;
+  border: 1px solid var(--rule-strong);
+  background: var(--rule);
+}
+.pattern-map a {
+  min-height: 150px;
+  padding: 1rem;
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+}
+.pattern-map a:hover { background: var(--accent-tint); }
+.pattern-map .num { display: block; color: var(--soft); font: .6875rem/1 var(--mono); }
+.pattern-map h3 { margin: 1.6rem 0 .35rem; font-size: 1.05rem; }
+.pattern-map p { margin: 0; color: var(--muted); font-size: .85rem; line-height: 1.4; }
 table.skills { width: 100%; font-size: 0.9375rem; }
 table.skills th {
   text-align: left;
@@ -197,6 +217,7 @@ footer.site-foot a { color: var(--ink); }
   .shell { padding: 24px 16px 48px; }
   .hero h1 { font-size: 1.75rem; }
   .pair, .deck-grid { grid-template-columns: 1fr; }
+  .pattern-map { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .preview-cards img { height: 120px; }
 }
 
@@ -221,12 +242,12 @@ footer.site-foot a { color: var(--ink); }
 
   <header class="hero">
     <img class="banner" src="assets/banner.svg" width="960" height="300" alt="document-design-system — reports, diagrams, charts, decks, and eighteen document types as self-contained HTML">
-    <p class="eyebrow">Six skills · one token contract</p>
+    <p class="eyebrow">Six skills · eight reading patterns · one token contract</p>
     <h1>A design system for documents</h1>
     <p class="lead">
-      Analytical reports, diagrams, charts, decks, eighteen document types, and
-      brand theming. Writing lands as Markdown in your repo by default. Designed
-      HTML is opt-in: no JavaScript to read, no build step to open, and it prints.
+      Analytical reports, diagrams, charts, decks, and eighteen document types.
+      Designed documents combine a reading pattern with an independent visual
+      theme, so a runbook no longer behaves like a proposal with different headings.
     </p>
     <pre>/plugin marketplace add Avinava/document-design-system
 /plugin install document-design-system@document-design-system</pre>
@@ -324,27 +345,20 @@ footer.site-foot a { color: var(--ink); }
   </section>
 
   <section class="block" id="writing">
-    <h2>Eighteen document types</h2>
-    <p class="lead"><code>writing-documents</code> writes Markdown in your repo by default. These are the designed gallery — one Northwind Ingestion world.</p>
-    <div class="preview-cards">
-      <a href="design-doc.html">
-        <img alt="design-doc" src="@@SHOT/design-doc.png" width="1280" height="980">
-        <div class="pad"><span class="kind">design-doc</span><h3>Should we do this?</h3></div>
-      </a>
-      <a href="adr.html">
-        <img alt="adr" src="@@SHOT/adr.png" width="1280" height="720">
-        <div class="pad"><span class="kind">adr</span><h3>Why is it like this?</h3></div>
-      </a>
-      <a href="handoff.html">
-        <img alt="handoff" src="@@SHOT/handoff.png" width="1280" height="980">
-        <div class="pad"><span class="kind">handoff</span><h3>What do I run after you leave?</h3></div>
-      </a>
-      <a href="runbook.html">
-        <img alt="runbook" src="@@SHOT/runbook.png" width="1280" height="980">
-        <div class="pad"><span class="kind">runbook</span><h3>What do I do right now?</h3></div>
-      </a>
+    <p class="eyebrow">Pattern chooses structure · theme chooses voice</p>
+    <h2>Eighteen types, eight ways to read</h2>
+    <p class="lead"><code>writing-documents</code> keeps Markdown canonical. Designed HTML uses the type's pattern to expose the decision, rule, sequence, system, or incident before applying a visual theme.</p>
+    <div class="pattern-map">
+      <a href="types.html#decision"><span class="num">01</span><h3>Decision</h3><p>Ask, options, trade-offs, next move.</p></a>
+      <a href="types.html#record"><span class="num">02</span><h3>Record</h3><p>One settled choice and its consequences.</p></a>
+      <a href="types.html#contract"><span class="num">03</span><h3>Contract</h3><p>Exact rules, specimens, compliance.</p></a>
+      <a href="types.html#procedure"><span class="num">04</span><h3>Procedure</h3><p>Safety, steps, verification, recovery.</p></a>
+      <a href="types.html#learning"><span class="num">05</span><h3>Learning</h3><p>Context, practice, checkpoints.</p></a>
+      <a href="types.html#system"><span class="num">06</span><h3>System</h3><p>Maps, boundaries, interfaces, states.</p></a>
+      <a href="types.html#incident"><span class="num">07</span><h3>Incident</h3><p>Impact, time, cause, owned action.</p></a>
+      <a href="types.html#suite"><span class="num">08</span><h3>Suite</h3><p>Linked documents, ownership, freshness.</p></a>
     </div>
-    <p><a class="more" href="types.html">All eighteen types →</a></p>
+    <p><a class="more" href="types.html">Explore all patterns and types →</a></p>
   </section>
 
   <section class="block" id="skills">

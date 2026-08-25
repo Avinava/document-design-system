@@ -6,6 +6,8 @@ title: MuleSoft project documentation
 aliases: [mule, mule-docs]
 example: examples/mulesoft.html
 command: /document-design-system:mulesoft
+pattern: suite
+default-theme: field-notes
 default-format: markdown
 path: docs/
 ```

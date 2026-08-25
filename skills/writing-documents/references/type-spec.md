@@ -6,6 +6,8 @@ title: Specification
 aliases: [specification, rfc-2119]
 example: examples/spec.html
 command: /document-design-system:spec
+pattern: contract
+default-theme: field-notes
 default-format: markdown
 path: docs/spec/
 ```
@@ -41,4 +43,4 @@ Mixing normative requirements with explanatory prose so an implementer cannot te
 
 ## Output
 
-Markdown in `docs/spec/`. HTML when asked; `data-layout="contract"` for table-heavy specs. Theme `field-notes`.
+Markdown in `docs/spec/`. HTML when asked; pattern `contract`, theme `field-notes`.

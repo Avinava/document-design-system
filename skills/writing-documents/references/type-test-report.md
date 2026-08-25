@@ -6,6 +6,8 @@ title: Test report
 aliases: [qa-report, test-results, qa-signoff]
 example: examples/test-report.html
 command: /document-design-system:test-report
+pattern: contract
+default-theme: editorial-coral
 default-format: markdown
 path: docs/test-reports/
 ```
@@ -42,4 +44,4 @@ Charts of pass/fail by suite come from `chart-design`.
 
 ## Output
 
-Markdown in `docs/test-reports/`. HTML/PDF when the sign-off is emailed; `data-layout="contract"`. Theme `editorial-coral`.
+Markdown in `docs/test-reports/`. HTML/PDF when the sign-off is emailed; pattern `contract`, theme `editorial-coral`.

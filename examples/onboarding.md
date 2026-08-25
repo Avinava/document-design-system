@@ -1,70 +1,68 @@
-Onboarding
+# Build the right model of Northwind Ingestion before you operate it
 
-  # Run Northwind Ingestion locally
+**Type:** Engineering onboarding
+**Time:** 55 minutes
+**Audience:** incoming platform engineer
+**Environment:** local only
+**Owner:** Platform
 
-  
+Read the current path, learn where familiar queue assumptions fail, run one
+event locally, and finish with the questions worth asking on your first on-call
+review.
 
-    **Owner:** Platform ·
-    **Dated:** 2026-08-12 ·
-    **For:** first day, not an incident
-  
+## The working model
 
-  
-## Prerequisites
+Northwind Ingestion is an internal acceptance and landing path. Producers send
+events to the gateway; one shared queue buffers them; consumers validate and
+write them to the warehouse.
 
-  
+Carry this sentence: the current queue is both the buffer and the failure
+boundary for every first-party producer.
 
-    - Go 1.22, Make, Docker. Verified: CI setup-go 1.22.
-    - Access request: ingestion namespace (staging), vault path ingest/*. Values never in this file.
-  
+The proposed dispatcher and split queues in RFC 014 are not production facts.
 
-  
-## Safe configuration
+## Four boundaries that prevent wrong assumptions
 
-  
-```env
-INGEST_QUEUE_URI=${INGEST_QUEUE_URI}
-INGEST_GATEWAY_ADDR=127.0.0.1:8443
+1. **Acceptance:** `202` means queued, not warehoused.
+2. **Identity:** event ID is the retry anchor; reuse it.
+3. **Ordering:** producer-local order is not guaranteed.
+4. **Rollback:** traffic flips back; queues are never deleted.
+
+## Read the request path without running it
+
+```http
+POST /events
+X-Request-Id: req_7f3
+
+{"id":"evt_01","type":"checkout.paid"}
+
+202 {"id":"evt_01","status":"accepted"}
 ```
 
-  
-Copy `.env.example`. Do not paste production URIs.
+Follow event ID for idempotency, request ID for tracing, and status for caller
+behavior. Then read configuration in this order: queue URI, bind address,
+health endpoints, and alert thresholds.
 
-  
-## Local commands
+## Run one event locally
 
-  
-```bash
-make ingest-test
-make ingest-run
-```
+1. Run `make ingest-test`; contract and consumer tests must pass.
+2. Run `make ingest-run`; wait for `listening` on 8443.
+3. Send the synthetic event:
 
-  
-Success: tests pass; gateway logs "listening" on 8443.
+   ```bash
+   curl -k https://127.0.0.1:8443/events \
+     -d '{"id":"evt_learn","type":"onboarding.ping"}'
+   ```
 
-  
-## External systems
+   Success is `202` with `evt_learn` repeated.
 
-  
-Local Docker Compose provides a stand-in queue. Staging queue is not required on day one.
+## Prove readiness with understanding, not task completion
 
-  
-## Deployment
+- Draw the current path and mark the single failure boundary.
+- Explain why scaling consumers recovers but does not prevent recurrence.
+- Name current and proposed overload responses without mixing them.
+- Locate the runbook, API source, RFC, ADR, dashboard, and postmortem.
+- Ask who approves shed behavior and where chaos testing will run.
 
-  
-Staging deploys from `main` via the ingest workflow. You will not deploy on day one.
-
-  
-## Validation
-
-  
-
-    - curl -k https://127.0.0.1:8443/events with the example body in docs/api.md → 202.
-    - Consumer log shows the event id.
-  
-
-  
-## Troubleshooting
-
-  
-`connection refused` on 8443: `make ingest-run` is not up. `INGEST_QUEUE_URI unset`: the example env file was not copied.
+You are ready when you can explain what is current, proposed, unresolved, and
+safe to change without relying on production access.

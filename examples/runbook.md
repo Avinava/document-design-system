@@ -1,60 +1,52 @@
-Runbook
+# Recover when ingestion queue lag keeps climbing
 
-  # Ingestion queue lag is climbing
+**Type:** Operational runbook · RB-INGEST-01
+**Owner:** Platform
+**Reviewed:** 2026-08-18
+**Trigger:** `ingest_lag_seconds > 120` for five minutes
+**Escalate at:** 15 minutes
 
-  
+Use this procedure after the lag alert fires or producers report blocked or
+failed event acceptance.
 
-    **Owner:** Platform ·
-    **Dated:** 2026-08-12 ·
-    **Trigger:** `ingest_lag_seconds` &gt; 120 for 5 minutes
-  
+## Before changing anything
 
-  
-## When to use
+- Confirm access to the `ingest` namespace and *Ingestion / lag* dashboard.
+- Start an incident note with page time, lag, depth, replicas, and request p99.
+- Do not restart the gateway or delete a queue.
 
-  
-Page: `ingest_lag_seconds` above 120s for five minutes, or a producer report that `POST /events` is 202-shedding.
+## Recovery procedure
 
-  
-## Preconditions
+1. **Name the failing boundary.** Identify the queue whose lag is rising.
+   Record lag slope and affected producers.
+2. **Check consumer health before scaling.** If any consumer crash-loops, go
+   directly to escalation.
 
-  
+   ```bash
+   kubectl -n ingest get deploy/ingest-consumer
+   kubectl -n ingest get pods -l app=ingest-consumer
+   ```
 
-    - On-call has kubectl access to the ingestion namespace.
-    - Dashboard: Ingestion / lag (no credentials in this document).
-  
+3. **Add one consumer replica.** Do not exceed six without Reliability.
 
-  
-## Steps
+   ```bash
+   kubectl -n ingest scale deploy/ingest-consumer \
+     --replicas=$((CURRENT_REPLICAS + 1))
+   ```
 
-  
+4. **Observe for three minutes.** Watch lag, queue depth, p99, and errors.
+   - If lag falls, verify recovery.
+   - If lag is flat, observe two more minutes.
+   - If lag rises or a consumer crashes, escalate.
 
-    - Open the lag dashboard. Confirm which queue (ingest today; ingest-a or ingest-b after RFC 014). Success: one queue named.
-    - Check consumer restart count. If crashing, jump to Escalation.
-    - If consumers are up and lag is still climbing, scale the consumer group by one replica:
-      
-```bash
-kubectl -n ingest scale deploy/ingest-consumer --replicas=$(($(kubectl -n ingest get deploy/ingest-consumer -o jsonpath='{.spec.replicas}')+1))
-```
+## Verify, rollback, or escalate
 
-      Success: replica count increased by one; lag slope flattens within three minutes.
-    - If lag does not flatten, shed is already happening at the dispatcher — do not restart the gateway. Go to Escalation.
-  
+- **Verify:** lag falls for ten minutes and `POST /events` p99 stays below
+  200 ms.
+- **Rollback:** remove the added replica if it causes errors. Never delete a
+  queue.
+- **Escalate:** after 15 minutes, any crash loop, or rising 5xx, page Platform
+  primary and Reliability and stop local changes.
 
-  
-## Verification
-
-  
-`ingest_lag_seconds` falling for ten minutes, and `POST /events` p99 under 200ms.
-
-  
-## Rollback
-
-  
-Scale the consumer group back to the previous replica count. Do not delete queues.
-
-  
-## Escalation
-
-  
-After 15 minutes without a falling lag, or any consumer crashloop: page Platform primary, then Reliability. Stop changing replica counts.
+Record final replica count, recovery time, peak lag, and whether the documented
+control changed the slope.

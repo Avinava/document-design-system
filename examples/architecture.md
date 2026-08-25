@@ -1,71 +1,59 @@
-Architecture
+# One producer-facing gateway, one shared queue, one warehouse landing path
 
-  # Northwind Ingestion — current state
+**Type:** Current-state architecture · Northwind Ingestion
+**As of:** 2026-08-18
+**Owner:** Platform
+**Scope:** HTTP acceptance through warehouse write
+**Change proposal:** RFC 014
 
-  
+This page describes production as it exists. The dispatcher and split queues
+are proposed, not current.
 
-    **As of:** 2026-08-12 ·
-    **This is current, not proposed.** RFC 014 is the change. ·
-    **Owner:** Platform
-  
+## System context and boundary
 
-  
-## Boundary
+Checkout, Catalog, and Inventory are first-party producers. The gateway
+authenticates and accepts events. The warehouse and its readers are downstream.
+Batch imports are separate and out of scope.
 
-  
-This application owns accept, buffer, and land of first-party and partner events. It does not own checkout, catalog, or the warehouse schema.
+Current path:
 
-  
-## System context
+`producer → gateway → ingest → consumer group → warehouse`
 
-  
-Checkout, Catalog, and Inventory call `POST /events`. The warehouse is downstream. On-call watches lag. Verified: gateway listeners and consumer writes.
+## Containers and responsibilities
 
-  
-## Containers
+| Container | Responsibility | Operational truth |
+|---|---|---|
+| Gateway | Identity, envelope validation, queue acceptance | Returns `202` after queue write |
+| Queue | Shared 24-hour buffer | One queue, no failover |
+| Consumer group | Validate and land | Three normal replicas |
+| Warehouse | Downstream record | Schema outside Platform |
 
-  
-
-    - Gateway — HTTP, auth, schema check.
-    - Queue ingest — one queue, no failover. 41% of platform footprint sits behind it.
-    - Consumer — writes the warehouse.
-  
-
-  
-The dispatcher and `ingest-a/b` are Proposed, not current. They do not appear on this map.
-
-  
 ## Primary runtime path
 
-  
-Producer → gateway → enqueue on `ingest` → consumer → warehouse. On queue full, the gateway blocks and then 503s. There is no shed path yet.
+1. Producer sends stable event ID and request ID.
+2. Gateway authenticates, validates, and writes to `ingest`.
+3. Gateway returns `202` after queue acceptance.
+4. Consumer validates and writes the warehouse.
+5. Lookup and freshness expose later state.
 
-  
-## Data
+## Failure and recovery boundaries
 
-  
-Event body is JSON as declared in `openapi/events.yaml`. Transforms: none in this service; the warehouse maps fields.
+Consumer slowdown raises lag and depth. Queue saturation stops the shared
+buffer. Gateway overload then affects every producer.
 
-  
-## Failures
+Adding one consumer replica is the safe local recovery control. Because every
+producer shares the queue, current recovery is shared too.
 
-  
-Consumer crash: lag climbs, runbook scales replicas. Queue unavailable: producers fail. No retry-with-shed. Verified: 2026-07-30 postmortem.
+## Trust and data boundaries
 
-  
-## Trust boundaries
+- Gateway terminates producer identity and enforces audience.
+- Event bodies remain opaque to routing.
+- Queue and warehouse credentials are runtime secrets.
+- The proposed dispatcher adds no body store.
 
-  
-mTLS at the gateway. Queue URI from `${INGEST_QUEUE_URI}`. This document does not name hosts or secrets.
+## Architecture facts and known gaps
 
-  
-## Extension points
-
-  
-A new event type is a schema addition at the gateway plus a warehouse mapping. A new producer is an identity grant, not a new queue — until RFC 014.
-
-  
-## Known gaps
-
-  
-Whether two queues fail independently is Unresolved. Partner-feed volume is not in the 41% snapshot — excluded population, same as the analytical report.
+- Cluster: `prod-ingest`; namespace: `ingest`; queue: `ingest`.
+- Consumers: three normal, six maximum without approval.
+- Retention: 24 hours.
+- Gaps: no independent failure path, bounded shed response, or chaos proof.

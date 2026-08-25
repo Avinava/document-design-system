@@ -6,6 +6,8 @@ title: Architecture decision record
 aliases: [architecture-decision]
 example: examples/adr.html
 command: /document-design-system:adr
+pattern: record
+default-theme: field-notes
 default-format: markdown
 path: docs/adr/adr-NNN.md
 ```

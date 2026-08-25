@@ -6,6 +6,8 @@ title: Proposal
 aliases: []
 example: examples/proposal.html
 command: /document-design-system:proposal
+pattern: decision
+default-theme: executive-navy
 default-format: markdown
 path: docs/proposals/
 ```

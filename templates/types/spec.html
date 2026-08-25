@@ -1,54 +1,71 @@
 <article class="doc">
+  <header class="doc-hero">
+    <p class="eyebrow">Normative specification · SPEC-014</p>
+    <h1>Dispatcher routing and failure behavior</h1>
+    <p class="lede">This specification defines how an accepted event is assigned to one queue, how quickly the gateway must return, and what implementations must prove before conformance.</p>
+    <div class="doc-meta" aria-label="Specification metadata">
+      <span><strong>Status:</strong> Proposed</span>
+      <span><strong>Keywords:</strong> MUST, SHOULD, MAY</span>
+      <span><strong>Owner:</strong> Platform</span>
+      <span><strong>Companion:</strong> RFC 014</span>
+    </div>
+  </header>
 
-  <p class="eyebrow">Specification</p>
-  <h1>Dispatcher routing — Northwind Ingestion</h1>
+  <div class="contract-layout">
+    <nav class="contract-index" aria-label="Specification sections">
+      <p class="component-label">In this contract</p>
+      <ol><li><a href="#scope">Scope</a></li><li><a href="#definitions">Definitions</a></li><li><a href="#requirements">Requirements</a></li><li><a href="#examples">Examples</a></li><li><a href="#compliance">Compliance</a></li></ol>
+    </nav>
+    <div>
+      <section id="scope">
+        <h2>Scope</h2>
+        <p>This specification begins after the gateway accepts and validates <code>POST /events</code>. It ends when the dispatcher writes the event to <code>ingest-a</code> or <code>ingest-b</code>, or records a bounded shed result.</p>
+        <div class="non-goals"><p>Authentication, payload schema, warehouse writes, batch ingestion, and global ordering are outside this specification.</p></div>
+      </section>
 
-  <p class="status-banner">
-    <strong>Status:</strong> Proposed ·
-    <strong>Keywords:</strong> RFC 2119 ·
-    <strong>Owner:</strong> Platform
-  </p>
+      <section class="section" id="definitions">
+        <h2>Definitions</h2>
+        <dl>
+          <dt><strong>Accepted event</strong></dt><dd>An event whose caller, envelope, and required fields passed gateway validation.</dd>
+          <dt><strong>Partition</strong></dt><dd><code>hash(event.id) mod 2</code>; even routes to A and odd routes to B.</dd>
+          <dt><strong>Shed</strong></dt><dd>A bounded refusal to enqueue on an unavailable selected queue, recorded for retry.</dd>
+          <dt><strong>Healthy path</strong></dt><dd>The selected queue and consumer group are available and below their alert thresholds.</dd>
+        </dl>
+      </section>
 
-  <p>
-    The key words MUST, SHOULD, and MAY in this document are to be interpreted
-    as described in RFC 2119.
-  </p>
+      <section class="section" id="requirements">
+        <h2>Normative requirements</h2>
+        <div class="requirement"><span class="requirement-id">REQ-001</span><div><strong>Exactly one destination.</strong> The dispatcher MUST assign every accepted event to exactly one queue.</div></div>
+        <div class="requirement"><span class="requirement-id">REQ-002</span><div><strong>Deterministic partition.</strong> Assignment MUST be a function of event ID alone and MUST remain stable across retries.</div></div>
+        <div class="requirement"><span class="requirement-id">REQ-003</span><div><strong>Bounded gateway wait.</strong> A selected queue failure MUST NOT hold the gateway request longer than 200 ms.</div></div>
+        <div class="requirement"><span class="requirement-id">REQ-004</span><div><strong>No payload persistence.</strong> The dispatcher MUST NOT inspect domain fields or persist event bodies.</div></div>
+        <div class="requirement"><span class="requirement-id">REQ-005</span><div><strong>Observable outcome.</strong> Every enqueue or shed MUST increment the matching partition counter and retain the request ID.</div></div>
+        <div class="requirement"><span class="requirement-id">REQ-006</span><div><strong>Independent health.</strong> Failure of one queue MUST NOT prevent writes to the other queue.</div></div>
+      </section>
 
-  <h2 id="scope">Scope</h2>
-  <p>
-    This specifies the dispatcher introduced by RFC 014: how an accepted
-    <code>POST /events</code> payload is assigned to <code>ingest-a</code> or
-    <code>ingest-b</code>. It does not specify the gateway API, warehouse
-    schema, or batch path.
-  </p>
+      <section class="section" id="examples">
+        <h2>Worked examples</h2>
+        <figure class="specimen"><pre><span class="lang">routing</span>event.id = "evt_01"
+hash(event.id) mod 2 = 0
+destination = ingest-a
+result = enqueued</pre><figcaption>A repeat of <code>evt_01</code> resolves to the same queue.</figcaption></figure>
+        <figure class="specimen"><pre><span class="lang">failure</span>event.id = "evt_02"
+destination = ingest-b
+ingest-b = unavailable
+gateway wait = 187 ms
+result = INGEST_SHED</pre><figcaption>The healthy A path remains available; this event receives a retryable shed result.</figcaption></figure>
+      </section>
 
-  <h2 id="definitions">Definitions</h2>
-  <ul>
-    <li><strong>Event ID</strong> — the <code>id</code> field on an accepted event. Opaque string.</li>
-    <li><strong>Partition</strong> — <code>hash(event id) mod 2</code>. Even → <code>ingest-a</code>. Odd → <code>ingest-b</code>.</li>
-  </ul>
-
-  <h2 id="requirements">Requirements</h2>
-  <ul>
-    <li><code>REQ-001</code> The dispatcher MUST assign every accepted event to exactly one of <code>ingest-a</code> or <code>ingest-b</code>.</li>
-    <li><code>REQ-002</code> The assignment MUST be a function of event ID alone.</li>
-    <li><code>REQ-003</code> If the chosen queue is unavailable, the dispatcher MUST shed the event and emit an alert. It MUST NOT block the gateway request for more than 200ms. <span class="evidence">(Unresolved vs blocking: Reliability, 2026-08-25.)</span></li>
-    <li><code>REQ-004</code> The dispatcher MUST NOT inspect or persist payload bodies.</li>
-  </ul>
-
-  <h2 id="examples">Examples</h2>
-  <p>
-    Event <code>id=evt_01</code> hashes even → <code>ingest-a</code>. Event
-    <code>id=evt_02</code> hashes odd → <code>ingest-b</code>. A 503 from
-    <code>ingest-a</code> yields HTTP 202 from the gateway, a shed count, and
-    no warehouse write.
-  </p>
-
-  <h2 id="compliance">Compliance</h2>
-  <p>
-    Conformance is a unit test of <code>REQ-001</code>–<code>REQ-002</code> on a
-    fixed ID list, plus a chaos test that <code>ingest-a</code> down does not
-    stall <code>/events</code> past 200ms.
-  </p>
-
+      <section class="section" id="compliance">
+        <h2>Compliance matrix</h2>
+        <div class="table-scroll"><table><caption>Required proof</caption><thead><tr><th scope="col">Requirement</th><th scope="col">Evidence</th><th scope="col">Gate</th></tr></thead><tbody>
+          <tr><td>REQ-001–002</td><td>Fixed-vector unit test across 10,000 IDs and retries</td><td>All assignments stable</td></tr>
+          <tr><td>REQ-003</td><td>Selected queue unavailable during load test</td><td>p99 gateway wait below 200 ms</td></tr>
+          <tr><td>REQ-004</td><td>Code review and storage inventory</td><td>No body access or dispatcher store</td></tr>
+          <tr><td>REQ-005</td><td>Dashboard and trace fixture</td><td>Every outcome correlated</td></tr>
+          <tr><td>REQ-006</td><td>One-queue-down chaos test</td><td>Healthy path continues accepting</td></tr>
+        </tbody></table></div>
+      </section>
+    </div>
+  </div>
 </article>

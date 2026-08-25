@@ -6,6 +6,8 @@ title: Onboarding
 aliases: [getting-started]
 example: examples/onboarding.html
 command: /document-design-system:onboarding
+pattern: learning
+default-theme: field-notes
 default-format: markdown
 path: docs/onboarding.md
 ```

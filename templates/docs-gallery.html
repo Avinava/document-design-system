@@ -1,126 +1,94 @@
 <!doctype html>
-<!--
-  Type gallery — one card per writing-documents slug.
-  Local: examples/index.html. Pages: types.html (homepage is templates/site.html).
-
-  Assemble with python scripts/build_examples.py
-  Screenshot paths assume this file is served from examples/
-  (../docs/screenshots/<slug>.png). build_site.py rewrites them for Pages.
--->
+<!-- Pattern-first type gallery. Assemble with scripts/build_examples.py. -->
 <html lang="en" data-theme="field-notes">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Eighteen document types — document-design-system</title>
+<title>Document patterns and types — document-design-system</title>
+<link rel="icon" href="assets/banner.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 /* @@INLINE core/themes/${THEME}.css @@ */
 /* @@INLINE core/base.css @@ */
-
-.shell { max-width: 1120px; margin: 0 auto; padding: 40px 32px 72px; }
-.lead { max-width: 62ch; }
-.group { margin-top: 2.5rem; }
-.group h2 { margin-top: 0; }
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-  margin-top: 1rem;
-}
-.card {
-  display: block;
-  text-decoration: none;
-  color: inherit;
-  background: var(--surface);
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-}
-.card:hover { border-color: var(--rule-strong); }
-.card img {
-  display: block;
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  object-position: top;
-  border-bottom: 1px solid var(--rule);
-  background: var(--surface-muted);
-}
-.card .pad { padding: 0.875rem 1rem 1.1rem; }
-.card .kind {
-  font-family: var(--mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--soft);
-}
-.card h3 { margin: 0.25rem 0 0; font-size: 1rem; font-weight: 600; }
-.site-nav {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem 1.5rem;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--rule);
-  margin-bottom: 32px;
-}
-.wordmark {
-  font-family: var(--mono);
-  font-size: 0.8125rem;
-  letter-spacing: 0.04em;
-  text-decoration: none;
-  color: var(--ink);
-}
-.site-nav ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.65rem 1.15rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  font-size: 0.9375rem;
-}
+.skip-link { position: absolute; left: -9999px; }
+.skip-link:focus { left: 1rem; top: 1rem; z-index: 10; padding: .6rem .8rem; background: var(--paper); color: var(--ink); }
+.shell { max-width: 1180px; margin: 0 auto; padding: 32px 32px 80px; }
+.site-nav { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-bottom: 16px; border-bottom: 1px solid var(--rule); }
+.wordmark { color: var(--ink); font: 600 .8125rem/1 var(--mono); text-decoration: none; }
+.site-nav ul { display: flex; gap: 1rem; list-style: none; margin: 0; padding: 0; white-space: nowrap; }
 .site-nav a { color: var(--muted); text-decoration: none; }
-.site-nav a:hover { color: var(--ink); }
-@media (max-width: 640px) {
-  .shell { padding: 24px 16px 48px; }
-  .card img { height: 140px; }
+.site-nav a:hover, .site-nav a[aria-current="page"] { color: var(--ink); }
+.gallery-hero { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(260px, .65fr); gap: 3rem; align-items: end; padding: 5rem 0 3rem; }
+.gallery-hero h1 { max-width: 13ch; margin: .3rem 0 1rem; font-size: clamp(2.6rem, 7vw, 5.8rem); letter-spacing: -.055em; line-height: .94; }
+.gallery-hero .lead { max-width: 58ch; color: var(--muted); font-size: 1.15rem; }
+.axis-note { border: 1px solid var(--rule-strong); border-radius: var(--radius-md); padding: 1.25rem; background: var(--surface); }
+.axis-note p { margin: 0 0 .75rem; }
+.axis-note p:last-child { margin-bottom: 0; }
+.axis-note strong { display: inline-block; min-width: 5rem; color: var(--ink); }
+.pattern-jump { display: flex; gap: .5rem; overflow-x: auto; padding: .25rem 0 1.25rem; border-bottom: 1px solid var(--rule); scrollbar-width: thin; }
+.pattern-jump a { flex: 0 0 auto; border: 1px solid var(--rule); border-radius: 999px; padding: .42rem .72rem; color: var(--muted); text-decoration: none; font: 500 .75rem/1 var(--mono); }
+.pattern-jump a:hover { border-color: var(--accent); color: var(--ink); }
+.pattern-section { display: grid; grid-template-columns: minmax(230px, .35fr) minmax(0, 1fr); gap: 2.5rem; padding: 4rem 0; border-bottom: 1px solid var(--rule-strong); scroll-margin-top: 1rem; }
+.pattern-section > header { display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-content: start; position: sticky; top: 1rem; align-self: start; }
+.pattern-index { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: var(--radius-sm); background: var(--accent); color: var(--accent-ink); font: 600 .75rem/1 var(--mono); }
+.pattern-section h2 { margin: .1rem 0 .5rem; font-size: 2rem; }
+.pattern-section header p:last-child { margin: 0; color: var(--muted); }
+.type-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.type-card { display: grid; grid-template-rows: 175px 1fr; min-width: 0; color: inherit; text-decoration: none; background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius-md); overflow: hidden; transition: transform .16s ease, border-color .16s ease; }
+.type-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+.type-card img { display: block; width: 100%; height: 175px; object-fit: cover; object-position: top; background: var(--surface-muted); border-bottom: 1px solid var(--rule); }
+.type-card .pad { padding: .9rem 1rem 1.1rem; }
+.kind, .theme { color: var(--soft); font: 500 .6875rem/1 var(--mono); letter-spacing: .04em; text-transform: uppercase; }
+.theme { float: right; text-transform: none; letter-spacing: 0; }
+.type-card h3 { margin: .45rem 0 0; font-size: 1.03rem; line-height: 1.35; }
+.pattern-record .type-cards, .pattern-incident .type-cards, .pattern-suite .type-cards { grid-template-columns: 1fr; }
+.pattern-record .type-card, .pattern-incident .type-card, .pattern-suite .type-card { grid-template-columns: minmax(240px, .7fr) 1fr; grid-template-rows: minmax(210px, auto); }
+.pattern-record .type-card img, .pattern-incident .type-card img, .pattern-suite .type-card img { height: 100%; border: 0; border-right: 1px solid var(--rule); }
+.pattern-incident { background: var(--surface-muted); margin-inline: -2rem; padding-inline: 2rem; }
+.group { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--rule-strong); }
+.group .lead { color: var(--muted); }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.card { display: block; color: inherit; text-decoration: none; border: 1px solid var(--rule); border-radius: var(--radius-md); overflow: hidden; background: var(--surface); }
+.card img { display: block; width: 100%; height: 130px; object-fit: cover; object-position: top; border-bottom: 1px solid var(--rule); }
+.card .pad { padding: .8rem 1rem 1rem; }
+.card h3 { margin: .35rem 0 0; font-size: .95rem; }
+footer { margin-top: 4rem; color: var(--soft); font: .75rem/1.5 var(--mono); }
+@media (max-width: 760px) {
+  .shell { padding: 20px 16px 48px; }
+  .site-nav { align-items: flex-start; }
+  .site-nav ul { max-width: 68vw; overflow-x: auto; padding-bottom: .4rem; }
+  .gallery-hero { grid-template-columns: 1fr; gap: 1.5rem; padding: 3.5rem 0 2rem; }
+  .gallery-hero h1 { font-size: clamp(2.7rem, 15vw, 4.4rem); }
+  .pattern-section { grid-template-columns: 1fr; gap: 1.25rem; padding: 3rem 0; }
+  .pattern-section > header { position: static; }
+  .type-cards { grid-template-columns: 1fr; }
+  .pattern-record .type-card, .pattern-incident .type-card, .pattern-suite .type-card { grid-template-columns: 1fr; grid-template-rows: 155px 1fr; }
+  .pattern-record .type-card img, .pattern-incident .type-card img, .pattern-suite .type-card img { height: 155px; border-right: 0; border-bottom: 1px solid var(--rule); }
+  .pattern-incident { margin-inline: -1rem; padding-inline: 1rem; }
 }
-
 /* @@INLINE core/print.css @@ */
 </style>
 </head>
 <body>
+<a class="skip-link" href="#patterns">Skip to patterns</a>
 <div class="shell">
   <nav class="site-nav" aria-label="Site">
     <a class="wordmark" href="index.html">document-design-system</a>
     <ul>
-      <li><a href="inventory-report.html">Report</a></li>
-      <li><a href="capacity-deck.html">Deck</a></li>
-      <li><a href="gallery-light.html">Figures</a></li>
-      <li><a href="@@TYPES_HREF">Types</a></li>
-      <li><a href="themes-light.html">Themes</a></li>
-      <li><a href="brand.html">Brand</a></li>
-      <li><a href="https://github.com/Avinava/document-design-system">GitHub</a></li>
+      <li><a href="inventory-report.html">Report</a></li><li><a href="capacity-deck.html">Deck</a></li><li><a href="gallery-light.html">Figures</a></li><li><a href="@@TYPES_HREF" aria-current="page">Types</a></li><li><a href="themes-light.html">Themes</a></li><li><a href="brand.html">Brand</a></li><li><a href="https://github.com/Avinava/document-design-system">GitHub</a></li>
     </ul>
   </nav>
-
-  <p class="eyebrow">writing-documents</p>
-  <h1>Eighteen document types</h1>
-  <p class="lead">
-    Markdown in your repo by default. These HTML files are the designed
-    gallery — one Northwind Ingestion world. Open any card.
-  </p>
-
+  <header class="gallery-hero">
+    <div><p class="eyebrow">Eight reading patterns · eighteen types</p><h1>Different questions need different pages.</h1><p class="lead">A runbook should move like a safe procedure. A postmortem should reveal impact and time. A contract should make exact rules effortless to find. Choose the reading pattern first; choose the visual voice separately.</p></div>
+    <aside class="axis-note" aria-label="Pattern and theme distinction"><p><strong>Pattern</strong> changes structure and reading movement.</p><p><strong>Theme</strong> changes tokens, typography, and visual voice.</p><p>The same pattern can wear any compliant theme.</p></aside>
+  </header>
+  <nav class="pattern-jump" aria-label="Document patterns"><a href="#decision">Decision</a><a href="#record">Record</a><a href="#contract">Contract</a><a href="#procedure">Procedure</a><a href="#learning">Learning</a><a href="#system">System</a><a href="#incident">Incident</a><a href="#suite">Suite</a></nav>
+  <main id="patterns"><!-- @@CARDS --></main>
   <!-- @@VOICES -->
-
   <!-- @@SKILLS -->
-
-  <div id="types"></div>
-  <!-- @@CARDS -->
+  <footer>Markdown remains canonical. Designed HTML adds the selected pattern and theme, then prints from the same source facts.</footer>
 </div>
 </body>
 </html>

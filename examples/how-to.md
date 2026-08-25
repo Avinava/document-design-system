@@ -1,32 +1,45 @@
-How-to
+# Replay a shed event without creating a duplicate
 
-  # How to replay a shed event
+**Type:** How-to · producer recovery
+**Audience:** producer engineers
+**Time:** 10 minutes
+**Applies after:** RFC 014 shed behavior ships
 
-  
-For someone who already runs ingestion. Goal: take an event that was shed and land it without duplicating a warehouse row.
+Use the original event ID, confirm it did not already land, and retry only when
+the response marks the failure as retryable.
 
-  
 ## Before you start
 
-  
+- You have event ID and request ID from the original response.
+- The code is `INGEST_SHED` with `retryable: true`.
+- You have not changed the payload.
 
-    - You have the event id and the shed timestamp from the dispatcher log.
-    - RFC 014 is in shadow or later. On today's single queue this how-to does not apply — there is no shed path.
-  
+Do not invent a new ID. A new ID bypasses idempotency and may create a second
+warehouse row.
 
-  
-## Steps
+## Replay procedure
 
-  
+1. Check whether the event already landed:
 
-    - Confirm the warehouse has no row for that id. If it does, stop. Idempotency already did the job.
-    - POST /events with the same body and the same id. Do not mint a new id.
-    - Expect 202. If you get INVALID_EVENT, fix the payload; do not retry blindly.
-    - If you get INGEST_SHED again, the chosen queue is still down — wait, do not hammer.
-  
+   ```bash
+   curl -s https://api.example.invalid/events/evt_02
+   ```
 
-  
+   Continue only on `404`; `200` means the original attempt succeeded.
+
+2. Wait for the bounded exponential-backoff window from producer policy.
+3. Resend the unchanged event:
+
+   ```bash
+   curl -X POST https://api.example.invalid/events \
+     -H 'X-Request-Id: req_replay_01' \
+     -d '{"id":"evt_02","type":"checkout.paid"}'
+   ```
+
+4. Verify by ID. Stop after the producer policy’s maximum attempts and
+   escalate rather than changing identity.
+
 ## You are done when
 
-  
-Warehouse has one row for that id, and the shed dashboard does not increment on the replay.
+Lookup returns exactly one `evt_02`, the replay response is recorded with its
+request ID, and the shed counter does not increase again for that attempt.

@@ -1,67 +1,69 @@
-Specification
+# Dispatcher routing and failure behavior
 
-  # Dispatcher routing — Northwind Ingestion
+**Type:** Normative specification · SPEC-014
+**Status:** Proposed
+**Owner:** Platform
+**Companion:** RFC 014
 
-  
+This specification defines how an accepted event is assigned to one queue, how
+quickly the gateway must return, and what implementations must prove.
 
-    **Status:** Proposed ·
-    **Keywords:** RFC 2119 ·
-    **Owner:** Platform
-  
+The keywords MUST, SHOULD, and MAY are normative.
 
-  
-
-    The key words MUST, SHOULD, and MAY in this document are to be interpreted
-    as described in RFC 2119.
-  
-
-  
 ## Scope
 
-  
+The contract begins after the gateway accepts and validates `POST /events`. It
+ends when the dispatcher writes to `ingest-a` or `ingest-b`, or records a
+bounded shed result.
 
-    This specifies the dispatcher introduced by RFC 014: how an accepted
-    `POST /events` payload is assigned to `ingest-a` or
-    `ingest-b`. It does not specify the gateway API, warehouse
-    schema, or batch path.
-  
+Authentication, payload schema, warehouse writes, batch ingestion, and global
+ordering are outside this specification.
 
-  
 ## Definitions
 
-  
+- **Accepted event:** caller, envelope, and required fields passed validation.
+- **Partition:** `hash(event.id) mod 2`; even routes to A, odd to B.
+- **Shed:** bounded refusal to enqueue on an unavailable selected queue.
+- **Healthy path:** selected queue and consumer group are available.
 
-    - Event ID — the id field on an accepted event. Opaque string.
-    - Partition — hash(event id) mod 2. Even → ingest-a. Odd → ingest-b.
-  
+## Normative requirements
 
-  
-## Requirements
+- **REQ-001 — Exactly one destination.** Every accepted event MUST be assigned
+  to exactly one queue.
+- **REQ-002 — Deterministic partition.** Assignment MUST be a function of event
+  ID alone and remain stable across retries.
+- **REQ-003 — Bounded gateway wait.** A selected queue failure MUST NOT hold the
+  gateway request longer than 200 ms.
+- **REQ-004 — No payload persistence.** The dispatcher MUST NOT inspect domain
+  fields or persist event bodies.
+- **REQ-005 — Observable outcome.** Every enqueue or shed MUST increment the
+  matching partition counter and retain request ID.
+- **REQ-006 — Independent health.** Failure of one queue MUST NOT prevent writes
+  to the other queue.
 
-  
+## Worked examples
 
-    - REQ-001 The dispatcher MUST assign every accepted event to exactly one of ingest-a or ingest-b.
-    - REQ-002 The assignment MUST be a function of event ID alone.
-    - REQ-003 If the chosen queue is unavailable, the dispatcher MUST shed the event and emit an alert. It MUST NOT block the gateway request for more than 200ms. (Unresolved vs blocking: Reliability, 2026-08-25.)
-    - REQ-004 The dispatcher MUST NOT inspect or persist payload bodies.
-  
+```text
+event.id = "evt_01"
+hash(event.id) mod 2 = 0
+destination = ingest-a
+result = enqueued
+```
 
-  
-## Examples
+```text
+event.id = "evt_02"
+destination = ingest-b
+ingest-b = unavailable
+gateway wait = 187 ms
+result = INGEST_SHED
+```
 
-  
+## Compliance matrix
 
-    Event `id=evt_01` hashes even → `ingest-a`. Event
-    `id=evt_02` hashes odd → `ingest-b`. A 503 from
-    `ingest-a` yields HTTP 202 from the gateway, a shed count, and
-    no warehouse write.
-  
-
-  
-## Compliance
-
-  
-
-    Conformance is a unit test of `REQ-001`–`REQ-002` on a
-    fixed ID list, plus a chaos test that `ingest-a` down does not
-    stall `/events` past 200ms.
+| Requirement | Evidence | Gate |
+|---|---|---|
+| REQ-001–002 | Fixed-vector test across 10,000 IDs and retries | Stable assignments |
+| REQ-003 | Selected queue unavailable under load | p99 below 200 ms |
+| REQ-004 | Code review and storage inventory | No body access or store |
+| REQ-005 | Dashboard and trace fixture | Every outcome correlated |
+| REQ-006 | One-queue-down chaos test | Healthy path continues |

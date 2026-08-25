@@ -6,6 +6,8 @@ title: Design-to-engineering handoff
 aliases: [figma-handoff, dev-handoff]
 example: examples/design-handoff.html
 command: /document-design-system:design-handoff
+pattern: system
+default-theme: editorial-coral
 default-format: markdown
 path: docs/design-handoff.md
 ```

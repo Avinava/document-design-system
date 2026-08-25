@@ -1,77 +1,55 @@
-Postmortem
+# One full queue stopped every ingestion producer
 
-  # Ingestion halt — 2026-07-30
+**Type:** Incident review · INC-2026-07-30
+**Status:** Final
+**Window:** 2026-07-30 14:12–16:04 UTC
+**Owner:** Platform
+**Severity:** SEV-1
 
-  
+For 1 hour 52 minutes, a saturated queue turned local backpressure into a
+platform-wide halt. Consumer scaling restored service; it did not remove the
+failure mode.
 
-    **Status:** Draft ·
-    **When:** 2026-07-30 14:12–16:04 UTC ·
-    **Owner:** Platform
-  
+## Impact at a glance
 
-  
-## Summary
+- Producer disruption: **1 hour 52 minutes**.
+- Peak warehouse lag: **118 minutes**.
+- Affected producer domains: **Checkout, Catalog, Inventory**.
+- No event corruption; acceptance and freshness were unavailable.
 
-  
+Evidence: pager timestamps, gateway 5xx, queue depth, and warehouse freshness.
 
-    The single ingestion queue filled. Every producer sharing that path stopped
-    accepting events for 1 hour 52 minutes. Warehouse freshness lagged. This is
-    the fourth incident of this shape in six events.
-  
+## Timeline
 
-  
-## Impact
+- **14:12** — lag crossed 120 seconds for five minutes; page fired.
+- **14:18** — consumers were alive, but depth rose faster than drain rate.
+- **14:31** — one replica added; lag flattened briefly.
+- **15:40** — gateway timeouts created hard producer failure.
+- **16:04** — second scale-up drained the queue and acceptance returned.
+- **17:22** — warehouse freshness fell below ten minutes; no replay gap.
 
-  
+## Cause, not symptom
 
-    - Duration: 1h 52m (detect 14:12 UTC, recover 16:04 UTC).
-    - Checkout, Catalog, and Inventory producers returned 503 or blocked.
-    - Warehouse lag peaked at 118 minutes of events.
-  
+1. A burst exceeded drain rate while one consumer recycled.
+2. One queue held every producer and had no independent path.
+3. Backpressure reached the gateway as timeouts and `503` responses.
 
-  
-Verified: pager timestamps; gateway 5xx from the 14:12–16:04 window.
+Root cause: ingestion had one queue and no failure boundary. Scaling consumers
+changed recovery time, not the architecture that allowed shared failure.
 
-  
-## Timeline (UTC)
+## Response review
 
-  
+What worked: on-call found the right dashboard and the documented scale command
+was safe. What failed: the page described lag but not the producer blast radius,
+and the five-minute threshold consumed most of the buffer.
 
-    - 14:12 — lag alert. Detection.
-    - 14:18 — on-call confirms queue depth saturating; consumers alive.
-    - 15:40 — producers start failing hard as the gateway times out.
-    - 16:04 — queue drained after a consumer scale-up; ingestion resumes.
-  
+## Actions that change the next incident
 
-  
-## Root cause
+| Action | Owner | Due | Proof |
+|---|---|---|---|
+| Split into independently recoverable queues | Platform | 2026-09-30 | One-queue-down test |
+| Page at 60 seconds with blast radius | Reliability | 2026-08-21 | Alert fixture and game day |
+| Add shed counts and retry guidance | Platform | 2026-09-05 | Dashboard review |
 
-  
-
-    One queue, no failover. Backpressure had nowhere to go except the gateway.
-    Scaling consumers recovered this instance; it does not remove the coupling.
-    RFC 014 exists because of this chain.
-  
-
-  
-## Contributing factors
-
-  
-
-    - Detection waited on lag &gt; 120s — five minutes of fill before a page.
-    - No shed-and-alert path; the gateway blocked.
-  
-
-  
-## What went well
-
-  
-On-call found the lag dashboard on the first try. The runbook scale step worked.
-
-  
-## Action items
-
-  
-
-    - Ship RFC 014 (two queues). Owner: Platform. P1. Tracking: RFC 014.
-    - Page at 60s lag, not 120s. Owner: Reliability. P2.
+Closure: alert and dashboard actions are verified. Architecture remains tracked
+by RFC 014 until isolation passes.

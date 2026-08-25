@@ -5,6 +5,29 @@ All notable changes to this project are documented here. Versions refer to the
 
 ## Unreleased
 
+### Changed
+
+- Replaced the single longform layout with eight structural document patterns:
+  decision, record, contract, procedure, learning, system, incident, and suite.
+  Pattern and theme are independent root attributes.
+- Rewrote all eighteen Markdown and HTML examples against one explicit fact
+  ledger, with parity checks to keep the two formats aligned.
+- Redesigned the homepage and type catalog around reader movement rather than a
+  uniform card grid. GitHub Pages now rebuilds examples from source before
+  assembling and validating the deployable site.
+- Increased tertiary-text contrast across the light themes and moved the
+  field-notes accent from rust to plum so every shipped theme is distinguishable
+  at thumbnail scale. The full theme audit now reports no warnings.
+
+### Added
+
+- `core/document-patterns.md` and `core/document-patterns.css`, including
+  responsive and print behavior for pattern-specific modules.
+- Lightweight gallery thumbnails, lazy image loading, Pages back-navigation,
+  favicon metadata, and mobile overflow handling.
+- Repository agent guidance and a pattern-first skill routing table, keeping
+  future document changes aligned with the eight-family contract.
+
 ## 0.2.0
 
 `writing-documents` replaces `longform-document-design`. Eighteen types, Markdown by default, a type gallery, and a fourteen-slide RFC 014 deck.

@@ -6,6 +6,8 @@ title: Engineering handoff
 aliases: [engineering-handoff, knowledge-transfer]
 example: examples/handoff.html
 command: /document-design-system:handoff
+pattern: procedure
+default-theme: field-notes
 default-format: markdown
 path: docs/handoff.md
 ```

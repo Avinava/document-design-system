@@ -60,33 +60,34 @@ DOCUMENTS = {
     "themes-dark.html": ("themes.html", "console-violet"),
 }
 
-# writing-documents examples: slug -> (theme, contract-layout)
+# writing-documents examples: slug -> (theme, document-pattern)
 # Bodies live in templates/types/<slug>.html; the shell is templates/longform.html.
 LONGFORM = {
-    "design-doc": ("field-notes", False),
-    "adr": ("field-notes", False),
-    "spec": ("field-notes", True),
-    "api-contract": ("console-violet", True),
-    "architecture": ("field-notes", False),
-    "handoff": ("field-notes", False),
-    "design-handoff": ("editorial-coral", False),
-    "discovery": ("field-notes", False),
-    "test-report": ("editorial-coral", True),
-    "postmortem": ("console-violet", False),
-    "proposal": ("executive-navy", False),
-    "runbook": ("console-violet", False),
-    "onboarding": ("field-notes", False),
-    "tutorial": ("editorial-coral", False),
-    "how-to": ("editorial-coral", False),
-    "reference": ("console-violet", True),
-    "explanation": ("field-notes", False),
-    "mulesoft": ("field-notes", False),
+    "design-doc": ("field-notes", "decision"),
+    "adr": ("field-notes", "record"),
+    "spec": ("field-notes", "contract"),
+    "api-contract": ("console-violet", "contract"),
+    "architecture": ("field-notes", "system"),
+    "handoff": ("field-notes", "procedure"),
+    "design-handoff": ("editorial-coral", "system"),
+    "discovery": ("field-notes", "decision"),
+    "test-report": ("editorial-coral", "contract"),
+    "postmortem": ("console-violet", "incident"),
+    "proposal": ("executive-navy", "decision"),
+    "runbook": ("console-violet", "procedure"),
+    "onboarding": ("field-notes", "learning"),
+    "tutorial": ("editorial-coral", "learning"),
+    "how-to": ("editorial-coral", "procedure"),
+    "reference": ("console-violet", "contract"),
+    "explanation": ("field-notes", "learning"),
+    "mulesoft": ("field-notes", "suite"),
 }
 
-# Same body, different theme — the token-contract proof. out_slug -> (body slug, theme, contract)
+# Same body and pattern, different theme — the two-axis contract proof.
+# out_slug -> (body slug, theme, pattern)
 LONGFORM_VARIANTS = {
-    "proposal-horizon": ("proposal", "horizon", False),
-    "proposal-coral": ("proposal", "editorial-coral", False),
+    "proposal-horizon": ("proposal", "horizon", "decision"),
+    "proposal-coral": ("proposal", "editorial-coral", "decision"),
 }
 
 FONTS = {
@@ -112,59 +113,80 @@ FONTS = {
     ),
 }
 
-# Cards on the document-type gallery, grouped the same way as the README.
+# Cards on the document-type gallery, grouped by reading pattern.
+# pattern -> (label, promise, items)
 TYPE_GALLERY = [
     (
-        "Decide",
+        "decision",
+        "Decision",
+        "Put the ask and trade-offs before the implementation detail.",
         [
             ("design-doc", "Should we do this, and is the approach sound?"),
-            ("adr", "Why is it like this?"),
-            ("spec", "What exactly must I build, and how do I know I am done?"),
+            ("discovery", "What did we learn, and should we proceed?"),
             ("proposal", "Should I approve this?"),
         ],
     ),
     (
-        "Hand off",
-        [
-            ("handoff", "What do I run, change, and not break after you leave?"),
-            ("design-handoff", "What do I build, in every state?"),
-        ],
+        "record",
+        "Record",
+        "Preserve one settled choice and make its consequences traceable.",
+        [("adr", "Why is it like this?")],
     ),
     (
-        "Operate",
+        "contract",
+        "Contract",
+        "Make exact rules, specimens, and compliance conditions easy to scan.",
         [
-            ("architecture", "How is it arranged today?"),
-            ("runbook", "What do I do right now?"),
-            ("postmortem", "What happened, why, and what stops it recurring?"),
-            ("onboarding", "How do I get it running and prove it works?"),
-        ],
-    ),
-    (
-        "Specify",
-        [
+            ("spec", "What exactly must I build, and how do I know I am done?"),
             ("api-contract", "How do I call this correctly, and what happens when I do it wrong?"),
             ("test-report", "Can we ship, on this build?"),
             ("reference", "What is the exact fact?"),
         ],
     ),
     (
-        "Discover and teach",
+        "procedure",
+        "Procedure",
+        "Keep safe execution, verification, and recovery in one visible path.",
         [
-            ("discovery", "What did we learn, and should we proceed?"),
-            ("tutorial", "Can I learn this by doing it once?"),
+            ("handoff", "What do I run, change, and not break after you leave?"),
             ("how-to", "How do I get this job done?"),
-            ("explanation", "Why is it like this?"),
+            ("runbook", "What do I do right now?"),
         ],
     ),
     (
-        "MuleSoft",
+        "learning",
+        "Learning",
+        "Build understanding through staged context, practice, and checkpoints.",
         [
-            ("mulesoft", "What does this Mule app do?"),
+            ("explanation", "Why is it like this?"),
+            ("onboarding", "How do I get it running and prove it works?"),
+            ("tutorial", "Can I learn this by doing it once?"),
         ],
+    ),
+    (
+        "system",
+        "System",
+        "Use maps, boundaries, interfaces, and states to build a spatial model.",
+        [
+            ("architecture", "How is it arranged today?"),
+            ("design-handoff", "What do I build, in every state?"),
+        ],
+    ),
+    (
+        "incident",
+        "Incident",
+        "Lead with impact, reconstruct time, then connect cause to owned action.",
+        [("postmortem", "What happened, why, and what stops it recurring?")],
+    ),
+    (
+        "suite",
+        "Suite",
+        "Orient readers across a linked set with ownership and freshness visible.",
+        [("mulesoft", "What does this application do, and where is each fact owned?")],
     ),
 ]
 
-SHOT_PREFIX = "../docs/screenshots"
+SHOT_PREFIX = "../docs/screenshots/thumbs"
 
 # Theme variants shown on the local type gallery (and Pages types.html).
 VOICES_GALLERY = [
@@ -261,11 +283,16 @@ def _title(body: str) -> str:
     return re.sub(r"<[^>]+>", "", m.group(1)).strip()
 
 
-def _assemble_one_longform(out_slug: str, body_slug: str, theme: str, contract: bool, shell: str) -> None:
+def _assemble_one_longform(out_slug: str, body_slug: str, theme: str, pattern: str, shell: str) -> None:
     body_path = TYPES / f"{body_slug}.html"
     if not body_path.is_file():
         sys.exit(f"missing type body: {body_path.relative_to(ROOT)}")
     body = body_path.read_text(encoding="utf-8")
+
+    def inline_body_figure(match: re.Match[str]) -> str:
+        return figure(match.group(1))
+
+    body = re.sub(r"<!-- @FIG ([a-z0-9-]+) -->", inline_body_figure, body)
     href = FONTS[theme]
     html = shell.replace("<!-- @@TITLE -->", _title(body), 1)
     html = html.replace(
@@ -274,12 +301,12 @@ def _assemble_one_longform(out_slug: str, body_slug: str, theme: str, contract: 
         1,
     )
     html = html.replace("<!-- @@BODY -->", body, 1)
-    if contract:
-        html = html.replace(
-            "<html lang=\"en\"",
-            '<html lang="en" data-layout="contract"',
-            1,
-        )
+    html = re.sub(
+        r'(<html[^>]*\sdata-pattern=")[^"]*(")',
+        rf"\g<1>{pattern}\g<2>",
+        html,
+        count=1,
+    )
     with tempfile.NamedTemporaryFile(
         "w", suffix=".html", encoding="utf-8", delete=False
     ) as tmp:
@@ -292,7 +319,7 @@ def _assemble_one_longform(out_slug: str, body_slug: str, theme: str, contract: 
     if "@@INLINE" in assembled or "@@BODY" in assembled or "@@TITLE" in assembled:
         sys.exit(f"unresolved marker in {out_slug}")
     (EX / f"{out_slug}.html").write_text(assembled, encoding="utf-8")
-    print(f"  {out_slug}.html ({theme}, {len(assembled):,} bytes)")
+    print(f"  {out_slug}.html ({pattern}, {theme}, {len(assembled):,} bytes)")
 
 
 def assemble_longform() -> None:
@@ -302,10 +329,10 @@ def assemble_longform() -> None:
     if stale.is_file():
         stale.unlink()
 
-    for slug, (theme, contract) in LONGFORM.items():
-        _assemble_one_longform(slug, slug, theme, contract, shell)
-    for out_slug, (body_slug, theme, contract) in LONGFORM_VARIANTS.items():
-        _assemble_one_longform(out_slug, body_slug, theme, contract, shell)
+    for slug, (theme, pattern) in LONGFORM.items():
+        _assemble_one_longform(slug, slug, theme, pattern, shell)
+    for out_slug, (body_slug, theme, pattern) in LONGFORM_VARIANTS.items():
+        _assemble_one_longform(out_slug, body_slug, theme, pattern, shell)
 
     assemble_brand(SHOT_PREFIX, EX / "brand.html")
     assemble_docs_gallery(SHOT_PREFIX)
@@ -348,23 +375,26 @@ def assemble_docs_gallery(
     introduced the skills.
     """
     groups = []
-    for heading, items in TYPE_GALLERY:
+    for pattern, heading, promise, items in TYPE_GALLERY:
         cards = []
         for slug, question in items:
             shot = f"{shot_prefix}/{slug}.png"
+            theme = LONGFORM[slug][0]
             cards.append(
-                f'<a class="card" href="{slug}.html">\n'
-                f'  <img src="{shot}" alt="{slug}: {question}">\n'
+                f'<a class="type-card" href="{slug}.html">\n'
+                f'  <img src="{shot}" alt="" width="640" height="400" loading="lazy" decoding="async">\n'
                 f'  <div class="pad">\n'
-                f'    <span class="kind">{slug}</span>\n'
+                f'    <span class="kind">{slug}</span><span class="theme">{theme}</span>\n'
                 f'    <h3>{question}</h3>\n'
                 f'  </div>\n'
                 f'</a>'
             )
         groups.append(
-            f'<section class="group">\n'
-            f'  <h2>{heading}</h2>\n'
-            f'  <div class="cards">\n    '
+            f'<section class="pattern-section pattern-{pattern}" id="{pattern}">\n'
+            f'  <header><span class="pattern-index">{len(groups) + 1:02d}</span>'
+            f'<div><p class="eyebrow">{pattern} pattern</p><h2>{heading}</h2>'
+            f'<p>{promise}</p></div></header>\n'
+            f'  <div class="type-cards">\n    '
             + "\n    ".join(cards)
             + "\n  </div>\n</section>"
         )
@@ -373,7 +403,7 @@ def assemble_docs_gallery(
     for name, href, shot, blurb in VOICES_GALLERY:
         voice_cards.append(
             f'<a class="card" href="{href}">\n'
-            f'  <img src="{shot_prefix}/{shot}" alt="{name}: {blurb}">\n'
+            f'  <img src="{shot_prefix}/{shot}" alt="" width="640" height="400" loading="lazy" decoding="async">\n'
             f'  <div class="pad">\n'
             f'    <span class="kind">{name}</span>\n'
             f'    <h3>{blurb}</h3>\n'
@@ -392,7 +422,7 @@ def assemble_docs_gallery(
     for name, href, shot, blurb in SKILL_GALLERY:
         skill_cards.append(
             f'<a class="card" href="{href}">\n'
-            f'  <img src="{shot_prefix}/{shot}" alt="{name}: {blurb}">\n'
+            f'  <img src="{shot_prefix}/{shot}" alt="" width="640" height="400" loading="lazy" decoding="async">\n'
             f'  <div class="pad">\n'
             f'    <span class="kind">{name}</span>\n'
             f'    <h3>{blurb}</h3>\n'

@@ -8,13 +8,10 @@
       python scripts/build_document.py templates/longform.html \
              --theme field-notes --out document.html
 
-  Prose-first: the measure is 62-72 characters. Full-width text on a wide
-  monitor is the most common readability failure in HTML technical documents.
-
-  Type files own section order. This shell owns tokens, measure, print.
-  Contract-heavy types set data-layout="contract" for a slightly wider shell.
+  Type files own section order and semantic components. This shell owns the
+  theme, document-pattern contract, responsive behavior, and print.
 -->
-<html lang="en" data-theme="field-notes">
+<html lang="en" data-theme="field-notes" data-pattern="decision">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -27,88 +24,7 @@
 <style>
 /* @@INLINE core/themes/${THEME}.css @@ */
 /* @@INLINE core/base.css @@ */
-
-/* ---- long-form layout (not part of core) ---- */
-
-.doc {
-  max-width: 760px;      /* holds the measure near 68ch */
-  margin: 0 auto;
-  padding: 48px 32px 80px;
-}
-
-html[data-layout="contract"] .doc {
-  max-width: 880px;
-}
-
-.status-banner {
-  border: 1px solid var(--rule-strong);
-  border-radius: var(--radius-md);
-  padding: 0.75rem 1rem;
-  margin-bottom: 2rem;
-  font-size: 0.9375rem;
-}
-
-.toc {
-  border-left: 2px solid var(--rule-strong);
-  padding-left: 1.25rem;
-  margin: 2rem 0 3rem;
-}
-.toc ol { margin: 0; padding-left: 1.25rem; }
-.toc li { margin: 0.25rem 0; }
-
-/* Non-goals earn a visual box because it is the section most often skipped
-   and most often the one that prevents a sprawling review. */
-.non-goals {
-  background: var(--surface-muted);
-  border-left: 3px solid var(--accent);
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
-  padding: 1rem 1.25rem;
-}
-
-.verdict {
-  border: 1px solid var(--rule-strong);
-  border-radius: var(--radius-md);
-  padding: 1rem 1.25rem;
-  margin: 1.5rem 0 2rem;
-}
-
-.evidence {
-  font-size: 0.8125rem;
-  color: var(--soft);
-}
-
-pre {
-  background: var(--surface-muted);
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-md);
-  padding: 0.875rem 1rem;
-  overflow-x: auto;
-  font-family: var(--mono);
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
-pre .lang {
-  display: block;
-  font-size: 0.75rem;
-  color: var(--soft);
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.changelog { font-size: 0.875rem; margin-bottom: 2.5rem; }
-
-.footnotes {
-  margin-top: 3rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--rule);
-  font-size: 0.9375rem;
-}
-.footnotes ol { padding-left: 1.25rem; }
-
-sup a { text-decoration: none; color: var(--accent); }
-
-@media (max-width: 640px) { .doc { padding: 24px 16px 48px; } }
+/* @@INLINE core/document-patterns.css @@ */
 
 /* @@INLINE core/print.css @@ */   /* must stay last */
 </style>

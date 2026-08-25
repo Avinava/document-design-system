@@ -2,7 +2,7 @@
 
 Committed outputs. They serve three jobs at once: CI fixtures, the screenshots in the root README, and a working reference for what each skill produces.
 
-The local type gallery is [`index.html`](index.html) — six skill cards, then the eighteen writing-documents types. GitHub Pages uses a full homepage at the site root and this gallery at `/types.html`.
+The local type gallery is [`index.html`](index.html) — eighteen types grouped by eight reading patterns, followed by theme variants and the six-skill strip. GitHub Pages uses a full homepage at the site root and this gallery at `/types.html`.
 
 All of them rebuild from source — nothing here is hand-maintained.
 
@@ -29,26 +29,19 @@ The `-light` / `-dark` pairs exist so the README can swap them with the reader's
 
 Bodies live in `templates/types/<slug>.html`. The shared world is [`WORLD.md`](WORLD.md). Rebuild with `python3 scripts/build_examples.py`. Each slug also has a Markdown twin `examples/<slug>.md`.
 
-| File | Theme |
-|---|---|
-| `design-doc.html` | field-notes |
-| `adr.html` | field-notes |
-| `spec.html` | field-notes |
-| `api-contract.html` | console-violet |
-| `architecture.html` | field-notes |
-| `handoff.html` | field-notes |
-| `design-handoff.html` | editorial-coral |
-| `discovery.html` | field-notes |
-| `test-report.html` | editorial-coral |
-| `postmortem.html` | console-violet |
-| `proposal.html` | executive-navy |
-| `runbook.html` | console-violet |
-| `onboarding.html` | field-notes |
-| `tutorial.html` | editorial-coral |
-| `how-to.html` | editorial-coral |
-| `reference.html` | console-violet |
-| `explanation.html` | field-notes |
-| `mulesoft.html` | field-notes |
+| Pattern | Files | Default themes |
+|---|---|---|
+| decision | `design-doc`, `discovery`, `proposal` | field-notes; proposal uses executive-navy |
+| record | `adr` | field-notes |
+| contract | `spec`, `api-contract`, `test-report`, `reference` | field-notes, console-violet, editorial-coral |
+| procedure | `handoff`, `how-to`, `runbook` | field-notes, editorial-coral, console-violet |
+| learning | `explanation`, `onboarding`, `tutorial` | field-notes, editorial-coral |
+| system | `architecture`, `design-handoff` | field-notes, editorial-coral |
+| incident | `postmortem` | console-violet |
+| suite | `mulesoft` | field-notes |
+
+Pattern and theme are independent root attributes. See
+[`../core/document-patterns.md`](../core/document-patterns.md) for the contract.
 
 ## Figures
 

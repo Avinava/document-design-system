@@ -16,6 +16,8 @@ Skills describe **judgment** — what to measure, when a chart earns its place, 
 | `themes/horizon.css` | A client brand applied. Worked example from brand-theme-design. |
 | `themes/brand-template.css` | Documented slot for your own brand. Copy, fill every TODO, rename. |
 | `base.css` | Component-to-token mapping. Contains no color literals. |
+| `document-patterns.md` | The eight structural families and their selection contract. |
+| `document-patterns.css` | Pattern layouts and modules. Contains no color literals. |
 | `print.css` | Print and PDF as a distinct output mode. Load last. |
 | `a11y.md` | Accessibility contract: SVG labelling, contrast, grayscale, focus. |
 
@@ -27,12 +29,12 @@ Load order is not cosmetic. Print rules must come last so they beat responsive r
 <html lang="en" data-theme="editorial-coral">
 <head>
   <style>
-    /* 1. theme  2. base  3. print — inlined, in this order */
+    /* 1. theme  2. base  3. document patterns  4. print */
   </style>
 </head>
 ```
 
-Documents ship as **one self-contained HTML file**, so in practice these files are inlined into a `<style>` block rather than linked. `templates/document.html` shows the assembled result.
+Documents ship as **one self-contained HTML file**, so in practice these files are inlined into a `<style>` block rather than linked. `templates/document.html` shows the base result; `templates/longform.html` adds the document-pattern layer.
 
 ## The one rule
 

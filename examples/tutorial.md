@@ -1,55 +1,49 @@
-Tutorial
+# Follow one event from local request to accepted identity
 
-  # Land your first event
+**Type:** Tutorial · first successful path
+**Time:** 20 minutes
+**Prerequisites:** Go 1.22, Make, Docker
+**Production access:** none
 
-  
+You will start the local gateway, send one synthetic event, inspect its
+response, and prove that replaying the same identity does not create a second
+logical event.
 
-    You will send one synthetic event through a local gateway and see it accepted.
-    This is a lesson, not a production how-to. If you already run ingestion,
-    use the how-to instead.
-  
+## Start from a known-good build
 
-  
-## You will
+```bash
+make ingest-test
+```
 
-  
+Checkpoint: contract and consumer suites pass. Stop if the baseline is broken.
 
-    - Start the local gateway.
-    - POST one event.
-    - Read the 202 and the event id.
-  
+## Start the local gateway
 
-  
-## Start the gateway
-
-  
 ```bash
 make ingest-run
 ```
 
-  
-Wait until the log line contains `listening`. That is success for this step. Leave the process running.
+Leave the process running when the log reports `listening` on port 8443.
 
-  
-## Post an event
+## Send one synthetic event
 
-  
-In a second terminal:
-
-  
 ```bash
-curl -k -s -o /tmp/evt.json -w "%{http_code}" \
-  https://127.0.0.1:8443/events \
+curl -k -i https://127.0.0.1:8443/events \
+  -H 'X-Request-Id: req_tutorial_01' \
   -d '{"id":"evt_learn","type":"tutorial.ping"}'
 ```
 
-  
-You should see `202`. Open `/tmp/evt.json` — it contains `evt_learn`.
+Checkpoint: response is `202`, echoes the request ID, and returns
+`{"id":"evt_learn","status":"accepted"}`.
 
-  
-## You are done
+## Repeat the identity and inspect the result
 
-  
+Run the same request without changing `evt_learn`. The service may return the
+original acceptance or an idempotent acknowledgement, but it must not create a
+second warehouse row.
 
-    You can accept an event locally. What the queue does under failure, how
-    partitions work, and how to operate lag are other documents. Stop here.
+## Stop at the lesson boundary
+
+You can start the service, send an event, read acceptance correctly, and explain
+why replay keeps the same ID. Failure recovery and production operation belong
+to the how-to and runbook.

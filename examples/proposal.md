@@ -1,59 +1,46 @@
-Proposal
+# Two engineers for one quarter to remove the shared ingestion failure
 
-  # Two engineers, one quarter, to split ingestion
+**Type:** Investment proposal
+**Asked of:** Platform director
+**Decision by:** 2026-09-01
+**Author:** Platform
 
-  
+Approve RFC 014 now so the next queue failure degrades throughput instead of
+stopping Checkout, Catalog, and Inventory together.
 
-    **Ask of:** Platform director ·
-    **Needed by:** 2026-09-01 ·
-    **Author:** Platform
-  
+## Why fund this now
 
-  
+Four of the last six incidents ended in the same platform-wide halt. Ingestion
+represents 41% of the measured footprint, and the observed cadence is roughly
+one repeat per quarter if the boundary does not change.
+
+## What the quarter buys
+
+- A stateless dispatcher that partitions accepted events by event ID.
+- Two queues and consumer groups that deploy and recover independently.
+- Dashboards, alerting, runbooks, and a one-queue-down chaos test.
+- A reversible production cutover with the original queue retained.
+
+## Cost and opportunity cost
+
+Two engineers for twelve weeks, plus Reliability review during the game day and
+cutover. The catalog backfill slips one quarter. Ongoing cost is one additional
+queue, consumer group, and dashboard lane.
+
+## The alternatives preserve the failure mode
+
+| Option | This quarter | Failure boundary | Decision |
+|---|---|---|---|
+| Do nothing | No delivery cost | Shared | Reject |
+| Increase capacity | Lower cost | Shared | Reject |
+| Split the path | Staffed quarter | Independent partitions | **Recommend** |
+| Queue per producer | Larger build | Independent producers | Too broad |
+
 ## The ask
 
-  
+Fund two Platform engineers from 2026-09-07 through 2026-11-27. Release only
+when one failed queue cannot stall the other and rollback returns traffic to
+`ingest` without data repair.
 
-    Two engineers for one quarter to ship RFC 014 — split the ingestion queue
-    so a single queue failure degrades throughput instead of stopping ingestion.
-  
-
-  
-## Rationale
-
-  
-
-    Four of the last six incidents ended as a full ingestion stop. Ingestion is
-    41% of platform footprint. Doing this later, during a worse incident, costs
-    more than a planned quarter.
-  
-
-  
-Verified: incident list and inventory snapshot in RFC 014.
-
-  
-## Cost
-
-  
-
-    - Two engineers, twelve weeks. Opportunity cost: the catalog backfill slips a quarter.
-    - Ongoing: one extra queue and consumer group to operate.
-    - Hard to quantify: pages we do not take when the next backpressure arrives.
-  
-
-  
-## Alternatives
-
-  
-
-    - Do nothing. Continue at roughly one halt per quarter.
-    - Larger single queue. Cheaper this quarter; does not remove the failure mode. Rejected in RFC 014.
-  
-
-  
-## Decision needed
-
-  
-
-    Platform director, by 2026-09-01. If there is no decision, the default is
-    do nothing — which is a choice, and should be recorded as one.
+If declined, record the current single queue as an accepted risk and keep the
+60-second alert action.

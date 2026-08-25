@@ -1,47 +1,43 @@
-Explanation
+# Why ingestion fails as a whole even when only one component is full
 
-  # Why ingestion fails as a whole
+**Type:** Conceptual explanation
+**Question:** why does local backpressure become a platform halt?
+**Scope:** current architecture
 
-  
+The important property is not queue size. It is the absence of an independent
+path: every producer and consumer shares the same place where work can wait.
 
-    Backpressure is ordinary. A full stop of every producer is not a necessary
-    consequence of it. This page is why Northwind currently treats them as the
-    same event — and why RFC 014 is a routing change, not a capacity change.
-  
+## One queue creates one fate
 
-  
-## One path, many callers
+Checkout, Catalog, and Inventory enter through the same gateway and wait on the
+same queue. Their volumes differ, but their ability to make progress does not:
+when the queue cannot accept, the gateway has nowhere else to place any event.
 
-  
+Shared infrastructure becomes shared fate when it has no independent failure
+or recovery boundary.
 
-    Checkout, Catalog, and Inventory all share `/events` and one
-    queue. That sharing is the feature: producers do not run their own brokers.
-    It is also the failure domain. When the queue cannot accept, the gateway
-    has nowhere to put work, so it stops accepting. 41% of platform footprint
-    is downstream of that decision.
-  
+## Capacity changes the clock, not the topology
 
-  
-## It is not (only) size
+A larger queue or more default consumers can absorb a bigger burst. If
+saturation still arrives, every producer remains behind it.
 
-  
+Independent queues change who can continue. One partition can fail while the
+other accepts, even if total capacity stays constant.
 
-    A larger queue delays the halt. It does not create a second place for work
-    to go. Detection at 120s of lag delays the page. It does not create a
-    degrade path. Those are real improvements; they answer a different why.
-  
+## Backpressure travels upstream
 
-  
-## Degrade means a defined leftover
+1. Consumers slow and drain rate falls below arrival rate.
+2. The queue fills and stops accepting within the gateway wait budget.
+3. The gateway blocks or returns overload to every caller.
 
-  
+The July incident followed this chain. Scaling consumers increased drain rate
+and recovered the queue; it did not prevent recurrence.
 
-    "Degrade throughput" only means something if a producer can still land
-    *some* events. Two queues, or a shed that returns 202, are ways to
-    leave a leftover. Blocking until 503 leaves none.
-  
+## Degradation is a defined leftover
 
-  
+Under RFC 014, a failed queue leaves the other partition accepting events,
+bounds gateway wait, records a shed outcome, and tells producers to retry the
+same event ID.
 
-    How to split, how to replay, how to page: other documents. This one is the
-    picture that makes those procedures make sense.
+The proposal is useful because it defines what continues, what stops, and how
+callers recover. “More resilience” alone does not.

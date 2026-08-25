@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Screenshot the built examples into docs/screenshots/ for the README.
 
-    pip install playwright && playwright install chromium
+    pip install playwright pillow && playwright install chromium
     python scripts/build_examples.py
     python scripts/shoot_examples.py
 
-Serves examples/ over localhost rather than using file:// URLs — a file:// page
+Serves the repository root over localhost rather than using file:// URLs — a file:// page
 cannot load the Google Fonts stylesheet consistently, and the screenshots would
-show fallback metrics rather than what a reader sees.
+show fallback metrics rather than what a reader sees. Serving the root also lets
+the type gallery resolve its ../docs/screenshots/thumbs/ previews.
 """
 
 from __future__ import annotations
@@ -31,6 +32,7 @@ PORT = 8931
 # unreadable sliver — the point of these is to show what the system looks like,
 # not to reproduce the whole document.
 SHOTS = {
+    "patterns-gallery": ("index.html", (1280, 900), False),
     "analytical-report": ("inventory-report.html", (1280, 980), False),
     "analytical-report-detail": ("inventory-report.html", (1280, 980), False),
     "design-doc": ("design-doc.html", (1280, 980), False),
@@ -93,7 +95,7 @@ class QuietHandler(http.server.SimpleHTTPRequestHandler):
 
 
 def serve() -> socketserver.TCPServer:
-    handler = functools.partial(QuietHandler, directory=str(EX))
+    handler = functools.partial(QuietHandler, directory=str(ROOT))
     socketserver.TCPServer.allow_reuse_address = True
     httpd = socketserver.TCPServer(("127.0.0.1", PORT), handler)
     threading.Thread(target=httpd.serve_forever, daemon=True).start()
@@ -105,14 +107,17 @@ def main() -> None:
 
     try:
         from playwright.sync_api import sync_playwright
+        from PIL import Image, ImageOps
     except ImportError:
         sys.exit(
-            "playwright is not installed.\n"
-            "  pip install playwright && playwright install chromium\n"
-            "It is an authoring-time dependency only."
+            "playwright and Pillow are required.\n"
+            "  pip install playwright pillow && playwright install chromium\n"
+            "They are authoring-time dependencies only."
         )
 
     OUT.mkdir(parents=True, exist_ok=True)
+    thumbs = OUT / "thumbs"
+    thumbs.mkdir(exist_ok=True)
     httpd = serve()
 
     try:
@@ -124,7 +129,7 @@ def main() -> None:
                     continue
                 page = browser.new_page(viewport={"width": w, "height": h},
                                         device_scale_factor=2)
-                page.goto(f"http://127.0.0.1:{PORT}/{page_file}", wait_until="networkidle")
+                page.goto(f"http://127.0.0.1:{PORT}/examples/{page_file}", wait_until="networkidle")
                 # Web fonts render as fallbacks if the shot is taken before they
                 # load, and the result looks subtly wrong in a way that is easy
                 # to miss in a thumbnail.
@@ -135,6 +140,14 @@ def main() -> None:
                 target = OUT / f"{name}.png"
                 page.screenshot(path=str(target), full_page=full)
                 print(f"  {target.relative_to(ROOT)}")
+                with Image.open(target) as source:
+                    thumb = ImageOps.fit(
+                        source.convert("RGB"),
+                        (640, 400),
+                        method=Image.Resampling.LANCZOS,
+                        centering=(0.5, 0.0),
+                    )
+                    thumb.save(thumbs / target.name, optimize=True)
                 page.close()
 
             for name, (page_file, index) in SLIDE_SHOTS.items():
@@ -142,7 +155,7 @@ def main() -> None:
                     continue
                 page = browser.new_page(viewport={"width": 1280, "height": 760},
                                         device_scale_factor=2)
-                page.goto(f"http://127.0.0.1:{PORT}/{page_file}", wait_until="networkidle")
+                page.goto(f"http://127.0.0.1:{PORT}/examples/{page_file}", wait_until="networkidle")
                 page.evaluate("document.fonts.ready")
                 slide = page.locator("section.slide").nth(index)
                 slide.scroll_into_view_if_needed()

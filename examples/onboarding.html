@@ -8,17 +8,14 @@
       python scripts/build_document.py templates/longform.html \
              --theme field-notes --out document.html
 
-  Prose-first: the measure is 62-72 characters. Full-width text on a wide
-  monitor is the most common readability failure in HTML technical documents.
-
-  Type files own section order. This shell owns tokens, measure, print.
-  Contract-heavy types set data-layout="contract" for a slightly wider shell.
+  Type files own section order and semantic components. This shell owns the
+  theme, document-pattern contract, responsive behavior, and print.
 -->
-<html lang="en" data-theme="field-notes">
+<html lang="en" data-theme="field-notes" data-pattern="learning">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Run Northwind Ingestion locally</title>
+<title>Build the right model of Northwind Ingestion before you operate it</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,7 +25,7 @@
 /* ---- inlined from core/themes/field-notes.css ---- */
 /* field-notes — research findings, audits, operational workshops.
  *
- * Tactile but still professional. Warm paper, near-zero radii, a rust accent.
+ * Tactile but still professional. Warm paper, near-zero radii, a plum accent.
  *
  * This theme may use a very subtle paper texture, but only when requested.
  * Texture must disappear in print and must never reduce contrast.
@@ -43,13 +40,13 @@
 
   --ink: #28312d;
   --muted: #59665f;
-  --soft: #7b857f;
+  --soft: #65716a;
 
   --rule: rgba(40, 49, 45, 0.14);
   --rule-strong: rgba(40, 49, 45, 0.34);
 
-  --accent: #b65332;
-  --accent-tint: rgba(182, 83, 50, 0.10);
+  --accent: #864b72;
+  --accent-tint: rgba(134, 75, 114, 0.10);
   --accent-ink: #ffffff;
 
   --positive: #46725a;
@@ -324,25 +321,97 @@ a { color: inherit; text-underline-offset: 2px; }
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+/* ---- inlined from core/document-patterns.css ---- */
+/* document-patterns.css — structure for prose-first technical documents.
+ *
+ * Themes answer "what voice does this use?" through semantic tokens.
+ * Patterns answer "how should this information be read?" through layout and
+ * component choice. Pattern CSS therefore contains no colour literals.
+ *
+ * Root contract:
+ *   <html data-theme="field-notes" data-pattern="decision">
+ */
 
-/* ---- long-form layout (not part of core) ---- */
+/* ---------------------------------------------------------------- shell */
 
 .doc {
-  max-width: 760px;      /* holds the measure near 68ch */
+  --doc-max: 960px;
+  --content-measure: 68ch;
+  max-width: var(--doc-max);
   margin: 0 auto;
   padding: 48px 32px 80px;
 }
 
-html[data-layout="contract"] .doc {
-  max-width: 880px;
+.doc-hero {
+  border-top: 3px solid var(--accent);
+  padding-top: 1.25rem;
+  margin-bottom: 2.5rem;
 }
 
+.doc-hero h1 {
+  max-width: 24ch;
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  letter-spacing: -0.03em;
+  margin-bottom: 0.75rem;
+}
+
+.doc-hero .lede {
+  max-width: 62ch;
+  color: var(--muted);
+  font-size: 1.125rem;
+}
+
+.doc-meta,
 .status-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 1.25rem;
   border: 1px solid var(--rule-strong);
   border-radius: var(--radius-md);
   padding: 0.75rem 1rem;
-  margin-bottom: 2rem;
-  font-size: 0.9375rem;
+  margin: 1.25rem 0 0;
+  font-size: 0.875rem;
+}
+
+.doc-meta span,
+.status-banner span { white-space: nowrap; }
+
+.doc-meta strong,
+.status-banner strong { font-weight: 600; }
+
+.section {
+  border-top: 1px solid var(--rule-strong);
+  margin-top: 3.5rem;
+  padding-top: 1.5rem;
+}
+
+.section-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.section-head h2 { margin: 0; }
+
+.section-num {
+  display: inline-grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font: 600 0.8125rem/1 var(--mono);
+}
+
+.reading-time,
+.component-label {
+  color: var(--soft);
+  font: 500 0.6875rem/1.3 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .toc {
@@ -350,50 +419,111 @@ html[data-layout="contract"] .doc {
   padding-left: 1.25rem;
   margin: 2rem 0 3rem;
 }
+
 .toc ol { margin: 0; padding-left: 1.25rem; }
-.toc li { margin: 0.25rem 0; }
+.toc li { margin: 0.3rem 0; }
 
-/* Non-goals earn a visual box because it is the section most often skipped
-   and most often the one that prevents a sprawling review. */
-.non-goals {
-  background: var(--surface-muted);
-  border-left: 3px solid var(--accent);
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
-  padding: 1rem 1.25rem;
-}
-
+.keypoint,
+.non-goals,
+.checkpoint,
+.takeaway,
+.danger,
 .verdict {
-  border: 1px solid var(--rule-strong);
+  margin: 1.5rem 0;
+  padding: 1rem 1.2rem;
   border-radius: var(--radius-md);
-  padding: 1rem 1.25rem;
-  margin: 1.5rem 0 2rem;
 }
+
+.keypoint,
+.non-goals {
+  background: var(--accent-tint);
+  border-left: 3px solid var(--accent);
+}
+
+.checkpoint,
+.takeaway,
+.verdict {
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+}
+
+.danger {
+  border: 1px solid var(--critical);
+  border-left: 4px solid var(--critical);
+}
+
+.danger > :first-child,
+.keypoint > :first-child,
+.non-goals > :first-child,
+.checkpoint > :first-child,
+.takeaway > :first-child,
+.verdict > :first-child { margin-top: 0; }
+
+.danger > :last-child,
+.keypoint > :last-child,
+.non-goals > :last-child,
+.checkpoint > :last-child,
+.takeaway > :last-child,
+.verdict > :last-child { margin-bottom: 0; }
 
 .evidence {
-  font-size: 0.8125rem;
   color: var(--soft);
+  font-size: 0.8125rem;
 }
 
 pre {
+  max-width: 100%;
+  overflow-x: auto;
   background: var(--surface-muted);
   border: 1px solid var(--rule);
   border-radius: var(--radius-md);
-  padding: 0.875rem 1rem;
-  overflow-x: auto;
-  font-family: var(--mono);
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
-pre .lang {
-  display: block;
-  font-size: 0.75rem;
-  color: var(--soft);
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  padding: 1rem 1.1rem;
+  font: 0.875rem/1.55 var(--mono);
 }
 
-.changelog { font-size: 0.875rem; margin-bottom: 2.5rem; }
+pre .lang {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--soft);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.specimen { margin: 1.75rem 0; }
+.specimen pre { margin: 0; }
+.specimen figcaption,
+.figure figcaption {
+  margin-top: 0.5rem;
+  color: var(--soft);
+  font: 0.6875rem/1.45 var(--mono);
+}
+
+.comparison-grid,
+.state-grid,
+.document-map {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.comparison-grid > *,
+.state-grid > *,
+.document-map > * {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.15rem;
+}
+
+.comparison-grid .recommended {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+}
+
+.table-scroll { overflow-x: auto; margin: 1.5rem 0; }
+.table-scroll table { min-width: 620px; }
 
 .footnotes {
   margin-top: 3rem;
@@ -401,11 +531,327 @@ pre .lang {
   border-top: 1px solid var(--rule);
   font-size: 0.9375rem;
 }
-.footnotes ol { padding-left: 1.25rem; }
 
-sup a { text-decoration: none; color: var(--accent); }
+/* ------------------------------------------------------------- decision */
 
-@media (max-width: 640px) { .doc { padding: 24px 16px 48px; } }
+html[data-pattern="decision"] .doc { --doc-max: 1100px; }
+
+.doc-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.decision-rail {
+  position: sticky;
+  top: 1.5rem;
+  background: var(--method-bg);
+  color: var(--method-ink);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+}
+
+.decision-rail h2,
+.decision-rail h3 { color: inherit; margin-top: 0; }
+.decision-rail p,
+.decision-rail li { color: var(--method-muted); }
+
+/* --------------------------------------------------------------- record */
+
+html[data-pattern="record"] .doc { --doc-max: 860px; }
+html[data-pattern="record"] .doc-hero { margin-bottom: 1.75rem; }
+
+.decision-statement {
+  margin: 1.5rem 0 2.25rem;
+  padding: 1.4rem 1.5rem;
+  background: var(--accent-tint);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  font-size: 1.125rem;
+}
+
+.consequence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.consequence-grid > * { padding: 1rem 1.15rem; }
+.consequence-grid > * + * { border-left: 1px solid var(--rule); }
+
+/* ------------------------------------------------------------- contract */
+
+html[data-pattern="contract"] .doc { --doc-max: 1160px; }
+
+.contract-layout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.doc-grid > *,
+.contract-layout > *,
+.system-layout > * { min-width: 0; }
+
+.contract-index {
+  position: sticky;
+  top: 1.5rem;
+  border-top: 2px solid var(--rule-strong);
+  padding-top: 1rem;
+  font-size: 0.875rem;
+}
+
+.contract-index ol { padding-left: 1.1rem; }
+
+.requirement,
+.endpoint {
+  display: grid;
+  grid-template-columns: minmax(90px, auto) minmax(0, 1fr);
+  gap: 1rem;
+  border-top: 1px solid var(--rule);
+  padding: 1rem 0;
+}
+
+.requirement-id,
+.http-method {
+  color: var(--accent);
+  font: 600 0.8125rem/1.4 var(--mono);
+}
+
+/* ------------------------------------------------------------ procedure */
+
+html[data-pattern="procedure"] .doc { --doc-max: 1000px; }
+
+.procedure-steps {
+  list-style: none;
+  counter-reset: procedure;
+  padding: 0;
+}
+
+.procedure-steps > li {
+  counter-increment: procedure;
+  position: relative;
+  padding: 0 0 2.25rem 3.5rem;
+  margin: 0;
+  border-left: 1px solid var(--rule-strong);
+}
+
+.procedure-steps > li::before {
+  content: counter(procedure, decimal-leading-zero);
+  position: absolute;
+  left: -1.05rem;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-radius: 50%;
+  font: 600 0.75rem/1 var(--mono);
+}
+
+.procedure-steps h3 { margin-top: 0; }
+
+.outcome {
+  border-left: 2px solid var(--positive);
+  padding-left: 0.85rem;
+  color: var(--muted);
+}
+
+.response-band {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.response-band > * {
+  border-top: 3px solid var(--rule-strong);
+  padding-top: 0.85rem;
+}
+
+/* ------------------------------------------------------------- learning */
+
+html[data-pattern="learning"] .doc {
+  --doc-max: 960px;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+
+html[data-pattern="learning"] .section {
+  border-top-width: 2px;
+  margin-top: 4.5rem;
+  padding-top: 2rem;
+}
+
+/* --------------------------------------------------------------- system */
+
+html[data-pattern="system"] .doc { --doc-max: 1180px; }
+
+.system-map {
+  margin: 2rem 0;
+  padding: 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+}
+
+.system-map svg { display: block; width: 100%; height: auto; }
+
+.system-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.system-rail {
+  border-left: 2px solid var(--rule-strong);
+  padding-left: 1.25rem;
+}
+
+/* ------------------------------------------------------------- incident */
+
+html[data-pattern="incident"] .doc { --doc-max: 1080px; }
+
+.impact-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin: 2rem 0 3rem;
+  background: var(--rule-strong);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.impact-strip > * {
+  background: var(--surface);
+  padding: 1.2rem;
+}
+
+.impact-value {
+  display: block;
+  color: var(--accent);
+  font: 600 2rem/1.1 var(--display);
+}
+
+.impact-label { color: var(--muted); font-size: 0.8125rem; }
+
+.timeline {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0 2.5rem;
+}
+
+.timeline li {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 1.25rem;
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.timeline time {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.cause-chain {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.cause-chain > * {
+  position: relative;
+  border: 1px solid var(--rule);
+  border-top: 3px solid var(--accent);
+  padding: 1rem;
+  background: var(--surface);
+}
+
+.action-register { margin: 1.5rem 0; }
+
+/* ---------------------------------------------------------------- suite */
+
+html[data-pattern="suite"] .doc { --doc-max: 1120px; }
+.document-map { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.document-map a { text-decoration: none; }
+
+/* ------------------------------------------------------------ responsive */
+
+@media (max-width: 860px) {
+  .doc { padding: 32px 20px 56px; }
+  .doc-grid,
+  .contract-layout,
+  .system-layout { grid-template-columns: 1fr; }
+  .decision-rail,
+  .contract-index { position: static; }
+  .contract-index { display: none; }
+  .response-band,
+  .document-map { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 620px) {
+  .doc { padding-inline: 16px; }
+  .doc-hero h1 { font-size: 2rem; }
+  .doc-meta,
+  .status-banner { display: grid; gap: 0.45rem; }
+  .doc-meta span,
+  .status-banner span { white-space: normal; }
+  .section-head { grid-template-columns: auto minmax(0, 1fr); }
+  .section-head .reading-time { grid-column: 2; }
+  .comparison-grid,
+  .state-grid,
+  .consequence-grid,
+  .impact-strip,
+  .cause-chain { grid-template-columns: 1fr; }
+  .consequence-grid > * + * {
+    border-left: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .timeline li { grid-template-columns: 70px minmax(0, 1fr); gap: 0.75rem; }
+  .procedure-steps > li { padding-left: 2.75rem; }
+}
+
+@media print {
+  .doc { max-width: none; padding: 0; }
+  .doc-hero { margin-bottom: 1.5rem; }
+  .section { margin-top: 1.75rem; padding-top: 1rem; }
+  .danger { margin: 0.75rem 0; padding: 0.75rem 1rem; }
+  .section-head {
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+  .doc-grid,
+  .contract-layout,
+  .system-layout { display: block; }
+  .decision-rail,
+  .contract-index { position: static; }
+  .contract-index { display: none; }
+  .decision-rail {
+    margin: 1.5rem 0;
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--rule-strong);
+  }
+  .decision-rail p,
+  .decision-rail li { color: var(--muted); }
+  .impact-strip,
+  .cause-chain,
+  .response-band,
+  .comparison-grid,
+  .state-grid,
+  .document-map { break-inside: avoid; }
+  .procedure-steps > li { break-inside: avoid; }
+}
 
 /* ---- inlined from core/print.css ---- */
 /* print.css — print and PDF as a distinct output mode.
@@ -597,47 +1043,149 @@ sup a { text-decoration: none; color: var(--accent); }
 </head>
 <body>
 <article class="doc">
+  <header class="doc-hero">
+    <p class="eyebrow">Engineering onboarding · 55 minutes</p>
+    <h1>Build the right model of Northwind Ingestion before you operate it</h1>
+    <p class="lede">Read the current path, learn where familiar queue assumptions fail, run one event locally, and finish with the questions worth asking on your first on-call review.</p>
+    <div class="doc-meta" aria-label="Onboarding metadata"><span><strong>Audience:</strong> incoming platform engineer</span><span><strong>Environment:</strong> local only</span><span><strong>Owner:</strong> Platform</span><span><strong>Outcome:</strong> explain, run, verify</span></div>
+  </header>
 
-  <p class="eyebrow">Onboarding</p>
-  <h1>Run Northwind Ingestion locally</h1>
+  <nav class="toc" aria-label="Onboarding contents"><p class="component-label">Learning path</p><ol><li><a href="#model">The working model</a></li><li><a href="#boundaries">Boundaries that matter</a></li><li><a href="#read">Read the request path</a></li><li><a href="#run">Run one event</a></li><li><a href="#ready">Prove readiness</a></li></ol></nav>
 
-  <p class="status-banner">
-    <strong>Owner:</strong> Platform ·
-    <strong>Dated:</strong> 2026-08-12 ·
-    <strong>For:</strong> first day, not an incident
-  </p>
+  <section class="section" id="model">
+    <div class="section-head"><span class="section-num">01</span><h2>The working model</h2><span class="reading-time">8 min</span></div>
+    <p>Northwind Ingestion is an internal acceptance and landing path. Producers send events to the gateway; one shared queue buffers them; consumers validate and write them to the warehouse.</p>
+    <div class="keypoint"><p><strong>Carry this sentence:</strong> the current queue is both the buffer and the failure boundary for every first-party producer.</p></div>
+    <div class="system-map diagram-scroll"><svg role="img" aria-labelledby="arch-title arch-desc" viewBox="0 0 720 340" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+  <title id="arch-title">Ingestion architecture</title>
+  <desc id="arch-desc">Producers enter through a gateway inside the trust boundary, buffer in a queue, and are consumed into the warehouse. The queue is the only component without a failover, and it carries the whole ingestion path.</desc>
 
-  <h2 id="prerequisites">Prerequisites</h2>
-  <ul>
-    <li>Go 1.22, Make, Docker. <span class="evidence">Verified: CI <code>setup-go</code> 1.22.</span></li>
-    <li>Access request: ingestion namespace (staging), vault path <code>ingest/*</code>. Values never in this file.</li>
-  </ul>
+  <defs>
+    <marker id="arch-arrow" viewBox="0 0 8 8" refX="7" refY="4"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arch-arrow-focal" viewBox="0 0 8 8" refX="7" refY="4"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+    </marker>
+  </defs>
 
-  <h2 id="config">Safe configuration</h2>
-  <pre><span class="lang">env</span>INGEST_QUEUE_URI=${INGEST_QUEUE_URI}
-INGEST_GATEWAY_ADDR=127.0.0.1:8443</pre>
-  <p>Copy <code>.env.example</code>. Do not paste production URIs.</p>
+  <!-- boundaries -->
+  <g>
+    <rect x="128" y="56" width="404" height="152" rx="6"
+          fill="none" stroke="var(--rule-strong)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="140" y="76" font-family="var(--sans)" font-size="11" fill="var(--soft)"
+          letter-spacing="0.06em">TRUST BOUNDARY</text>
+  </g>
 
-  <h2 id="commands">Local commands</h2>
-  <pre><span class="lang">bash</span>make ingest-test
-make ingest-run</pre>
-  <p>Success: tests pass; gateway logs "listening" on 8443.</p>
+  <!-- edges (drawn before nodes so line ends sit behind the boxes) -->
+  <path d="M104 132 H 152" fill="none" stroke="var(--muted)" stroke-width="1"
+        marker-end="url(#arch-arrow)"/>
+  <path d="M312 132 H 360" fill="none" stroke="var(--accent)" stroke-width="1.5"
+        marker-end="url(#arch-arrow-focal)"/>
+  <path d="M520 132 H 568" fill="none" stroke="var(--muted)" stroke-width="1"
+        marker-end="url(#arch-arrow)"/>
 
-  <h2 id="external">External systems</h2>
-  <p>Local Docker Compose provides a stand-in queue. Staging queue is not required on day one.</p>
+  <!-- edge labels on a paper-colored backing so the line does not strike through -->
+  <rect x="316" y="116" width="40" height="16" fill="var(--paper)"/>
+  <text x="336" y="128" text-anchor="middle" font-family="var(--sans)"
+        font-size="11" fill="var(--muted)">async</text>
 
-  <h2 id="deploy">Deployment</h2>
-  <p>Staging deploys from <code>main</code> via the ingest workflow. You will not deploy on day one.</p>
+  <!-- nodes -->
+  <g>
+    <rect x="24" y="100" width="80" height="64" rx="6"
+          fill="var(--surface)" stroke="var(--rule)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="64" y="136" text-anchor="middle" font-family="var(--sans)"
+          font-size="13" fill="var(--soft)">Producers</text>
+  </g>
 
-  <h2 id="validation">Validation</h2>
-  <ol>
-    <li><code>curl -k https://127.0.0.1:8443/events</code> with the example body in <code>docs/api.md</code> → 202.</li>
-    <li>Consumer log shows the event id.</li>
-  </ol>
+  <g>
+    <rect x="152" y="100" width="160" height="64" rx="6"
+          fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="232" y="130" text-anchor="middle" font-family="var(--sans)"
+          font-size="13" fill="var(--ink)">Gateway</text>
+    <text x="232" y="146" text-anchor="middle" font-family="var(--mono)"
+          font-size="11" fill="var(--muted)">:8443</text>
+  </g>
 
-  <h2 id="troubleshooting">Troubleshooting</h2>
-  <p><code>connection refused</code> on 8443: <code>make ingest-run</code> is not up. <code>INGEST_QUEUE_URI unset</code>: the example env file was not copied.</p>
+  <!-- focal node: the one thing the diagram is about -->
+  <g>
+    <rect x="360" y="100" width="160" height="64" rx="6"
+          fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="440" y="130" text-anchor="middle" font-family="var(--sans)"
+          font-size="13" fill="var(--ink)">Queue</text>
+    <text x="440" y="146" text-anchor="middle" font-family="var(--mono)"
+          font-size="11" fill="var(--muted)">single instance</text>
+  </g>
 
+  <g>
+    <rect x="568" y="100" width="128" height="64" rx="6"
+          fill="var(--surface)" stroke="var(--rule)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="632" y="136" text-anchor="middle" font-family="var(--sans)"
+          font-size="13" fill="var(--soft)">Warehouse</text>
+  </g>
+
+  <!-- callout: dashed Bezier leader, no arrowhead. At most two per diagram. -->
+  <g>
+    <path d="M440 100 C 440 72, 456 48, 492 48"
+          fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="500" y="52" font-family="var(--sans)" font-size="12"
+          font-style="italic" fill="var(--ink)">no failover</text>
+  </g>
+
+  <!-- legend: inside the viewBox, or it is lost on export and in print -->
+  <g>
+    <path d="M24 268 H 700" stroke="var(--rule)" stroke-width="1"/>
+    <text x="24" y="292" font-family="var(--mono)" font-size="10"
+          fill="var(--soft)" letter-spacing="0.14em">LEGEND</text>
+    <rect x="104" y="282" width="20" height="12" rx="2" fill="var(--surface)"
+          stroke="var(--rule)" stroke-dasharray="4 3"/>
+    <text x="132" y="292" font-family="var(--sans)" font-size="11" fill="var(--muted)">external</text>
+    <rect x="212" y="282" width="20" height="12" rx="2" fill="var(--accent-tint)" stroke="var(--accent)"/>
+    <text x="240" y="292" font-family="var(--sans)" font-size="11" fill="var(--muted)">focal</text>
+  </g>
+</svg></div>
+    <p>The diagram also shows the proposed dispatcher and split queues. Those components are not production facts yet; they belong to RFC 014.</p>
+  </section>
+
+  <section class="section" id="boundaries">
+    <div class="section-head"><span class="section-num">02</span><h2>Four boundaries that prevent wrong assumptions</h2><span class="reading-time">12 min</span></div>
+    <div class="comparison-grid">
+      <div><p class="component-label">Acceptance</p><h3><code>202</code> is queued, not warehoused</h3><p>Lookup and freshness are later concerns. Do not promise downstream visibility at gateway acceptance time.</p></div>
+      <div><p class="component-label">Identity</p><h3>Event ID is the retry anchor</h3><p>Reuse it. A new ID turns a retry into a second logical event.</p></div>
+      <div><p class="component-label">Ordering</p><h3>Producer-local order is not guaranteed</h3><p>The proposed split does not remove a promise because that promise does not exist today.</p></div>
+      <div><p class="component-label">Rollback</p><h3>Queues are retained, never deleted</h3><p>Cutovers flip traffic. Destructive queue actions are not a rollback strategy.</p></div>
+    </div>
+    <div class="takeaway"><p>If a design or incident response crosses one of these boundaries, stop and open the owning contract or runbook before acting.</p></div>
+  </section>
+
+  <section class="section" id="read">
+    <div class="section-head"><span class="section-num">03</span><h2>Read the request path without running it</h2><span class="reading-time">12 min</span></div>
+    <figure class="specimen"><pre><span class="lang">http</span>POST /events
+X-Request-Id: req_7f3
+
+{"id":"evt_01","type":"checkout.paid"}
+
+202 {"id":"evt_01","status":"accepted"}</pre><figcaption>Follow three values through code: event ID for idempotency, request ID for tracing, and status for caller behavior.</figcaption></figure>
+    <p>Then read configuration in this order: required queue URI, bind address, health endpoints, and alert thresholds. The reference page owns exact keys; onboarding owns the mental path through them.</p>
+  </section>
+
+  <section class="section" id="run">
+    <div class="section-head"><span class="section-num">04</span><h2>Run one event locally</h2><span class="reading-time">15 min</span></div>
+    <ol class="procedure-steps">
+      <li><h3>Run the tests</h3><pre><span class="lang">bash</span>make ingest-test</pre><p class="outcome">Success: contract and consumer tests pass.</p></li>
+      <li><h3>Start the gateway</h3><pre><span class="lang">bash</span>make ingest-run</pre><p class="outcome">Success: the log contains <code>listening</code> on 8443.</p></li>
+      <li><h3>Post the synthetic event</h3><pre><span class="lang">bash</span>curl -k https://127.0.0.1:8443/events \
+  -d '{"id":"evt_learn","type":"onboarding.ping"}'</pre><p class="outcome">Success: <code>202</code> repeats <code>evt_learn</code>.</p></li>
+    </ol>
+  </section>
+
+  <section class="section" id="ready">
+    <div class="section-head"><span class="section-num">05</span><h2>Prove readiness with understanding, not task completion</h2><span class="reading-time">8 min</span></div>
+    <ul><li>Draw the current path and mark its single failure boundary.</li><li>Explain why scaling consumers recovers an incident but does not remove recurrence.</li><li>Name the current and proposed overload responses without mixing them.</li><li>Locate the runbook, API source, RFC, ADR, dashboard, and latest postmortem.</li><li>Ask who can approve shed behavior and where the chaos environment will live.</li></ul>
+    <div class="takeaway"><p><strong>You are ready for the next document when:</strong> you can explain what is current, proposed, unresolved, and safe to change without relying on memory or access to production.</p></div>
+  </section>
 </article>
 
 </body>

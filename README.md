@@ -96,56 +96,35 @@ Further down the same document — cohort columns and an attribution table that 
 
 Browse them on the [live site](https://avinava.github.io/document-design-system/types.html), or [`examples/index.html`](examples/index.html) locally.
 
-Measure 62–72 characters, status explicit, non-goals in their own box.
+The visual system has two independent axes. A **pattern** controls how the page
+is read; a **theme** controls its voice. Prose stays at 62–72 characters while
+maps, tables, timelines, comparisons, and registers use the space they need.
 
-**Decide**
-
-| | |
-|---|---|
-| [![Design doc](docs/screenshots/design-doc.png)](examples/design-doc.html) | [![ADR](docs/screenshots/adr.png)](examples/adr.html) |
-| `design-doc` — should we do this, and is the approach sound? | `adr` — why is it like this? |
-| [![Spec](docs/screenshots/spec.png)](examples/spec.html) | [![Proposal](docs/screenshots/proposal.png)](examples/proposal.html) |
-| `spec` — what exactly must I build? | `proposal` — should I approve this? |
-
-**Hand off**
-
-| | |
-|---|---|
-| [![Handoff](docs/screenshots/handoff.png)](examples/handoff.html) | [![Design handoff](docs/screenshots/design-handoff.png)](examples/design-handoff.html) |
-| `handoff` — what do I run after you leave? | `design-handoff` — what do I build, in every state? |
-
-**Operate**
+| Pattern | Reading movement | Types |
+|---|---|---|
+| `decision` | ask → choices → trade-offs → next move | `design-doc`, `discovery`, `proposal` |
+| `record` | status → decision → consequences | `adr` |
+| `contract` | definitions → exact rules → specimens → compliance | `spec`, `api-contract`, `test-report`, `reference` |
+| `procedure` | safety → steps → verification → recovery | `handoff`, `how-to`, `runbook` |
+| `learning` | context → practice → checkpoint → takeaway | `explanation`, `onboarding`, `tutorial` |
+| `system` | map → boundaries → interfaces → states | `architecture`, `design-handoff` |
+| `incident` | impact → timeline → cause → owned action | `postmortem` |
+| `suite` | document map → ownership → freshness | `mulesoft` |
 
 | | |
 |---|---|
-| [![Architecture](docs/screenshots/architecture.png)](examples/architecture.html) | [![Runbook](docs/screenshots/runbook.png)](examples/runbook.html) |
-| `architecture` — how is it arranged today? | `runbook` — what do I do right now? |
-| [![Postmortem](docs/screenshots/postmortem.png)](examples/postmortem.html) | [![Onboarding](docs/screenshots/onboarding.png)](examples/onboarding.html) |
-| `postmortem` — what happened, and what stops it recurring? | `onboarding` — how do I get it running? |
+| [![Decision pattern](docs/screenshots/design-doc.png)](examples/design-doc.html) | [![Contract pattern](docs/screenshots/api-contract.png)](examples/api-contract.html) |
+| `decision` — comparison and decision rail | `contract` — wide rules and specimens |
+| [![Procedure pattern](docs/screenshots/runbook.png)](examples/runbook.html) | [![Incident pattern](docs/screenshots/postmortem.png)](examples/postmortem.html) |
+| `procedure` — safety and checkpoints | `incident` — impact strip and timeline |
 
-**Specify**
+The [live pattern gallery](https://avinava.github.io/document-design-system/types.html)
+shows all eight families and all eighteen types. The full contract lives in
+[`core/document-patterns.md`](core/document-patterns.md).
 
-| | |
-|---|---|
-| [![API contract](docs/screenshots/api-contract.png)](examples/api-contract.html) | [![Test report](docs/screenshots/test-report.png)](examples/test-report.html) |
-| `api-contract` — how do I call this correctly? | `test-report` — can we ship, on this build? |
-| [![Reference](docs/screenshots/reference.png)](examples/reference.html) | |
-| `reference` — what is the exact fact? | |
+[![Eight document patterns in the type gallery](docs/screenshots/patterns-gallery.png)](examples/index.html)
 
-**Discover and teach**
-
-| | |
-|---|---|
-| [![Discovery](docs/screenshots/discovery.png)](examples/discovery.html) | [![Tutorial](docs/screenshots/tutorial.png)](examples/tutorial.html) |
-| `discovery` — what did we learn, and should we proceed? | `tutorial` — can I learn this by doing it once? |
-| [![How-to](docs/screenshots/how-to.png)](examples/how-to.html) | [![Explanation](docs/screenshots/explanation.png)](examples/explanation.html) |
-| `how-to` — how do I get this job done? | `explanation` — why is it like this? |
-
-**MuleSoft**
-
-[![MuleSoft suite](docs/screenshots/mulesoft.png)](examples/mulesoft.html)
-
-<sub>`mulesoft` — suite index (README, architecture, API, onboarding). Prefer the `mule-docs` skill for inventory when it is installed. [source](examples/mulesoft.html)</sub>
+<sub>Pattern-first navigation, reader questions, default themes, and lightweight previews. [Open locally](examples/index.html).</sub>
 
 #### Catalog
 

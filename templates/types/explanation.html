@@ -1,40 +1,34 @@
 <article class="doc">
+  <header class="doc-hero">
+    <p class="eyebrow">Conceptual explanation</p>
+    <h1>Why ingestion fails as a whole even when only one component is full</h1>
+    <p class="lede">The important property is not queue size. It is the absence of an independent path: every producer and consumer shares the same place where work can wait.</p>
+    <div class="doc-meta" aria-label="Explanation metadata"><span><strong>Question:</strong> why does local backpressure become a platform halt?</span><span><strong>Scope:</strong> current architecture</span></div>
+  </header>
 
-  <p class="eyebrow">Explanation</p>
-  <h1>Why ingestion fails as a whole</h1>
+  <section class="section">
+    <div class="section-head"><span class="section-num">01</span><h2>One queue creates one fate</h2><span class="reading-time">model</span></div>
+    <p>Checkout, Catalog, and Inventory enter through the same gateway and wait on the same queue. Their traffic volumes differ, but their ability to make progress does not: when the queue cannot accept, the gateway has nowhere else to place any producer’s event.</p>
+    <div class="keypoint"><p>Shared infrastructure is not automatically shared fate. Shared infrastructure becomes shared fate when it has no independent failure or recovery boundary.</p></div>
+  </section>
 
-  <p>
-    Backpressure is ordinary. A full stop of every producer is not a necessary
-    consequence of it. This page is why Northwind currently treats them as the
-    same event — and why RFC 014 is a routing change, not a capacity change.
-  </p>
+  <section class="section">
+    <div class="section-head"><span class="section-num">02</span><h2>Capacity changes the clock, not the topology</h2><span class="reading-time">distinction</span></div>
+    <div class="comparison-grid">
+      <div><p class="component-label">More capacity</p><h3>Moves saturation later</h3><p>A larger queue or more default consumers can absorb a bigger burst. If saturation still arrives, every producer remains behind it.</p></div>
+      <div><p class="component-label">More boundaries</p><h3>Changes who can continue</h3><p>Independent queues let one partition fail while the other keeps accepting. The outcome changes even if total capacity does not.</p></div>
+    </div>
+  </section>
 
-  <h2 id="one-path">One path, many callers</h2>
-  <p>
-    Checkout, Catalog, and Inventory all share <code>/events</code> and one
-    queue. That sharing is the feature: producers do not run their own brokers.
-    It is also the failure domain. When the queue cannot accept, the gateway
-    has nowhere to put work, so it stops accepting. 41% of platform footprint
-    is downstream of that decision.
-  </p>
+  <section class="section">
+    <div class="section-head"><span class="section-num">03</span><h2>Backpressure travels upstream</h2><span class="reading-time">cause chain</span></div>
+    <div class="cause-chain"><div><h3>Consumers slow</h3><p>Drain rate falls below arrival rate.</p></div><div><h3>The queue fills</h3><p>The buffer stops accepting within the gateway wait budget.</p></div><div><h3>Producers fail</h3><p>The gateway blocks or returns overload to every caller.</p></div></div>
+    <p>The July incident followed this exact chain. Scaling consumers increased drain rate and recovered the queue. It did not change the chain’s ability to recur.</p>
+  </section>
 
-  <h2 id="not-size">It is not (only) size</h2>
-  <p>
-    A larger queue delays the halt. It does not create a second place for work
-    to go. Detection at 120s of lag delays the page. It does not create a
-    degrade path. Those are real improvements; they answer a different why.
-  </p>
-
-  <h2 id="degrade">Degrade means a defined leftover</h2>
-  <p>
-    "Degrade throughput" only means something if a producer can still land
-    <em>some</em> events. Two queues, or a shed that returns 202, are ways to
-    leave a leftover. Blocking until 503 leaves none.
-  </p>
-
-  <p>
-    How to split, how to replay, how to page: other documents. This one is the
-    picture that makes those procedures make sense.
-  </p>
-
+  <section class="section">
+    <div class="section-head"><span class="section-num">04</span><h2>Degradation is a defined leftover</h2><span class="reading-time">implication</span></div>
+    <p>“Degrade gracefully” is useful only when the remaining behavior is explicit. Under RFC 014, a failed queue leaves the other partition accepting events, bounds the gateway wait, records a shed outcome, and tells producers to retry the same event ID.</p>
+    <div class="takeaway"><p>The proposal is valuable because it defines what continues, what stops, and how callers recover. That is a failure boundary; “more resilience” on its own is not.</p></div>
+  </section>
 </article>

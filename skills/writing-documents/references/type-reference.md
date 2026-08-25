@@ -6,6 +6,8 @@ title: Reference
 aliases: [api-reference]
 example: examples/reference.html
 command: /document-design-system:reference
+pattern: contract
+default-theme: console-violet
 default-format: markdown
 path: docs/reference/
 ```
@@ -33,4 +35,4 @@ Narrative. Incomplete tables. Mixing how-to steps into a field listing.
 
 ## Output
 
-Markdown in `docs/reference/`. HTML with `data-layout="contract"` when asked. Theme `console-violet`.
+Markdown in `docs/reference/`. HTML with pattern `contract` when asked. Theme `console-violet`.

@@ -1,38 +1,41 @@
 <article class="doc">
+  <header class="doc-hero">
+    <p class="eyebrow">Architecture decision record · ADR 009</p>
+    <h1>Partition on event ID, not producer ID</h1>
+    <p class="lede">The split path favors failure isolation and balanced load over producer-local ordering that the platform does not guarantee today.</p>
+    <div class="doc-meta" aria-label="Decision metadata">
+      <span><strong>Status:</strong> Accepted</span>
+      <span><strong>Date:</strong> 2026-08-18</span>
+      <span><strong>Owner:</strong> Platform</span>
+      <span><strong>Supersedes:</strong> none</span>
+    </div>
+  </header>
 
-  <p class="eyebrow">ADR 009</p>
-  <h1>Hash partitions on event ID, not producer ID</h1>
+  <section aria-labelledby="decision">
+    <p class="component-label">Decision</p>
+    <div class="decision-statement" id="decision">The dispatcher will compute <code>hash(event.id) mod 2</code>. Even partitions go to <code>ingest-a</code>; odd partitions go to <code>ingest-b</code>.</div>
+  </section>
 
-  <p class="status-banner">
-    <strong>Status:</strong> Proposed ·
-    <strong>Supersedes:</strong> none ·
-    <strong>Owner:</strong> Platform
-  </p>
+  <section class="section" aria-labelledby="context">
+    <div class="section-head"><span class="section-num">01</span><h2 id="context">Context</h2><span class="reading-time">why now</span></div>
+    <p>Checkout contributes most of the 1.84M-unit ingestion footprint. Partitioning by producer would preserve producer-local ordering, but it would also place most traffic and most failure exposure on one queue.</p>
+    <p>The current platform does not promise ordered delivery across events from one producer. Creating that promise inside this change would expand the API contract and make retries harder.</p>
+  </section>
 
-  <h2 id="context">Context</h2>
-  <p>
-    RFC 014 splits ingestion into <code>ingest-a</code> and <code>ingest-b</code>
-    by partition. The partition key decides whether traffic is even under
-    failure. Producers (Checkout, Catalog, Inventory) have very different
-    volumes — Checkout alone is most of the 1.84M-unit ingestion footprint.
-  </p>
-  <p>
-    Two forces are in tension: affinity (keep a producer's events on one queue
-    so ordering is cheap) versus balance (keep both queues useful if one fails).
-  </p>
+  <section class="section" aria-labelledby="alternatives">
+    <div class="section-head"><span class="section-num">02</span><h2 id="alternatives">Alternatives rejected</h2><span class="reading-time">criteria</span></div>
+    <div class="comparison-grid">
+      <div><h3>Producer ID</h3><p>Cheap affinity, but known traffic skew makes one queue dominant and weakens the isolation objective.</p></div>
+      <div><h3>Round robin</h3><p>Balances writes but is not deterministic, complicating retries, replay, and diagnosis.</p></div>
+    </div>
+  </section>
 
-  <h2 id="decision">Decision</h2>
-  <p>
-    We will hash the partition on <strong>event ID</strong>, not producer ID.
-    Ordering inside a producer is not a platform guarantee today and will not
-    become one.
-  </p>
-
-  <h2 id="consequences">Consequences</h2>
-  <ul>
-    <li>Load splits even when one producer dominates.</li>
-    <li>A producer cannot assume in-order delivery across the two queues. Callers that need order must impose it themselves.</li>
-    <li>Replaying a single producer's events means reading both queues. Operational runbooks have to say so.</li>
-  </ul>
-
+  <section class="section" aria-labelledby="consequences">
+    <div class="section-head"><span class="section-num">03</span><h2 id="consequences">Consequences</h2><span class="reading-time">accepted</span></div>
+    <div class="consequence-grid">
+      <div><p class="component-label">Benefits</p><ul><li>Dominant producers distribute across both queues.</li><li>Retries route to the same partition.</li><li>One queue failure leaves a useful healthy path.</li></ul></div>
+      <div><p class="component-label">Costs</p><ul><li>Producer replays must read both queues.</li><li>Callers cannot infer ordering from queue placement.</li><li>Runbooks and dashboards must name the partition.</li></ul></div>
+    </div>
+    <p class="evidence">This record becomes immutable once RFC 014 ships. A future ordering guarantee requires a new ADR.</p>
+  </section>
 </article>

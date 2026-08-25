@@ -6,6 +6,8 @@ title: Runbook
 aliases: [playbook]
 example: examples/runbook.html
 command: /document-design-system:runbook
+pattern: procedure
+default-theme: console-violet
 default-format: markdown
 path: docs/runbooks/
 ```

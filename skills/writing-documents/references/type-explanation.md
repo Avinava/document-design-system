@@ -6,6 +6,8 @@ title: Explanation
 aliases: [concept, why]
 example: examples/explanation.html
 command: /document-design-system:explanation
+pattern: learning
+default-theme: field-notes
 default-format: markdown
 path: docs/explanation/
 ```

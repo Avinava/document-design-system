@@ -1,88 +1,49 @@
-Discovery
+# The queue is the failure boundary; faster detection alone will not fix it
 
-  # Should we split ingestion, or is the problem somewhere else?
+**Type:** Discovery brief · DISC-012
+**Window:** 2026-07-01–2026-08-18
+**Decision enabled:** go / stop / reframe RFC 014
+**Owner:** Platform
 
-  
+Incident evidence supports changing the architecture. A one-queue-down test is
+the fastest way to validate the split before funding the full build.
 
-    **Decision this enables:** go to RFC 014 / stop / reframe ·
-    **Window:** 2026-07-01 – 2026-08-08 ·
-    **Owner:** Platform
-  
+## Question and method
 
-  
-## Goal of this discovery
+Is the right investment a queue split, better detection, more consumer
+capacity, or a producer-side change?
 
-  
-Decide whether a queue split is the right next investment, or whether detection, consumer capacity, or producer behaviour would remove more halt time cheaper.
+We reviewed six incidents, the inventory snapshot, gateway and queue telemetry,
+the current runbook, and interviews with the three producer teams and
+Reliability.
 
-  
-## Problem as reframed
+## Evidence converges on one shared boundary
 
-  
+- Four of six incidents follow the same backpressure-to-gateway chain.
+- Checkout dominates volume, but all three producers fail together.
+- Consumer scaling restores service and has not prevented recurrence.
+- Producers can retry, but the API has no bounded shed signal today.
 
-    Not "we need two queues". The problem: when ingestion backpressures, the
-    whole platform stops accepting events, and that has happened four times in
-    six incidents.
-  
+## Opportunities ranked by learning value
 
-  
-## Users and context
+| Opportunity | Learning value | Recommendation |
+|---|---|---|
+| One-queue-down prototype | Tests the architectural claim | **Test first** |
+| Earlier alert with blast radius | Improves response, not isolation | Do regardless |
+| More default consumers | Adds buffer, retains coupling | Insufficient |
+| Producer-specific queues | Strong isolation, high cost | Too broad |
 
-  
-Operators (Platform on-call). Producer teams who feel the 503s. Downstream analysts who wait on the warehouse. Wider journey: checkout write → event → warehouse → inventory views.
+## Constraints and unresolved assumptions
 
-  
-## Evidence
+- The producer API and warehouse schema must remain stable.
+- Reliability has not approved shed-and-alert behavior.
+- Consumer rebalance under one failed queue is not observed.
+- Ordering is not guaranteed today and should not enter indirectly.
 
-  
-
-    - 6 incident tickets in 2026; 4 share the queue-fill chain. Verified.
-    - 3 on-call interviews (Platform). All named lag-alert delay as well as the single queue. Verified method; n=3.
-    - "Ingestion must not fully stop" as a business rule. Provided: Platform lead.
-  
-
-  
-## Opportunities
-
-  
-
-    - Remove the single point of failure (queue split).
-    - Detect earlier (60s lag, not 120s).
-    - Degrade instead of block (shed-and-alert) even on one queue.
-  
-
-  
-## Constraints
-
-  
-
-    - Hard: producer API at /events stays. Changing it is a multi-team contract.
-    - Soft: consumer count and alert thresholds. Those we can change next week.
-  
-
-  
-## Alternatives to building
-
-  
-Page earlier and scale consumers — cheaper, does not stop a full fill. Doing nothing remains the default if this discovery recommends stop.
-
-  
-## Assumptions still open
-
-  
-
-    - Two queues actually fail independently — untested. Highest build risk.
-    - Shed-and-alert is acceptable to Checkout. Not yet asked.
-  
-
-  
 ## Recommendation
 
-  
-**Proceed** to RFC 014, and also lower the lag alert in parallel. Stopping would accept another halt this quarter; the cost of being wrong on the split is one extra queue to run, not a new user-facing surface.
+Build the dispatcher and two staging queues, then fail one queue deliberately.
 
-  
-## What would be tested next
-
-  
-Shadow-consume on a second queue for a week (RFC 014 rollout). Ask Checkout whether 202-shed is tolerable.
+- **Go** if the healthy queue continues below 200 ms gateway p99.
+- **Reframe** if rebalance couples both queues or wait cannot be bounded.
+- **Stop** if isolation requires a producer or warehouse contract change.

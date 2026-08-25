@@ -1,145 +1,68 @@
-API contract
+# Events API: accept once, identify clearly, retry safely
 
-  # POST /events — companion to the spec
+**Type:** API companion · v1
+**Audience:** producer teams
+**Authentication:** mTLS plus audience claim
+**Source of truth:** `openapi/events.yaml`
 
-  
+This companion explains caller behavior. The OpenAPI file wins whenever the
+two disagree.
 
-    **Source of truth:** `openapi/events.yaml` ·
-    **Base path:** as declared in that file, not a hostname ·
-    **Audience:** producer teams
-  
+## Operations
 
-  
-## Auth
+### `POST /events`
 
-  
-Service-to-service mTLS at the gateway, plus an audience claim on the caller identity. No API keys in query strings. This document does not include credentials.
+Validate and accept one event. Returns `202` with event ID and status.
 
-  
-## Resource map
+### `GET /events/{id}`
 
-  
+Look up one event by opaque ID. Returns `200` or `404`; this is not a list.
 
-    
-Operations producers call
+## Caller conventions
 
-    
+- **Identity:** send a stable opaque `id`. Reusing an accepted ID must not
+  create a second warehouse row.
+- **Trace:** send `X-Request-Id`; the service echoes it.
+- **Retry:** retry only when `retryable` is true, with bounded backoff.
+- **Version:** breaking changes move to `/v2`.
 
-Method
+## Request and response specimens
 
-Path
-
-Success
-
-Notes
-
-    
-
-      
-
-`POST`
-
-`/events`
-
-202
-
-Accepted for ingest. Body is the event.
-
-      
-
-`GET`
-
-`/events/{id}`
-
-200 / 404
-
-Lookup by event ID. Not a list.
-
-    
-
-  
-
-  
-## Conventions
-
-  
-
-    - Idempotency. Repeat POST with the same id MUST NOT create a second warehouse row. Header Idempotency-Key MAY duplicate id.
-    - Correlation. Echo X-Request-Id on every response.
-    - Versioning. Breaking changes go to /v2. This companion is v1.
-    - Errors. JSON object { "code", "message", "retryable" }.
-  
-
-  
-## Worked examples
-
-  
-Success (synthetic):
-
-  
 ```http
 POST /events
+X-Request-Id: req_7f3
+Content-Type: application/json
+
 {"id":"evt_01","type":"checkout.paid"}
 
-202
+202 Accepted
 {"id":"evt_01","status":"accepted"}
 ```
 
-  
-Error — queue shed (after RFC 014; today this is a 503):
+Acceptance means the event reached the current queue, not the warehouse.
 
-  
+Proposed RFC 014 shed behavior:
+
 ```http
-202
-{"id":"evt_01","status":"shed","code":"INGEST_SHED","retryable":true}
+202 Accepted
+X-Request-Id: req_7f4
+
+{"id":"evt_02","status":"shed",
+ "code":"INGEST_SHED","retryable":true}
 ```
 
-  
 ## Error catalog
 
-  
+| Code | Meaning | Retry? | Caller action |
+|---|---|---|---|
+| `INGEST_SHED` | Selected queue unavailable | Yes | Resend same ID with backoff |
+| `INVALID_EVENT` | Envelope failed schema | No | Correct payload |
+| `UNAUTHORIZED_PRODUCER` | Identity or audience rejected | No | Correct service identity |
 
-    
-Stable codes
+## Known specification drift
 
-    
+OpenAPI and the current implementation still return `503` on queue overload.
+The `202 + INGEST_SHED` response is proposed and must not be treated as current
+until the source changes.
 
-Code
-
-Meaning
-
-Client should
-
-    
-
-      
-
-`INGEST_SHED`
-
-Chosen queue unavailable
-
-Retry with backoff
-
-      
-
-`INVALID_EVENT`
-
-Body failed schema
-
-Fix the payload; do not retry
-
-    
-
-  
-
-  
-## Spec ↔ implementation
-
-  
-OpenAPI still documents 503 on overload. Implementation after RFC 014 will return 202 + `INGEST_SHED`. Until the spec PR lands, treat the YAML as source and this paragraph as the known drift.
-
-  
-## Changelog
-
-  
-2026-08-12 — documented shed. No breaking change yet.
+Last companion review: 2026-08-18.

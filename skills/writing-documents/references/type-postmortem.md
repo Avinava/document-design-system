@@ -6,6 +6,8 @@ title: Postmortem
 aliases: [incident-report, rca]
 example: examples/postmortem.html
 command: /document-design-system:postmortem
+pattern: incident
+default-theme: console-violet
 default-format: markdown
 path: docs/postmortems/
 ```

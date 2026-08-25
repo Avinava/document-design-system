@@ -1,83 +1,57 @@
-Design handoff
+# Show whether ingestion is healthy without requiring dashboard archaeology
 
-  # Ingestion status — operator view
+**Type:** Design handoff · operator overview
+**For:** Platform UI
+**File:** operator-overview
+**As of:** 2026-08-18
+**Owner:** Platform
 
-  
+Build a read-only overview that names state, exposes queue lag and shed
+behavior, and routes operators to the existing runbook.
 
-    **For:** Platform UI ·
-    **File:** Figma · Ingestion / status (link the file; this is the packet) ·
-    **As of:** 2026-08-12
-  
+## Primary user flow
 
-  
-## Overview
+1. Open the overview from the on-call page.
+2. Read global written status and refresh time.
+3. Identify the queue with rising lag or shed count.
+4. Open the existing runbook; do not operate from this page.
 
-  
-Operators need to see whether ingestion is healthy without opening four dashboards. In-scope: a single status page for queue lag and shed count. Out of scope: producer configuration.
+## Screen anatomy
 
-  
-## User flow
+- **Global status:** written state, environment, refresh time, incident link.
+- **Queue cards:** lag, depth, shed count, last event, written trend.
+- **Next action:** one runbook link, no inline control.
 
-  
+## Required states
 
-    - Open Status.
-    - See current lag and whether shed is active.
-    - If lag is high, follow the runbook link.
-  
+| State | Required treatment |
+|---|---|
+| Happy | Written healthy status with all values |
+| Idle | Explain that zero traffic is not failure |
+| Loading | Reserve layout; do not present stale values as current |
+| Partial data | Show available queues and name missing source |
+| Error | Written failure, last known update, retry, runbook |
+| Recovered | Success label and recovery time, no celebration animation |
 
-  
-## Screens
+## Components and interaction
 
-  
+| Component | Use | Do not add |
+|---|---|---|
+| Status banner | Global state, environment, refresh time | Color-only state |
+| Queue card | Lag, depth, shed, last event, trend | Hidden hover facts |
+| Runbook link | Primary recovery action | Operational controls |
+| Incident link | Active incident only | Automatic incident creation |
 
-    - Happy — lag under 30s, shed count zero.
-    - Empty — no events in 15 minutes. Copy: "No events in the last 15 minutes. Producers may be idle."
-    - Loading — skeleton bars, no fake numbers.
-    - Error — dashboard query failed. Copy: "Status unavailable. Try again, then page Platform."
-    - Success — not a toast; the happy state is the success.
-  
+Refresh every 15 seconds. Preserve focus. Tab order is global status, queue
+cards, runbook, then incident link.
 
-  
-## Components
+## Responsive, content, and accessibility rules
 
-  
-Use `StatusBanner`, `MetricCard`, `Button` from the platform system. No custom chart — a number plus a 15-minute sparkline from `Sparkline`. Do not introduce a new accent; use the system danger token for shed-active.
+- Two queue columns on desktop; one column on mobile in the same order.
+- Never truncate names, labels, timestamps, or errors.
+- Announce status changes politely, not every unchanged refresh.
+- Meet AA contrast and keep visible focus.
+- Use real headings and lists.
 
-  
-## Interaction
-
-  
-Focus order: title, lag metric, shed metric, runbook link. Keyboard: tab through; Enter on the runbook link. No motion beyond the existing 150ms fade on number change. Honour `prefers-reduced-motion`.
-
-  
-## Responsive
-
-  
-One column below 720px. Two metric cards stack; do not shrink type below 16px.
-
-  
-## Content
-
-  
-Lag label: "Queue lag". Units: seconds. Truncate shed counts with SI (1.2k), not "1200.00". Empty strings are the empty-state copy above — never blank cards.
-
-  
-## Data
-
-  
-Lag from `ingest_lag_seconds`. Shed from `dispatcher_shed_total` (zero until RFC 014 ships — show the metric, value 0, no "coming soon"). If the operator lacks the dashboard role, hide the page behind the existing 403, do not show zeros.
-
-  
-## Accessibility
-
-  
-Metric numbers have visible text, not colour-only. StatusBanner uses text + icon. Contrast already in the system; do not override.
-
-  
-## Acceptance criteria
-
-  
-
-    - Given lag 12s and shed 0, when I open Status, then I see 12 and 0 and no error.
-    - Given the query fails, when I open Status, then I see the error copy and no invented lag.
-    - Given a viewport 375px wide, when I open Status, then both metrics remain fully visible without horizontal scroll.
+Acceptance: all six states render at 390 and 1440 pixels, status survives
+grayscale, keyboard order is stable, and every failure exposes the runbook.

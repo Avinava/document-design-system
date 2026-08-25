@@ -6,6 +6,8 @@ title: How-to guide
 aliases: [howto, how-to-guide]
 example: examples/how-to.html
 command: /document-design-system:how-to
+pattern: procedure
+default-theme: editorial-coral
 default-format: markdown
 path: docs/how-to/
 ```

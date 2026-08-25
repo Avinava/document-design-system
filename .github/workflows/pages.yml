@@ -1,4 +1,4 @@
-name: Deploy gallery to GitHub Pages
+name: Deploy documentation site to GitHub Pages
 
 on:
   push:
@@ -24,8 +24,13 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Assemble the gallery site
-        run: python scripts/build_site.py
+      - name: Build examples from source
+        run: python scripts/build_examples.py
+
+      - name: Assemble and validate the documentation site
+        run: |
+          python scripts/build_site.py --check
+          python scripts/build_site.py
 
       - uses: actions/configure-pages@v5
 

@@ -8,17 +8,14 @@
       python scripts/build_document.py templates/longform.html \
              --theme field-notes --out document.html
 
-  Prose-first: the measure is 62-72 characters. Full-width text on a wide
-  monitor is the most common readability failure in HTML technical documents.
-
-  Type files own section order. This shell owns tokens, measure, print.
-  Contract-heavy types set data-layout="contract" for a slightly wider shell.
+  Type files own section order and semantic components. This shell owns the
+  theme, document-pattern contract, responsive behavior, and print.
 -->
-<html lang="en" data-theme="field-notes">
+<html lang="en" data-theme="field-notes" data-pattern="procedure">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Northwind Ingestion — engineering handoff</title>
+<title>Take ownership without rediscovering the failure boundaries</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,7 +25,7 @@
 /* ---- inlined from core/themes/field-notes.css ---- */
 /* field-notes — research findings, audits, operational workshops.
  *
- * Tactile but still professional. Warm paper, near-zero radii, a rust accent.
+ * Tactile but still professional. Warm paper, near-zero radii, a plum accent.
  *
  * This theme may use a very subtle paper texture, but only when requested.
  * Texture must disappear in print and must never reduce contrast.
@@ -43,13 +40,13 @@
 
   --ink: #28312d;
   --muted: #59665f;
-  --soft: #7b857f;
+  --soft: #65716a;
 
   --rule: rgba(40, 49, 45, 0.14);
   --rule-strong: rgba(40, 49, 45, 0.34);
 
-  --accent: #b65332;
-  --accent-tint: rgba(182, 83, 50, 0.10);
+  --accent: #864b72;
+  --accent-tint: rgba(134, 75, 114, 0.10);
   --accent-ink: #ffffff;
 
   --positive: #46725a;
@@ -324,25 +321,97 @@ a { color: inherit; text-underline-offset: 2px; }
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+/* ---- inlined from core/document-patterns.css ---- */
+/* document-patterns.css — structure for prose-first technical documents.
+ *
+ * Themes answer "what voice does this use?" through semantic tokens.
+ * Patterns answer "how should this information be read?" through layout and
+ * component choice. Pattern CSS therefore contains no colour literals.
+ *
+ * Root contract:
+ *   <html data-theme="field-notes" data-pattern="decision">
+ */
 
-/* ---- long-form layout (not part of core) ---- */
+/* ---------------------------------------------------------------- shell */
 
 .doc {
-  max-width: 760px;      /* holds the measure near 68ch */
+  --doc-max: 960px;
+  --content-measure: 68ch;
+  max-width: var(--doc-max);
   margin: 0 auto;
   padding: 48px 32px 80px;
 }
 
-html[data-layout="contract"] .doc {
-  max-width: 880px;
+.doc-hero {
+  border-top: 3px solid var(--accent);
+  padding-top: 1.25rem;
+  margin-bottom: 2.5rem;
 }
 
+.doc-hero h1 {
+  max-width: 24ch;
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  letter-spacing: -0.03em;
+  margin-bottom: 0.75rem;
+}
+
+.doc-hero .lede {
+  max-width: 62ch;
+  color: var(--muted);
+  font-size: 1.125rem;
+}
+
+.doc-meta,
 .status-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 1.25rem;
   border: 1px solid var(--rule-strong);
   border-radius: var(--radius-md);
   padding: 0.75rem 1rem;
-  margin-bottom: 2rem;
-  font-size: 0.9375rem;
+  margin: 1.25rem 0 0;
+  font-size: 0.875rem;
+}
+
+.doc-meta span,
+.status-banner span { white-space: nowrap; }
+
+.doc-meta strong,
+.status-banner strong { font-weight: 600; }
+
+.section {
+  border-top: 1px solid var(--rule-strong);
+  margin-top: 3.5rem;
+  padding-top: 1.5rem;
+}
+
+.section-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.section-head h2 { margin: 0; }
+
+.section-num {
+  display: inline-grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font: 600 0.8125rem/1 var(--mono);
+}
+
+.reading-time,
+.component-label {
+  color: var(--soft);
+  font: 500 0.6875rem/1.3 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .toc {
@@ -350,50 +419,111 @@ html[data-layout="contract"] .doc {
   padding-left: 1.25rem;
   margin: 2rem 0 3rem;
 }
+
 .toc ol { margin: 0; padding-left: 1.25rem; }
-.toc li { margin: 0.25rem 0; }
+.toc li { margin: 0.3rem 0; }
 
-/* Non-goals earn a visual box because it is the section most often skipped
-   and most often the one that prevents a sprawling review. */
-.non-goals {
-  background: var(--surface-muted);
-  border-left: 3px solid var(--accent);
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
-  padding: 1rem 1.25rem;
-}
-
+.keypoint,
+.non-goals,
+.checkpoint,
+.takeaway,
+.danger,
 .verdict {
-  border: 1px solid var(--rule-strong);
+  margin: 1.5rem 0;
+  padding: 1rem 1.2rem;
   border-radius: var(--radius-md);
-  padding: 1rem 1.25rem;
-  margin: 1.5rem 0 2rem;
 }
+
+.keypoint,
+.non-goals {
+  background: var(--accent-tint);
+  border-left: 3px solid var(--accent);
+}
+
+.checkpoint,
+.takeaway,
+.verdict {
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+}
+
+.danger {
+  border: 1px solid var(--critical);
+  border-left: 4px solid var(--critical);
+}
+
+.danger > :first-child,
+.keypoint > :first-child,
+.non-goals > :first-child,
+.checkpoint > :first-child,
+.takeaway > :first-child,
+.verdict > :first-child { margin-top: 0; }
+
+.danger > :last-child,
+.keypoint > :last-child,
+.non-goals > :last-child,
+.checkpoint > :last-child,
+.takeaway > :last-child,
+.verdict > :last-child { margin-bottom: 0; }
 
 .evidence {
-  font-size: 0.8125rem;
   color: var(--soft);
+  font-size: 0.8125rem;
 }
 
 pre {
+  max-width: 100%;
+  overflow-x: auto;
   background: var(--surface-muted);
   border: 1px solid var(--rule);
   border-radius: var(--radius-md);
-  padding: 0.875rem 1rem;
-  overflow-x: auto;
-  font-family: var(--mono);
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
-pre .lang {
-  display: block;
-  font-size: 0.75rem;
-  color: var(--soft);
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  padding: 1rem 1.1rem;
+  font: 0.875rem/1.55 var(--mono);
 }
 
-.changelog { font-size: 0.875rem; margin-bottom: 2.5rem; }
+pre .lang {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--soft);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.specimen { margin: 1.75rem 0; }
+.specimen pre { margin: 0; }
+.specimen figcaption,
+.figure figcaption {
+  margin-top: 0.5rem;
+  color: var(--soft);
+  font: 0.6875rem/1.45 var(--mono);
+}
+
+.comparison-grid,
+.state-grid,
+.document-map {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.comparison-grid > *,
+.state-grid > *,
+.document-map > * {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.15rem;
+}
+
+.comparison-grid .recommended {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+}
+
+.table-scroll { overflow-x: auto; margin: 1.5rem 0; }
+.table-scroll table { min-width: 620px; }
 
 .footnotes {
   margin-top: 3rem;
@@ -401,11 +531,327 @@ pre .lang {
   border-top: 1px solid var(--rule);
   font-size: 0.9375rem;
 }
-.footnotes ol { padding-left: 1.25rem; }
 
-sup a { text-decoration: none; color: var(--accent); }
+/* ------------------------------------------------------------- decision */
 
-@media (max-width: 640px) { .doc { padding: 24px 16px 48px; } }
+html[data-pattern="decision"] .doc { --doc-max: 1100px; }
+
+.doc-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.decision-rail {
+  position: sticky;
+  top: 1.5rem;
+  background: var(--method-bg);
+  color: var(--method-ink);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+}
+
+.decision-rail h2,
+.decision-rail h3 { color: inherit; margin-top: 0; }
+.decision-rail p,
+.decision-rail li { color: var(--method-muted); }
+
+/* --------------------------------------------------------------- record */
+
+html[data-pattern="record"] .doc { --doc-max: 860px; }
+html[data-pattern="record"] .doc-hero { margin-bottom: 1.75rem; }
+
+.decision-statement {
+  margin: 1.5rem 0 2.25rem;
+  padding: 1.4rem 1.5rem;
+  background: var(--accent-tint);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  font-size: 1.125rem;
+}
+
+.consequence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.consequence-grid > * { padding: 1rem 1.15rem; }
+.consequence-grid > * + * { border-left: 1px solid var(--rule); }
+
+/* ------------------------------------------------------------- contract */
+
+html[data-pattern="contract"] .doc { --doc-max: 1160px; }
+
+.contract-layout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.doc-grid > *,
+.contract-layout > *,
+.system-layout > * { min-width: 0; }
+
+.contract-index {
+  position: sticky;
+  top: 1.5rem;
+  border-top: 2px solid var(--rule-strong);
+  padding-top: 1rem;
+  font-size: 0.875rem;
+}
+
+.contract-index ol { padding-left: 1.1rem; }
+
+.requirement,
+.endpoint {
+  display: grid;
+  grid-template-columns: minmax(90px, auto) minmax(0, 1fr);
+  gap: 1rem;
+  border-top: 1px solid var(--rule);
+  padding: 1rem 0;
+}
+
+.requirement-id,
+.http-method {
+  color: var(--accent);
+  font: 600 0.8125rem/1.4 var(--mono);
+}
+
+/* ------------------------------------------------------------ procedure */
+
+html[data-pattern="procedure"] .doc { --doc-max: 1000px; }
+
+.procedure-steps {
+  list-style: none;
+  counter-reset: procedure;
+  padding: 0;
+}
+
+.procedure-steps > li {
+  counter-increment: procedure;
+  position: relative;
+  padding: 0 0 2.25rem 3.5rem;
+  margin: 0;
+  border-left: 1px solid var(--rule-strong);
+}
+
+.procedure-steps > li::before {
+  content: counter(procedure, decimal-leading-zero);
+  position: absolute;
+  left: -1.05rem;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-radius: 50%;
+  font: 600 0.75rem/1 var(--mono);
+}
+
+.procedure-steps h3 { margin-top: 0; }
+
+.outcome {
+  border-left: 2px solid var(--positive);
+  padding-left: 0.85rem;
+  color: var(--muted);
+}
+
+.response-band {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.response-band > * {
+  border-top: 3px solid var(--rule-strong);
+  padding-top: 0.85rem;
+}
+
+/* ------------------------------------------------------------- learning */
+
+html[data-pattern="learning"] .doc {
+  --doc-max: 960px;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+
+html[data-pattern="learning"] .section {
+  border-top-width: 2px;
+  margin-top: 4.5rem;
+  padding-top: 2rem;
+}
+
+/* --------------------------------------------------------------- system */
+
+html[data-pattern="system"] .doc { --doc-max: 1180px; }
+
+.system-map {
+  margin: 2rem 0;
+  padding: 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+}
+
+.system-map svg { display: block; width: 100%; height: auto; }
+
+.system-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.system-rail {
+  border-left: 2px solid var(--rule-strong);
+  padding-left: 1.25rem;
+}
+
+/* ------------------------------------------------------------- incident */
+
+html[data-pattern="incident"] .doc { --doc-max: 1080px; }
+
+.impact-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin: 2rem 0 3rem;
+  background: var(--rule-strong);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.impact-strip > * {
+  background: var(--surface);
+  padding: 1.2rem;
+}
+
+.impact-value {
+  display: block;
+  color: var(--accent);
+  font: 600 2rem/1.1 var(--display);
+}
+
+.impact-label { color: var(--muted); font-size: 0.8125rem; }
+
+.timeline {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0 2.5rem;
+}
+
+.timeline li {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 1.25rem;
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.timeline time {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.cause-chain {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.cause-chain > * {
+  position: relative;
+  border: 1px solid var(--rule);
+  border-top: 3px solid var(--accent);
+  padding: 1rem;
+  background: var(--surface);
+}
+
+.action-register { margin: 1.5rem 0; }
+
+/* ---------------------------------------------------------------- suite */
+
+html[data-pattern="suite"] .doc { --doc-max: 1120px; }
+.document-map { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.document-map a { text-decoration: none; }
+
+/* ------------------------------------------------------------ responsive */
+
+@media (max-width: 860px) {
+  .doc { padding: 32px 20px 56px; }
+  .doc-grid,
+  .contract-layout,
+  .system-layout { grid-template-columns: 1fr; }
+  .decision-rail,
+  .contract-index { position: static; }
+  .contract-index { display: none; }
+  .response-band,
+  .document-map { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 620px) {
+  .doc { padding-inline: 16px; }
+  .doc-hero h1 { font-size: 2rem; }
+  .doc-meta,
+  .status-banner { display: grid; gap: 0.45rem; }
+  .doc-meta span,
+  .status-banner span { white-space: normal; }
+  .section-head { grid-template-columns: auto minmax(0, 1fr); }
+  .section-head .reading-time { grid-column: 2; }
+  .comparison-grid,
+  .state-grid,
+  .consequence-grid,
+  .impact-strip,
+  .cause-chain { grid-template-columns: 1fr; }
+  .consequence-grid > * + * {
+    border-left: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .timeline li { grid-template-columns: 70px minmax(0, 1fr); gap: 0.75rem; }
+  .procedure-steps > li { padding-left: 2.75rem; }
+}
+
+@media print {
+  .doc { max-width: none; padding: 0; }
+  .doc-hero { margin-bottom: 1.5rem; }
+  .section { margin-top: 1.75rem; padding-top: 1rem; }
+  .danger { margin: 0.75rem 0; padding: 0.75rem 1rem; }
+  .section-head {
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+  .doc-grid,
+  .contract-layout,
+  .system-layout { display: block; }
+  .decision-rail,
+  .contract-index { position: static; }
+  .contract-index { display: none; }
+  .decision-rail {
+    margin: 1.5rem 0;
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--rule-strong);
+  }
+  .decision-rail p,
+  .decision-rail li { color: var(--muted); }
+  .impact-strip,
+  .cause-chain,
+  .response-band,
+  .comparison-grid,
+  .state-grid,
+  .document-map { break-inside: avoid; }
+  .procedure-steps > li { break-inside: avoid; }
+}
 
 /* ---- inlined from core/print.css ---- */
 /* print.css — print and PDF as a distinct output mode.
@@ -597,67 +1043,53 @@ sup a { text-decoration: none; color: var(--accent); }
 </head>
 <body>
 <article class="doc">
+  <header class="doc-hero">
+    <p class="eyebrow">Engineering handoff · Northwind Ingestion</p>
+    <h1>Take ownership without rediscovering the failure boundaries</h1>
+    <p class="lede">This handoff gives the incoming owner the current runtime path, safe controls, in-flight decisions, and the first week of proof.</p>
+    <div class="doc-meta" aria-label="Handoff metadata">
+      <span><strong>As of:</strong> 2026-08-18</span>
+      <span><strong>From:</strong> Platform</span>
+      <span><strong>To:</strong> incoming owner</span>
+      <span><strong>Scope:</strong> gateway through warehouse landing</span>
+    </div>
+  </header>
 
-  <p class="eyebrow">Handoff</p>
-  <h1>Northwind Ingestion — engineering handoff</h1>
+  <section aria-labelledby="status">
+    <h2 id="status">Current status in one minute</h2>
+    <ul><li>The production path still uses one queue, <code>ingest</code>, with no failover.</li><li>RFC 014 is proposed and not shipped; ADR 009 is accepted for its partition key.</li><li>The 2026-07-30 incident recovered through consumer scaling and remains the representative failure.</li><li>Release candidate <code>sha-8132c3</code> is go-with-waivers for the current architecture.</li></ul>
+  </section>
 
-  <p class="status-banner">
-    <strong>As of:</strong> 2026-08-12 ·
-    <strong>Outgoing:</strong> Platform ·
-    <strong>Incoming:</strong> the incoming owner
-  </p>
+  <section class="section" aria-labelledby="run">
+    <div class="section-head"><span class="section-num">01</span><h2 id="run">Prove the local service before changing it</h2><span class="reading-time">15 min</span></div>
+    <ol class="procedure-steps">
+      <li><h3>Run the committed test path</h3><pre><span class="lang">bash</span>make ingest-test</pre><p class="outcome"><strong>Success:</strong> gateway contract and consumer tests pass without production credentials.</p></li>
+      <li><h3>Start the local gateway</h3><pre><span class="lang">bash</span>make ingest-run</pre><p class="outcome"><strong>Success:</strong> logs contain <code>listening</code> on port 8443.</p></li>
+      <li><h3>Send one synthetic event</h3><pre><span class="lang">bash</span>curl -k https://127.0.0.1:8443/events \
+  -d '{"id":"evt_handoff","type":"handoff.ping"}'</pre><p class="outcome"><strong>Success:</strong> response is <code>202</code> and repeats <code>evt_handoff</code>.</p></li>
+    </ol>
+  </section>
 
-  <h2 id="scope">Scope and date</h2>
-  <p>
-    Ownership of the ingestion path: gateway, the current single queue, consumers,
-    and RFC 014 (proposed split). Warehouse ownership stays with Analytics.
-  </p>
+  <section class="section" aria-labelledby="truth">
+    <div class="section-head"><span class="section-num">02</span><h2 id="truth">Where truth lives</h2><span class="reading-time">owners</span></div>
+    <div class="document-map">
+      <div><p class="component-label">Behavior</p><h3><code>openapi/events.yaml</code></h3><p>Producer contract. It wins over the HTML companion.</p></div>
+      <div><p class="component-label">Runtime</p><h3>Deployment manifests</h3><p>Replica counts, queue URI, health checks, and environment names.</p></div>
+      <div><p class="component-label">Operations</p><h3>Ingestion / lag</h3><p>Lag, queue depth, request p99, shed count, and runbook link.</p></div>
+    </div>
+  </section>
 
-  <h2 id="what-it-is">What it is</h2>
-  <p>
-    Events enter at <code>POST /events</code>, buffer on <code>ingest</code>,
-    land in the warehouse. Ingestion is 41% of platform footprint. See
-    <a href="architecture.html">architecture</a> and RFC 014.
-  </p>
+  <section class="section" aria-labelledby="tripwires">
+    <div class="section-head"><span class="section-num">03</span><h2 id="tripwires">Tripwires and in-flight work</h2><span class="reading-time">do not break</span></div>
+    <div class="danger"><p><strong>Do not claim the split path is live.</strong> The dispatcher, two queues, and <code>INGEST_SHED</code> response remain proposed.</p></div>
+    <ul><li>Never change the event-ID idempotency rule without an API review.</li><li>Never delete a queue as rollback or incident mitigation.</li><li>Reliability owns approval of shed-versus-block behavior.</li><li>The catalog backfill is the explicit opportunity cost if RFC 014 is funded.</li></ul>
+  </section>
 
-  <h2 id="status">Current status</h2>
-  <ul>
-    <li>RFC 014 is Proposed, decision by 2026-09-01. Not shipped.</li>
-    <li>Open: consumer rebalance question; shed-versus-block (Reliability).</li>
-    <li>No unreleased branch except the RFC draft. Known bug: lag alert fires at 120s — too late (see postmortem 2026-07-30).</li>
-  </ul>
-
-  <h2 id="how-to-run">How to run it</h2>
-  <pre><span class="lang">bash</span>make ingest-test
-make ingest-run   # needs ${INGEST_QUEUE_URI}</pre>
-  <p class="evidence">Verified: these targets exist in the Northwind Makefile used for this fiction.</p>
-
-  <h2 id="truth">Where truth lives</h2>
-  <ul>
-    <li>Code: <code>cmd/gateway</code>, <code>cmd/consumer</code>.</li>
-    <li>Queue URI: property <code>INGEST_QUEUE_URI</code> — location, not value.</li>
-    <li>Dashboards: Ingestion / lag. Secrets: platform vault path <code>ingest/*</code>, never in git.</li>
-  </ul>
-
-  <h2 id="decisions">Decisions that bind</h2>
-  <p>Producer API is frozen (RFC 014 goal). Partition key is still Proposed (ADR 009). Verbal "we will not promise order" is now in that ADR — write it down before you leave.</p>
-
-  <h2 id="tripwires">Risks and tripwires</h2>
-  <p>A single queue fill still stops the platform. Do not restart the gateway to "clear" lag. Page at lag, then scale consumers, then escalate — <a href="runbook.html">runbook</a>.</p>
-
-  <h2 id="access">Access</h2>
-  <p>Request: ingestion namespace, lag dashboard, vault <code>ingest/*</code>. No credentials in this file.</p>
-
-  <h2 id="first-week">First-week checklist</h2>
-  <ol>
-    <li>Run <code>make ingest-test</code>.</li>
-    <li>Read RFC 014 and the 2026-07-30 postmortem.</li>
-    <li>Sit on one lag page with Platform still reachable.</li>
-  </ol>
-
-  <h2 id="open-questions">Open questions</h2>
-  <p>Same two as RFC 014. Owner remains Reliability / Platform, 2026-08-25.</p>
-
+  <section class="section" aria-labelledby="week-one">
+    <div class="section-head"><span class="section-num">04</span><h2 id="week-one">First-week checklist</h2><span class="reading-time">proof</span></div>
+    <ul><li>Run the local proof above.</li><li>Shadow one Platform on-call review and locate the escalation policy.</li><li>Read RFC 014, ADR 009, the API companion, and the latest postmortem in that order.</li><li>Reconcile the dashboard queue name with the deployment manifest.</li><li>Write down any access gap; do not place credentials in this document.</li></ul>
+    <div class="takeaway"><p><strong>Handoff is complete when:</strong> the incoming owner can explain the current and proposed paths, run the local proof, identify the safe incident control, and name the two unresolved RFC decisions.</p></div>
+  </section>
 </article>
 
 </body>

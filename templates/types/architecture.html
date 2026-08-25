@@ -1,44 +1,51 @@
 <article class="doc">
+  <header class="doc-hero">
+    <p class="eyebrow">Current-state architecture · Northwind Ingestion</p>
+    <h1>One producer-facing gateway, one shared queue, one warehouse landing path</h1>
+    <p class="lede">This page describes production as it exists on 2026-08-18. Proposed dispatcher and split-queue components are shown only as a clearly marked future state.</p>
+    <div class="doc-meta" aria-label="Architecture metadata"><span><strong>As of:</strong> 2026-08-18</span><span><strong>Owner:</strong> Platform</span><span><strong>Scope:</strong> HTTP acceptance through warehouse write</span><span><strong>Change proposal:</strong> RFC 014</span></div>
+  </header>
 
-  <p class="eyebrow">Architecture</p>
-  <h1>Northwind Ingestion — current state</h1>
+  <section aria-labelledby="context">
+    <h2 id="context">System context and boundary</h2>
+    <p>Checkout, Catalog, and Inventory are first-party producers. The gateway authenticates and accepts their events. The warehouse and its readers are downstream. Batch imports are a separate path and outside this architecture page.</p>
+    <div class="system-map diagram-scroll"><!-- @FIG platform-architecture --><p class="evidence">The dispatcher and two queues are proposed. Production still follows the single <code>ingest</code> queue path.</p></div>
+  </section>
 
-  <p class="status-banner">
-    <strong>As of:</strong> 2026-08-12 ·
-    <strong>This is current, not proposed.</strong> RFC 014 is the change. ·
-    <strong>Owner:</strong> Platform
-  </p>
+  <div class="system-layout">
+    <div>
+      <section class="section" aria-labelledby="containers">
+        <div class="section-head"><span class="section-num">01</span><h2 id="containers">Containers and responsibilities</h2><span class="reading-time">current</span></div>
+        <div class="state-grid">
+          <div><p class="component-label">Gateway</p><h3>Identity and acceptance</h3><p>mTLS, audience claim, envelope validation, request correlation, and queue write.</p></div>
+          <div><p class="component-label">Queue</p><h3>Shared 24-hour buffer</h3><p><code>ingest</code> holds every first-party event and has no failover.</p></div>
+          <div><p class="component-label">Consumer group</p><h3>Validate and land</h3><p>Three normal replicas read the queue and write the warehouse.</p></div>
+          <div><p class="component-label">Warehouse</p><h3>Downstream record</h3><p>Stores accepted events; schema ownership sits outside Platform.</p></div>
+        </div>
+      </section>
 
-  <h2 id="boundary">Boundary</h2>
-  <p>This application owns accept, buffer, and land of first-party and partner events. It does not own checkout, catalog, or the warehouse schema.</p>
+      <section class="section" aria-labelledby="runtime">
+        <div class="section-head"><span class="section-num">02</span><h2 id="runtime">Primary runtime path</h2><span class="reading-time">sequence</span></div>
+        <ol><li>Producer sends an event with stable event ID and request ID.</li><li>Gateway authenticates, validates, and writes to <code>ingest</code>.</li><li>Gateway returns <code>202</code> after queue acceptance.</li><li>A consumer validates the event and writes the warehouse.</li><li>Lookup and freshness expose later state; they are not part of acceptance.</li></ol>
+      </section>
 
-  <h2 id="context">System context</h2>
-  <p>Checkout, Catalog, and Inventory call <code>POST /events</code>. The warehouse is downstream. On-call watches lag. <span class="evidence">Verified: gateway listeners and consumer writes.</span></p>
+      <section class="section" aria-labelledby="failure">
+        <div class="section-head"><span class="section-num">03</span><h2 id="failure">Failure and recovery boundaries</h2><span class="reading-time">risk</span></div>
+        <div class="cause-chain"><div><h3>Consumer slowdown</h3><p>Lag and queue depth rise.</p></div><div><h3>Queue saturation</h3><p>The single buffer stops accepting.</p></div><div><h3>Gateway overload</h3><p>Every producer blocks or receives <code>503</code>.</p></div></div>
+        <p>Adding one consumer replica is the safe local recovery control. Because every producer shares the queue, current recovery is also shared.</p>
+      </section>
 
-  <h2 id="containers">Containers</h2>
-  <ul>
-    <li><strong>Gateway</strong> — HTTP, auth, schema check.</li>
-    <li><strong>Queue <code>ingest</code></strong> — one queue, no failover. 41% of platform footprint sits behind it.</li>
-    <li><strong>Consumer</strong> — writes the warehouse.</li>
-  </ul>
-  <p>The dispatcher and <code>ingest-a/b</code> are Proposed, not current. They do not appear on this map.</p>
+      <section class="section" aria-labelledby="trust">
+        <div class="section-head"><span class="section-num">04</span><h2 id="trust">Trust and data boundaries</h2><span class="reading-time">security</span></div>
+        <ul><li>The gateway terminates producer identity and enforces the audience claim.</li><li>Event bodies remain opaque to routing; domain validation belongs to gateway schema and consumers.</li><li>Queue and warehouse credentials are runtime secrets, never document content.</li><li>The proposed dispatcher inherits gateway identity and adds no body store.</li></ul>
+      </section>
+    </div>
 
-  <h2 id="path">Primary runtime path</h2>
-  <p>Producer → gateway → enqueue on <code>ingest</code> → consumer → warehouse. On queue full, the gateway blocks and then 503s. There is no shed path yet.</p>
-
-  <h2 id="data">Data</h2>
-  <p>Event body is JSON as declared in <code>openapi/events.yaml</code>. Transforms: none in this service; the warehouse maps fields.</p>
-
-  <h2 id="failures">Failures</h2>
-  <p>Consumer crash: lag climbs, runbook scales replicas. Queue unavailable: producers fail. No retry-with-shed. <span class="evidence">Verified: 2026-07-30 postmortem.</span></p>
-
-  <h2 id="trust">Trust boundaries</h2>
-  <p>mTLS at the gateway. Queue URI from <code>${INGEST_QUEUE_URI}</code>. This document does not name hosts or secrets.</p>
-
-  <h2 id="extension">Extension points</h2>
-  <p>A new event type is a schema addition at the gateway plus a warehouse mapping. A new producer is an identity grant, not a new queue — until RFC 014.</p>
-
-  <h2 id="gaps">Known gaps</h2>
-  <p>Whether two queues fail independently is Unresolved. Partner-feed volume is not in the 41% snapshot — excluded population, same as the analytical report.</p>
-
+    <aside class="system-rail" aria-labelledby="facts">
+      <p class="component-label">Architecture facts</p><h2 id="facts">What is current</h2>
+      <dl><dt><strong>Cluster</strong></dt><dd><code>prod-ingest</code></dd><dt><strong>Namespace</strong></dt><dd><code>ingest</code></dd><dt><strong>Queue</strong></dt><dd><code>ingest</code></dd><dt><strong>Consumers</strong></dt><dd>3 normal, 6 maximum without approval</dd><dt><strong>Retention</strong></dt><dd>24 hours</dd></dl>
+      <h3>Known gaps</h3><ul><li>No independent failure path</li><li>No bounded shed response</li><li>No one-queue-down chaos proof</li></ul>
+      <h3>Extension rule</h3><p>New producers reuse the gateway contract. They do not receive private queue topology.</p>
+    </aside>
+  </div>
 </article>

@@ -6,6 +6,8 @@ title: Design doc
 aliases: [rfc, tdd, technical-design, erd]
 example: examples/design-doc.html
 command: /document-design-system:design-doc
+pattern: decision
+default-theme: field-notes
 default-format: markdown
 path: docs/design/
 ```

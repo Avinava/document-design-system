@@ -30,13 +30,16 @@ On HTML: prerender Mermaid through `diagram-design` / `scripts/render_diagram.mj
 
 `templates/longform.html` is the shell — measure, status banner, TOC, optional non-goals box, changelog. Type files own section order. Do not force the RFC outline onto every type.
 
-Theme on the root:
+Pattern and theme on the root:
 
 ```html
-<html lang="en" data-theme="field-notes">
+<html lang="en" data-theme="field-notes" data-pattern="decision">
 ```
 
-`field-notes` is the writing-documents default. `console-violet` for incident and ops voices. `executive-navy` for proposals to leadership. `editorial-coral` when the document sits next to an analytical report. Contract- and table-heavy types (`spec`, `api-contract`, `test-report`, `reference`) set `data-layout="contract"` for a slightly wider shell.
+The type reference declares its default `pattern` and `default-theme`. Pattern
+controls reading structure; theme controls visual voice. The eight-pattern
+contract is in `core/document-patterns.md`. A proposal can change from
+`executive-navy` to a client theme without ceasing to be a `decision` document.
 
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/build_document.py" \
@@ -49,8 +52,10 @@ Inside this repo, drop the `${CLAUDE_PLUGIN_ROOT}/` prefix.
 
 ## HTML layout
 
-- Measure 62–72 characters. `core/base.css` sets `max-width: 68ch` on paragraphs.
-- Line height 1.55–1.65. One column.
+- Measure prose at 62–72 characters. `core/base.css` caps paragraphs; pattern
+  modules may use the wider document shell.
+- Line height 1.55–1.65. Preserve semantic reading order when multi-column
+  comparisons, maps, or registers collapse on small screens.
 - Headings four levels deep at most.
 - Generous space above headings, tight below.
 - Code in `var(--mono)` at 0.875em on `var(--surface-muted)`, language labelled.
@@ -60,3 +65,7 @@ Inside this repo, drop the `${CLAUDE_PLUGIN_ROOT}/` prefix.
 Print: `core/print.css` last. Body 10–11pt. Headings do not strand. Code must not clip. Read `skills/analytical-document-design/references/print-production.md` before claiming a document prints. Inspect the PDF.
 
 Diagrams from `diagram-design`; charts from `chart-design`. A design doc usually needs one or two diagrams and no charts.
+
+Web previews and GitHub Pages may link to the selected fonts. For offline,
+email, archival, or PDF delivery, embed or package them explicitly and verify
+the rendered output. Do not describe a linked-font HTML file as offline-safe.

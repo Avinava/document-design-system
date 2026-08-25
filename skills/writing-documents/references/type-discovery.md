@@ -6,6 +6,8 @@ title: Discovery brief
 aliases: [design-discovery, research-synthesis]
 example: examples/discovery.html
 command: /document-design-system:discovery
+pattern: decision
+default-theme: field-notes
 default-format: markdown
 path: docs/discovery.md
 ```
