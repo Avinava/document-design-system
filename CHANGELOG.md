@@ -5,6 +5,12 @@ All notable changes to this project are documented here. Versions refer to the
 
 ## Unreleased
 
+## 0.2.0
+
+`writing-documents` replaces `longform-document-design`. Eighteen types,
+Markdown by default, eight structural reading patterns, a pattern-first gallery,
+and a fourteen-slide RFC 014 deck.
+
 ### Changed
 
 - Replaced the single longform layout with eight structural document patterns:
@@ -18,6 +24,9 @@ All notable changes to this project are documented here. Versions refer to the
 - Increased tertiary-text contrast across the light themes and moved the
   field-notes accent from rust to plum so every shipped theme is distinguishable
   at thumbnail scale. The full theme audit now reports no warnings.
+- **`longform-document-design` is now `writing-documents`.** Markdown in the user's repo is the default. Designed HTML/PDF only when asked. Slash commands: `/document-design-system:<slug>`.
+- Existing RFC/ADR/spec/postmortem/proposal/runbook shapes live as `references/type-<slug>.md`.
+- Plugin and marketplace descriptions name eighteen prose types, not "long-form specs". Writing is Markdown by default.
 
 ### Added
 
@@ -27,19 +36,6 @@ All notable changes to this project are documented here. Versions refer to the
   favicon metadata, and mobile overflow handling.
 - Repository agent guidance and a pattern-first skill routing table, keeping
   future document changes aligned with the eight-family contract.
-
-## 0.2.0
-
-`writing-documents` replaces `longform-document-design`. Eighteen types, Markdown by default, a type gallery, and a fourteen-slide RFC 014 deck.
-
-### Changed
-
-- **`longform-document-design` is now `writing-documents`.** Markdown in the user's repo is the default. Designed HTML/PDF only when asked. Slash commands: `/document-design-system:<slug>`.
-- Existing RFC/ADR/spec/postmortem/proposal/runbook shapes live as `references/type-<slug>.md`.
-- Plugin and marketplace descriptions name eighteen prose types, not "long-form specs". Writing is Markdown by default.
-
-### Added
-
 - Types: `api-contract`, `architecture`, `handoff`, `design-handoff`, `discovery`, `test-report`, `onboarding`, `tutorial`, `how-to`, `reference`, `explanation`, `mulesoft`.
 - Shared `evidence.md`, `writing.md`, `output.md`, `suites.md`, `type-index.md`.
 - Gallery: `examples/<slug>.html` + `.md` for every type, rebuilt from `templates/types/`. Shared fiction in `examples/WORLD.md`. Screenshots in `docs/screenshots/<slug>.png`.
