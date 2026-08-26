@@ -31,16 +31,16 @@ Bodies live in `templates/types/<slug>.html`. The shared world is [`WORLD.md`](W
 
 | Pattern | Files | Default themes |
 |---|---|---|
-| decision | `design-doc`, `discovery`, `proposal`, `project-charter`, `estimate`, `change-request` | field-notes; proposal uses executive-navy |
+| decision | `design-doc`, `discovery`, `proposal`, `project-charter`, `estimate`, `change-request` | field-notes (`design-doc`, `discovery`); executive-navy (the rest) |
 | record | `adr` | field-notes |
-| contract | `spec`, `api-contract`, `reference`, `requirements`, `statement-of-work`, `support-model` | field-notes, console-violet, editorial-coral |
+| contract | `spec`, `api-contract`, `reference`, `requirements`, `statement-of-work`, `support-model` | field-notes; console-violet (`api-contract`, `reference`); executive-navy (`statement-of-work`) |
 | procedure | `handoff`, `how-to`, `runbook` | field-notes, editorial-coral, console-violet |
 | learning | `explanation`, `onboarding`, `tutorial` | field-notes, editorial-coral |
 | system | `architecture`, `design-handoff` | field-notes, editorial-coral |
 | incident | `postmortem` | console-violet |
 | suite | `service-docs` | field-notes |
-| plan | `delivery-plan`, `migration-plan`, `test-strategy` | executive-navy, field-notes |
-| assurance | `test-report`, `threat-model`, `readiness-review`, `risk-register` | console-violet, executive-navy, field-notes |
+| plan | `delivery-plan`, `migration-plan`, `test-strategy` | executive-navy, console-violet, editorial-coral |
+| assurance | `test-report`, `threat-model`, `readiness-review`, `risk-register` | editorial-coral, console-violet, executive-navy |
 | brief | `status-report`, `release-notes`, `workshop-summary`, `incident-update` | executive-navy, editorial-coral, field-notes, console-violet |
 
 `mulesoft` remains a compatibility profile of canonical `service-docs`; it is

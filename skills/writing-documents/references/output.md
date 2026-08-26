@@ -37,9 +37,11 @@ Pattern and theme on the root:
 ```
 
 The type reference declares its default `pattern` and `default-theme`. Pattern
-controls reading structure; theme controls visual voice. The eight-pattern
+controls reading structure; theme controls visual voice. The eleven-pattern
 contract is in `core/document-patterns.md`. A proposal can change from
 `executive-navy` to a client theme without ceasing to be a `decision` document.
+Pass `--theme` from that type's `default-theme` unless the user or a client
+brand named a different one.
 
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/build_document.py" \

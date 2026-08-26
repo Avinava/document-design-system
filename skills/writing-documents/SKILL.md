@@ -32,7 +32,7 @@ State the assumption in one line. Do not quiz.
 
 > Writing `docs/adr/adr-014.md` as type `adr` (markdown). Designed HTML on request.
 
-Ask only when the slug is actually ambiguous, the request conflicts with another skill, or they asked for HTML and no theme is set (`field-notes` is the default).
+Ask only when the slug is actually ambiguous or the request conflicts with another skill. If they asked for HTML and named no theme, use the type file's `default-theme`. Do not quiz. `field-notes` is only a fallback when the type has not been resolved yet.
 
 Never offer a designed HTML version unprompted.
 
@@ -108,8 +108,9 @@ hear. Do not use theme changes to simulate structural distinction.
 | `assurance` | verdict → evidence → findings → residual risk | test-report, threat-model, readiness-review, risk-register |
 | `brief` | current state → material change → action → next update | status-report, release-notes, workshop-summary, incident-update |
 
-Use the type reference's default. The full layout and acceptance contract is
-`core/document-patterns.md`.
+Use the type reference's default pattern and theme. The full layout and
+acceptance contract is `core/document-patterns.md`. The invocation below uses
+`field-notes` as a concrete example; pass the type's `default-theme` instead.
 
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/build_document.py" \

@@ -27,6 +27,10 @@ service-documentation command.
 - Extended repository guidance, routing, validation, responsive behavior, and
   print rules to keep all eleven patterns aligned with the semantic token
   contract.
+- Cleared leftover 0.2 copy: the skills table now names thirty-four types, the
+  output contract names eleven patterns, gallery default-theme notes match the
+  catalog, and designed HTML uses each type's `default-theme` instead of asking
+  or falling back to `field-notes`.
 
 ### Added
 
