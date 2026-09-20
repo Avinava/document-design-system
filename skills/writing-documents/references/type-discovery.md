@@ -20,7 +20,7 @@ Shape after [GOV.UK discovery](https://www.gov.uk/service-manual/agile-delivery/
 
 Before committing to build. The document must enable go / stop / reframe.
 
-When not: a PRD. A PRD says what to build; discovery says whether and why. Until `prd` exists, a defined ask is `proposal` + `spec`. When not: a design-doc for an already-chosen approach.
+When not: a PRD — that is `requirements`; a PRD says what to build, discovery says whether and why. A defined ask smaller than a full requirements doc is still `proposal` + `spec`. When not: a design-doc for an already-chosen approach.
 
 ## Sections
 

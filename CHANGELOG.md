@@ -5,6 +5,48 @@ All notable changes to this project are documented here. Versions refer to the
 
 ## Unreleased
 
+## 0.3.0
+
+`writing-documents` now covers a practical software-consultancy lifecycle:
+thirty-four canonical document types, eleven distinct reading patterns, shared
+ownership rules, and one compatibility profile for an earlier specialized
+service-documentation command.
+
+### Changed
+
+- Expanded the pattern system with `plan`, `assurance`, and `brief`. Delivery
+  plans now lead with milestones and gates; assurance documents separate verdict,
+  evidence, findings, and residual risk; short operational briefs foreground
+  status, material change, required action, and the next checkpoint.
+- Moved `test-report` from the contract family to assurance and made generic
+  `service-docs` the canonical suite. The existing specialized suite command is
+  retained as a compatibility profile rather than duplicated in the taxonomy.
+- Redesigned the homepage and type gallery around the consultancy lifecycle,
+  familiar aliases such as HLD, LLD, TDD, PRD, API spec, PRR, and RAID, and
+  direct anchors for every canonical type.
+- Extended repository guidance, routing, validation, responsive behavior, and
+  print rules to keep all eleven patterns aligned with the semantic token
+  contract.
+- Cleared leftover 0.2 copy: the skills table now names thirty-four types, the
+  output contract names eleven patterns, gallery default-theme notes match the
+  catalog, and designed HTML uses each type's `default-theme` instead of asking
+  or falling back to `field-notes`.
+
+### Added
+
+- Seventeen canonical types spanning mobilisation, commercial definition,
+  requirements, planning, migration, testing, security, readiness, risk,
+  reporting, release, workshops, incidents, support, and service documentation.
+- A consultancy lifecycle reference that defines document ownership, hand-offs,
+  source-of-truth boundaries, and safe handling of estimates and commercial or
+  legal unknowns.
+- Paired Markdown and designed HTML examples for every new type, all grounded in
+  the shared example world, plus committed gallery screenshots and lightweight
+  thumbnails.
+- Validation for the 34-type command/catalog/example/reference matrix, the
+  11-pattern gallery, compatibility routing, and characteristic modules for the
+  three new layout families.
+
 ## 0.2.0
 
 `writing-documents` replaces `longform-document-design`. Eighteen types,

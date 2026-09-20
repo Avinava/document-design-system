@@ -4,7 +4,7 @@
     python scripts/build_examples.py
     python scripts/build_site.py
 
-Homepage is templates/site.html (the whole system). The eighteen-type
+Homepage is templates/site.html (the whole system). The thirty-four-type
 gallery is types.html. Example documents are copied next to them.
 Screenshot paths on the homepage use the @@SHOT marker.
 
@@ -40,6 +40,7 @@ HTML_KEEP = {
     "proposal-horizon.html",
     "proposal-coral.html",
     "brand.html",
+    "mulesoft.html",
 }
 
 HOME_MUST_CONTAIN = (
@@ -62,6 +63,10 @@ HOME_MUST_CONTAIN = (
     "horizon",
     'class="pattern-map"',
     'href="types.html#incident"',
+    'href="types.html#plan"',
+    'href="types.html#assurance"',
+    'href="types.html#brief"',
+    "Thirty-four types",
 )
 
 
@@ -134,7 +139,11 @@ def populate(dest: Path) -> None:
     for name in HTML_KEEP:
         src = EX / name
         if src.is_file():
-            write_page_copy(src, dest / name, "types.html" if name.startswith("proposal-") else None)
+            write_page_copy(
+                src,
+                dest / name,
+                "types.html" if name.startswith("proposal-") or name == "mulesoft.html" else None,
+            )
 
     assemble_home("screenshots", dest / "index.html")
     assemble_docs_gallery(
@@ -174,11 +183,17 @@ def check_built(dest: Path) -> None:
             sys.exit(f"{slug}.html missing Pages navigation or favicon")
         if not (dest / "screenshots" / "thumbs" / f"{slug}.png").is_file():
             sys.exit(f"site missing thumbnail for {slug}")
-    for pattern in ("decision", "record", "contract", "procedure", "learning", "system", "incident", "suite"):
+    for pattern in (
+        "decision", "record", "contract", "procedure", "learning", "system",
+        "incident", "suite", "plan", "assurance", "brief",
+    ):
         if f'id="{pattern}"' not in gallery:
             sys.exit(f"types.html missing {pattern} pattern")
     if 'loading="lazy"' not in gallery or "screenshots/thumbs" not in gallery:
         sys.exit("types.html must use lazy, lightweight thumbnails")
+    for needle in ("Find by engagement stage", "Common names, canonical owners", "id=\"profiles\""):
+        if needle not in gallery:
+            sys.exit(f"types.html missing consultancy navigation {needle!r}")
     if '<section class="group">\n  <h2>The skills</h2>' in gallery:
         sys.exit("types.html should not repeat the six-skill strip")
     print(f"ok: {index.stat().st_size:,} bytes homepage, {types.stat().st_size:,} bytes types")

@@ -1,6 +1,6 @@
 ---
 name: writing-documents
-description: Write structured technical documents — design-doc, adr, spec, api-contract, architecture, handoff, design-handoff, discovery, test-report, postmortem, proposal, runbook, onboarding, tutorial, how-to, reference, explanation, mulesoft — as Markdown in the repo by default. Use when asked to write or restructure one of those types, including RFCs, ADRs, developer handoffs, API writeups, test summaries, discovery briefs, or MuleSoft project docs. Produce designed HTML or PDF only when asked. Do not use for casual edits to existing markdown, metric-led reports (analytical-document-design), slides (presentation-design), standalone charts or diagrams, restyling a file into HTML unprompted, or Mule markdown refresh when mule-docs is installed.
+description: Write structured software-delivery and consultancy documents as Markdown in the repo by default. Use for canonical decision, contract, procedure, learning, system, incident, suite, plan, assurance, and brief types, including design and architecture docs, requirements, delivery plans, reviews, status, release, support, and service documentation. Produce designed HTML or PDF only when asked. Do not use for casual edits, metric-led reports (analytical-document-design), slides (presentation-design), standalone charts or diagrams, legal boilerplate, back-office commercial records, or unprompted restyling.
 ---
 
 # Writing Documents
@@ -32,38 +32,23 @@ State the assumption in one line. Do not quiz.
 
 > Writing `docs/adr/adr-014.md` as type `adr` (markdown). Designed HTML on request.
 
-Ask only when the slug is actually ambiguous, the request conflicts with another skill, or they asked for HTML and no theme is set (`field-notes` is the default).
+Ask only when the slug is actually ambiguous or the request conflicts with another skill. If they asked for HTML and named no theme, use the type file's `default-theme`. Do not quiz. `field-notes` is only a fallback when the type has not been resolved yet.
 
 Never offer a designed HTML version unprompted.
 
 ## Pick the type
 
-Load `references/type-index.md` if the slug is unclear. Then load **one** `references/type-<slug>.md` before writing.
+Load `references/type-index.md` if the slug is unclear. Then load **one**
+`references/type-<slug>.md` before writing. The canonical catalog has 34 types
+grouped by reader movement; common labels such as HLD, LLD, TDD, PRD, API spec,
+PRR, and RAID route there as aliases rather than duplicate files or commands.
 
-| Slug | Reader's question | Shape |
-|---|---|---|
-| `design-doc` | Should we do this, and is the approach sound? | Context → Problem → Goals / non-goals → Design → Alternatives → Cross-cutting → Risks → Rollout → Open questions |
-| `adr` | Why is it like this? | Status → Context → Decision → Consequences. One decision, immutable once accepted |
-| `spec` | What exactly must I build, and how do I know I am done? | Scope → Definitions → Normative requirements → Examples → Compliance |
-| `api-contract` | How do I call this correctly, and what happens when I do it wrong? | Companion to OAS/RAML, not a second copy of the spec |
-| `architecture` | How is it arranged today? | Living current-state (C4 context/container), not a change proposal |
-| `handoff` | What do I run, change, and not break after you leave? | Status, how to run, in-flight work, tripwires |
-| `design-handoff` | What do I build, in every state? | Screens, states, components, acceptance criteria |
-| `discovery` | What did we learn, and should we proceed? | Evidence, opportunities, go / stop / reframe |
-| `test-report` | Can we ship, on this build? | Verdict first; counts with denominators |
-| `postmortem` | What happened, why, and what stops it recurring? | Summary → Impact → Timeline → Root cause → Action items. Blameless |
-| `proposal` | Should I approve this? | The ask → Rationale → Cost → Alternatives → Decision needed |
-| `runbook` | What do I do right now? | Preconditions → Steps → Verification → Rollback → Escalation |
-| `onboarding` | How do I get it running and prove it works? | Prerequisites, commands from CI, one validation |
-| `tutorial` | Can I learn this by doing it once? | Diátaxis lesson — one successful path |
-| `how-to` | How do I get this job done? | Diátaxis recipe for a competent user |
-| `reference` | What is the exact fact? | Diátaxis lookup — mirrors the product |
-| `explanation` | Why is it like this? | Diátaxis study — context, not a procedure |
-| `mulesoft` | What does this Mule app do? | Suite: README, architecture, and conditional extras |
+If several types apply, split. Two clear documents beat one that mixes a
+decision with a 3am checklist. Use `references/consultancy-lifecycle.md` for an
+engagement-spanning request and `references/suites.md` for linked sets.
 
-Aliases (`rfc` → `design-doc`, `playbook` → `runbook`) live in `references/type-index.md`. Do not invent a second filename.
-
-If several types apply, split. Two clear documents beat one that mixes a decision with a 3am checklist. A linked set is `references/suites.md`.
+The compatibility command `mulesoft` loads `type-service-docs.md` plus
+`references/profile-mulesoft.md`; it is not a second canonical type.
 
 ## Evidence before prose
 
@@ -111,17 +96,21 @@ hear. Do not use theme changes to simulate structural distinction.
 
 | Pattern | Reading movement | Types |
 |---|---|---|
-| `decision` | ask → options → trade-offs → next move | design-doc, discovery, proposal |
+| `decision` | ask → options → trade-offs → next move | design-doc, discovery, proposal, project-charter, estimate, change-request |
 | `record` | status → settled choice → consequences | adr |
-| `contract` | definitions → rules → specimens → compliance | spec, api-contract, test-report, reference |
+| `contract` | definitions → rules → specimens → compliance | spec, api-contract, reference, requirements, statement-of-work, support-model |
 | `procedure` | safety → steps → verification → recovery | handoff, how-to, runbook |
 | `learning` | context → practice → checkpoint → takeaway | explanation, onboarding, tutorial |
 | `system` | map → boundaries → interfaces → states | architecture, design-handoff |
 | `incident` | impact → timeline → cause → owned action | postmortem |
-| `suite` | document map → ownership → freshness | mulesoft |
+| `suite` | document map → ownership → freshness | service-docs |
+| `plan` | baseline → workstreams → dependencies → gates | delivery-plan, migration-plan, test-strategy |
+| `assurance` | verdict → evidence → findings → residual risk | test-report, threat-model, readiness-review, risk-register |
+| `brief` | current state → material change → action → next update | status-report, release-notes, workshop-summary, incident-update |
 
-Use the type reference's default. The full layout and acceptance contract is
-`core/document-patterns.md`.
+Use the type reference's default pattern and theme. The full layout and
+acceptance contract is `core/document-patterns.md`. The invocation below uses
+`field-notes` as a concrete example; pass the type's `default-theme` instead.
 
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/build_document.py" \
@@ -139,6 +128,8 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/export_pdf.mjs" document.html --out document
 - Slides → `presentation-design`.
 - Standalone charts or diagrams.
 - Restyling Markdown into HTML, or applying a theme, unless asked.
+- MSAs, NDAs, invoices, procurement, HR, or invented legal clauses. A
+  statement of work uses only delivery-commercial terms the user supplied.
 - Generating Mule XML or running MUnit. Mule markdown refresh when `mule-docs` is installed — prefer that skill.
 - Rewriting a README that already has a shape the user did not ask to change.
 
@@ -172,7 +163,25 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/export_pdf.mjs" document.html --out document
 - `references/type-how-to.md`
 - `references/type-reference.md`
 - `references/type-explanation.md`
-- `references/type-mulesoft.md`
+- `references/type-project-charter.md`
+- `references/type-estimate.md`
+- `references/type-change-request.md`
+- `references/type-requirements.md`
+- `references/type-statement-of-work.md`
+- `references/type-support-model.md`
+- `references/type-delivery-plan.md`
+- `references/type-migration-plan.md`
+- `references/type-test-strategy.md`
+- `references/type-threat-model.md`
+- `references/type-readiness-review.md`
+- `references/type-risk-register.md`
+- `references/type-status-report.md`
+- `references/type-release-notes.md`
+- `references/type-workshop-summary.md`
+- `references/type-incident-update.md`
+- `references/type-service-docs.md`
+- `references/profile-mulesoft.md` — compatibility profile for the generic service suite.
+- `references/consultancy-lifecycle.md` — minimum linked sets by engagement stage.
 - `references/writing.md` — prose, headings, review mechanics.
 - `references/evidence.md` — evidence states, privacy.
 - `references/suites.md` — when to emit a linked set.

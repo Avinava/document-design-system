@@ -184,6 +184,10 @@ section.block .lead { margin: 0 0 1.25rem; color: var(--muted); }
 .pattern-map .num { display: block; color: var(--soft); font: .6875rem/1 var(--mono); }
 .pattern-map h3 { margin: 1.6rem 0 .35rem; font-size: 1.05rem; }
 .pattern-map p { margin: 0; color: var(--muted); font-size: .85rem; line-height: 1.4; }
+.lifecycle-strip { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .75rem; margin: 1.5rem 0 2rem; }
+.lifecycle-strip div { padding: .85rem; border-top: 3px solid var(--accent); background: var(--surface); }
+.lifecycle-strip strong { display: block; margin-bottom: .35rem; font-size: .9rem; }
+.lifecycle-strip span { color: var(--muted); font-size: .8rem; line-height: 1.35; }
 table.skills { width: 100%; font-size: 0.9375rem; }
 table.skills th {
   text-align: left;
@@ -218,6 +222,7 @@ footer.site-foot a { color: var(--ink); }
   .hero h1 { font-size: 1.75rem; }
   .pair, .deck-grid { grid-template-columns: 1fr; }
   .pattern-map { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lifecycle-strip { grid-template-columns: 1fr; }
   .preview-cards img { height: 120px; }
 }
 
@@ -241,11 +246,11 @@ footer.site-foot a { color: var(--ink); }
   </nav>
 
   <header class="hero">
-    <img class="banner" src="assets/banner.svg" width="960" height="300" alt="document-design-system — reports, diagrams, charts, decks, and eighteen document types as self-contained HTML">
-    <p class="eyebrow">Six skills · eight reading patterns · one token contract</p>
+    <img class="banner" src="assets/banner.svg" width="960" height="300" alt="document-design-system — reports, diagrams, charts, decks, and thirty-four document types as self-contained HTML">
+    <p class="eyebrow">Six skills · eleven reading patterns · one token contract</p>
     <h1>A design system for documents</h1>
     <p class="lead">
-      Analytical reports, diagrams, charts, decks, and eighteen document types.
+      Analytical reports, diagrams, charts, decks, and thirty-four document types.
       Designed documents combine a reading pattern with an independent visual
       theme, so a runbook no longer behaves like a proposal with different headings.
     </p>
@@ -346,8 +351,15 @@ footer.site-foot a { color: var(--ink); }
 
   <section class="block" id="writing">
     <p class="eyebrow">Pattern chooses structure · theme chooses voice</p>
-    <h2>Eighteen types, eight ways to read</h2>
-    <p class="lead"><code>writing-documents</code> keeps Markdown canonical. Designed HTML uses the type's pattern to expose the decision, rule, sequence, system, or incident before applying a visual theme.</p>
+    <h2>Thirty-four types, eleven ways to read</h2>
+    <p class="lead"><code>writing-documents</code> keeps Markdown canonical. The expanded catalog carries an engagement from framing and agreement through design, governance, release, support, and learning.</p>
+    <div class="lifecycle-strip" aria-label="Consultancy lifecycle"><div><strong>Frame and agree</strong><span>Discovery, estimate, charter, statement of work.</span></div><div><strong>Define</strong><span>Requirements, design, architecture, interfaces, threats.</span></div><div><strong>Plan and govern</strong><span>Delivery, testing, RAID, status, controlled change.</span></div><div><strong>Verify and transition</strong><span>Readiness, cutover, release, support, handoff.</span></div><div><strong>Operate and improve</strong><span>Service docs, runbooks, incident updates, postmortems.</span></div></div>
+    <div class="preview-cards">
+      <a href="delivery-plan.html"><img alt="Delivery plan with a dated milestone rail" src="@@SHOT/delivery-plan.png" width="1280" height="980"><div class="pad"><span class="kind">plan</span><h3>Milestones, workstreams, dependencies, gates</h3></div></a>
+      <a href="threat-model.html"><img alt="Threat model with verdict and evidence ledger" src="@@SHOT/threat-model.png" width="1280" height="980"><div class="pad"><span class="kind">assurance</span><h3>Verdict beside evidence and residual risk</h3></div></a>
+      <a href="status-report.html"><img alt="Status report with health and forecast strip" src="@@SHOT/status-report.png" width="1280" height="980"><div class="pad"><span class="kind">brief</span><h3>Current state, required action, next checkpoint</h3></div></a>
+      <a href="service-docs.html"><img alt="Service documentation ownership map" src="@@SHOT/service-docs.png" width="1280" height="980"><div class="pad"><span class="kind">suite</span><h3>One fact, one owner, visible freshness</h3></div></a>
+    </div>
     <div class="pattern-map">
       <a href="types.html#decision"><span class="num">01</span><h3>Decision</h3><p>Ask, options, trade-offs, next move.</p></a>
       <a href="types.html#record"><span class="num">02</span><h3>Record</h3><p>One settled choice and its consequences.</p></a>
@@ -357,6 +369,9 @@ footer.site-foot a { color: var(--ink); }
       <a href="types.html#system"><span class="num">06</span><h3>System</h3><p>Maps, boundaries, interfaces, states.</p></a>
       <a href="types.html#incident"><span class="num">07</span><h3>Incident</h3><p>Impact, time, cause, owned action.</p></a>
       <a href="types.html#suite"><span class="num">08</span><h3>Suite</h3><p>Linked documents, ownership, freshness.</p></a>
+      <a href="types.html#plan"><span class="num">09</span><h3>Plan</h3><p>Workstreams, dependencies, gates, forecast.</p></a>
+      <a href="types.html#assurance"><span class="num">10</span><h3>Assurance</h3><p>Verdict, evidence, findings, residual risk.</p></a>
+      <a href="types.html#brief"><span class="num">11</span><h3>Brief</h3><p>Current state, change, action, next update.</p></a>
     </div>
     <p><a class="more" href="types.html">Explore all patterns and types →</a></p>
   </section>
@@ -395,7 +410,7 @@ footer.site-foot a { color: var(--ink); }
         </tr>
         <tr>
           <td><a href="types.html"><code>writing-documents</code></a></td>
-          <td>Eighteen types; Markdown by default; HTML only when asked</td>
+          <td>Thirty-four types; Markdown by default; HTML only when asked</td>
           <td>Metric-led reports; casual markdown edits</td>
         </tr>
         <tr>

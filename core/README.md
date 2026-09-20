@@ -16,7 +16,7 @@ Skills describe **judgment** — what to measure, when a chart earns its place, 
 | `themes/horizon.css` | A client brand applied. Worked example from brand-theme-design. |
 | `themes/brand-template.css` | Documented slot for your own brand. Copy, fill every TODO, rename. |
 | `base.css` | Component-to-token mapping. Contains no color literals. |
-| `document-patterns.md` | The eight structural families and their selection contract. |
+| `document-patterns.md` | The eleven structural families and their selection contract. |
 | `document-patterns.css` | Pattern layouts and modules. Contains no color literals. |
 | `print.css` | Print and PDF as a distinct output mode. Load last. |
 | `a11y.md` | Accessibility contract: SVG labelling, contrast, grayscale, focus. |

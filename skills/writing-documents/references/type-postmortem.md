@@ -18,7 +18,7 @@ path: docs/postmortems/
 
 After an incident, once the immediate response is over. Blameless by default.
 
-When not: customer-facing incident comms during the event (reserved `incident-comms`). When not: a runbook written in hindsight — extract the 3am path into `runbook`.
+When not: customer-facing incident comms during the event — that is `incident-update`. When not: a runbook written in hindsight — extract the 3am path into `runbook`.
 
 ## Sections
 

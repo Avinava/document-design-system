@@ -271,7 +271,10 @@ html[data-pattern="contract"] .doc { --doc-max: 1160px; }
 
 .doc-grid > *,
 .contract-layout > *,
-.system-layout > * { min-width: 0; }
+.system-layout > *,
+.plan-layout > *,
+.assurance-layout > *,
+.brief-grid > * { min-width: 0; }
 
 .contract-index {
   position: sticky;
@@ -461,13 +464,157 @@ html[data-pattern="suite"] .doc { --doc-max: 1120px; }
 .document-map { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .document-map a { text-decoration: none; }
 
+/* ----------------------------------------------------------------- plan */
+
+html[data-pattern="plan"] .doc { --doc-max: 1160px; }
+
+.plan-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 0 2.5rem;
+  align-items: start;
+}
+
+.plan-layout > section { grid-column: 1; }
+
+.plan-gates {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  position: sticky;
+  top: 1.5rem;
+  padding: 1.2rem;
+  background: var(--method-bg);
+  color: var(--method-ink);
+  border-radius: var(--radius-md);
+}
+
+.plan-gates h2,
+.plan-gates h3 { color: inherit; margin-top: 0; }
+.plan-gates p { color: var(--method-muted); }
+
+.milestone-rail {
+  list-style: none;
+  margin: 1.5rem 0 2.5rem;
+  padding: 0;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.milestone-rail li {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  gap: 1.25rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.milestone-rail time {
+  color: var(--accent);
+  font: 600 .8125rem/1.45 var(--mono);
+}
+
+.milestone-rail p { margin: .25rem 0 0; color: var(--muted); }
+
+.workstream-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.workstream-board > * {
+  padding: 1rem;
+  border: 1px solid var(--rule);
+  border-top: 3px solid var(--accent);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+/* ------------------------------------------------------------- assurance */
+
+html[data-pattern="assurance"] .doc { --doc-max: 1180px; }
+
+.assurance-layout {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.assurance-verdict {
+  position: sticky;
+  top: 1.5rem;
+  padding: 1.2rem;
+  border: 1px solid var(--accent);
+  border-top: 4px solid var(--accent);
+  border-radius: var(--radius-md);
+  background: var(--accent-tint);
+}
+
+.assurance-verdict h2 { margin: .35rem 0 .75rem; font-size: 1.8rem; }
+.finding-register td:first-child,
+.evidence-matrix td:nth-child(2) { color: var(--accent); font-weight: 600; }
+
+/* ---------------------------------------------------------------- brief */
+
+html[data-pattern="brief"] .doc { --doc-max: 1060px; }
+html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
+
+.brief-status {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin: 1.5rem 0 2.5rem;
+  background: var(--rule-strong);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.brief-status > * { padding: 1rem 1.1rem; background: var(--surface); }
+.brief-status strong { display: block; margin: .45rem 0 .2rem; font-size: 1.35rem; }
+.brief-status small { display: block; color: var(--muted); }
+
+.brief-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.brief-grid > * {
+  padding-top: 1rem;
+  border-top: 2px solid var(--rule-strong);
+}
+
+.next-checkpoint {
+  grid-column: 1 / -1;
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.action-required {
+  margin: 1.5rem 0 2.5rem;
+  padding: 1.15rem 1.25rem;
+  border-left: 4px solid var(--accent);
+  background: var(--accent-tint);
+}
+
+.action-required h2 { margin: .35rem 0; }
+
 /* ------------------------------------------------------------ responsive */
 
 @media (max-width: 860px) {
   .doc { padding: 32px 20px 56px; }
   .doc-grid,
   .contract-layout,
-  .system-layout { grid-template-columns: 1fr; }
+  .system-layout,
+  .plan-layout,
+  .assurance-layout { grid-template-columns: 1fr; }
+  .plan-layout > section,
+  .plan-gates { grid-column: 1; }
+  .plan-gates { grid-row: auto; position: static; margin-top: 1.5rem; }
+  .assurance-verdict { position: static; }
   .decision-rail,
   .contract-index { position: static; }
   .contract-index { display: none; }
@@ -494,6 +641,10 @@ html[data-pattern="suite"] .doc { --doc-max: 1120px; }
     border-top: 1px solid var(--rule);
   }
   .timeline li { grid-template-columns: 70px minmax(0, 1fr); gap: 0.75rem; }
+  .milestone-rail li { grid-template-columns: 1fr; gap: .35rem; }
+  .brief-status,
+  .brief-grid { grid-template-columns: 1fr; }
+  .next-checkpoint { grid-column: 1; }
   .procedure-steps > li { padding-left: 2.75rem; }
 }
 
@@ -508,7 +659,9 @@ html[data-pattern="suite"] .doc { --doc-max: 1120px; }
   }
   .doc-grid,
   .contract-layout,
-  .system-layout { display: block; }
+  .system-layout,
+  .plan-layout,
+  .assurance-layout { display: block; }
   .decision-rail,
   .contract-index { position: static; }
   .contract-index { display: none; }
@@ -520,11 +673,26 @@ html[data-pattern="suite"] .doc { --doc-max: 1120px; }
   }
   .decision-rail p,
   .decision-rail li { color: var(--muted); }
+  .plan-gates,
+  .assurance-verdict { position: static; margin: 1rem 0; break-inside: avoid; }
+  .plan-gates { background: var(--surface); color: var(--ink); border: 1px solid var(--rule-strong); }
+  .plan-gates p { color: var(--muted); }
+  .plan-layout { font-size: 9pt; }
+  .plan-layout .milestone-rail { margin: .75rem 0 1rem; }
+  .plan-layout .milestone-rail li { padding: .55rem 0; }
+  .plan-layout .workstream-board { gap: .65rem; margin: .75rem 0; }
+  .plan-layout .workstream-board > * { padding: .65rem; }
+  .plan-layout .plan-gates { margin: .75rem 0 0; padding: .75rem 1rem; }
+  .plan-layout .plan-gates p { margin-bottom: 0; }
   .impact-strip,
   .cause-chain,
   .response-band,
   .comparison-grid,
   .state-grid,
   .document-map { break-inside: avoid; }
+  .milestone-rail li,
+  .workstream-board,
+  .brief-status,
+  .action-required { break-inside: avoid; }
   .procedure-steps > li { break-inside: avoid; }
 }

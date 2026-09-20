@@ -206,10 +206,14 @@ def check_writing_types(root: Path) -> None:
         if "Reader's question" not in text and "Reader’s question" not in text:
             error(rel, "missing reader's question")
 
+    # Compatibility profiles keep stable commands and example bodies without
+    # pretending to be second canonical types.
+    compatibility_profiles = {"mulesoft"}
+
     commands = root / "commands"
     if commands.is_dir() and slugs:
         cmd_slugs = {p.stem for p in commands.glob("*.md")}
-        for extra in sorted(cmd_slugs - slugs):
+        for extra in sorted(cmd_slugs - slugs - compatibility_profiles):
             error(
                 (commands / f"{extra}.md").relative_to(root),
                 f'command "{extra}" has no matching type-{extra}.md',
@@ -223,7 +227,7 @@ def check_writing_types(root: Path) -> None:
     types_dir = root / "templates" / "types"
     if types_dir.is_dir() and slugs:
         body_slugs = {p.stem for p in types_dir.glob("*.html")}
-        for extra in sorted(body_slugs - slugs):
+        for extra in sorted(body_slugs - slugs - compatibility_profiles):
             error(
                 (types_dir / f"{extra}.html").relative_to(root),
                 f'type body "{extra}" has no matching type-{extra}.md',

@@ -14,11 +14,11 @@ path: docs/design/
 
 **Reader's question:** should we do this, and is the approach sound?
 
-Shape after [Design Docs at Google](https://www.industrialempathy.com/posts/design-docs-at-google/). Company RFC / ERD processes are the same artifact. IETF RFCs are normative specs — use `spec`.
+Shape after [Design Docs at Google](https://www.industrialempathy.com/posts/design-docs-at-google/). Company RFC / ERD processes are the same artifact — ERD here means Engineering Requirements Doc, not an entity-relationship diagram. IETF RFCs are normative specs — use `spec`.
 
 ## When to use
 
-The solution is ambiguous — problem complexity, solution complexity, or both. Senior review, organisational consensus, or cross-cutting concerns (security, privacy, observability) would change the outcome.
+The solution is ambiguous — problem complexity, solution complexity, or both. Senior review, organizational consensus, or cross-cutting concerns (security, privacy, observability) would change the outcome.
 
 When not: an implementation manual with no trade-offs. Write the code. When not: a one-decision record — that is `adr`.
 

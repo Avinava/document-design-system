@@ -3,8 +3,8 @@
 
     python scripts/build_examples.py
 
-Renders the charts and diagrams, assembles the report, the deck, the eighteen
-writing-documents types, the figure gallery, and the theme panels, and inlines
+Renders the charts and diagrams, assembles the report, the deck, the thirty-four
+canonical writing-document types, the figure gallery, and the theme panels, and inlines
 each figure into its slot. Committed outputs double as CI fixtures and as the
 screenshots in the README, so they need to be reproducible rather than
 hand-maintained.
@@ -71,7 +71,7 @@ LONGFORM = {
     "handoff": ("field-notes", "procedure"),
     "design-handoff": ("editorial-coral", "system"),
     "discovery": ("field-notes", "decision"),
-    "test-report": ("editorial-coral", "contract"),
+    "test-report": ("editorial-coral", "assurance"),
     "postmortem": ("console-violet", "incident"),
     "proposal": ("executive-navy", "decision"),
     "runbook": ("console-violet", "procedure"),
@@ -80,7 +80,23 @@ LONGFORM = {
     "how-to": ("editorial-coral", "procedure"),
     "reference": ("console-violet", "contract"),
     "explanation": ("field-notes", "learning"),
-    "mulesoft": ("field-notes", "suite"),
+    "project-charter": ("executive-navy", "decision"),
+    "estimate": ("executive-navy", "decision"),
+    "change-request": ("executive-navy", "decision"),
+    "requirements": ("field-notes", "contract"),
+    "statement-of-work": ("executive-navy", "contract"),
+    "support-model": ("field-notes", "contract"),
+    "delivery-plan": ("executive-navy", "plan"),
+    "migration-plan": ("console-violet", "plan"),
+    "test-strategy": ("editorial-coral", "plan"),
+    "threat-model": ("console-violet", "assurance"),
+    "readiness-review": ("console-violet", "assurance"),
+    "risk-register": ("executive-navy", "assurance"),
+    "status-report": ("executive-navy", "brief"),
+    "release-notes": ("editorial-coral", "brief"),
+    "workshop-summary": ("field-notes", "brief"),
+    "incident-update": ("console-violet", "brief"),
+    "service-docs": ("field-notes", "suite"),
 }
 
 # Same body and pattern, different theme — the two-axis contract proof.
@@ -88,6 +104,8 @@ LONGFORM = {
 LONGFORM_VARIANTS = {
     "proposal-horizon": ("proposal", "horizon", "decision"),
     "proposal-coral": ("proposal", "editorial-coral", "decision"),
+    # Backward-compatible specialized profile of the canonical service suite.
+    "mulesoft": ("mulesoft", "field-notes", "suite"),
 }
 
 FONTS = {
@@ -124,6 +142,9 @@ TYPE_GALLERY = [
             ("design-doc", "Should we do this, and is the approach sound?"),
             ("discovery", "What did we learn, and should we proceed?"),
             ("proposal", "Should I approve this?"),
+            ("project-charter", "What are we committing to, and who can decide?"),
+            ("estimate", "What will this take, and how confident are we?"),
+            ("change-request", "Should we change the agreed baseline?"),
         ],
     ),
     (
@@ -139,8 +160,10 @@ TYPE_GALLERY = [
         [
             ("spec", "What exactly must I build, and how do I know I am done?"),
             ("api-contract", "How do I call this correctly, and what happens when I do it wrong?"),
-            ("test-report", "Can we ship, on this build?"),
             ("reference", "What is the exact fact?"),
+            ("requirements", "What outcome and behavior must delivery satisfy?"),
+            ("statement-of-work", "What services and acceptance are agreed?"),
+            ("support-model", "Who supports this service, and under what rules?"),
         ],
     ),
     (
@@ -182,7 +205,39 @@ TYPE_GALLERY = [
         "suite",
         "Suite",
         "Orient readers across a linked set with ownership and freshness visible.",
-        [("mulesoft", "What does this application do, and where is each fact owned?")],
+        [("service-docs", "What does this service do, and where is each fact owned?")],
+    ),
+    (
+        "plan",
+        "Plan",
+        "Make workstreams, dependencies, gates, and forecast movement visible.",
+        [
+            ("delivery-plan", "How will the agreed outcome be delivered and governed?"),
+            ("migration-plan", "How do we move safely and back out?"),
+            ("test-strategy", "How will quality risks be tested?"),
+        ],
+    ),
+    (
+        "assurance",
+        "Assurance",
+        "Put the verdict beside the evidence, findings, and residual risk.",
+        [
+            ("test-report", "Can we ship, on this build?"),
+            ("threat-model", "What can go wrong, and what will we do?"),
+            ("readiness-review", "Is this change ready for production?"),
+            ("risk-register", "Where is delivery exposed, and who owns it?"),
+        ],
+    ),
+    (
+        "brief",
+        "Brief",
+        "Expose current state, material change, required action, and next update.",
+        [
+            ("status-report", "Where are we now, and what needs attention?"),
+            ("release-notes", "What changed, and what must readers do?"),
+            ("workshop-summary", "What did the workshop establish and leave open?"),
+            ("incident-update", "What is happening now, and when is the next update?"),
+        ],
     ),
 ]
 
@@ -194,6 +249,15 @@ VOICES_GALLERY = [
     ("proposal-horizon", "proposal-horizon.html", "proposal-horizon.png", "horizon — client brand"),
     ("proposal-coral", "proposal-coral.html", "proposal-coral.png", "editorial-coral — default"),
     ("brand", "brand.html", "brand.png", "How the Horizon brand was built"),
+]
+
+PROFILE_GALLERY = [
+    (
+        "mulesoft",
+        "mulesoft.html",
+        "mulesoft.png",
+        "Backward-compatible specialized profile of service-docs",
+    ),
 ]
 
 # Cards at the top of the type gallery — one per skill in the README table.
@@ -228,7 +292,7 @@ SKILL_GALLERY = [
         "writing-documents",
         "#types",
         "design-doc.png",
-        "Eighteen types, Markdown by default",
+        "Thirty-four types, Markdown by default",
     ),
     (
         "brand-theme-design",
@@ -381,7 +445,7 @@ def assemble_docs_gallery(
             shot = f"{shot_prefix}/{slug}.png"
             theme = LONGFORM[slug][0]
             cards.append(
-                f'<a class="type-card" href="{slug}.html">\n'
+                f'<a class="type-card" id="type-{slug}" href="{slug}.html">\n'
                 f'  <img src="{shot}" alt="" width="640" height="400" loading="lazy" decoding="async">\n'
                 f'  <div class="pad">\n'
                 f'    <span class="kind">{slug}</span><span class="theme">{theme}</span>\n'
@@ -418,6 +482,22 @@ def assemble_docs_gallery(
         + "\n    ".join(voice_cards)
         + "\n  </div>\n</section>"
     )
+    profile_cards = []
+    for name, href, shot, blurb in PROFILE_GALLERY:
+        profile_cards.append(
+            f'<a class="card" href="{href}">\n'
+            f'  <img src="{shot_prefix}/{shot}" alt="" width="640" height="400" loading="lazy" decoding="async">\n'
+            f'  <div class="pad"><span class="kind">{name}</span><h3>{blurb}</h3></div>\n'
+            f'</a>'
+        )
+    profiles_html = (
+        '<section class="group" id="profiles">\n'
+        '  <h2>Compatibility profiles</h2>\n'
+        '  <p class="lead">Existing specialized commands remain supported while the canonical suite stays general.</p>\n'
+        '  <div class="cards">\n    '
+        + "\n    ".join(profile_cards)
+        + "\n  </div>\n</section>"
+    )
     skill_cards = []
     for name, href, shot, blurb in SKILL_GALLERY:
         skill_cards.append(
@@ -444,6 +524,7 @@ def assemble_docs_gallery(
         raw = (ROOT / "templates" / "docs-gallery.html").read_text(encoding="utf-8")
         filled = (
             raw.replace("<!-- @@VOICES -->", voices_html, 1)
+            .replace("<!-- @@PROFILES -->", profiles_html, 1)
             .replace("<!-- @@SKILLS -->", skills_html, 1)
             .replace("<!-- @@CARDS -->", cards_html, 1)
             .replace("@@TYPES_HREF", types_href)
