@@ -146,15 +146,15 @@ seconds and supports keyboard navigation in document order.
 
 The split-queue change is treated as one fictional delivery engagement so the
 consultancy examples can share dates, scope, status, and governance without
-inventing another organisation.
+inventing another organization.
 
-- Mobilisation begins on **2026-08-31**, subject to the RFC 014 decision due on
+- Mobilization begins on **2026-08-31**, subject to the RFC 014 decision due on
   **2026-09-01**. Production release is planned for **2026-11-02** and handoff
   closes on **2026-11-20**.
-- The baseline authorises **24 engineer-weeks**: two Platform engineers across
+- The baseline authorizes **24 engineer-weeks**: two Platform engineers across
   the twelve-week window. The estimate range is **22–28 engineer-weeks** with
   medium confidence because the two-queue chaos environment does not yet exist.
-- The commercial basis is time and materials capped at the authorised effort.
+- The commercial basis is time and materials capped at the authorized effort.
   Rates, payment terms, legal clauses, and named contracting parties are not in
   this fact ledger and must never be invented.
 - Milestone gates are: design accepted by 2026-09-01; chaos environment ready
