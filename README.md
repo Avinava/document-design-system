@@ -138,24 +138,10 @@ shows all eleven families and all thirty-four canonical types. The full contract
 
 #### Canonical catalog
 
-Every slug is a `/document-design-system:<slug>` command with paired HTML and
-Markdown in [`examples/`](examples/). Familiar names such as HLD, LLD, TDD,
-PRD, API spec, PRR, and RAID route to these owners instead of becoming duplicate
-types.
-
-| Pattern | Canonical slugs |
-|---|---|
-| Decision | `design-doc`, `discovery`, `proposal`, `project-charter`, `estimate`, `change-request` |
-| Record | `adr` |
-| Contract | `spec`, `api-contract`, `reference`, `requirements`, `statement-of-work`, `support-model` |
-| Procedure | `handoff`, `how-to`, `runbook` |
-| Learning | `explanation`, `onboarding`, `tutorial` |
-| System | `architecture`, `design-handoff` |
-| Incident | `postmortem` |
-| Suite | `service-docs` |
-| Plan | `delivery-plan`, `migration-plan`, `test-strategy` |
-| Assurance | `test-report`, `threat-model`, `readiness-review`, `risk-register` |
-| Brief | `status-report`, `release-notes`, `workshop-summary`, `incident-update` |
+Every slug in the pattern table above is a `/document-design-system:<slug>`
+command with paired HTML and Markdown in [`examples/`](examples/). Familiar
+names such as HLD, LLD, TDD, PRD, API spec, PRR, and RAID route to those
+owners instead of becoming duplicate types.
 
 `/document-design-system:mulesoft` remains a backward-compatible specialized
 profile of `service-docs`.
@@ -281,7 +267,7 @@ tests/           standard library only, so CI needs no install step
 
 ## Themes
 
-Four themes plus a documented brand slot — see [the comparison above](#four-voices-one-contract).
+Four themes plus a documented brand slot — see [the comparison above](#several-voices-one-contract).
 
 `console-violet` is the dark one. Its accent is violet rather than the obvious amber because amber measured **6° from `--warning`**, and in a system where status colors are load-bearing an accent that close makes every genuine warning ambiguous. Teal was rejected too — 4° from `executive-navy`, so the two would have been hard to tell apart at thumbnail size.
 
