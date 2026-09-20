@@ -1,7 +1,7 @@
 # Deliver the split ingestion path through controlled handoff
 
-**Status:** Draft<br>
-**Window:** 2026-08-31–2026-11-20<br>
+**Status:** Draft
+**Window:** 2026-08-31–2026-11-20
 **Effort cap:** 24 engineer-weeks
 
 ## Objective and services

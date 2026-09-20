@@ -1,7 +1,7 @@
 # Platform owns ingestion support with Reliability as the failure escalation
 
-**Effective:** 2026-11-02<br>
-**Service owner:** Platform<br>
+**Effective:** 2026-11-02
+**Service owner:** Platform
 **Review:** 2026-11-20
 
 ## Coverage and intake

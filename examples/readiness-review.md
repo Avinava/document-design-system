@@ -1,7 +1,7 @@
 # v2.0.0 is not ready until chaos and rollback evidence close
 
-**Verdict:** Conditional go<br>
-**Review:** 2026-10-28<br>
+**Verdict:** Conditional go
+**Review:** 2026-10-28
 **Release:** 2026-11-02
 
 ## Verdict

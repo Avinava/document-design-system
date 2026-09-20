@@ -1,7 +1,7 @@
 # Delivery is Amber while decision and chaos ownership remain open
 
-**Period ending:** 2026-08-26<br>
-**Overall:** Amber — decision and environment dependency<br>
+**Period ending:** 2026-08-26
+**Overall:** Amber — decision and environment dependency
 **Forecast:** 2026-11-02 remains achievable
 
 ## This period

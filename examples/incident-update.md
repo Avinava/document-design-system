@@ -1,8 +1,8 @@
 # P1 ingestion delay affects Checkout, Catalog, and Inventory
 
-**Status:** Investigating<br>
-**Started:** 2026-07-30 14:12 UTC<br>
-**This update:** 14:31 UTC<br>
+**Status:** Investigating
+**Started:** 2026-07-30 14:12 UTC
+**This update:** 14:31 UTC
 **Next update:** 14:45 UTC
 
 ## Current impact

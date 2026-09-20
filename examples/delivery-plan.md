@@ -1,7 +1,7 @@
 # Five gates carry RFC 014 from decision to handoff
 
-**Baseline:** 24 engineer-weeks<br>
-**Window:** 2026-08-31–2026-11-20<br>
+**Baseline:** 24 engineer-weeks
+**Window:** 2026-08-31–2026-11-20
 **Status:** Amber — decision and environment dependency
 
 ## Milestones

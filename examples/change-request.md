@@ -1,8 +1,8 @@
 # Add event history without moving the production gate
 
-**ID:** CR-003<br>
-**Status:** Proposed<br>
-**Decision owner:** Platform director<br>
+**ID:** CR-003
+**Status:** Proposed
+**Decision owner:** Platform director
 **Impact:** 3 engineer-weeks
 
 ## Requested change

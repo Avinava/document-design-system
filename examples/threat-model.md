@@ -1,7 +1,7 @@
 # Split ingestion reduces blast radius but does not settle overload behavior
 
-**Status:** Review required<br>
-**Scope:** RFC 014<br>
+**Status:** Review required
+**Scope:** RFC 014
 **Review gate:** 2026-10-28
 
 ## Assurance position

@@ -1,7 +1,7 @@
 # Quality evidence follows the failure risks, not the component list
 
-**Release:** v2.0.0<br>
-**Readiness:** 2026-10-28<br>
+**Release:** v2.0.0
+**Readiness:** 2026-10-28
 **Environment:** staging and two-queue chaos
 
 ## Quality risks

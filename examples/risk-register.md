@@ -1,7 +1,7 @@
 # Three delivery exposures need owners before staging dual-write
 
-**Review:** 2026-08-26<br>
-**Overall:** High exposure<br>
+**Review:** 2026-08-26
+**Overall:** High exposure
 **Next review:** 2026-09-02
 
 ## Rating method

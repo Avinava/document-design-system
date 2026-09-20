@@ -1,8 +1,8 @@
 # The split path is a 24 engineer-week commitment
 
-**As of:** 2026-08-26<br>
-**Expected:** 24 engineer-weeks<br>
-**Range:** 22–28 engineer-weeks<br>
+**As of:** 2026-08-26
+**Expected:** 24 engineer-weeks
+**Range:** 22–28 engineer-weeks
 **Confidence:** Medium
 
 ## Basis

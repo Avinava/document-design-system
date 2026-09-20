@@ -1,7 +1,7 @@
 # Ingestion must isolate queue failure without changing producer behavior
 
-**Status:** Proposed<br>
-**Scope:** RFC 014<br>
+**Status:** Proposed
+**Scope:** RFC 014
 **Decision by:** 2026-09-01
 
 ## Outcome and boundary

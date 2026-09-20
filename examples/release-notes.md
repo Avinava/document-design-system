@@ -1,7 +1,7 @@
 # v2.0.0 isolates ingestion queues without changing producer payloads
 
-**Release:** v2.0.0<br>
-**Date:** 2026-11-02<br>
+**Release:** v2.0.0
+**Date:** 2026-11-02
 **Rollout:** Production
 
 ## Action required

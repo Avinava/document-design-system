@@ -1,7 +1,7 @@
 # Cut over one partition at a time and keep the original queue recoverable
 
-**Cutover:** 2026-11-02<br>
-**Readiness gate:** 2026-10-28<br>
+**Cutover:** 2026-11-02
+**Readiness gate:** 2026-10-28
 **Owner:** Platform
 
 ## Rehearsal and preconditions

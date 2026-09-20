@@ -1,8 +1,8 @@
 # Split ingestion without changing the producer contract
 
-**Status:** Proposed<br>
-**Window:** 2026-08-31–2026-11-20<br>
-**Sponsor:** Platform director<br>
+**Status:** Proposed
+**Window:** 2026-08-31–2026-11-20
+**Sponsor:** Platform director
 **Delivery owner:** Platform
 
 ## Purpose and outcomes

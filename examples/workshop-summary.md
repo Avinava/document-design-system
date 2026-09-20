@@ -1,7 +1,7 @@
 # Queue isolation is agreed; shed behavior and chaos ownership remain open
 
-**Workshop:** 2026-08-18<br>
-**Purpose:** Confirm RFC 014 target outcome<br>
+**Workshop:** 2026-08-18
+**Purpose:** Confirm RFC 014 target outcome
 **Facilitator:** Platform
 
 ## What the evidence established
