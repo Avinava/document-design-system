@@ -40,7 +40,7 @@ Bodies live in `templates/types/<slug>.html`. The shared world is [`WORLD.md`](W
 | incident | `postmortem` | console-violet |
 | suite | `service-docs` | field-notes |
 | plan | `delivery-plan`, `migration-plan`, `test-strategy` | executive-navy, console-violet, editorial-coral |
-| assurance | `test-report`, `threat-model`, `readiness-review`, `risk-register` | editorial-coral, console-violet, executive-navy |
+| assurance | `test-report`, `threat-model`, `readiness-review`, `risk-register` | editorial-coral, console-violet, console-violet, executive-navy |
 | brief | `status-report`, `release-notes`, `workshop-summary`, `incident-update` | executive-navy, editorial-coral, field-notes, console-violet |
 
 `mulesoft` remains a compatibility profile of canonical `service-docs`; it is
