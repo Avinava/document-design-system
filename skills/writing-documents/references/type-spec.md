@@ -18,7 +18,7 @@ path: docs/spec/
 
 Normative requirements that bind an implementer. IETF-style RFCs, protocol specs, internal MUST/SHOULD/MAY documents.
 
-When not: a design arguing for an approach — that is `design-doc`. When not: a human-readable API companion next to OpenAPI — that is not this type until `api-contract` ships; until then, keep the machine spec as the source of truth and write a short companion as `spec` only if it is genuinely normative.
+When not: a design arguing for an approach — that is `design-doc`. When not: a human-readable API companion next to OpenAPI — that is `api-contract`; write a short companion as `spec` only if it is genuinely normative.
 
 ## Sections
 

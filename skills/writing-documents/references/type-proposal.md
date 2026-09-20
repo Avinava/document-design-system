@@ -18,7 +18,7 @@ path: docs/proposals/
 
 A decidable ask: time, money, people, or a go/no-go. Shorter than a design-doc; it is not the design.
 
-When not: the design itself — that is `design-doc`. When not: a discovery of whether to proceed at all — that is not this type until `discovery` ships; use a proposal only if they already want a yes/no on a defined ask.
+When not: the design itself — that is `design-doc`. When not: a discovery of whether to proceed at all — that is `discovery`; use a proposal only once they already want a yes/no on a defined ask.
 
 ## Sections
 

@@ -25,5 +25,10 @@ default.
 - Migration plan owns sequence and gates; runbooks own executable steps.
 - Release notes tell affected readers what changed; incident updates communicate
   live state; postmortems establish later causal learning.
+- Handoff owns the in-flight knowledge transfer; support model owns the
+  ongoing operating agreement that follows it.
+- Service docs assembles the document map; reference owns exact facts inside
+  it; how-to owns task recipes — service-docs links to each rather than
+  duplicating them.
 
 Link across owners. Do not duplicate a fact to make every document standalone.

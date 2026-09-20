@@ -14,9 +14,11 @@ path: docs/risk-register.md
 
 **Reader's question:** where is delivery exposed, what changed, and who owns the response?
 
-Define the rating method, then keep stable IDs for risks, assumptions, issues,
-and dependencies. Each row needs statement, impact, likelihood where relevant,
-exposure, treatment, owner, due/review date, status, and movement since review.
+Lead with an overall risk posture verdict — on track, at risk, or critical —
+ahead of the ledger. Define the rating method, then keep stable IDs for risks,
+assumptions, issues, and dependencies. Each row needs statement, impact,
+likelihood where relevant, exposure, treatment, owner, due/review date,
+status, and movement since review.
 
 Use Markdown/HTML for a compact register. Route high-volume or frequently
 updated registers to a spreadsheet or tracker and let this page summarize and

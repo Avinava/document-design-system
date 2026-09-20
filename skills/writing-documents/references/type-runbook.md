@@ -18,7 +18,7 @@ path: docs/runbooks/
 
 An incident or operational procedure someone tired will follow at 3am. A checklist.
 
-When not: explaining why the system is this way — link a `design-doc` or `adr`. When not: first-day setup (onboarding, when that type ships).
+When not: explaining why the system is this way — link a `design-doc` or `adr`. When not: first-day setup — that is `onboarding`.
 
 ## Sections
 
