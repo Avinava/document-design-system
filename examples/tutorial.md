@@ -9,6 +9,12 @@ You will start the local gateway, send one synthetic event, inspect its
 response, and prove that replaying the same identity does not create a second
 logical event.
 
+**Learning goal.** By the end, you can:
+
+- start the local gateway from a known-good build;
+- send one synthetic event and read its acceptance;
+- explain why a retry keeps the same event ID.
+
 ## Start from a known-good build
 
 ```bash

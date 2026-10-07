@@ -8,6 +8,10 @@
 Approve RFC 014 now so the next queue failure degrades throughput instead of
 stopping Checkout, Catalog, and Inventory together.
 
+> **The ask:** fund two Platform engineers for one quarter.
+> **Decide by:** 2026-09-01. **Decider:** Platform director.
+> **If declined:** record the single queue as an accepted risk.
+
 ## Why fund this now
 
 Four of the last six incidents ended in the same platform-wide halt. Ingestion

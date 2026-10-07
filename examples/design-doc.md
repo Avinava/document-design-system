@@ -9,6 +9,10 @@
 Introduce a stateless dispatcher and two independently recoverable queues while
 keeping the producer API, event payload, retention, and warehouse unchanged.
 
+> **The ask:** approve RFC 014: two Platform engineers for twelve weeks.
+> **Decide by:** 2026-09-01. **Decider:** Platform director.
+> **If declined:** keep the single queue and record it as an accepted risk.
+
 ## The recommendation
 
 Route accepted events through a stateless dispatcher that hashes event ID to

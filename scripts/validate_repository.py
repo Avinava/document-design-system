@@ -239,6 +239,35 @@ def check_writing_types(root: Path) -> None:
             )
 
 
+def check_modules(root: Path) -> None:
+    """The module registry, the pattern stylesheet and the example bodies agree.
+
+    Every registered class has CSS and every module class in the CSS is
+    registered; each pattern's characteristic modules are used by at least one
+    of its examples; and no body uses a module its pattern does not allow.
+    """
+    if not (root / catalog.PATTERNS_CSS).is_file() or not (root / catalog.PATTERNS_MD).is_file():
+        return
+    try:
+        types = catalog.load_types(root)
+        patterns = catalog.load_patterns(root)
+        modules = catalog.load_modules(root)
+    except catalog.CatalogError:
+        return  # check_writing_types reports malformed catalog files
+    if not modules:
+        error(catalog.PATTERNS_MD, "no '## Modules' registry table")
+        return
+    bodies = {
+        name: (pattern, catalog.body_classes(path.read_text(encoding="utf-8")))
+        for name, (pattern, path) in catalog.example_bodies(root, types).items()
+    }
+    for message in catalog.module_problems(modules, patterns, catalog.stylesheet_classes(root), bodies):
+        error(catalog.PATTERNS_MD, message)
+    for slug in catalog.COMPOSED:
+        if not (root / catalog.COMPOSED_DIR / f"{slug}.html").is_file():
+            error(catalog.COMPOSED_DIR / f"{slug}.html", f"missing body for composed example {slug}")
+
+
 def check_commands(root: Path) -> None:
     """Plugin commands need YAML frontmatter. `claude plugin validate --strict`
     treats a missing description as a warning, then fails the job."""
@@ -729,6 +758,7 @@ def main() -> int:
     for skill in skills:
         check_skill(skill, root)
     check_writing_types(root)
+    check_modules(root)
     check_commands(root)
 
     palette = check_themes(root)

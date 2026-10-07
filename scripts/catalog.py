@@ -8,7 +8,7 @@ The catalog has exactly two sources:
 - each `skills/writing-documents/references/type-<slug>.md` declares one type in
   its fenced `yaml` block;
 - `core/document-patterns.md` declares the reading patterns in its families
-  table (and, once it exists, the module registry in its "Modules" table).
+  table and the module registry in its "Modules" table.
 
 Everything else — the example build, the Pages site, the validator, the tests —
 reads the catalog from here instead of keeping its own copy. Adding or changing
@@ -44,11 +44,39 @@ COMPATIBILITY_PROFILES = frozenset({"mulesoft"})
 # tests accept the command once it exists; its absence is not an error.
 NON_TYPE_COMMANDS = frozenset({"compose"})
 
+# The canonical type each compatibility profile specialises; its body reads
+# with that type's pattern.
+PROFILE_BASE = {"mulesoft": "service-docs"}
+
 # Composed examples: documents built from a pattern rather than a type preset.
 # Shape: {slug: (theme, pattern)}, mirroring the longform build's
-# {slug: (theme, pattern)}; the body lives outside templates/types/. Empty
-# until the first composed example ships.
-COMPOSED: dict[str, tuple[str, str]] = {}
+# {slug: (theme, pattern)}. The body lives in templates/composed/<slug>.html and
+# the Markdown in examples/<slug>.md declares `type: custom`.
+COMPOSED: dict[str, tuple[str, str]] = {
+    "platform-primer": ("field-notes", "learning"),
+}
+COMPOSED_DIR = Path("templates/composed")
+TYPE_BODY_DIR = Path("templates/types")
+PATTERNS_CSS = Path("core/document-patterns.css")
+
+# Classes in core/document-patterns.css that are not modules. The shell frames
+# every page; a part only appears inside its owning module. Both lists are
+# also named in prose under "## Modules" in core/document-patterns.md.
+SHELL_CLASSES = frozenset({
+    "doc", "doc-hero", "lede", "doc-meta", "status-banner",
+    "section", "section-head", "component-label", "lang",
+})
+MODULE_PARTS = {
+    "recommended": "comparison-grid",
+    "requirement-id": "requirement",
+    "http-method": "endpoint",
+    "impact-value": "impact-strip",
+    "impact-label": "impact-strip",
+    "crosswalk-legend": "crosswalk",
+}
+
+# A module whose allowed-patterns cell is this word serves every pattern.
+ANY_PATTERN = "any"
 
 TYPE_FIELDS = (
     "slug",
@@ -230,7 +258,9 @@ def load_modules(root: Path = ROOT) -> dict[str, Module]:
 
     The table's header is exactly `| module | class | patterns allowed |
     purpose |` (case-insensitive); `class` and each allowed pattern are
-    `code`. Returns {} while core/document-patterns.md has no Modules section.
+    `code`, or the allowed-patterns cell is the word `any`, which expands to
+    every pattern in the families table. Returns {} while
+    core/document-patterns.md has no Modules section.
     """
     source = root / PATTERNS_MD
     rows = _section_table(source.read_text(encoding="utf-8"), "Modules")
@@ -239,19 +269,117 @@ def load_modules(root: Path = ROOT) -> dict[str, Module]:
     if [cell.lower() for cell in rows[0]] != MODULES_HEADER:
         raise CatalogError(f"{PATTERNS_MD}: Modules table header must be {MODULES_HEADER}, got {rows[0]}")
     modules: dict[str, Module] = {}
+    names: set[str] = set()
     for row in rows[1:]:
         if len(row) != len(MODULES_HEADER):
             raise CatalogError(f"{PATTERNS_MD}: Modules row has {len(row)} cells: {row}")
         css_class = CODE.fullmatch(row[1])
         if not css_class:
             raise CatalogError(f"{PATTERNS_MD}: module class must be `code`, got {row[1]!r}")
+        if css_class.group(1) in modules:
+            raise CatalogError(f"{PATTERNS_MD}: module class `{css_class.group(1)}` is registered twice")
+        if row[0] in names:
+            raise CatalogError(f"{PATTERNS_MD}: module name {row[0]!r} is registered twice")
+        names.add(row[0])
+        if row[2] == ANY_PATTERN:
+            allowed = tuple(load_patterns(root))
+        else:
+            allowed = tuple(CODE.findall(row[2]))
+            leftover = CODE.sub("", row[2]).replace(",", "").strip()
+            if not allowed or leftover:
+                raise CatalogError(
+                    f"{PATTERNS_MD}: patterns allowed for `{css_class.group(1)}` must be "
+                    f"`code` names or {ANY_PATTERN!r}, got {row[2]!r}"
+                )
         modules[css_class.group(1)] = Module(
             name=row[0],
             css_class=css_class.group(1),
-            patterns=tuple(CODE.findall(row[2])),
+            patterns=allowed,
             purpose=row[3],
         )
     return modules
+
+
+# --------------------------------------------------------------------------
+# module use (core/document-patterns.css and the example bodies)
+# --------------------------------------------------------------------------
+
+CSS_COMMENT = re.compile(r"/\*.*?\*/", re.S)
+CSS_CLASS = re.compile(r"\.([a-z][a-z0-9-]*)")
+CLASS_ATTR = re.compile(r'\bclass="([^"]*)"')
+
+
+def stylesheet_classes(root: Path = ROOT) -> set[str]:
+    """Every class selector in core/document-patterns.css."""
+    css = CSS_COMMENT.sub("", (root / PATTERNS_CSS).read_text(encoding="utf-8"))
+    return set(CSS_CLASS.findall(css))
+
+
+def body_classes(html: str) -> set[str]:
+    """Every class named in a body's class="…" attributes."""
+    return {name for attr in CLASS_ATTR.findall(html) for name in attr.split()}
+
+
+def example_bodies(root: Path = ROOT, types: dict[str, Type] | None = None) -> dict[str, tuple[str, Path]]:
+    """{example name: (pattern, body path)} for every type, profile and composed body that exists."""
+    types = load_types(root) if types is None else types
+    bodies: dict[str, tuple[str, Path]] = {}
+    for slug, entry in types.items():
+        bodies[slug] = (entry.pattern, root / TYPE_BODY_DIR / f"{slug}.html")
+    for profile, base in PROFILE_BASE.items():
+        if base in types:
+            bodies[profile] = (types[base].pattern, root / TYPE_BODY_DIR / f"{profile}.html")
+    for slug, (_, pattern) in COMPOSED.items():
+        bodies[slug] = (pattern, root / COMPOSED_DIR / f"{slug}.html")
+    return {name: (pattern, path) for name, (pattern, path) in bodies.items() if path.is_file()}
+
+
+def module_problems(
+    modules: dict[str, Module],
+    patterns: dict[str, Pattern],
+    css_classes: set[str],
+    bodies: dict[str, tuple[str, set[str]]],
+) -> list[str]:
+    """Disagreements between the registry, the stylesheet, the families table and the bodies.
+
+    `bodies` is {example name: (pattern, classes used)}.
+    """
+    found: list[str] = []
+    for css_class, module in modules.items():
+        if css_class not in css_classes:
+            found.append(f"module `{css_class}` is registered but has no rule in {PATTERNS_CSS}")
+        for pattern in module.patterns:
+            if pattern not in patterns:
+                found.append(f'module `{css_class}` allows unknown pattern "{pattern}"')
+    for css_class in sorted(css_classes - set(modules) - SHELL_CLASSES - set(MODULE_PARTS)):
+        found.append(
+            f"{PATTERNS_CSS} styles `.{css_class}`, which is not a registered module, shell class or part"
+        )
+    for part, owner in MODULE_PARTS.items():
+        if owner not in modules:
+            found.append(f"part `{part}` belongs to `{owner}`, which is not a registered module")
+
+    by_name = {module.name: module for module in modules.values()}
+    for name, pattern in patterns.items():
+        for module_name in pattern.modules:
+            module = by_name.get(module_name)
+            if module is None:
+                found.append(f'the {name} row names characteristic module "{module_name}", which is not registered')
+                continue
+            if name not in module.patterns:
+                found.append(f'the {name} row names "{module_name}", which the registry does not allow for {name}')
+            users = [body for body, (p, used) in bodies.items() if p == name and module.css_class in used]
+            if not users:
+                found.append(f'no {name} example uses its characteristic module "{module_name}"')
+
+    for body, (pattern, used) in sorted(bodies.items()):
+        for css_class in sorted(used & set(modules)):
+            if pattern not in modules[css_class].patterns:
+                found.append(
+                    f"{body} ({pattern}) uses `{css_class}`, which the registry allows only for "
+                    f"{', '.join(modules[css_class].patterns)}"
+                )
+    return found
 
 
 def theme_names(root: Path = ROOT) -> set[str]:

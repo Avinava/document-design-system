@@ -6,6 +6,15 @@
     <div class="doc-meta" aria-label="Tutorial metadata"><span><strong>Time:</strong> 20 minutes</span><span><strong>Prerequisites:</strong> Go 1.22, Make, Docker</span><span><strong>Production access:</strong> none</span></div>
   </header>
 
+  <section class="learning-goal" aria-labelledby="goal">
+    <div><p class="component-label">Learning goal · 20 minutes</p><h2 id="goal">By the end, you can</h2></div>
+    <ul>
+      <li>start the local gateway from a known-good build;</li>
+      <li>send one synthetic event and read its acceptance;</li>
+      <li>explain why a retry keeps the same event ID.</li>
+    </ul>
+  </section>
+
   <section class="section">
     <div class="section-head"><span class="section-num">01</span><h2>Start from a known-good build</h2><span class="reading-time">5 min</span></div>
     <pre><span class="lang">bash</span>make ingest-test</pre>
