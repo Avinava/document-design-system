@@ -27,8 +27,9 @@ SHOTS = ROOT / "docs" / "screenshots"
 ASSETS = ROOT / "assets"
 
 sys.path.insert(0, str(ROOT / "scripts"))
+import catalog  # noqa: E402
 from build_document import build  # noqa: E402
-from build_examples import LONGFORM, assemble_docs_gallery  # noqa: E402
+from build_examples import assemble_docs_gallery  # noqa: E402
 
 # Where each published copy's fixed back-link leads: (href, label, aria-label).
 BACK_TO_TYPES = ("types.html", "← Patterns", "Back to document patterns")
@@ -144,7 +145,7 @@ def populate(dest: Path) -> None:
     if banner.is_file():
         shutil.copy2(banner, assets / "banner.svg")
 
-    for slug in LONGFORM:
+    for slug in catalog.TYPES:
         src = EX / f"{slug}.html"
         if not src.is_file():
             sys.exit(f"missing {src.relative_to(ROOT)} — run build_examples.py first")
@@ -185,7 +186,7 @@ def check_built(dest: Path) -> None:
     for needle in HOME_MUST_CONTAIN:
         if needle not in home:
             sys.exit(f"homepage missing {needle!r}")
-    for slug in LONGFORM:
+    for slug in catalog.TYPES:
         if f'href="{slug}.html"' not in gallery:
             sys.exit(f"types.html missing {slug}.html")
         doc = (dest / f"{slug}.html").read_text(encoding="utf-8")
@@ -193,10 +194,7 @@ def check_built(dest: Path) -> None:
             sys.exit(f"{slug}.html missing Pages navigation or favicon")
         if not (dest / "screenshots" / "thumbs" / f"{slug}.png").is_file():
             sys.exit(f"site missing thumbnail for {slug}")
-    for pattern in (
-        "decision", "record", "contract", "procedure", "learning", "system",
-        "incident", "suite", "plan", "assurance", "brief",
-    ):
+    for pattern in catalog.PATTERNS:
         if f'id="{pattern}"' not in gallery:
             sys.exit(f"types.html missing {pattern} pattern")
     if 'loading="lazy"' not in gallery or "screenshots/thumbs" not in gallery:

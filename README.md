@@ -330,7 +330,7 @@ Full dependency licensing, with the pinned version of every authoring-time packa
 
 1. Skills live at `skills/<name>/SKILL.md`, frontmatter limited to `name` and `description`.
 2. The description states what it does, when to use it, and an explicit `Do not use for …` — these six skills sit close together and will otherwise compete for the same prompts.
-3. Keep `SKILL.md` under 400 lines; depth goes in `references/`, and every reference file must be named from `SKILL.md` or it will never load.
+3. Keep `SKILL.md` within 14,000 bytes and its description within 1,024 characters (the validator fails either); depth goes in `references/`, and every reference file must be named from `SKILL.md` or it will never load.
 4. Adding a token means adding it to every theme, including `brand-template.css`, and documenting it in `core/tokens.md`.
 5. No color literals outside `core/themes/`.
 6. `python3 scripts/validate_repository.py .` and `python3 -m unittest discover -s tests` must pass.

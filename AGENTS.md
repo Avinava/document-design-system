@@ -19,7 +19,10 @@ the same title and factual anchors from `examples/WORLD.md`.
 
 When changing a writing-document type:
 
-1. Keep its `pattern` and `default-theme` fields aligned with
+1. Change `pattern` and `default-theme` only in the type reference's `yaml`
+   block, and keep the families table in `core/document-patterns.md` listing
+   it; `scripts/catalog.py` derives the build, gallery, site and checks from
+   those two. Gallery card copy lives in `TYPE_QUESTIONS` in
    `scripts/build_examples.py`.
 2. Update both Markdown and HTML examples.
 3. Rebuild with `python3 scripts/build_examples.py`.

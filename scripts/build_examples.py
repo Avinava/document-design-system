@@ -27,6 +27,7 @@ EX = ROOT / "examples"
 TYPES = ROOT / "templates" / "types"
 
 sys.path.insert(0, str(ROOT / "scripts"))
+import catalog  # noqa: E402
 from build_document import build  # noqa: E402
 from pins import REPO_NPM_HINT  # noqa: E402
 
@@ -61,44 +62,10 @@ DOCUMENTS = {
     "themes-dark.html": ("themes.html", "console-violet"),
 }
 
-# writing-documents examples: slug -> (theme, document-pattern)
-# Bodies live in templates/types/<slug>.html; the shell is templates/longform.html.
-LONGFORM = {
-    "design-doc": ("field-notes", "decision"),
-    "adr": ("field-notes", "record"),
-    "spec": ("field-notes", "contract"),
-    "api-contract": ("console-violet", "contract"),
-    "architecture": ("field-notes", "system"),
-    "handoff": ("field-notes", "procedure"),
-    "design-handoff": ("editorial-coral", "system"),
-    "discovery": ("field-notes", "decision"),
-    "test-report": ("editorial-coral", "assurance"),
-    "postmortem": ("console-violet", "incident"),
-    "proposal": ("executive-navy", "decision"),
-    "runbook": ("console-violet", "procedure"),
-    "onboarding": ("field-notes", "learning"),
-    "tutorial": ("editorial-coral", "learning"),
-    "how-to": ("editorial-coral", "procedure"),
-    "reference": ("console-violet", "contract"),
-    "explanation": ("field-notes", "learning"),
-    "project-charter": ("executive-navy", "decision"),
-    "estimate": ("executive-navy", "decision"),
-    "change-request": ("executive-navy", "decision"),
-    "requirements": ("field-notes", "contract"),
-    "statement-of-work": ("executive-navy", "contract"),
-    "support-model": ("field-notes", "contract"),
-    "delivery-plan": ("executive-navy", "plan"),
-    "migration-plan": ("console-violet", "plan"),
-    "test-strategy": ("editorial-coral", "plan"),
-    "threat-model": ("console-violet", "assurance"),
-    "readiness-review": ("console-violet", "assurance"),
-    "risk-register": ("executive-navy", "assurance"),
-    "status-report": ("executive-navy", "brief"),
-    "release-notes": ("editorial-coral", "brief"),
-    "workshop-summary": ("field-notes", "brief"),
-    "incident-update": ("console-violet", "brief"),
-    "service-docs": ("field-notes", "suite"),
-}
+# writing-documents examples: slug -> (theme, document-pattern), derived from
+# each type reference's yaml block. Bodies live in templates/types/<slug>.html;
+# the shell is templates/longform.html.
+LONGFORM = {slug: (t.default_theme, t.pattern) for slug, t in catalog.TYPES.items()}
 
 # Same body and pattern, different theme — the two-axis contract proof.
 # out_slug -> (body slug, theme, pattern)
@@ -132,115 +99,59 @@ FONTS = {
     ),
 }
 
-# Cards on the document-type gallery, grouped by reading pattern.
-# pattern -> (label, promise, items)
-TYPE_GALLERY = [
-    (
-        "decision",
-        "Decision",
-        "Put the ask and trade-offs before the implementation detail.",
-        [
-            ("design-doc", "Should we do this, and is the approach sound?"),
-            ("discovery", "What did we learn, and should we proceed?"),
-            ("proposal", "Should I approve this?"),
-            ("project-charter", "What are we committing to, and who can decide?"),
-            ("estimate", "What will this take, and how confident are we?"),
-            ("change-request", "Should we change the agreed baseline?"),
-        ],
-    ),
-    (
-        "record",
-        "Record",
-        "Preserve one settled choice and make its consequences traceable.",
-        [("adr", "Why is it like this?")],
-    ),
-    (
-        "contract",
-        "Contract",
-        "Make exact rules, specimens, and compliance conditions easy to scan.",
-        [
-            ("spec", "What exactly must I build, and how do I know I am done?"),
-            ("api-contract", "How do I call this correctly, and what happens when I do it wrong?"),
-            ("reference", "What is the exact fact?"),
-            ("requirements", "What outcome and behavior must delivery satisfy?"),
-            ("statement-of-work", "What services and acceptance are agreed?"),
-            ("support-model", "Who supports this service, and under what rules?"),
-        ],
-    ),
-    (
-        "procedure",
-        "Procedure",
-        "Keep safe execution, verification, and recovery in one visible path.",
-        [
-            ("handoff", "What do I run, change, and not break after you leave?"),
-            ("how-to", "How do I get this job done?"),
-            ("runbook", "What do I do right now?"),
-        ],
-    ),
-    (
-        "learning",
-        "Learning",
-        "Build understanding through staged context, practice, and checkpoints.",
-        [
-            ("explanation", "Why is it like this?"),
-            ("onboarding", "How do I get it running and prove it works?"),
-            ("tutorial", "Can I learn this by doing it once?"),
-        ],
-    ),
-    (
-        "system",
-        "System",
-        "Use maps, boundaries, interfaces, and states to build a spatial model.",
-        [
-            ("architecture", "How is it arranged today?"),
-            ("design-handoff", "What do I build, in every state?"),
-        ],
-    ),
-    (
-        "incident",
-        "Incident",
-        "Lead with impact, reconstruct time, then connect cause to owned action.",
-        [("postmortem", "What happened, why, and what stops it recurring?")],
-    ),
-    (
-        "suite",
-        "Suite",
-        "Orient readers across a linked set with ownership and freshness visible.",
-        [("service-docs", "What does this service do, and where is each fact owned?")],
-    ),
-    (
-        "plan",
-        "Plan",
-        "Make workstreams, dependencies, gates, and forecast movement visible.",
-        [
-            ("delivery-plan", "How will the agreed outcome be delivered and governed?"),
-            ("migration-plan", "How do we move safely and back out?"),
-            ("test-strategy", "How will quality risks be tested?"),
-        ],
-    ),
-    (
-        "assurance",
-        "Assurance",
-        "Put the verdict beside the evidence, findings, and residual risk.",
-        [
-            ("test-report", "Can we ship, on this build?"),
-            ("threat-model", "What can go wrong, and what will we do?"),
-            ("readiness-review", "Is this change ready for production?"),
-            ("risk-register", "Where is delivery exposed, and who owns it?"),
-        ],
-    ),
-    (
-        "brief",
-        "Brief",
-        "Expose current state, material change, required action, and next update.",
-        [
-            ("status-report", "Where are we now, and what needs attention?"),
-            ("release-notes", "What changed, and what must readers do?"),
-            ("workshop-summary", "What did the workshop establish and leave open?"),
-            ("incident-update", "What is happening now, and when is the next update?"),
-        ],
-    ),
-]
+# Display copy for the document-type gallery. Which types exist, their
+# pattern, and the order of both come from the catalog; these only say how a
+# card reads. Pattern sections appear in families-table order.
+PATTERN_PROMISES = {
+    "decision": "Put the ask and trade-offs before the implementation detail.",
+    "record": "Preserve one settled choice and make its consequences traceable.",
+    "contract": "Make exact rules, specimens, and compliance conditions easy to scan.",
+    "procedure": "Keep safe execution, verification, and recovery in one visible path.",
+    "learning": "Build understanding through staged context, practice, and checkpoints.",
+    "system": "Use maps, boundaries, interfaces, and states to build a spatial model.",
+    "incident": "Lead with impact, reconstruct time, then connect cause to owned action.",
+    "suite": "Orient readers across a linked set with ownership and freshness visible.",
+    "plan": "Make workstreams, dependencies, gates, and forecast movement visible.",
+    "assurance": "Put the verdict beside the evidence, findings, and residual risk.",
+    "brief": "Expose current state, material change, required action, and next update.",
+}
+
+TYPE_QUESTIONS = {
+    "design-doc": "Should we do this, and is the approach sound?",
+    "discovery": "What did we learn, and should we proceed?",
+    "proposal": "Should I approve this?",
+    "project-charter": "What are we committing to, and who can decide?",
+    "estimate": "What will this take, and how confident are we?",
+    "change-request": "Should we change the agreed baseline?",
+    "adr": "Why is it like this?",
+    "spec": "What exactly must I build, and how do I know I am done?",
+    "api-contract": "How do I call this correctly, and what happens when I do it wrong?",
+    "reference": "What is the exact fact?",
+    "requirements": "What outcome and behavior must delivery satisfy?",
+    "statement-of-work": "What services and acceptance are agreed?",
+    "support-model": "Who supports this service, and under what rules?",
+    "handoff": "What do I run, change, and not break after you leave?",
+    "how-to": "How do I get this job done?",
+    "runbook": "What do I do right now?",
+    "explanation": "Why is it like this?",
+    "onboarding": "How do I get it running and prove it works?",
+    "tutorial": "Can I learn this by doing it once?",
+    "architecture": "How is it arranged today?",
+    "design-handoff": "What do I build, in every state?",
+    "postmortem": "What happened, why, and what stops it recurring?",
+    "service-docs": "What does this service do, and where is each fact owned?",
+    "delivery-plan": "How will the agreed outcome be delivered and governed?",
+    "migration-plan": "How do we move safely and back out?",
+    "test-strategy": "How will quality risks be tested?",
+    "test-report": "Can we ship, on this build?",
+    "threat-model": "What can go wrong, and what will we do?",
+    "readiness-review": "Is this change ready for production?",
+    "risk-register": "Where is delivery exposed, and who owns it?",
+    "status-report": "Where are we now, and what needs attention?",
+    "release-notes": "What changed, and what must readers do?",
+    "workshop-summary": "What did the workshop establish and leave open?",
+    "incident-update": "What is happening now, and when is the next update?",
+}
 
 SHOT_PREFIX = "../docs/screenshots/thumbs"
 
@@ -439,11 +350,12 @@ def assemble_docs_gallery(
     introduced the skills.
     """
     groups = []
-    for pattern, heading, promise, items in TYPE_GALLERY:
+    for pattern in catalog.PATTERNS.values():
         cards = []
-        for slug, question in items:
+        for slug in pattern.types:
             shot = f"{shot_prefix}/{slug}.png"
             theme = LONGFORM[slug][0]
+            question = TYPE_QUESTIONS[slug]
             cards.append(
                 f'<a class="type-card" id="type-{slug}" href="{slug}.html">\n'
                 f'  <img src="{shot}" alt="" width="640" height="400" loading="lazy" decoding="async">\n'
@@ -454,10 +366,10 @@ def assemble_docs_gallery(
                 f'</a>'
             )
         groups.append(
-            f'<section class="pattern-section pattern-{pattern}" id="{pattern}">\n'
+            f'<section class="pattern-section pattern-{pattern.name}" id="{pattern.name}">\n'
             f'  <header><span class="pattern-index">{len(groups) + 1:02d}</span>'
-            f'<div><p class="eyebrow">{pattern} pattern</p><h2>{heading}</h2>'
-            f'<p>{promise}</p></div></header>\n'
+            f'<div><p class="eyebrow">{pattern.name} pattern</p><h2>{pattern.name.capitalize()}</h2>'
+            f'<p>{PATTERN_PROMISES[pattern.name]}</p></div></header>\n'
             f'  <div class="type-cards">\n    '
             + "\n    ".join(cards)
             + "\n  </div>\n</section>"
@@ -590,7 +502,7 @@ def build_documents() -> None:
 def main() -> None:
     render_figures()
     build_documents()
-    print("\ndone. Screenshot with: python scripts/shoot_examples.py")
+    print("\ndone. Screenshot with: uv run python scripts/shoot_examples.py")
 
 
 if __name__ == "__main__":

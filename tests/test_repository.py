@@ -33,44 +33,41 @@ EXPECTED_SKILLS = {
     "brand-theme-design",
 }
 
-EXPECTED_PATTERNS = {
+import catalog  # noqa: E402
+from catalog import COMPATIBILITY_PROFILES, NON_TYPE_COMMANDS  # noqa: E402
+
+# Independent intent guards. The full slug -> pattern map lives only in the
+# type references (scripts/catalog.py derives it); these pin the decisions that
+# should never change silently: how many types and patterns there are, which
+# patterns exist, and a hand-picked sample of type -> (theme, pattern).
+EXPECTED_TYPE_COUNT = 34
+EXPECTED_PATTERN_NAMES = (
+    "decision", "record", "contract", "procedure", "learning", "system",
+    "incident", "suite", "plan", "assurance", "brief",
+)
+SPOT_CHECK = {
     "design-doc": ("field-notes", "decision"),
     "adr": ("field-notes", "record"),
-    "spec": ("field-notes", "contract"),
     "api-contract": ("console-violet", "contract"),
-    "architecture": ("field-notes", "system"),
-    "handoff": ("field-notes", "procedure"),
-    "design-handoff": ("editorial-coral", "system"),
-    "discovery": ("field-notes", "decision"),
-    "test-report": ("editorial-coral", "assurance"),
-    "postmortem": ("console-violet", "incident"),
-    "proposal": ("executive-navy", "decision"),
     "runbook": ("console-violet", "procedure"),
-    "onboarding": ("field-notes", "learning"),
-    "tutorial": ("editorial-coral", "learning"),
-    "how-to": ("editorial-coral", "procedure"),
-    "reference": ("console-violet", "contract"),
-    "explanation": ("field-notes", "learning"),
-    "project-charter": ("executive-navy", "decision"),
-    "estimate": ("executive-navy", "decision"),
-    "change-request": ("executive-navy", "decision"),
-    "requirements": ("field-notes", "contract"),
-    "statement-of-work": ("executive-navy", "contract"),
-    "support-model": ("field-notes", "contract"),
-    "delivery-plan": ("executive-navy", "plan"),
-    "migration-plan": ("console-violet", "plan"),
-    "test-strategy": ("editorial-coral", "plan"),
-    "threat-model": ("console-violet", "assurance"),
-    "readiness-review": ("console-violet", "assurance"),
-    "risk-register": ("executive-navy", "assurance"),
+    "postmortem": ("console-violet", "incident"),
     "status-report": ("executive-navy", "brief"),
-    "release-notes": ("editorial-coral", "brief"),
-    "workshop-summary": ("field-notes", "brief"),
-    "incident-update": ("console-violet", "brief"),
-    "service-docs": ("field-notes", "suite"),
 }
 
-COMPATIBILITY_PROFILES = {"mulesoft"}
+# The class each pattern's examples must carry (one per pattern).
+CHARACTERISTIC_CLASS = {
+    "decision": "decision-rail",
+    "record": "decision-statement",
+    "contract": "contract-layout",
+    "procedure": "procedure-steps",
+    "learning": "takeaway",
+    "system": "system-map",
+    "incident": "impact-strip",
+    "suite": "document-map",
+    "plan": "milestone-rail",
+    "assurance": "assurance-verdict",
+    "brief": "brief-status",
+}
 
 
 def skill_dirs() -> list[Path]:
@@ -151,10 +148,11 @@ class TestWritingTypes(unittest.TestCase):
                 self.assertIn(f"`{slug}`", index)
 
     def test_gallery_lists_every_type(self):
-        from build_examples import LONGFORM, TYPE_GALLERY
+        from build_examples import LONGFORM, PATTERN_PROMISES, TYPE_QUESTIONS
 
-        listed = {slug for _, _, _, items in TYPE_GALLERY for slug, _ in items}
-        self.assertEqual(listed, set(LONGFORM))
+        self.assertEqual(set(LONGFORM), set(catalog.TYPES))
+        self.assertEqual(set(TYPE_QUESTIONS), set(catalog.TYPES), "gallery copy and catalog disagree")
+        self.assertEqual(set(PATTERN_PROMISES), set(catalog.PATTERNS), "gallery copy and catalog disagree")
         index = ROOT / "examples" / "index.html"
         if index.is_file():
             text = index.read_text(encoding="utf-8")
@@ -237,42 +235,38 @@ class TestWritingTypes(unittest.TestCase):
                 self.assertIn('data-pattern="decision"', html)
                 self.assertIn("Two engineers for one quarter", html)
 
-    def test_pattern_contract_is_complete_and_consistent(self):
-        from build_examples import LONGFORM, TYPE_GALLERY
-
-        self.assertEqual(LONGFORM, EXPECTED_PATTERNS)
-        self.assertEqual(
-            {pattern for pattern, *_ in TYPE_GALLERY},
-            {"decision", "record", "contract", "procedure", "learning", "system", "incident", "suite", "plan", "assurance", "brief"},
-        )
-        ref_dir = SKILLS / "writing-documents" / "references"
-        for slug, (theme, pattern) in EXPECTED_PATTERNS.items():
+    def test_catalog_size_and_patterns_are_intended(self):
+        self.assertEqual(len(catalog.TYPES), EXPECTED_TYPE_COUNT)
+        self.assertEqual(tuple(catalog.PATTERNS), EXPECTED_PATTERN_NAMES)
+        for slug, (theme, pattern) in SPOT_CHECK.items():
             with self.subTest(slug=slug):
-                ref = (ref_dir / f"type-{slug}.md").read_text(encoding="utf-8")
-                self.assertRegex(ref, rf"(?m)^pattern: {re.escape(pattern)}$")
-                self.assertRegex(ref, rf"(?m)^default-theme: {re.escape(theme)}$")
+                self.assertEqual(
+                    (catalog.TYPES[slug].default_theme, catalog.TYPES[slug].pattern), (theme, pattern)
+                )
+
+    def test_catalog_agrees_with_itself(self):
+        self.assertEqual(
+            catalog.problems(catalog.TYPES, catalog.PATTERNS, catalog.theme_names(ROOT)), []
+        )
+
+    def test_pattern_contract_is_complete_and_consistent(self):
+        from build_examples import LONGFORM
+
+        self.assertEqual(
+            LONGFORM, {slug: (t.default_theme, t.pattern) for slug, t in catalog.TYPES.items()}
+        )
+        for slug, (theme, pattern) in LONGFORM.items():
+            with self.subTest(slug=slug):
                 generated = (ROOT / "examples" / f"{slug}.html").read_text(encoding="utf-8")
                 self.assertIn(f'data-pattern="{pattern}"', generated)
                 self.assertIn(f'data-theme="{theme}"', generated)
 
     def test_every_pattern_uses_its_characteristic_module(self):
-        required = {
-            "decision": "decision-rail",
-            "record": "decision-statement",
-            "contract": "contract-layout",
-            "procedure": "procedure-steps",
-            "learning": "takeaway",
-            "system": "system-map",
-            "incident": "impact-strip",
-            "suite": "document-map",
-            "plan": "milestone-rail",
-            "assurance": "assurance-verdict",
-            "brief": "brief-status",
-        }
-        for slug, (_, pattern) in EXPECTED_PATTERNS.items():
-            with self.subTest(slug=slug, pattern=pattern):
+        self.assertEqual(set(CHARACTERISTIC_CLASS), set(catalog.PATTERNS))
+        for slug, entry in catalog.TYPES.items():
+            with self.subTest(slug=slug, pattern=entry.pattern):
                 body = (ROOT / "templates" / "types" / f"{slug}.html").read_text(encoding="utf-8")
-                self.assertIn(required[pattern], body)
+                self.assertIn(CHARACTERISTIC_CLASS[entry.pattern], body)
 
     def test_markdown_and_html_share_titles_and_fact_tokens(self):
         """The paired formats may compose differently, but not contradict facts."""
@@ -282,7 +276,7 @@ class TestWritingTypes(unittest.TestCase):
             r"\b\d+(?:\.\d+)?(?:%|ms|s|m|h|×)\b)",
             re.I,
         )
-        for slug in EXPECTED_PATTERNS:
+        for slug in catalog.TYPES:
             with self.subTest(slug=slug):
                 markdown = (ROOT / "examples" / f"{slug}.md").read_text(encoding="utf-8")
                 source = (ROOT / "templates" / "types" / f"{slug}.html").read_text(encoding="utf-8")
@@ -312,7 +306,8 @@ class TestWritingTypes(unittest.TestCase):
             if p.name != "type-index.md"
         }
         commands = {p.stem for p in (ROOT / "commands").glob("*.md")}
-        self.assertEqual(commands, types | COMPATIBILITY_PROFILES)
+        # Non-type commands (compose) are allowed but not required.
+        self.assertEqual(commands - NON_TYPE_COMMANDS, types | COMPATIBILITY_PROFILES)
 
     def test_compatibility_profile_routes_to_service_docs(self):
         command = (ROOT / "commands" / "mulesoft.md").read_text(encoding="utf-8")
@@ -1013,6 +1008,198 @@ class TestToolchainValidation(unittest.TestCase):
             "pinned pypi package pillow has no row",
             self.edit("THIRD_PARTY_LICENSES.md", "| [`pillow`]", "| pillow"),
         )
+
+
+class TestCatalog(unittest.TestCase):
+    """scripts/catalog.py parses strictly and its cross-checks fire."""
+
+    VALID = (
+        "# X\n\n```yaml\nslug: x\ntitle: X\naliases: [a, b-c]\nexample: examples/x.html\n"
+        "command: /document-design-system:x\npattern: decision\ndefault-theme: field-notes\n"
+        "default-format: markdown\npath: docs/x.md\n```\n"
+    )
+
+    def parse(self, text: str):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "type-x.md"
+            path.write_text(text, encoding="utf-8")
+            return catalog.parse_type(path)
+
+    def test_parses_aliases_as_a_list(self):
+        parsed = self.parse(self.VALID)
+        self.assertEqual(parsed.aliases, ("a", "b-c"))
+        self.assertEqual(parsed.default_theme, "field-notes")
+        self.assertEqual(self.parse(self.VALID.replace("[a, b-c]", "[]")).aliases, ())
+        self.assertEqual(
+            catalog.TYPES["design-doc"].aliases, ("rfc", "tdd", "technical-design", "erd")
+        )
+
+    def test_rejects_malformed_blocks(self):
+        cases = {
+            "missing yaml metadata fence": self.VALID.replace("```yaml", "```text"),
+            "aliases must be a [list]": self.VALID.replace("[a, b-c]", "a, b-c"),
+            "unexpected": self.VALID.replace("path: docs/x.md", "path: docs/x.md\nowner: me"),
+            "declares title twice": self.VALID.replace("title: X", "title: X\ntitle: Y"),
+            "yaml has no pattern": self.VALID.replace("pattern: decision\n", ""),
+            "yaml has no default-theme": self.VALID.replace("default-theme: field-notes", "default-theme:"),
+        }
+        for needle, text in cases.items():
+            with self.subTest(needle=needle):
+                with self.assertRaises(catalog.CatalogError) as ctx:
+                    self.parse(text)
+                self.assertIn(needle, str(ctx.exception))
+
+    def test_patterns_carry_movement_modules_and_types(self):
+        decision = catalog.PATTERNS["decision"]
+        self.assertIn("ask band", decision.modules)
+        self.assertEqual(decision.types[0], "design-doc")
+        self.assertTrue(decision.movement)
+
+    def test_modules_registry_is_empty_until_the_table_exists(self):
+        text = (ROOT / catalog.PATTERNS_MD).read_text(encoding="utf-8")
+        if "\n## Modules" not in text:
+            self.assertEqual(catalog.MODULES, {})
+
+    def test_modules_table_parses(self):
+        import shutil
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            target = root / catalog.PATTERNS_MD
+            target.parent.mkdir(parents=True)
+            shutil.copy2(ROOT / catalog.PATTERNS_MD, target)
+            target.write_text(
+                target.read_text(encoding="utf-8")
+                + "\n## Modules\n\n| Module | Class | Patterns allowed | Purpose |\n|---|---|---|---|\n"
+                "| ask band | `ask-band` | `decision`, `brief` | The decision asked for, first |\n",
+                encoding="utf-8",
+            )
+            modules = catalog.load_modules(root)
+        self.assertEqual(list(modules), ["ask-band"])
+        self.assertEqual(modules["ask-band"].patterns, ("decision", "brief"))
+
+    def test_cross_checks_fire(self):
+        import dataclasses
+
+        types = dict(catalog.TYPES)
+        patterns = catalog.PATTERNS
+        themes = catalog.theme_names(ROOT)
+
+        def problems_after(**changes) -> str:
+            mutated = dict(types)
+            mutated["adr"] = dataclasses.replace(types["adr"], **changes)
+            return "\n".join(message for _, message in catalog.problems(mutated, patterns, themes))
+
+        self.assertIn('pattern "memo" is not one of', problems_after(pattern="memo"))
+        self.assertIn("whose type file says contract", problems_after(pattern="contract"))
+        self.assertIn("contract row does not list `adr`", problems_after(pattern="contract"))
+        self.assertIn('default-theme "neon" is not a theme', problems_after(default_theme="neon"))
+        self.assertIn("command must be", problems_after(command="/document-design-system:record"))
+        self.assertIn("example must be", problems_after(example="examples/other.html"))
+
+
+class TestWritingTypeValidation(unittest.TestCase):
+    """check_writing_types reads the catalog and reports through the validator."""
+
+    def run_check(self, mutate=None) -> list[str]:
+        import shutil
+        import tempfile
+
+        import validate_repository as vr
+
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            for rel in (catalog.TYPE_DIR, catalog.THEMES_DIR, Path("commands"), Path("templates/types")):
+                shutil.copytree(ROOT / rel, tmp / rel)
+            shutil.copy2(ROOT / catalog.PATTERNS_MD, tmp / catalog.PATTERNS_MD)
+            if mutate:
+                mutate(tmp)
+            vr.errors.clear()
+            try:
+                vr.check_writing_types(tmp)
+                return list(vr.errors)
+            finally:
+                vr.errors.clear()
+
+    @staticmethod
+    def edit(rel: str, old: str, new: str):
+        def mutate(tmp: Path) -> None:
+            path = tmp / rel
+            path.write_text(path.read_text(encoding="utf-8").replace(old, new, 1), encoding="utf-8")
+
+        return mutate
+
+    def test_unmutated_copy_passes(self):
+        self.assertEqual(self.run_check(), [])
+
+    def test_compose_command_is_reserved_not_required(self):
+        def add_compose(tmp: Path) -> None:
+            (tmp / "commands" / "compose.md").write_text("---\ndescription: x\n---\n", encoding="utf-8")
+
+        self.assertEqual(self.run_check(add_compose), [])
+
+    def test_rejects_unknown_pattern_and_theme(self):
+        ref = f"{catalog.TYPE_DIR}/type-adr.md"
+        found = "\n".join(self.run_check(self.edit(ref, "pattern: record", "pattern: memo")))
+        self.assertIn('pattern "memo"', found)
+        found = "\n".join(self.run_check(self.edit(ref, "default-theme: field-notes", "default-theme: neon")))
+        self.assertIn('default-theme "neon"', found)
+
+    def test_rejects_malformed_aliases(self):
+        ref = f"{catalog.TYPE_DIR}/type-adr.md"
+        found = self.run_check(self.edit(ref, "aliases: [architecture-decision]", "aliases: architecture-decision"))
+        self.assertTrue(any("aliases must be a [list]" in e for e in found), found)
+
+    def test_rejects_an_orphan_command(self):
+        def add(tmp: Path) -> None:
+            (tmp / "commands" / "memo.md").write_text("---\ndescription: x\n---\n", encoding="utf-8")
+
+        self.assertTrue(any('command "memo"' in e for e in self.run_check(add)))
+
+
+class TestSkillSizeValidation(unittest.TestCase):
+    def check(self, body: str, description: str = "Does a thing. Use when x. Do not use for y.") -> list[str]:
+        import tempfile
+
+        import validate_repository as vr
+
+        with tempfile.TemporaryDirectory() as td:
+            skill = Path(td) / "skills" / "a-skill"
+            skill.mkdir(parents=True)
+            (skill / "SKILL.md").write_bytes(
+                f"---\nname: a-skill\ndescription: {description}\n---\n{body}".encode("utf-8")
+            )
+            vr.errors.clear()
+            vr.warnings.clear()
+            try:
+                vr.check_skill(skill, Path(td))
+                return list(vr.errors)
+            finally:
+                vr.errors.clear()
+                vr.warnings.clear()
+
+    def test_under_the_cap_passes(self):
+        self.assertEqual(self.check("x\n" * 1000), [])
+
+    def test_over_the_byte_cap_is_an_error(self):
+        import validate_repository as vr
+
+        found = self.check("x" * vr.MAX_SKILL_BYTES)
+        self.assertTrue(any("byte cap" in e for e in found), found)
+
+    def test_crlf_is_measured_as_lf(self):
+        import validate_repository as vr
+
+        # Just under the cap with LF; CRLF would push it over if not normalised.
+        lines = (vr.MAX_SKILL_BYTES - 200) // 2
+        self.assertEqual(self.check("x\r\n" * lines), [])
+
+    def test_long_description_is_an_error(self):
+        found = self.check("body", "Use when x. Do not use for y. " + "z" * 1024)
+        self.assertTrue(any("description is" in e for e in found), found)
 
 
 if __name__ == "__main__":

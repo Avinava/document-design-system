@@ -19,6 +19,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import catalog  # noqa: E402
 import pins  # noqa: E402
 import sync_skill_assets  # noqa: E402
 from sync_skill_assets import VENDORED_DIRS  # noqa: E402
@@ -31,7 +32,10 @@ ALLOWED_KEYS = {"name", "description"}
 NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 MAX_NAME = 64
 MAX_DESCRIPTION = 1024
-MAX_SKILL_LINES = 400
+# A SKILL.md loads in full whenever the skill triggers, so its size is a cost
+# paid on every use. Bytes rather than lines: a line cap rewards long lines.
+# Counted with line endings normalised to LF so a CRLF checkout measures the same.
+MAX_SKILL_BYTES = 14_000
 
 # Hex literals are allowed only where the palette is defined. Everywhere else
 # they mean a component has learned about a theme, which is the one thing the
@@ -50,6 +54,10 @@ HEX_EXEMPT_FILES = {
     # That is provenance, not a component learning a theme.
     "templates/brand.html",
 }
+
+# Installed dependencies and build output: not this repository's sources.
+# .venv is where the documented `uv venv` puts the authoring Python packages.
+SKIP_DIRS = {"node_modules", ".git", "dist", ".venv", "venv"}
 
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)#][^)]*)\)")
 
@@ -156,70 +164,56 @@ def check_skill(skill_dir: Path, root: Path) -> None:
         if "use when" not in desc.lower() and "use for" not in desc.lower():
             warn(rel_md, 'description should say "Use when ..." or "Use for ..."')
 
-    line_count = text.count("\n") + 1
-    if line_count > MAX_SKILL_LINES:
-        warn(
+    size = len(text.replace("\r\n", "\n").encode("utf-8"))
+    if size > MAX_SKILL_BYTES:
+        error(
             rel_md,
-            f"{line_count} lines, over the {MAX_SKILL_LINES}-line target — "
+            f"{size:,} bytes, over the {MAX_SKILL_BYTES:,}-byte cap — "
             "move depth into references/ so it loads only when needed",
         )
 
 
-TYPE_YAML = re.compile(r"^```yaml\n(.*?)^```", re.M | re.S)
-
-
 def check_writing_types(root: Path) -> None:
-    """Type files in writing-documents declare a slug that matches the filename.
+    """The type references, the families table, commands and bodies agree.
 
-    Commands, type bodies, and example HTML/Markdown must use the same slug
-    set — a command without a type file (or the reverse) is how the catalog
-    and the skill drift apart.
+    The catalog is parsed from the type files and core/document-patterns.md
+    (scripts/catalog.py). A command or body without a type file — or the
+    reverse — is how the catalog and the skill drift apart.
     """
-    skill = root / "skills" / "writing-documents"
-    ref_dir = skill / "references"
-    if not ref_dir.is_dir():
+    if not (root / catalog.TYPE_DIR).is_dir():
         return
 
-    slugs: set[str] = set()
-    for path in sorted(ref_dir.glob("type-*.md")):
-        if path.name == "type-index.md":
-            continue
+    types: dict[str, catalog.Type] = {}
+    for path in catalog.type_files(root):
         rel = path.relative_to(root)
-        text = path.read_text(encoding="utf-8")
-        m = TYPE_YAML.search(text)
-        if not m:
-            error(rel, "missing yaml metadata fence (slug, title, command, path)")
+        try:
+            parsed = catalog.parse_type(path)
+        except catalog.CatalogError as exc:
+            error(rel, str(exc))
             continue
-        meta = {}
-        for line in m.group(1).splitlines():
-            if ":" not in line:
-                continue
-            key, _, value = line.partition(":")
-            meta[key.strip()] = value.strip()
-        slug = meta.get("slug", "").strip()
-        expected = path.name[len("type-") : -len(".md")]
-        if not slug:
-            error(rel, "yaml metadata has no slug")
-        elif slug != expected:
-            error(rel, f'slug "{slug}" does not match filename (expected "{expected}")')
-        else:
-            slugs.add(expected)
-        if "command:" in m.group(1) and f"/document-design-system:{expected}" not in m.group(1):
-            error(
-                rel,
-                f'command must be /document-design-system:{expected}',
-            )
-        if "Reader's question" not in text and "Reader’s question" not in text:
+        types[parsed.slug] = parsed
+        if "Reader's question" not in path.read_text(encoding="utf-8").replace("\u2019", "'"):
             error(rel, "missing reader's question")
 
-    # Compatibility profiles keep stable commands and example bodies without
-    # pretending to be second canonical types.
-    compatibility_profiles = {"mulesoft"}
+    try:
+        patterns = catalog.load_patterns(root)
+    except (OSError, catalog.CatalogError) as exc:
+        error(catalog.PATTERNS_MD, str(exc))
+        return
+    try:
+        catalog.load_modules(root)
+    except catalog.CatalogError as exc:
+        error(catalog.PATTERNS_MD, str(exc))
 
+    for where, message in catalog.problems(types, patterns, catalog.theme_names(root)):
+        error(where.relative_to(root) if where.is_absolute() else where, message)
+
+    slugs = set(types)
     commands = root / "commands"
     if commands.is_dir() and slugs:
+        allowed = slugs | catalog.COMPATIBILITY_PROFILES | catalog.NON_TYPE_COMMANDS
         cmd_slugs = {p.stem for p in commands.glob("*.md")}
-        for extra in sorted(cmd_slugs - slugs - compatibility_profiles):
+        for extra in sorted(cmd_slugs - allowed):
             error(
                 (commands / f"{extra}.md").relative_to(root),
                 f'command "{extra}" has no matching type-{extra}.md',
@@ -233,7 +227,7 @@ def check_writing_types(root: Path) -> None:
     types_dir = root / "templates" / "types"
     if types_dir.is_dir() and slugs:
         body_slugs = {p.stem for p in types_dir.glob("*.html")}
-        for extra in sorted(body_slugs - slugs - compatibility_profiles):
+        for extra in sorted(body_slugs - slugs - catalog.COMPATIBILITY_PROFILES):
             error(
                 (types_dir / f"{extra}.html").relative_to(root),
                 f'type body "{extra}" has no matching type-{extra}.md',
@@ -349,7 +343,7 @@ def check_hex_literals(root: Path, palette: set[str]) -> None:
         rel = path.relative_to(root)
         rel_str = rel.as_posix()
 
-        if any(part in {"node_modules", ".git", "dist"} for part in rel.parts):
+        if any(part in SKIP_DIRS for part in rel.parts):
             continue
         # examples/ holds assembled output, which contains the inlined theme by
         # definition. The rule is about sources — a built document is supposed
@@ -706,7 +700,7 @@ def check_vendored_assets(root: Path) -> None:
 
 def check_links(root: Path) -> None:
     for md in sorted(root.rglob("*.md")):
-        if any(p in {"node_modules", ".git", "dist"} for p in md.relative_to(root).parts):
+        if any(p in SKIP_DIRS for p in md.relative_to(root).parts):
             continue
         rel = md.relative_to(root)
         if is_vendored(rel):
