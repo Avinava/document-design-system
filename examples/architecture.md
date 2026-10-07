@@ -44,6 +44,12 @@ buffer. Gateway overload then affects every producer.
 Adding one consumer replica is the safe local recovery control. Because every
 producer shares the queue, current recovery is shared too.
 
+## Runtime placement
+
+The gateway and `ingest-consumer` run in namespace `ingest` on `prod-ingest`;
+staging mirrors the namespace on `stage-ingest`. Replica changes are the only
+scaling control operators own.
+
 ## Trust and data boundaries
 
 - Gateway terminates producer identity and enforces audience.

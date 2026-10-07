@@ -72,6 +72,27 @@
     </figure>
 
     <figure class="fig">
+      <span class="kind">Diagram · change view</span>
+      <h3>What changes, and what does not</h3>
+      <div class="frame"><!-- @FIG queue-split-change --></div>
+      <figcaption>Before above after on shared columns; a ledger names each change by node id.</figcaption>
+    </figure>
+
+    <figure class="fig">
+      <span class="kind">Diagram · deployment map</span>
+      <h3>Where does it run?</h3>
+      <div class="frame"><!-- @FIG ingest-deployment --></div>
+      <figcaption>Cluster, then namespace, then workload; dependencies stay outside the boundary.</figcaption>
+    </figure>
+
+    <figure class="fig">
+      <span class="kind">Diagram · dependency graph</span>
+      <h3>What waits on what?</h3>
+      <div class="frame"><!-- @FIG workstream-dependencies --></div>
+      <figcaption>Directed and acyclic, in date order; the one accent is the critical path.</figcaption>
+    </figure>
+
+    <figure class="fig">
       <span class="kind">Diagram · Mermaid prerendered</span>
       <h3>Sequence</h3>
       <div class="frame"><!-- @FIG ingestion-path --></div>
@@ -97,6 +118,13 @@
       <h3>Time series</h3>
       <div class="frame"><!-- @FIG latency-p99 --></div>
       <figcaption>Straight segments; a spline would invent readings between points.</figcaption>
+    </figure>
+
+    <figure class="fig">
+      <span class="kind">Chart · waterfall bridge</span>
+      <h3>How the total is built</h3>
+      <div class="frame"><!-- @FIG estimate-bridge --></div>
+      <figcaption>Signed steps that must sum to the total; the excluded change is dashed, never added.</figcaption>
     </figure>
 
     <figure class="fig">

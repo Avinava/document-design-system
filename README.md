@@ -164,11 +164,11 @@ RFC 014 for the Platform director. Fourteen slides, one idea each, claim titles.
 
 ### Figures — diagrams and charts on one token set
 
-Six forms, one accent, all resolving against the document's tokens at view time. This image follows your GitHub theme — and both renderings use the **same SVG files**, which is the clearest proof the token indirection works.
+Ten forms, one accent, all resolving against the document's tokens at view time. This image follows your GitHub theme — and both renderings use the **same SVG files**, which is the clearest proof the token indirection works.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/gallery-dark.png">
-  <img alt="Figure gallery: architecture diagram, sequence diagram, ranked bars, columns, line chart, and a limit ledger" src="docs/screenshots/gallery-light.png">
+  <img alt="Figure gallery: architecture diagram, change view, deployment map, dependency graph, sequence diagram, ranked bars, columns, line chart, waterfall bridge, and a limit ledger" src="docs/screenshots/gallery-light.png">
 </picture>
 
 <sub>`diagram-design` + `chart-design` · rendered in `editorial-coral` and `console-violet` — the same SVG files, no re-render · [source](examples/gallery-light.html)</sub>
@@ -176,10 +176,14 @@ Six forms, one accent, all resolving against the document's tokens at view time.
 | Figure | Path | Why that path |
 |---|---|---|
 | Architecture | Hand-authored SVG | Position carries coupling — auto-layout would assert relationships nobody intended |
+| Change view | Hand-authored SVG | Before above after on shared columns; a ledger names each change in words |
+| Deployment map | Hand-authored SVG | Containment is the claim — cluster, namespace, replicas |
+| Dependency graph | Hand-authored SVG | Date order left to right; the critical path is the one accent |
 | Sequence | Mermaid → prerendered SVG | Order is dictated by the protocol, so auto-layout is honest |
 | Ranked bars | Observable Plot → SVG | Sorted descending, zero baseline, one focal bar |
 | Columns | Observable Plot → SVG | Chronological, never sorted by value |
 | Line | Observable Plot → SVG | Straight segments; a spline invents readings between points |
+| Waterfall bridge | Observable Plot → SVG | The render fails if a declared total is not the sum of its steps |
 | Limit ledger | Hand-authored SVG | A linear track beats a gauge — same value, stated precisely |
 
 ### Same document, three voices
@@ -235,7 +239,7 @@ Each row is a committed example in [`examples/`](examples/), not a description o
 | Skill | Owns | Does **not** own | Example |
 |---|---|---|---|
 | **[analytical-document-design](skills/analytical-document-design/SKILL.md)** | Evidence models, control totals, metric semantics, cohort/time semantics, classification confidence, report architecture, methodology | Prose-first docs, slides, standalone charts | [inventory-report](examples/inventory-report.html) |
-| **[diagram-design](skills/diagram-design/SKILL.md)** | When a diagram earns its place, form routing, layout/edge/label rules, Mermaid→SVG prerender, hand-SVG for concept diagrams | Quantitative charts, UI mockups, editable `.drawio` | [figure gallery](examples/gallery-light.html) |
+| **[diagram-design](skills/diagram-design/SKILL.md)** | When a diagram earns its place, form routing, layout/edge/label rules, Mermaid→SVG prerender, draw.io and Mermaid structure import, hand-SVG checked by `check_diagrams.py` | Quantitative charts, UI mockups, editable `.drawio` | [figure gallery](examples/gallery-light.html) |
 | **[chart-design](skills/chart-design/SKILL.md)** | Chart-type selection, axis honesty, encoding rules, palettes derived from tokens, grayscale survival | Narrative structure, dashboards-as-applications | [figure gallery](examples/gallery-light.html) |
 | **[presentation-design](skills/presentation-design/SKILL.md)** | 16:9 HTML slides; claim titles; one idea per slide; title, agenda, statement, divider, metric, chart, diagram, comparison, table, closing; PDF one slide per page | Documents meant to be read rather than presented; editable `.pptx` | [capacity-deck](examples/capacity-deck.html) |
 | **[writing-documents](skills/writing-documents/SKILL.md)** | Thirty-four types across eleven patterns (design-doc, requirements, delivery-plan, readiness-review, Diátaxis, service-docs, …); Markdown by default; designed HTML only when asked | Metric-led reports; casual edits to existing markdown; restyling into HTML unprompted | [type gallery](examples/index.html) |
@@ -294,6 +298,9 @@ python3 -m unittest discover -s tests
 
 node scripts/render_diagram.mjs in.mmd --id x --title "…" --desc "…" --out x.svg
 node scripts/render_chart.mjs spec.json --out chart.svg
+python3 scripts/check_diagrams.py                 # markup + geometry rules on every figure
+uv run python scripts/check_render.py             # browser check: 1280 / 390 / print × every theme
+python3 scripts/import_diagram.py old.drawio      # draw.io or Mermaid flowchart → structure as JSON
 node scripts/export_pdf.mjs report.html --out report.pdf
 node scripts/export_pdf.mjs deck.html --out deck.pdf --preset deck   # one slide per page
 ```
@@ -302,7 +309,9 @@ Both renderers wrap their upstream library rather than calling it directly, beca
 
 ## Verification
 
-`.github/workflows/validate.yml` runs the tests, the repository linter, a template assembly check, and renders a diagram and a chart to assert their output contracts.
+`.github/workflows/validate.yml` runs the tests, the repository linter, a template assembly check, and renders a diagram, a chart, and a waterfall to assert their output contracts — including that a waterfall whose total does not add up fails to render.
+
+`scripts/check_diagrams.py` checks every figure's markup and geometry from its coordinates, each finding under a stable rule ID (`--rules` lists them): the accessibility shell, `var()`-only colour, the structure classes, the 4px grid, node overlap, `viewBox` bounds, edge-label occlusion and gap, attachment fan, legend size, one emphasis family, and the callout limit. `scripts/check_render.py` then loads every example in Chromium at 1280px, 390px, and print width under every theme and fails on page-level horizontal scroll, a zero-size figure, SVG text outside its `viewBox`, or a table spilling from a wrapper that cannot scroll.
 
 `scripts/validate_repository.py` reads the same files the skills read — `core/tokens.md` for the required tokens and `core/themes/*.css` for the palette — so the prose rules and the machine check cannot drift apart. It enforces the two-key frontmatter schema, name↔folder agreement, a mandatory `Do not use for …` clause in every description, complete token coverage in every theme, no color literals outside `core/themes/`, and no broken relative links.
 

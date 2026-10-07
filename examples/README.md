@@ -54,12 +54,16 @@ Pattern and theme are independent root attributes. See
 | File | Form | Produced by |
 |---|---|---|
 | `platform-architecture.svg` | Architecture diagram | Hand-authored from `templates/diagram.svg` |
+| `queue-split-change.svg` | Change view | Hand-authored |
+| `ingest-deployment.svg` | Deployment map | Hand-authored |
+| `workstream-dependencies.svg` | Dependency graph | Hand-authored |
 | `ingestion-path.svg` | Sequence diagram | `render_diagram.mjs` (Mermaid → SVG) |
 | `footprint-by-function.svg` | Ranked bars | `render_chart.mjs` |
 | `cohorts-by-year.svg` | Columns | `render_chart.mjs` |
 | `latency-p99.svg` | Line | `render_chart.mjs` |
+| `estimate-bridge.svg` | Waterfall bridge | `render_chart.mjs` |
 
-Sources live in `specs/` — a `.mmd` for the diagram, a JSON spec per chart.
+Sources live in `specs/` — a `.mmd` for the rendered diagram, a JSON spec per chart. Hand-authored figures are their own source and pass `scripts/check_diagrams.py`.
 
 ## The thing worth checking
 
