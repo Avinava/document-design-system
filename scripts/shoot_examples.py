@@ -58,7 +58,6 @@ MAX_CHANGED = 0.001
 SHOTS = {
     "patterns-gallery": ("index.html", (1280, 900), False),
     "analytical-report": ("inventory-report.html", (1280, 980), False),
-    "analytical-report-detail": ("inventory-report.html", (1280, 980), False),
     "design-doc": ("design-doc.html", (1280, 980), False),
     "adr": ("adr.html", (1280, 720), False),
     "spec": ("spec.html", (1280, 980), False),
@@ -101,7 +100,6 @@ SHOTS = {
     "platform-primer": ("platform-primer.html", (1280, 980), False),
     # Built Pages site (python scripts/build_site.py first). The social
     # preview is the Open Graph image, at its native 1200×630.
-    "modules": ("../site/modules.html", (1280, 980), False),
     "social-preview": ("../site/index.html", (1200, 630), False),
     # Light/dark pairs, for the README <picture> elements that follow the
     # reader's GitHub theme.
@@ -110,10 +108,6 @@ SHOTS = {
     "themes-light": ("themes-light.html", (1280, 1180), False),
     "themes-dark": ("themes-dark.html", (1280, 1180), False),
 }
-
-# Scroll offset in CSS pixels, for shots that should show a section further
-# down the page than the header.
-SCROLL = {"analytical-report-detail": 1128}
 
 # The Open Graph image is shown by other sites at its own pixel size, so it is
 # taken at 1×.
@@ -126,14 +120,7 @@ NATIVE = {"social-preview"}
 # mostly empty paper and tells a reader nothing about the system.
 SLIDE_SHOTS = {
     "deck-title": ("capacity-deck.html", 0),
-    "deck-statement": ("capacity-deck.html", 2),
-    "deck-divider": ("capacity-deck.html", 3),
-    "deck-table": ("capacity-deck.html", 4),
-    "deck-metric": ("capacity-deck.html", 5),
-    "deck-chart": ("capacity-deck.html", 6),
-    "deck-diagram": ("capacity-deck.html", 7),
     "deck-compare": ("capacity-deck.html", 10),
-    "deck-close": ("capacity-deck.html", 13),
 }
 
 
@@ -281,9 +268,6 @@ def main() -> None:
                     # they load, and the result looks subtly wrong in a way that
                     # is easy to miss in a thumbnail.
                     page.evaluate("document.fonts.ready")
-                    if name in SCROLL:
-                        page.evaluate(f"window.scrollTo(0, {SCROLL[name]})")
-                        page.wait_for_timeout(200)
                     data = page.screenshot(full_page=full)
                     page.close()
                     return data
