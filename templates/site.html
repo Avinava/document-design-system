@@ -1,437 +1,281 @@
 <!doctype html>
 <!--
-  GitHub Pages homepage — the designed face of the whole system.
+  GitHub Pages homepage: one engagement's documents, in the order a reader
+  meets them.
 
-  Assemble with scripts/build_site.py (not a local examples/ file).
-  @@SHOT is replaced with the screenshot directory (screenshots/ on Pages).
+  Assembled by scripts/build_site.py, never opened from templates/. Every list
+  on this page (the story rail, the question table, the check counts, the
+  pinned dependencies) is generated there from the catalog, the STORY list,
+  scripts/pins.py and the check scripts. @@SHOT is the screenshot directory.
 -->
-<html lang="en" data-theme="editorial-coral">
+<html lang="en" data-theme="executive-navy">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>document-design-system</title>
+<title>document-design-system — documents that get a reader to a decision</title>
+<!-- @@META -->
 <link rel="icon" href="assets/banner.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 /* @@INLINE core/themes/${THEME}.css @@ */
 /* @@INLINE core/base.css @@ */
+/* @@SITE_CSS */
 
-.shell { max-width: 1120px; margin: 0 auto; padding: 32px 32px 72px; }
-.site-nav {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem 1.5rem;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--rule);
-  margin-bottom: 40px;
-}
-.wordmark {
-  font-family: var(--mono);
-  font-size: 0.8125rem;
-  letter-spacing: 0.04em;
-  text-decoration: none;
-  color: var(--ink);
-}
-.site-nav ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.65rem 1.15rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  font-size: 0.9375rem;
-}
-.site-nav a { color: var(--muted); text-decoration: none; }
-.site-nav a:hover { color: var(--ink); }
-.site-nav a[aria-current="page"] { color: var(--ink); }
+/* ---------------------------------------------------------------- hero */
+.hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 3.5rem; align-items: start; padding: 72px 0 0; }
+.hero .site-title { font-size: clamp(2.6rem, 6.2vw, 4.75rem); max-width: 13ch; }
+.install { margin: 1.75rem 0 .6rem; padding: 1rem 1.15rem; background: var(--surface); border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md); overflow-x: auto; font: .8125rem/1.65 var(--mono); }
+.install-note { color: var(--soft); font-size: .875rem; margin: 0; }
+.asks { margin: 0; padding: 1.5rem 1.6rem 1.25rem; background: var(--surface); border: 1px solid var(--rule);
+  border-radius: var(--radius-md); }
+.asks h2 { font: 600 1rem/1.3 var(--sans); margin: 0 0 1rem; color: var(--ink); }
+.asks ul { list-style: none; margin: 0; padding: 0; }
+.asks li { padding: .85rem 0; border-top: 1px solid var(--rule); }
+.asks a { display: block; text-decoration: none; color: inherit; }
+.asks q { display: block; font: 500 1.1875rem/1.35 var(--display); letter-spacing: -.01em; color: var(--ink); quotes: "\201C" "\201D"; }
+.asks a:hover q { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 3px; }
+.asks .becomes { display: block; margin-top: .3rem; color: var(--muted); font-size: .875rem; }
 
-.banner {
-  display: block;
-  width: 100%;
-  max-width: 960px;
-  height: auto;
-  margin: 0 0 2rem;
-}
-.hero { margin: 0 0 3.5rem; }
-.hero h1 {
-  font-size: 2.25rem;
-  line-height: 1.15;
-  max-width: 16ch;
-  margin: 0 0 0.6rem;
-}
-.hero .lead { max-width: 62ch; color: var(--ink); font-size: 1.125rem; }
-.hero pre {
-  max-width: 62ch;
-  margin: 1.5rem 0 0.75rem;
-  padding: 14px 16px;
-  background: var(--surface);
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-md);
-  overflow-x: auto;
-  font-family: var(--mono);
-  font-size: 0.8125rem;
-  line-height: 1.55;
-}
-.hero .quiet { color: var(--muted); font-size: 0.9375rem; max-width: 62ch; }
+/* ----------------------------------------------------------- story rail */
+.story { list-style: none; margin: 2.5rem 0 0; padding: 0; }
+.stop { display: grid; grid-template-columns: 7.25rem 1.5rem minmax(0, 1fr) minmax(0, 17rem); column-gap: 1.25rem;
+  position: relative; padding: 0 0 2.75rem; scroll-margin-top: 16px; }
+.stop::before { content: ""; position: absolute; left: calc(7.25rem + 1.25rem + .75rem - 1px); top: .5rem; bottom: -.25rem;
+  border-left: 2px solid var(--rule-strong); }
+.stop:last-child::before { display: none; }
+.stop time { grid-column: 1; text-align: right; padding-top: .1rem; color: var(--muted); font-size: .875rem; white-space: nowrap; }
+.stop .dot { grid-column: 2; justify-self: center; width: .9rem; height: .9rem; margin-top: .3rem; border-radius: 50%;
+  background: var(--paper); border: 2px solid var(--accent); position: relative; z-index: 1; }
+.stop .text { grid-column: 3; min-width: 0; }
+.stop .beat { margin: 0 0 .45rem; color: var(--muted); font-size: .9375rem; max-width: 60ch; }
+.stop h3 { margin: 0 0 .55rem; font-size: clamp(1.25rem, 2.2vw, 1.6rem); line-height: 1.2; letter-spacing: -.02em; max-width: 30ch; }
+.stop h3 a { text-decoration: none; }
+.stop h3 a:hover { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 4px; }
+.stop .shows { margin: 0; color: var(--ink); font-size: .9375rem; max-width: 60ch; }
+.stop .doc-kind { display: block; margin-top: .4rem; color: var(--soft); font-size: .8125rem; }
+.stop .thumb { grid-column: 4; display: block; border: 1px solid var(--rule); border-radius: var(--radius-md); overflow: hidden;
+  background: var(--surface); }
+.stop .thumb:hover { border-color: var(--accent); }
+.stop .thumb img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; }
+.stop.focal .dot { background: var(--accent); }
 
-section.block { margin: 0 0 3.5rem; }
-section.block h2 { margin: 0 0 0.5rem; }
-section.block .lead { margin: 0 0 1.25rem; color: var(--muted); }
-.shot {
-  display: block;
-  margin: 0 0 0.75rem;
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background: var(--surface);
-}
-.shot img { display: block; width: 100%; height: auto; }
-.pair {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-.pair .shot { margin: 0; }
-.caption {
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  color: var(--muted);
-  margin: 0;
-}
-.caption a { color: var(--ink); }
+/* ------------------------------------------------------------ two dials */
+.dials { display: grid; grid-template-columns: 1.35fr 1fr 1fr; gap: 1.25rem; }
+.dial { margin: 0; min-width: 0; }
+.dial h3 { margin: 0 0 .35rem; font-size: 1.125rem; }
+.dial p { margin: 0 0 .9rem; color: var(--muted); font-size: .9375rem; }
+.frame { display: block; border: 1px solid var(--rule); border-radius: var(--radius-md); overflow: hidden; background: var(--surface); }
+.frame:hover { border-color: var(--accent); }
+.frame img { display: block; width: 100%; height: auto; }
+.frame.crop img { aspect-ratio: 16 / 10; object-fit: cover; object-position: top; }
+.voices { display: grid; gap: .6rem; list-style: none; margin: 0; padding: 0; }
+.voices a { display: grid; grid-template-columns: 7rem 1fr; gap: .75rem; align-items: center; text-decoration: none; color: inherit; }
+.voices img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; object-position: top;
+  border: 1px solid var(--rule); border-radius: var(--radius-sm); }
+.voices a:hover img { border-color: var(--accent); }
+.voices strong { display: block; font-size: .9375rem; }
+.voices span { color: var(--muted); font-size: .8125rem; }
+.dials-foot { margin: 1.5rem 0 0; }
 
-.deck-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 0.75rem;
-}
-.deck-grid a {
-  display: block;
-  text-decoration: none;
-  color: inherit;
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background: var(--surface);
-}
-.deck-grid img { display: block; width: 100%; height: auto; }
-.deck-grid p {
-  margin: 0;
-  padding: 8px 12px 10px;
-  font-size: 0.8125rem;
-  color: var(--muted);
-}
+/* -------------------------------------------------------------- compose */
+.primer { display: grid; grid-template-columns: minmax(0, 22rem) minmax(0, 1fr); gap: 2rem; align-items: start;
+  margin-top: 2.5rem; padding: 1.5rem; background: var(--surface); border: 1px dashed var(--rule-strong); border-radius: var(--radius-md); }
+.primer h3 { margin: 0 0 .5rem; font-size: 1.25rem; }
+.primer p { color: var(--muted); }
+.primer dl { display: grid; grid-template-columns: auto 1fr; gap: .35rem 1rem; margin: 1rem 0; font-size: .9375rem; }
+.primer dt { color: var(--soft); }
+.primer dd { margin: 0; color: var(--ink); }
+.promotion { margin: 1.25rem 0 0; font: 500 1.0625rem/1.45 var(--display); color: var(--ink); max-width: 56ch; }
 
-.preview-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
-  margin: 0 0 1rem;
-}
-.preview-cards a {
-  display: block;
-  text-decoration: none;
-  color: inherit;
-  background: var(--surface);
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-}
-.preview-cards a:hover { border-color: var(--rule-strong); }
-.preview-cards img {
-  display: block;
-  width: 100%;
-  height: 140px;
-  object-fit: cover;
-  object-position: top;
-  border-bottom: 1px solid var(--rule);
-}
-.preview-cards .pad { padding: 0.75rem 0.9rem 1rem; }
-.preview-cards .kind {
-  font-family: var(--mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--soft);
-}
-.preview-cards h3 { margin: 0.2rem 0 0; font-size: 0.9375rem; }
+/* -------------------------------------------------------------- figures */
+.figure-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+.figure-grid figure { margin: 0; padding: 1.25rem 1.25rem 1rem; background: var(--surface); border: 1px solid var(--rule);
+  border-radius: var(--radius-md); min-width: 0; }
+.figure-grid .diagram-scroll svg { min-width: 0; }
+.figure-grid figcaption { margin-top: .9rem; font-size: .9375rem; color: var(--muted); }
+.figure-grid figcaption strong { color: var(--ink); }
+.figure-grid figcaption a { color: var(--muted); }
+.inputs { margin: 1.75rem 0 0; font: 500 1.0625rem/1.45 var(--display); color: var(--ink); max-width: 60ch; }
 
-.more {
-  font-size: 1rem;
-  font-weight: 600;
-}
-.pattern-map {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1px;
-  margin: 1.5rem 0;
-  border: 1px solid var(--rule-strong);
-  background: var(--rule);
-}
-.pattern-map a {
-  min-height: 150px;
-  padding: 1rem;
-  background: var(--surface);
-  color: inherit;
-  text-decoration: none;
-}
-.pattern-map a:hover { background: var(--accent-tint); }
-.pattern-map .num { display: block; color: var(--soft); font: .6875rem/1 var(--mono); }
-.pattern-map h3 { margin: 1.6rem 0 .35rem; font-size: 1.05rem; }
-.pattern-map p { margin: 0; color: var(--muted); font-size: .85rem; line-height: 1.4; }
-.lifecycle-strip { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .75rem; margin: 1.5rem 0 2rem; }
-.lifecycle-strip div { padding: .85rem; border-top: 3px solid var(--accent); background: var(--surface); }
-.lifecycle-strip strong { display: block; margin-bottom: .35rem; font-size: .9rem; }
-.lifecycle-strip span { color: var(--muted); font-size: .8rem; line-height: 1.35; }
-table.skills { width: 100%; font-size: 0.9375rem; }
-table.skills th {
-  text-align: left;
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--muted);
-}
-blockquote.idea {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  max-width: 42ch;
-  font-family: var(--display);
-  font-size: 1.5rem;
-  line-height: 1.3;
-  font-weight: 600;
-}
+/* --------------------------------------------------------------- ledger */
+.ledger { width: 100%; border-collapse: collapse; }
+.ledger tbody tr:nth-child(even) { background: none; }
+.ledger th, .ledger td { border-bottom: 1px solid var(--rule); padding: 1rem 1.25rem 1rem 0; vertical-align: baseline; }
+.ledger thead th { font: 500 .8125rem/1.3 var(--sans); color: var(--soft); padding-bottom: .6rem; border-bottom: 1px solid var(--rule-strong); }
+.ledger .count { font: 600 2rem/1 var(--display); letter-spacing: -.03em; color: var(--ink); white-space: nowrap;
+  font-variant-numeric: tabular-nums; width: 1%; text-align: right; }
+.ledger .what { font: 500 1rem/1.4 var(--sans); color: var(--ink); }
+.ledger .guards { display: block; margin-top: .2rem; color: var(--muted); font-size: .9375rem; font-weight: 400; }
+.ledger code { white-space: nowrap; color: var(--muted); }
 
-footer.site-foot {
-  margin-top: 4rem;
-  padding-top: 16px;
-  border-top: 1px solid var(--rule);
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  color: var(--muted);
-}
-footer.site-foot a { color: var(--ink); }
+/* --------------------------------------------------------------- skills */
+.skills td, .skills th { vertical-align: top; }
+.skills tbody tr:nth-child(even) { background: none; }
+.skills td:first-child { white-space: nowrap; font-weight: 600; }
+.skills td:first-child a { color: var(--ink); }
+.skills td { color: var(--muted); }
 
-@media (max-width: 720px) {
-  .shell { padding: 24px 16px 48px; }
-  .hero h1 { font-size: 1.75rem; }
-  .pair, .deck-grid { grid-template-columns: 1fr; }
-  .pattern-map { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .lifecycle-strip { grid-template-columns: 1fr; }
-  .preview-cards img { height: 120px; }
-}
+/* ------------------------------------------------------------ new + pins */
+.news { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; list-style: none; margin: 0; padding: 0; }
+.news li { padding-top: .9rem; border-top: 2px solid var(--accent); }
+.news strong { display: block; font: 600 1.0625rem/1.35 var(--display); margin-bottom: .35rem; }
+.news p { margin: 0; color: var(--muted); font-size: .9375rem; }
+.pins td:nth-child(3) { font-variant-numeric: tabular-nums; }
+.pins tbody tr:nth-child(even) { background: none; }
+.credit { margin-top: 1.5rem; color: var(--muted); max-width: 72ch; }
+.credit strong { color: var(--ink); }
 
+@media (max-width: 960px) {
+  .hero { grid-template-columns: minmax(0, 1fr); gap: 2.5rem; }
+  .dials { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .dial-themes { grid-column: 1 / -1; }
+  .primer { grid-template-columns: minmax(0, 1fr); }
+  .news { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  .hero { padding-top: 40px; }
+  .stop { grid-template-columns: 1.25rem minmax(0, 1fr); column-gap: .9rem; padding-bottom: 2.25rem; }
+  .stop::before { left: calc(.625rem - 1px); }
+  .stop .dot { grid-column: 1; grid-row: 1; }
+  .stop time { grid-column: 2; grid-row: 1; text-align: left; }
+  .stop .text { grid-column: 2; grid-row: 2; margin-top: .35rem; }
+  .stop .thumb { grid-column: 2; grid-row: 3; margin-top: .9rem; max-width: 22rem; }
+  .dials, .figure-grid { grid-template-columns: minmax(0, 1fr); }
+  .figure-grid figure { padding: 1rem .75rem .75rem; }
+  .figure-grid .diagram-scroll svg { min-width: 560px; }
+  .ledger .count { font-size: 1.5rem; }
+  .ledger td:last-child { display: none; }
+  .skills thead { display: none; }
+  .skills, .skills tbody, .skills tr, .skills td { display: block; }
+  .skills tr { padding: .75rem 0; border-bottom: 1px solid var(--rule); }
+  .skills td { border: 0; padding: .1rem 0; }
+  .pins td:nth-child(2), .pins th:nth-child(2) { display: none; }
+}
+/* @@DARK */
 /* @@INLINE core/print.css @@ */
 </style>
 </head>
 <body>
+<a class="skip-link" href="#story">Skip to the story</a>
 <div class="shell">
+<!-- @@NAV -->
 
-  <nav class="site-nav" aria-label="Site">
-    <a class="wordmark" href="index.html" aria-current="page">document-design-system</a>
+<header class="hero">
+  <div>
+    <h1 class="site-title">Documents that get a reader to a decision</h1>
+    <p class="site-lead">Every document turns two dials. The <strong>pattern</strong> sets how it reads: where the answer sits, what repeats, what the reader does last. The <strong>theme</strong> sets how it sounds. Turn one and the other stays where it was.</p>
+    <p class="site-lead">Six skills for writing documents, reports, diagrams, charts, decks and brand themes, all drawn on one set of design tokens. Writing lands as Markdown in your repository; designed HTML, when you ask for it, needs no JavaScript and prints.</p>
+    <pre class="install"><code>/plugin marketplace add Avinava/document-design-system
+/plugin install document-design-system@document-design-system</code></pre>
+    <p class="install-note">Claude Code plugin. Each skill also installs on its own with <code>npx skills add Avinava/document-design-system</code>.</p>
+  </div>
+  <aside class="asks" aria-labelledby="asks-title">
+    <h2 id="asks-title">Then ask for the document you need</h2>
     <ul>
-      <li><a href="inventory-report.html">Report</a></li>
-      <li><a href="capacity-deck.html">Deck</a></li>
-      <li><a href="gallery-light.html">Figures</a></li>
-      <li><a href="types.html">Types</a></li>
-      <li><a href="themes-light.html">Themes</a></li>
-      <li><a href="brand.html">Brand</a></li>
-      <li><a href="https://github.com/Avinava/document-design-system">GitHub</a></li>
+      <!-- @@ASKS -->
     </ul>
-  </nav>
+  </aside>
+</header>
 
-  <header class="hero">
-    <img class="banner" src="assets/banner.svg" width="960" height="300" alt="document-design-system — reports, diagrams, charts, decks, and thirty-four document types as self-contained HTML">
-    <p class="eyebrow">Six skills · eleven reading patterns · one token contract</p>
-    <h1>A design system for documents</h1>
-    <p class="lead">
-      Analytical reports, diagrams, charts, decks, and thirty-four document types.
-      Designed documents combine a reading pattern with an independent visual
-      theme, so a runbook no longer behaves like a proposal with different headings.
-    </p>
-    <pre>/plugin marketplace add Avinava/document-design-system
-/plugin install document-design-system@document-design-system</pre>
-    <p class="quiet">Then ask for a report, or <code>/document-design-system:handoff</code> (or <code>adr</code>, <code>design-doc</code>, …).</p>
-  </header>
+<section class="site-section" id="story" aria-labelledby="story-title">
+  <h2 id="story-title">One engagement, end to end</h2>
+  <p class="site-lead">Every example here comes from one fictional engagement. Northwind Ingestion runs every producer through one shared queue, and that queue keeps stopping all of them at once. RFC 014 splits it in two. Each stop below is the document a reader needed at that moment, dated as the engagement dates it.</p>
+  <ol class="story">
+    <!-- @@STORY -->
+  </ol>
+</section>
 
-  <section class="block" id="themes">
-    <h2>Several voices, one contract</h2>
-    <p class="lead">Identical markup in every panel — only <code>data-theme</code> differs. Four house styles plus <code>horizon</code>, a client brand.</p>
-    <a class="shot" href="themes-light.html">
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="@@SHOT/themes-dark.png">
-        <img alt="The same content block rendered under editorial-coral, executive-navy, field-notes, console-violet, and horizon" src="@@SHOT/themes-light.png" width="1280" height="760">
-      </picture>
-    </a>
-    <p class="caption"><a href="themes-light.html">Open the comparison</a></p>
-  </section>
-
-  <section class="block" id="voices">
-    <h2>Same document, three voices</h2>
-    <p class="lead">The proposal you send. Identical markup. Navy is the system's board voice; Horizon is the client brand; coral is the default analytical voice.</p>
-    <div class="preview-cards">
-      <a href="proposal.html">
-        <img alt="Proposal in executive-navy" src="@@SHOT/proposal.png" width="1280" height="800">
-        <div class="pad"><span class="kind">executive-navy</span><h3>Board packet</h3></div>
+<section class="site-section" id="dials" aria-labelledby="dials-title">
+  <h2 id="dials-title">Two dials: how it reads, how it sounds</h2>
+  <p class="site-lead">The pattern fixes reading order — @@PATTERNS_WORD of them, from decision to brief, on the <a href="types.html">Patterns page</a>. The theme sets type, colour and density through tokens. Neither touches the facts, and changing the theme never changes the structure.</p>
+  <div class="dials">
+    <figure class="dial dial-themes">
+      <h3>Same content, every theme</h3>
+      <p>Identical markup in each panel. Only <code>data-theme</code> differs.</p>
+      <a class="frame" href="themes-light.html">
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="@@SHOT/themes-dark.png">
+          <img alt="One content block rendered under each theme: editorial-coral, executive-navy, field-notes, console-violet and horizon" src="@@SHOT/themes-light.png" width="1280" height="1180" loading="lazy">
+        </picture>
       </a>
-      <a href="proposal-horizon.html">
-        <img alt="Proposal in horizon, the client brand" src="@@SHOT/proposal-horizon.png" width="1280" height="800">
-        <div class="pad"><span class="kind">horizon</span><h3>Client brand — send this</h3></div>
-      </a>
-      <a href="proposal-coral.html">
-        <img alt="Proposal in editorial-coral" src="@@SHOT/proposal-coral.png" width="1280" height="800">
-        <div class="pad"><span class="kind">editorial-coral</span><h3>Default analytical</h3></div>
-      </a>
-    </div>
-  </section>
+    </figure>
+    <figure class="dial">
+      <h3>Same proposal, three voices</h3>
+      <p>One body, three themes. The facts and the order do not move.</p>
+      <ul class="voices">
+        <li><a href="proposal.html"><img alt="" src="@@SHOT/thumbs/proposal.png" width="640" height="400" loading="lazy"><span><strong>Board voice</strong><span>executive-navy</span></span></a></li>
+        <li><a href="proposal-coral.html"><img alt="" src="@@SHOT/thumbs/proposal-coral.png" width="640" height="400" loading="lazy"><span><strong>Analytical voice</strong><span>editorial-coral</span></span></a></li>
+        <li><a href="proposal-horizon.html"><img alt="" src="@@SHOT/thumbs/proposal-horizon.png" width="640" height="400" loading="lazy"><span><strong>Client brand</strong><span>horizon</span></span></a></li>
+      </ul>
+    </figure>
+    <figure class="dial">
+      <h3>Or wear the client's brand</h3>
+      <p>Extract the brand with provenance, map it to roles, audit every contrast pair, then wear it.</p>
+      <a class="frame crop" href="brand.html"><img alt="How the horizon brand theme was built: extraction, mapping and contrast audit" src="@@SHOT/thumbs/brand.png" width="640" height="400" loading="lazy"></a>
+    </figure>
+  </div>
+</section>
 
-  <section class="block" id="brand">
-    <h2>How the brand was built</h2>
-    <p class="lead"><code>brand-theme-design</code>: extract with provenance, map (mostly subtraction), audit, then wear it on a real document. Do not eyeball contrast.</p>
-    <a class="shot" href="brand.html">
-      <img alt="How the Horizon brand was built" src="@@SHOT/brand.png" width="1280" height="900">
-    </a>
-    <p class="caption"><a href="brand.html">Open the exhibit</a> · <a href="proposal-horizon.html">the document you send</a></p>
-  </section>
+<section class="site-section" id="compose" aria-labelledby="compose-title">
+  <h2 id="compose-title">When no type fits, compose</h2>
+  <p class="site-lead">@@TYPES_WORD_CAP presets cover the usual engagement documents. When a request falls between them, start from the reader's question. It names the pattern, and the pattern names the modules the page may use.</p>
+  <!-- @@CHOOSER -->
+  <!-- @@PRIMER -->
+</section>
 
-  <section class="block" id="report">
-    <h2>Analytical report</h2>
-    <p class="lead">Evidence-led, reconciled, printable. Named denominators, a limit ledger, a methodology block.</p>
-    <div class="pair">
-      <a class="shot" href="inventory-report.html">
-        <img alt="Inventory report: 41 percent of footprint sits on ingestion" src="@@SHOT/analytical-report.png" width="1280" height="980">
-      </a>
-      <a class="shot" href="inventory-report.html">
-        <img alt="Same report further down: cohort columns and an attribution table" src="@@SHOT/analytical-report-detail.png" width="1280" height="980">
-      </a>
-    </div>
-    <p class="caption"><code>analytical-document-design</code> · theme <code>editorial-coral</code> · <a href="inventory-report.html">Open the report</a></p>
-  </section>
+<section class="site-section" id="figures" aria-labelledby="figures-title">
+  <h2 id="figures-title">Figures that stay true</h2>
+  <p class="site-lead">Diagrams and charts are SVG drawn on the page's own tokens. These four are inlined, so they follow this page's theme and its dark mode. The waterfall refuses to render if a total is not the sum of its steps.</p>
+  <div class="figure-grid">
+    <!-- @@FIGURES -->
+  </div>
+  <p class="inputs">Mermaid and draw.io files are inputs: their structure is imported and redrawn. SVG on tokens is the output. <a href="gallery-light.html">Open the figure gallery</a>.</p>
+</section>
 
-  <section class="block" id="deck">
-    <h2>Deck — a presented ask</h2>
-    <p class="lead">Fourteen slides, one idea each, claim titles. Not a document with page breaks.</p>
-    <div class="deck-grid">
-      <a href="capacity-deck.html">
-        <img alt="Title slide: Split ingestion before the next halt" src="@@SHOT/deck-title.png" width="1280" height="720">
-        <p>Title names the argument, not the meeting</p>
-      </a>
-      <a href="capacity-deck.html">
-        <img alt="Statement slide: Four of the last six incidents ended the same way" src="@@SHOT/deck-statement.png" width="1280" height="720">
-        <p>Statement slides are the lines that should stick</p>
-      </a>
-      <a href="capacity-deck.html">
-        <img alt="Comparison slide: three options, split path accented" src="@@SHOT/deck-compare.png" width="1280" height="720">
-        <p>Three options, one accent — that is the recommendation</p>
-      </a>
-      <a href="capacity-deck.html">
-        <img alt="Chart slide: Ingestion holds 41 percent of the footprint" src="@@SHOT/deck-chart.png" width="1280" height="720">
-        <p>Chart at full-width, not the document size</p>
-      </a>
-    </div>
-    <p class="caption"><code>presentation-design</code> · theme <code>executive-navy</code> · 14 slides → 14 PDF pages · <a href="capacity-deck.html">Open the deck</a></p>
-  </section>
+<section class="site-section" id="checks" aria-labelledby="checks-title">
+  <h2 id="checks-title">Checked, not eyeballed</h2>
+  <p class="site-lead">Each row is a check that fails the build when it finds a problem. The counts are read from the repository when this page is built.</p>
+  <!-- @@LEDGER -->
+</section>
 
-  <section class="block" id="figures">
-    <h2>Figures — diagrams and charts on one token set</h2>
-    <p class="lead">Mermaid is an input. The shipped figure is SVG whose colors are <code>var(--…)</code>. Change <code>data-theme</code> and the focal bar moves with the page.</p>
-    <a class="shot" href="gallery-light.html">
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="@@SHOT/gallery-dark.png">
-        <img alt="Figure gallery: architecture, sequence, ranked bars, columns, line chart, and a limit ledger" src="@@SHOT/gallery-light.png" width="1280" height="1430">
-      </picture>
-    </a>
-    <p class="caption"><code>diagram-design</code> + <code>chart-design</code> · <a href="gallery-light.html">Open the figure gallery</a></p>
-  </section>
+<section class="site-section" id="skills" aria-labelledby="skills-title">
+  <h2 id="skills-title">The skills</h2>
+  <p class="site-lead">Each row links to a committed example, not a description of intent.</p>
+  <table class="skills">
+    <thead><tr><th scope="col">Skill</th><th scope="col">Owns</th><th scope="col">Does not own</th></tr></thead>
+    <tbody>
+      <tr><td><a href="inventory-report.html">analytical-document-design</a></td><td>Evidence models, metric semantics, denominators, report architecture</td><td>Prose-first documents, slides, standalone charts</td></tr>
+      <tr><td><a href="gallery-light.html">diagram-design</a></td><td>When a diagram earns its place; @@FORMS_WORD forms; Mermaid and draw.io structure imported and redrawn as token SVG; geometry checks</td><td>Quantitative charts, UI mockups, editable diagram files as output</td></tr>
+      <tr><td><a href="estimate.html">chart-design</a></td><td>Chart selection, axis honesty, token palettes, a waterfall that checks its totals</td><td>Narrative structure, dashboards as applications</td></tr>
+      <tr><td><a href="capacity-deck.html">presentation-design</a></td><td>16:9 HTML slides, claim titles, one idea per slide, PDF</td><td>Documents meant to be read; editable slide files</td></tr>
+      <tr><td><a href="types.html">writing-documents</a></td><td>@@TYPES_WORD_CAP presets across @@PATTERNS_WORD patterns, and composition when none fits; Markdown by default</td><td>Metric-led reports; casual edits to existing Markdown</td></tr>
+      <tr><td><a href="brand.html">brand-theme-design</a></td><td>Brand to theme: extraction, semantic mapping, contrast audit</td><td>Choosing between shipped themes; restyling one document</td></tr>
+    </tbody>
+  </table>
+</section>
 
-  <section class="block" id="writing">
-    <p class="eyebrow">Pattern chooses structure · theme chooses voice</p>
-    <h2>Thirty-four types, eleven ways to read</h2>
-    <p class="lead"><code>writing-documents</code> keeps Markdown canonical. The expanded catalog carries an engagement from framing and agreement through design, governance, release, support, and learning.</p>
-    <div class="lifecycle-strip" aria-label="Consultancy lifecycle"><div><strong>Frame and agree</strong><span>Discovery, estimate, charter, statement of work.</span></div><div><strong>Define</strong><span>Requirements, design, architecture, interfaces, threats.</span></div><div><strong>Plan and govern</strong><span>Delivery, testing, RAID, status, controlled change.</span></div><div><strong>Verify and transition</strong><span>Readiness, cutover, release, support, handoff.</span></div><div><strong>Operate and improve</strong><span>Service docs, runbooks, incident updates, postmortems.</span></div></div>
-    <div class="preview-cards">
-      <a href="delivery-plan.html"><img alt="Delivery plan with a dated milestone rail" src="@@SHOT/delivery-plan.png" width="1280" height="980"><div class="pad"><span class="kind">plan</span><h3>Milestones, workstreams, dependencies, gates</h3></div></a>
-      <a href="threat-model.html"><img alt="Threat model with verdict and evidence ledger" src="@@SHOT/threat-model.png" width="1280" height="980"><div class="pad"><span class="kind">assurance</span><h3>Verdict beside evidence and residual risk</h3></div></a>
-      <a href="status-report.html"><img alt="Status report with health and forecast strip" src="@@SHOT/status-report.png" width="1280" height="980"><div class="pad"><span class="kind">brief</span><h3>Current state, required action, next checkpoint</h3></div></a>
-      <a href="service-docs.html"><img alt="Service documentation ownership map" src="@@SHOT/service-docs.png" width="1280" height="980"><div class="pad"><span class="kind">suite</span><h3>One fact, one owner, visible freshness</h3></div></a>
-    </div>
-    <div class="pattern-map">
-      <a href="types.html#decision"><span class="num">01</span><h3>Decision</h3><p>Ask, options, trade-offs, next move.</p></a>
-      <a href="types.html#record"><span class="num">02</span><h3>Record</h3><p>One settled choice and its consequences.</p></a>
-      <a href="types.html#contract"><span class="num">03</span><h3>Contract</h3><p>Exact rules, specimens, compliance.</p></a>
-      <a href="types.html#procedure"><span class="num">04</span><h3>Procedure</h3><p>Safety, steps, verification, recovery.</p></a>
-      <a href="types.html#learning"><span class="num">05</span><h3>Learning</h3><p>Context, practice, checkpoints.</p></a>
-      <a href="types.html#system"><span class="num">06</span><h3>System</h3><p>Maps, boundaries, interfaces, states.</p></a>
-      <a href="types.html#incident"><span class="num">07</span><h3>Incident</h3><p>Impact, time, cause, owned action.</p></a>
-      <a href="types.html#suite"><span class="num">08</span><h3>Suite</h3><p>Linked documents, ownership, freshness.</p></a>
-      <a href="types.html#plan"><span class="num">09</span><h3>Plan</h3><p>Workstreams, dependencies, gates, forecast.</p></a>
-      <a href="types.html#assurance"><span class="num">10</span><h3>Assurance</h3><p>Verdict, evidence, findings, residual risk.</p></a>
-      <a href="types.html#brief"><span class="num">11</span><h3>Brief</h3><p>Current state, change, action, next update.</p></a>
-    </div>
-    <p><a class="more" href="types.html">Explore all patterns and types →</a></p>
-  </section>
+<section class="site-section" id="new" aria-labelledby="new-title">
+  <h2 id="new-title">What's new in 0.5.0</h2>
+  <ul class="news">
+    <li><strong>Compose when no type fits</strong><p>Route by the reader's question to a pattern, then build from the modules that pattern allows. The <a href="platform-primer.html">platform primer</a> is the worked example; a shape composed three times becomes a preset.</p></li>
+    <li><strong>Figures you can check</strong><p>Change view, deployment map and dependency graph join the diagram forms; a waterfall bridge joins the charts. Geometry and rendered bounds are checked, and draw.io or Mermaid files import as structure.</p></li>
+    <li><strong>One catalog, pinned tools</strong><p>Types, patterns and modules are read from the type files and one module registry. The authoring toolchain is pinned to exact versions, and the attribution is corrected.</p></li>
+  </ul>
+</section>
 
-  <section class="block" id="skills">
-    <h2>The skills</h2>
-    <p class="lead">Each row is a committed example, not a description of intent.</p>
-    <table class="skills">
-      <thead>
-        <tr>
-          <th>Skill</th>
-          <th>Owns</th>
-          <th>Does not own</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><a href="inventory-report.html"><code>analytical-document-design</code></a></td>
-          <td>Evidence models, metric semantics, report architecture</td>
-          <td>Prose-first docs, slides, standalone charts</td>
-        </tr>
-        <tr>
-          <td><a href="gallery-light.html"><code>diagram-design</code></a></td>
-          <td>When a diagram earns its place; Mermaid → themed SVG</td>
-          <td>Quantitative charts, UI mockups, <code>.drawio</code></td>
-        </tr>
-        <tr>
-          <td><a href="gallery-light.html"><code>chart-design</code></a></td>
-          <td>Chart-type selection, axis honesty, token palettes</td>
-          <td>Narrative structure, dashboards-as-applications</td>
-        </tr>
-        <tr>
-          <td><a href="capacity-deck.html"><code>presentation-design</code></a></td>
-          <td>16:9 HTML slides, claim titles, one idea per slide, PDF</td>
-          <td>Documents meant to be read; editable <code>.pptx</code></td>
-        </tr>
-        <tr>
-          <td><a href="types.html"><code>writing-documents</code></a></td>
-          <td>Thirty-four types; Markdown by default; HTML only when asked</td>
-          <td>Metric-led reports; casual markdown edits</td>
-        </tr>
-        <tr>
-          <td><a href="themes-light.html"><code>brand-theme-design</code></a></td>
-          <td>Brand → theme, semantic mapping, contrast audit</td>
-          <td>Picking a shipped theme; restyling one document</td>
-        </tr>
-      </tbody>
-    </table>
-  </section>
+<section class="site-section" id="built-on" aria-labelledby="built-on-title">
+  <h2 id="built-on-title">Built on</h2>
+  <p class="site-lead">Readers need nothing installed: a delivered document is HTML and SVG. These run only on the machine that writes it, pinned to exact versions.</p>
+  <!-- @@BUILT_ON -->
+</section>
 
-  <section class="block" id="idea">
-    <h2>The one idea</h2>
-    <blockquote class="idea">Everything renders to an SVG string at authoring time. The only thing still live in the shipped HTML is CSS custom properties.</blockquote>
-  </section>
-
-  <footer class="site-foot">
-    MIT · <a href="https://github.com/Avinava/document-design-system">Avinava/document-design-system</a>
-    · examples from Northwind Ingestion, data as of 2026-08-12
-  </footer>
-
+<footer class="site-foot">
+  <p>MIT licence. <a href="@@REPO">Source on GitHub</a>.</p>
+  <p>Northwind Ingestion is fictional. Every fact in the examples comes from one ledger, <a href="@@REPO/blob/main/examples/WORLD.md">examples/WORLD.md</a>.</p>
+</footer>
 </div>
 </body>
 </html>

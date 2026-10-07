@@ -29,6 +29,7 @@ TYPES = ROOT / "templates" / "types"
 sys.path.insert(0, str(ROOT / "scripts"))
 import catalog  # noqa: E402
 from build_document import build  # noqa: E402
+import site_parts  # noqa: E402
 from pins import REPO_NPM_HINT  # noqa: E402
 
 # figure slug -> (renderer, spec, extra args)
@@ -163,28 +164,21 @@ TYPE_QUESTIONS = {
     "incident-update": "What is happening now, and when is the next update?",
 }
 
-# Display copy for composed examples (catalog.COMPOSED): the reader's question
+# Display copy for composed examples (catalog.COMPOSED): a card title (a
+# composed document has no type to borrow one from), the reader's question,
 # and the nearest type the composition borrowed its section discipline from.
 COMPOSED_GALLERY = {
-    "platform-primer": ("Can I reuse what I know from batch loads here?", "explanation"),
+    "platform-primer": ("Platform primer", "Can I reuse what I know from batch loads here?", "explanation"),
 }
 
 SHOT_PREFIX = "../docs/screenshots/thumbs"
-
-# Theme variants shown on the local type gallery (and Pages types.html).
-VOICES_GALLERY = [
-    ("proposal", "proposal.html", "proposal.png", "executive-navy — board voice"),
-    ("proposal-horizon", "proposal-horizon.html", "proposal-horizon.png", "horizon — client brand"),
-    ("proposal-coral", "proposal-coral.html", "proposal-coral.png", "editorial-coral — default"),
-    ("brand", "brand.html", "brand.png", "How the Horizon brand was built"),
-]
 
 PROFILE_GALLERY = [
     (
         "mulesoft",
         "mulesoft.html",
         "mulesoft.png",
-        "Backward-compatible specialized profile of service-docs",
+        "The service documentation suite, specialised for one integration platform",
     ),
 ]
 
@@ -358,145 +352,159 @@ def assemble_brand(shot_prefix: str, dest: Path) -> None:
     print(f"  {shown} ({len(assembled):,} bytes)")
 
 
+def _fill(raw: str, marks: dict[str, str]) -> str:
+    for marker, value in marks.items():
+        if marker not in raw:
+            sys.exit(f"template has no {marker} marker")
+        raw = raw.replace(marker, value)
+    return raw
+
+
 def assemble_docs_gallery(
     shot_prefix: str,
     dest: Path | None = None,
     *,
-    include_skills: bool = True,
-    types_href: str = "#types",
+    site: bool = False,
 ) -> None:
-    """Fill templates/docs-gallery.html.
+    """Fill templates/docs-gallery.html — the Patterns page.
 
-    Local default writes examples/index.html with the six-skill strip.
-    Pages writes types.html without that strip — the homepage already
-    introduced the skills.
+    Local (default) writes examples/index.html, with the six-skill strip and
+    navigation limited to what exists in examples/. With `site=True` it writes
+    Pages' types.html: full site navigation, meta tags, and module chips that
+    link to modules.html.
     """
+    esc = site_parts.esc
+    modules_by_name = {m.name: m for m in catalog.MODULES.values()}
+
+    def module_chip(name: str) -> str:
+        module = modules_by_name[name]
+        if site:
+            return f'<li><a href="modules.html#{module.css_class}">{esc(module.name)}</a></li>'
+        return f"<li><span>{esc(module.name)}</span></li>"
+
+    def preset_card(slug: str, href: str, name: str, question: str, theme: str, label: str = "") -> str:
+        cls = "preset composed" if label else "preset"
+        tag = f'<span class="label">{esc(label)}</span>' if label else ""
+        return (
+            f'<a class="{cls}" id="type-{slug}" href="{href}">\n'
+            f'  <img src="{shot_prefix}/{slug}.png" alt="" width="640" height="400" loading="lazy" decoding="async">\n'
+            f'  <span class="pad"><span class="name">{esc(name)}{tag}</span>'
+            f'<span class="question">{esc(question)}</span>'
+            f'<span class="theme">Theme: {esc(theme)}</span></span>\n'
+            f"</a>"
+        )
+
     groups = []
     for pattern in catalog.PATTERNS.values():
-        cards = []
-        for slug in pattern.types:
-            shot = f"{shot_prefix}/{slug}.png"
-            theme = LONGFORM[slug][0]
-            question = TYPE_QUESTIONS[slug]
-            cards.append(
-                f'<a class="type-card" id="type-{slug}" href="{slug}.html">\n'
-                f'  <img src="{shot}" alt="" width="640" height="400" loading="lazy" decoding="async">\n'
-                f'  <div class="pad">\n'
-                f'    <span class="kind">{slug}</span><span class="theme">{theme}</span>\n'
-                f'    <h3>{question}</h3>\n'
-                f'  </div>\n'
-                f'</a>'
-            )
+        cards = [
+            preset_card(slug, f"{slug}.html", catalog.TYPES[slug].title, TYPE_QUESTIONS[slug], LONGFORM[slug][0])
+            for slug in pattern.types
+        ]
+        for slug, (theme, composed_pattern) in catalog.COMPOSED.items():
+            if composed_pattern == pattern.name:
+                title, question, nearest = COMPOSED_GALLERY[slug]
+                theme_note = f"{theme}. Nearest preset: {catalog.TYPES[nearest].title}"
+                cards.append(preset_card(slug, f"{slug}.html", title, question, theme_note, "Composed"))
+        chips = "".join(module_chip(name) for name in pattern.modules)
         groups.append(
-            f'<section class="pattern-section pattern-{pattern.name}" id="{pattern.name}">\n'
-            f'  <header><span class="pattern-index">{len(groups) + 1:02d}</span>'
-            f'<div><p class="eyebrow">{pattern.name} pattern</p><h2>{pattern.name.capitalize()}</h2>'
-            f'<p>{PATTERN_PROMISES[pattern.name]}</p></div></header>\n'
-            f'  <div class="type-cards">\n    '
-            + "\n    ".join(cards)
-            + "\n  </div>\n</section>"
+            f'<section class="pattern-section" id="{pattern.name}" aria-labelledby="{pattern.name}-title">\n'
+            f'  <header class="pattern-head">\n'
+            f'    <h2 id="{pattern.name}-title">{pattern.name.capitalize()}</h2>\n'
+            f'    <p class="movement">{esc(pattern.movement)}.</p>\n'
+            f'    <p class="promise">{esc(PATTERN_PROMISES[pattern.name])}</p>\n'
+            f'    <h3>Characteristic modules</h3>\n'
+            f'    <ul class="module-links">{chips}</ul>\n'
+            f"  </header>\n"
+            f'  <div class="preset-grid">\n    ' + "\n    ".join(cards) + "\n  </div>\n</section>"
         )
-    cards_html = "\n".join(groups)
-    voice_cards = []
-    for name, href, shot, blurb in VOICES_GALLERY:
-        voice_cards.append(
-            f'<a class="card" href="{href}">\n'
-            f'  <img src="{shot_prefix}/{shot}" alt="" width="640" height="400" loading="lazy" decoding="async">\n'
-            f'  <div class="pad">\n'
-            f'    <span class="kind">{name}</span>\n'
-            f'    <h3>{blurb}</h3>\n'
-            f'  </div>\n'
-            f'</a>'
+
+    stages = []
+    for stage in catalog.LIFECYCLE:
+        owners = "".join(
+            f'<li><a href="#type-{slug}">{esc(catalog.TYPES[slug].title)}</a></li>' for slug in stage.owners
         )
-    voices_html = (
-        '<section class="group">\n'
-        '  <h2>Voices</h2>\n'
-        '  <p class="lead">The same proposal in three themes, then how the client brand was built.</p>\n'
-        '  <div class="cards">\n    '
-        + "\n    ".join(voice_cards)
-        + "\n  </div>\n</section>"
-    )
-    composed_cards = []
-    for slug, (theme, pattern) in catalog.COMPOSED.items():
-        question, nearest = COMPOSED_GALLERY[slug]
-        composed_cards.append(
-            f'<a class="card" id="composed-{slug}" href="{slug}.html">\n'
-            f'  <img src="{shot_prefix}/{slug}.png" alt="" width="640" height="400" loading="lazy" decoding="async">\n'
-            f'  <div class="pad"><span class="kind">{pattern} · custom</span><span class="theme">{theme}</span>'
-            f'<h3>{question}</h3><p class="composed-note">Nearest type: {nearest}</p></div>\n'
-            f'</a>'
+        stages.append(
+            f'<li><h3>{esc(stage.name)}</h3><p class="need">{esc(stage.need)}.</p><ul>{owners}</ul></li>'
         )
-    composed_html = (
-        '<section class="group" id="composed">\n'
-        '  <h2>Composed from a pattern</h2>\n'
-        '  <p class="lead">When no type fits, pick the pattern by the reader\'s question and compose '
-        'from the modules it allows. A shape composed three times becomes a type.</p>\n'
-        '  <div class="cards">\n    '
-        + "\n    ".join(composed_cards)
-        + "\n  </div>\n</section>"
-    )
-    profile_cards = []
-    for name, href, shot, blurb in PROFILE_GALLERY:
-        profile_cards.append(
-            f'<a class="card" href="{href}">\n'
-            f'  <img src="{shot_prefix}/{shot}" alt="" width="640" height="400" loading="lazy" decoding="async">\n'
-            f'  <div class="pad"><span class="kind">{name}</span><h3>{blurb}</h3></div>\n'
-            f'</a>'
-        )
+    lifecycle_html = '<ol class="lifecycle">' + "".join(stages) + "</ol>"
+
+    names = []
+    for slug, entry in sorted(catalog.TYPES.items(), key=lambda item: item[1].title.lower()):
+        if not entry.aliases:
+            continue
+        aliases = ", ".join(f"<code>{esc(alias)}</code>" for alias in entry.aliases)
+        names.append(f'<li><a href="#type-{slug}">{esc(entry.title)}</a><br>{aliases}</li>')
+    names_html = '<ul class="names">' + "".join(names) + "</ul>"
+
+    profile_cards = [
+        preset_card(name, href, name, blurb, LONGFORM_VARIANTS[name][1], "Profile")
+        for name, href, _shot, blurb in PROFILE_GALLERY
+    ]
     profiles_html = (
-        '<section class="group" id="profiles">\n'
-        '  <h2>Compatibility profiles</h2>\n'
-        '  <p class="lead">Existing specialized commands remain supported while the canonical suite stays general.</p>\n'
-        '  <div class="cards">\n    '
-        + "\n    ".join(profile_cards)
-        + "\n  </div>\n</section>"
+        '<section class="profiles" id="profiles" aria-labelledby="profiles-title">\n'
+        '  <h2 id="profiles-title">Compatibility profiles</h2>\n'
+        '  <p class="site-lead">An older specialised command stays supported while the canonical preset stays general.</p>\n'
+        '  <div class="preset-grid">' + "".join(profile_cards) + "</div>\n</section>"
     )
-    skill_cards = []
-    for name, href, shot, blurb in SKILL_GALLERY:
-        skill_cards.append(
-            f'<a class="card" href="{href}">\n'
-            f'  <img src="{shot_prefix}/{shot}" alt="" width="640" height="400" loading="lazy" decoding="async">\n'
-            f'  <div class="pad">\n'
-            f'    <span class="kind">{name}</span>\n'
-            f'    <h3>{blurb}</h3>\n'
-            f'  </div>\n'
-            f'</a>'
-        )
+
     skills_html = ""
-    if include_skills:
+    if not site:
+        skill_cards = []
+        for name, href, shot, blurb in SKILL_GALLERY:
+            skill_cards.append(
+                f'<a class="preset" href="{href}">\n'
+                f'  <img src="{shot_prefix}/{shot}" alt="" width="640" height="400" loading="lazy" decoding="async">\n'
+                f'  <span class="pad"><span class="name">{esc(name)}</span><span class="question">{esc(blurb)}</span></span>\n'
+                f"</a>"
+            )
         skills_html = (
-            '<section class="group">\n'
-            '  <h2>The skills</h2>\n'
-            '  <div class="cards">\n    '
-            + "\n    ".join(skill_cards)
-            + "\n  </div>\n</section>"
+            '<section class="skill-strip" id="skills" aria-labelledby="skills-title">\n'
+            '  <h2 id="skills-title">The skills</h2>\n'
+            '  <div class="preset-grid">' + "".join(skill_cards) + "</div>\n</section>"
         )
+
+    if site:
+        nav = site_parts.site_nav("types.html")
+        meta = site_parts.head_meta(
+            "Document patterns — document-design-system",
+            f"Start from the reader's question: {len(catalog.PATTERNS)} reading patterns, "
+            f"{len(catalog.TYPES)} presets, and how to compose when none fits.",
+            "types.html",
+        )
+        chooser = site_parts.chooser(lambda p: f"#{p}", lambda s: f"{s}.html",
+                                     "Reader's question, pattern, and presets")
+    else:
+        nav = site_parts.site_nav("index.html", site_parts.LOCAL_NAV)
+        meta = ""
+        chooser = site_parts.chooser(lambda p: f"#{p}", lambda s: f"{s}.html",
+                                     "Reader's question, pattern, and presets")
+
+    raw = (ROOT / "templates" / "docs-gallery.html").read_text(encoding="utf-8")
+    filled = _fill(raw, {
+        "<!-- @@META -->": meta,
+        "/* @@SITE_CSS */": site_parts.SHARED_CSS,
+        "/* @@DARK */": site_parts.dark_css(),
+        "<!-- @@NAV -->": nav,
+        "<!-- @@CHOOSER -->": chooser,
+        "<!-- @@CARDS -->": "\n".join(groups),
+        "<!-- @@LIFECYCLE -->": lifecycle_html,
+        "<!-- @@NAMES -->": names_html,
+        "<!-- @@PROFILES -->": profiles_html,
+        "<!-- @@SKILLS -->": skills_html,
+        "@@TYPES_WORD": site_parts.words(len(catalog.TYPES)),
+        "@@PATTERNS_WORD": site_parts.words(len(catalog.PATTERNS)),
+        "@@MODULES_HREF": "modules.html" if site else "../core/document-patterns.md#modules",
+    })
     with tempfile.NamedTemporaryFile(
         "w", suffix=".html", encoding="utf-8", delete=False
     ) as tmp:
-        raw = (ROOT / "templates" / "docs-gallery.html").read_text(encoding="utf-8")
-        filled = (
-            raw.replace("<!-- @@VOICES -->", voices_html, 1)
-            .replace("<!-- @@PROFILES -->", profiles_html, 1)
-            .replace("<!-- @@COMPOSED -->", composed_html, 1)
-            .replace("<!-- @@SKILLS -->", skills_html, 1)
-            .replace("<!-- @@CARDS -->", cards_html, 1)
-            .replace("@@TYPES_HREF", types_href)
-        )
         tmp.write(filled)
         tmp_path = Path(tmp.name)
     try:
-        assembled = build(tmp_path, "field-notes")
+        assembled = build(tmp_path, site_parts.SITE_THEME)
     finally:
         tmp_path.unlink(missing_ok=True)
-    if (
-        "@@INLINE" in assembled
-        or "@@CARDS" in assembled
-        or "@@SKILLS" in assembled
-        or "@@VOICES" in assembled
-        or "@@COMPOSED" in assembled
-        or "@@TYPES_HREF" in assembled
-    ):
+    if "@@" in assembled:
         sys.exit("unresolved marker in docs-gallery")
     out = dest or (EX / "index.html")
     out.parent.mkdir(parents=True, exist_ok=True)

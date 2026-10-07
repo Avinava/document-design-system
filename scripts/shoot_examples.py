@@ -77,6 +77,10 @@ SHOTS = {
     "service-docs": ("service-docs.html", (1280, 980), False),
     # Composed from the learning pattern rather than a type preset.
     "platform-primer": ("platform-primer.html", (1280, 980), False),
+    # Built Pages site (python scripts/build_site.py first). The social
+    # preview is the Open Graph image, at its native 1200×630.
+    "modules": ("../site/modules.html", (1280, 980), False),
+    "social-preview": ("../site/index.html", (1200, 630), False),
     # Light/dark pairs, for the README <picture> elements that follow the
     # reader's GitHub theme.
     "gallery-light": ("gallery-light.html", (1280, 1430), True),
@@ -88,6 +92,11 @@ SHOTS = {
 # Scroll offset in CSS pixels, for shots that should show a section further
 # down the page than the header.
 SCROLL = {"analytical-report-detail": 1128}
+
+# The Open Graph image is shown by other sites at its own pixel size, so it is
+# taken at 1×. Site pages are never shown as cards, so they get no thumbnail.
+NATIVE = {"social-preview"}
+NO_THUMB = {"social-preview", "modules"}
 
 # name -> (page, zero-based slide index)
 #
@@ -132,8 +141,11 @@ def main() -> None:
             for name, (page_file, (w, h), full) in SHOTS.items():
                 if only and name not in only:
                     continue
+                if page_file.startswith("../site/") and not (EX / page_file).resolve().is_file():
+                    print(f"  skipped {name}: run python scripts/build_site.py first")
+                    continue
                 page = browser.new_page(viewport={"width": w, "height": h},
-                                        device_scale_factor=2)
+                                        device_scale_factor=1 if name in NATIVE else 2)
                 page.goto(f"{base}/examples/{page_file}", wait_until="networkidle")
                 # Web fonts render as fallbacks if the shot is taken before they
                 # load, and the result looks subtly wrong in a way that is easy
@@ -145,6 +157,9 @@ def main() -> None:
                 target = OUT / f"{name}.png"
                 page.screenshot(path=str(target), full_page=full)
                 print(f"  {target.relative_to(ROOT)}")
+                if name in NO_THUMB:
+                    page.close()
+                    continue
                 with Image.open(target) as source:
                     thumb = ImageOps.fit(
                         source.convert("RGB"),

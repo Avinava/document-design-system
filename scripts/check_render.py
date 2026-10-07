@@ -6,6 +6,8 @@
     uv run python scripts/check_render.py                       # every examples/*.html
     uv run python scripts/check_render.py examples/estimate.html
     uv run python scripts/check_render.py --root site site      # a built directory
+    uv run python scripts/check_render.py --root site --scheme light --scheme dark \
+        site/index.html site/types.html site/modules.html        # site pages, both schemes
 
 check_diagrams.py reads coordinates and estimates text width. This script
 measures what a browser actually lays out, with the theme's real fonts, so it
@@ -18,7 +20,9 @@ phone (390) and print (the printable width of the page's own @page rule,
 under print media) — under every theme in
 core/themes/ except the brand template, swapped in place by setting
 data-theme on the root. Dark is a theme here, not a mode, so the swap covers
-it. For each combination:
+it. Pages that follow the reader's colour scheme (the Pages site) can also be
+checked under `--scheme light` and `--scheme dark`, which emulate
+prefers-color-scheme. For each combination:
 
     page-scroll     the page does not scroll horizontally
     figure-box      every figure <svg> has a non-zero box
@@ -196,7 +200,9 @@ def collect(args: list[str], root: Path) -> list[Path]:
     return pages
 
 
-def check(pages: list[Path], root: Path, only_themes: list[str] | None) -> list[str]:
+def check(
+    pages: list[Path], root: Path, only_themes: list[str] | None, schemes: list[str] | None = None
+) -> list[str]:
     from playwright.sync_api import Error as PlaywrightError
     from playwright.sync_api import sync_playwright
 
@@ -232,17 +238,19 @@ def check(pages: list[Path], root: Path, only_themes: list[str] | None) -> list[
                 for theme in css:
                     page.evaluate("(t) => document.documentElement.setAttribute('data-theme', t)", theme)
                     page.evaluate("document.fonts.ready")
-                    for mode, (w, h, media) in MODES.items():
-                        if w is None:
-                            w = page.evaluate(PAGE_WIDTH)
-                        page.set_viewport_size({"width": w, "height": h})
-                        page.emulate_media(media=media)
-                        for rule, message in page.evaluate(MEASURE, TOLERANCE):
-                            key = f"{rel} [{mode}] {rule}: {message}"
-                            if key in seen:
-                                continue
-                            seen.add(key)
-                            failures.append(f"{rel} [{theme} @ {mode}] {rule}: {message}")
+                    for scheme in schemes or [None]:
+                        for mode, (w, h, media) in MODES.items():
+                            if w is None:
+                                w = page.evaluate(PAGE_WIDTH)
+                            page.set_viewport_size({"width": w, "height": h})
+                            page.emulate_media(media=media, color_scheme=scheme or "no-preference")
+                            where = f"{mode}, {scheme}" if scheme else mode
+                            for rule, message in page.evaluate(MEASURE, TOLERANCE):
+                                key = f"{rel} [{where}] {rule}: {message}"
+                                if key in seen:
+                                    continue
+                                seen.add(key)
+                                failures.append(f"{rel} [{theme} @ {where}] {rule}: {message}")
                 if original is not None:
                     page.evaluate("(t) => document.documentElement.setAttribute('data-theme', t)", original)
                 page.close()
@@ -259,6 +267,8 @@ def main() -> int:
     parser.add_argument("--root", type=Path, default=ROOT,
                         help="directory to serve; pages must sit inside it (default: the repository)")
     parser.add_argument("--theme", action="append", help="limit to one theme (repeatable)")
+    parser.add_argument("--scheme", action="append", choices=("light", "dark"),
+                        help="emulate prefers-color-scheme (repeatable); default: no preference")
     args = parser.parse_args()
 
     try:
@@ -275,13 +285,13 @@ def main() -> int:
     if not pages:
         sys.exit("check_render: no pages to check")
     try:
-        failures = check(pages, root, args.theme)
+        failures = check(pages, root, args.theme, args.scheme)
     except BrowserMissing as exc:
         print(f"check_render: {exc}", file=sys.stderr)
         return 2
     for line in failures:
         print(line)
-    combos = len(pages) * len(MODES) * (len(args.theme) if args.theme else len(themes()))
+    combos = len(pages) * len(MODES) * (len(args.theme) if args.theme else len(themes())) * len(args.scheme or [None])
     if failures:
         print(f"\n{len(failures)} failure(s) across {combos} page renders", file=sys.stderr)
         return 1

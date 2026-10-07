@@ -7,10 +7,13 @@ Standard library only, so CI needs no install step.
 
 from __future__ import annotations
 
+import contextlib
+import io
 import re
 import html as html_lib
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -308,7 +311,7 @@ class TestWritingTypes(unittest.TestCase):
                 self.assertEqual(markdown_title, html_title)
                 self.assertEqual(missing, [], f"facts present only in Markdown: {missing}")
 
-    def test_pages_site_is_homepage_plus_types(self):
+    def test_pages_site_builds_and_passes_its_checks(self):
         result = subprocess.run(
             [sys.executable, str(ROOT / "scripts" / "build_site.py"), "--check"],
             capture_output=True,
@@ -1379,8 +1382,12 @@ class TestComposedExamples(unittest.TestCase):
                 self.assertIn(slug, SHOTS)
                 self.assertTrue((ROOT / "docs" / "screenshots" / f"{slug}.png").is_file())
                 self.assertTrue((ROOT / "docs" / "screenshots" / "thumbs" / f"{slug}.png").is_file())
-                self.assertIn(f'href="{slug}.html"', index)
-        self.assertIn('id="composed"', index)
+                # The composed card sits in its pattern's section, beside the presets.
+                section = re.search(
+                    rf'<section class="pattern-section" id="{pattern}".*?</section>', index, re.S
+                )
+                self.assertIsNotNone(section)
+                self.assertIn(f'href="{slug}.html"', section.group(0))
 
     def test_compose_command_routes_to_composition(self):
         body = (ROOT / "commands" / "compose.md").read_text(encoding="utf-8")
@@ -1660,6 +1667,25 @@ class TestRenderCheck(unittest.TestCase):
         for check in ("page-scroll", "figure-box", "text-bounds", "table-clip"):
             with self.subTest(check=check):
                 self.assertIn(f"] {check}: ", result.stdout)
+
+    def test_site_pages_render_clean_in_light_and_dark(self):
+        """The built index, Patterns and Modules pages at 1280, 390 and print, both schemes."""
+        import build_site
+
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = Path(tmp).resolve()
+            with contextlib.redirect_stdout(io.StringIO()):
+                build_site.populate(dest)
+            result = subprocess.run(
+                [sys.executable, str(ROOT / "scripts" / "check_render.py"),
+                 "--root", str(dest), "--theme", "executive-navy", "--scheme", "light", "--scheme", "dark",
+                 *(str(dest / name) for name in build_site.SITE_PAGES)],
+                capture_output=True,
+                text=True,
+            )
+        if result.returncode == 2:
+            self.skipTest(result.stderr.strip())
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
 if __name__ == "__main__":
