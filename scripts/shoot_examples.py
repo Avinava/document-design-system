@@ -236,12 +236,20 @@ def main() -> None:
     wanted = referenced_shots()
     states: dict[str, int] = {}
 
-    def save(name: str, data: bytes) -> None:
-        if f"{name}.png" in wanted:
-            state = keep_or_write(f"{name}.png", data)
-            states[state] = states.get(state, 0) + 1
-        if f"thumbs/{name}.png" in wanted:
-            state = keep_or_write(f"thumbs/{name}.png", thumbnail(data))
+    def save(name: str, capture) -> None:
+        targets = [(f"{name}.png", lambda data: data), (f"thumbs/{name}.png", thumbnail)]
+        targets = [(rel, cut) for rel, cut in targets if rel in wanted]
+        data = capture()
+        # A real change reproduces; a rendering flake (glyphs rasterised a
+        # sub-pixel apart late in a long run) usually does not. Retake once
+        # before treating a difference from a committed image as a change.
+        for rel, cut in targets:
+            base = baseline(rel)
+            if base is not None and not same_image(base, cut(data)):
+                data = capture()
+                break
+        for rel, cut in targets:
+            state = keep_or_write(rel, cut(data))
             states[state] = states.get(state, 0) + 1
 
     def needed(name: str) -> bool:
@@ -264,31 +272,41 @@ def main() -> None:
                 if page_file.startswith("../site/") and not (EX / page_file).resolve().is_file():
                     print(f"  skipped   {name}: run python scripts/build_site.py first")
                     continue
-                page = browser.new_page(viewport={"width": w, "height": h},
-                                        device_scale_factor=1 if name in NATIVE else 2)
-                page.goto(f"{base}/examples/{page_file}", wait_until="networkidle")
-                # Web fonts render as fallbacks if the shot is taken before they
-                # load, and the result looks subtly wrong in a way that is easy
-                # to miss in a thumbnail.
-                page.evaluate("document.fonts.ready")
-                if name in SCROLL:
-                    page.evaluate(f"window.scrollTo(0, {SCROLL[name]})")
-                    page.wait_for_timeout(200)
-                save(name, page.screenshot(full_page=full))
-                page.close()
+
+                def shoot_page(page_file=page_file, w=w, h=h, full=full, name=name) -> bytes:
+                    page = browser.new_page(viewport={"width": w, "height": h},
+                                            device_scale_factor=1 if name in NATIVE else 2)
+                    page.goto(f"{base}/examples/{page_file}", wait_until="networkidle")
+                    # Web fonts render as fallbacks if the shot is taken before
+                    # they load, and the result looks subtly wrong in a way that
+                    # is easy to miss in a thumbnail.
+                    page.evaluate("document.fonts.ready")
+                    if name in SCROLL:
+                        page.evaluate(f"window.scrollTo(0, {SCROLL[name]})")
+                        page.wait_for_timeout(200)
+                    data = page.screenshot(full_page=full)
+                    page.close()
+                    return data
+
+                save(name, shoot_page)
 
             for name, (page_file, index) in SLIDE_SHOTS.items():
                 if not needed(name):
                     continue
-                page = browser.new_page(viewport={"width": 1280, "height": 760},
-                                        device_scale_factor=2)
-                page.goto(f"{base}/examples/{page_file}", wait_until="networkidle")
-                page.evaluate("document.fonts.ready")
-                slide = page.locator("section.slide").nth(index)
-                slide.scroll_into_view_if_needed()
-                page.wait_for_timeout(200)
-                save(name, slide.screenshot())
-                page.close()
+
+                def shoot_slide(page_file=page_file, index=index) -> bytes:
+                    page = browser.new_page(viewport={"width": 1280, "height": 760},
+                                            device_scale_factor=2)
+                    page.goto(f"{base}/examples/{page_file}", wait_until="networkidle")
+                    page.evaluate("document.fonts.ready")
+                    slide = page.locator("section.slide").nth(index)
+                    slide.scroll_into_view_if_needed()
+                    page.wait_for_timeout(200)
+                    data = slide.screenshot()
+                    page.close()
+                    return data
+
+                save(name, shoot_slide)
 
             browser.close()
     finally:
