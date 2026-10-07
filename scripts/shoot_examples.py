@@ -11,14 +11,20 @@ cannot load the Google Fonts stylesheet consistently, and the screenshots would
 show fallback metrics rather than what a reader sees. Serving the root also lets
 the type gallery resolve its ../docs/screenshots/thumbs/ previews.
 
-A capture that differs from the committed image only by rendering noise
-(same_image) keeps the committed bytes, so reshooting everything leaves an
-unchanged page's PNG untouched in git.
+Two rules keep docs/screenshots/ small and reshoots idempotent:
+
+- An image is written only when something shows it (referenced_shots): the
+  README, a built example page, or the site. Thumbnails are cut from the
+  in-memory capture, so a type's thumbnail needs no full-size file beside it.
+- A capture that differs from the committed image only by rendering noise
+  (same_image) keeps the committed bytes, so reshooting everything leaves an
+  unchanged page's PNG untouched in git.
 """
 
 from __future__ import annotations
 
 import io
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -31,6 +37,7 @@ from pins import REPO_PYTHON_HINT  # noqa: E402
 
 EX = ROOT / "examples"
 OUT = ROOT / "docs" / "screenshots"
+README = ROOT / "README.md"
 PORT = 8931
 
 # Two captures of an unchanged page differ by anti-aliasing and sub-pixel text
@@ -109,9 +116,8 @@ SHOTS = {
 SCROLL = {"analytical-report-detail": 1128}
 
 # The Open Graph image is shown by other sites at its own pixel size, so it is
-# taken at 1×. Site pages are never shown as cards, so they get no thumbnail.
+# taken at 1×.
 NATIVE = {"social-preview"}
-NO_THUMB = {"social-preview", "modules"}
 
 # name -> (page, zero-based slide index)
 #
@@ -129,6 +135,27 @@ SLIDE_SHOTS = {
     "deck-compare": ("capacity-deck.html", 10),
     "deck-close": ("capacity-deck.html", 13),
 }
+
+
+SHOT_REF = re.compile(r"docs/screenshots/([\w./-]+\.png)")
+
+
+def referenced_shots() -> set[str]:
+    """Every image under docs/screenshots/ that something shows, as a path
+    relative to it ("postmortem.png", "thumbs/postmortem.png").
+
+    Read from the README, every built page in examples/ (the Patterns page's
+    cards, the brand exhibit), and the site build (homepage and social image).
+    """
+    import build_site  # the site build imports the catalog and check scripts
+    import site_parts
+
+    found = set(SHOT_REF.findall(README.read_text(encoding="utf-8")))
+    for page in sorted(EX.glob("*.html")):
+        found |= set(SHOT_REF.findall(page.read_text(encoding="utf-8")))
+    found |= build_site.home_shots()
+    found.add(site_parts.SOCIAL_IMAGE.removeprefix("screenshots/"))
+    return found
 
 
 def same_image(a: bytes, b: bytes, *, tolerance: int = TOLERANCE, max_changed: float = MAX_CHANGED) -> bool:
@@ -206,17 +233,24 @@ def main() -> None:
 
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "thumbs").mkdir(exist_ok=True)
+    wanted = referenced_shots()
     states: dict[str, int] = {}
 
-    def save(name: str, data: bytes, thumb: bool) -> None:
-        state = keep_or_write(f"{name}.png", data)
-        states[state] = states.get(state, 0) + 1
-        if thumb:
+    def save(name: str, data: bytes) -> None:
+        if f"{name}.png" in wanted:
+            state = keep_or_write(f"{name}.png", data)
+            states[state] = states.get(state, 0) + 1
+        if f"thumbs/{name}.png" in wanted:
             state = keep_or_write(f"thumbs/{name}.png", thumbnail(data))
             states[state] = states.get(state, 0) + 1
 
     def needed(name: str) -> bool:
-        return not only or name in only
+        if only and name not in only:
+            return False
+        if f"{name}.png" in wanted or f"thumbs/{name}.png" in wanted:
+            return True
+        print(f"  skipped   {name}: nothing references it")
+        return False
 
     httpd, base = serve(ROOT, PORT)
 
@@ -240,7 +274,7 @@ def main() -> None:
                 if name in SCROLL:
                     page.evaluate(f"window.scrollTo(0, {SCROLL[name]})")
                     page.wait_for_timeout(200)
-                save(name, page.screenshot(full_page=full), name not in NO_THUMB)
+                save(name, page.screenshot(full_page=full))
                 page.close()
 
             for name, (page_file, index) in SLIDE_SHOTS.items():
@@ -253,7 +287,7 @@ def main() -> None:
                 slide = page.locator("section.slide").nth(index)
                 slide.scroll_into_view_if_needed()
                 page.wait_for_timeout(200)
-                save(name, slide.screenshot(), False)
+                save(name, slide.screenshot())
                 page.close()
 
             browser.close()

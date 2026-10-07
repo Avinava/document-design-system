@@ -417,7 +417,7 @@ def common_marks(page: str, title: str, description: str) -> dict[str, str]:
     }
 
 
-def assemble_home(shot: str, dest: Path) -> None:
+def home_marks(shot: str) -> dict[str, str]:
     types_word = site_parts.words(len(catalog.TYPES))
     marks = common_marks(
         "index.html",
@@ -441,7 +441,20 @@ def assemble_home(shot: str, dest: Path) -> None:
         "@@SHOT": shot,
         "@@REPO": REPO_URL,
     })
-    _assemble("site.html", marks, dest)
+    return marks
+
+
+def assemble_home(shot: str, dest: Path) -> None:
+    _assemble("site.html", home_marks(shot), dest)
+
+
+def home_shots() -> set[str]:
+    """Screenshots the homepage shows, relative to docs/screenshots/."""
+    shot = "@@SHOT"
+    raw = (ROOT / "templates" / "site.html").read_text(encoding="utf-8")
+    for marker, value in home_marks(shot).items():
+        raw = raw.replace(marker, value)
+    return set(re.findall(rf'{shot}/([\w./-]+\.png)', raw))
 
 
 # --------------------------------------------------------------------------
@@ -762,6 +775,17 @@ def check_built(dest: Path) -> None:
             fail(f"{name} returns to {back_href}, which has no such anchor")
         if 'href="assets/banner.svg"' not in page.read_text(encoding="utf-8"):
             fail(f"{name} is missing the favicon")
+
+    # docs/screenshots/ holds exactly what something shows: no orphan is
+    # committed, and nothing shown is missing.
+    from shoot_examples import referenced_shots
+
+    shown = referenced_shots()
+    committed = {p.relative_to(SHOTS).as_posix() for p in SHOTS.rglob("*.png")}
+    for rel in sorted(shown - committed):
+        fail(f"docs/screenshots/{rel} is referenced but missing — run shoot_examples.py")
+    for rel in sorted(committed - shown):
+        fail(f"docs/screenshots/{rel} is not referenced by the README, an example or the site — delete it")
 
     for page in sorted(dest.glob("*.html")):
         for ref in LOCAL_REF.findall(page.read_text(encoding="utf-8")):

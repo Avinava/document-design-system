@@ -227,10 +227,6 @@ class TestWritingTypes(unittest.TestCase):
                     f"missing examples/{slug}.md",
                 )
                 self.assertTrue(
-                    (ROOT / "docs" / "screenshots" / f"{slug}.png").is_file(),
-                    f"missing docs/screenshots/{slug}.png",
-                )
-                self.assertTrue(
                     (ROOT / "docs" / "screenshots" / "thumbs" / f"{slug}.png").is_file(),
                     f"missing docs/screenshots/thumbs/{slug}.png",
                 )
@@ -1380,7 +1376,6 @@ class TestComposedExamples(unittest.TestCase):
                 self.assertIn(f'data-theme="{theme}"', built)
                 self.assertNotIn("@FIG", built)
                 self.assertIn(slug, SHOTS)
-                self.assertTrue((ROOT / "docs" / "screenshots" / f"{slug}.png").is_file())
                 self.assertTrue((ROOT / "docs" / "screenshots" / "thumbs" / f"{slug}.png").is_file())
                 # The composed card sits in its pattern's section, beside the presets.
                 section = re.search(
