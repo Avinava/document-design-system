@@ -390,6 +390,7 @@ a { color: inherit; text-underline-offset: 2px; }
 
 .shell { max-width: 1080px; margin: 0 auto; padding: 40px 32px 64px; }
 
+/* figures: begin — shared with the site's Figures page (scripts/build_site.py) */
 .gallery {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
@@ -411,10 +412,10 @@ a { color: inherit; text-underline-offset: 2px; }
 .fig figcaption { font-family: var(--mono); font-size: 0.6875rem;
                   color: var(--soft); margin-top: 8px; }
 
-@media (max-width: 640px) {
-  .shell { padding: 24px 16px 48px; }
-  .gallery { grid-template-columns: 1fr; }
-}
+@media (max-width: 640px) { .gallery { grid-template-columns: 1fr; } }
+/* figures: end */
+
+@media (max-width: 640px) { .shell { padding: 24px 16px 48px; } }
 
 /* ---- inlined from core/print.css ---- */
 /* print.css — print and PDF as a distinct output mode.
@@ -611,6 +612,7 @@ a { color: inherit; text-underline-offset: 2px; }
   <h1>Figure gallery</h1>
   <p class="subtle">Every figure below consumes the same tokens as the page. Change <code>data-theme</code> on the root element and all of them follow.</p>
 
+  <!-- figures: begin -->
   <div class="gallery">
 
     <figure class="fig">
@@ -1179,6 +1181,7 @@ a { color: inherit; text-underline-offset: 2px; }
     </figure>
 
   </div>
+  <!-- figures: end -->
 </div>
 </body>
 </html>

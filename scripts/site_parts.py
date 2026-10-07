@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Pieces every GitHub Pages page shares: navigation, meta tags, dark mode.
 
-Imported by scripts/build_site.py (index, modules) and
+Imported by scripts/build_site.py (index, modules, figures, themes) and
 scripts/build_examples.py (the Patterns page, which is also built locally as
 examples/index.html). Standard library only. Repository-only.
 """
@@ -21,6 +21,24 @@ ROOT = Path(__file__).resolve().parent.parent
 SITE_URL = "https://avinava.github.io/document-design-system/"
 REPO_URL = "https://github.com/Avinava/document-design-system"
 SOCIAL_IMAGE = "screenshots/social-preview.png"
+# The mark as a standalone file (literal colours, its own dark mode) for the
+# favicon; the navigation draws the same geometry inline on the page's tokens.
+FAVICON = "assets/mark.svg"
+FAVICON_LINK = f'<link rel="icon" href="{FAVICON}" type="image/svg+xml">'
+
+# The mark (assets/mark.svg): a page whose lines are its reading order, the
+# first line in the one accent because the answer leads. On tokens, so it
+# inverts with the page's dark palette.
+MARK_SVG = (
+    '<svg class="mark" viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" focusable="false">'
+    '<rect x="0" y="0" width="32" height="32" rx="8" fill="var(--ink)"/>'
+    '<rect x="8" y="7" width="12" height="3" rx="1.5" fill="var(--accent)"/>'
+    '<rect x="8" y="12.5" width="16" height="3" rx="1.5" fill="var(--paper)"/>'
+    '<rect x="8" y="18" width="16" height="3" rx="1.5" fill="var(--paper)"/>'
+    '<rect x="8" y="23.5" width="10" height="3" rx="1.5" fill="var(--paper)"/>'
+    "</svg>"
+)
+WORDMARK_TEXT = 'document<span class="hyphen">-</span>design<span class="hyphen">-</span>system'
 
 # Every site page wears one theme so the front door reads as one voice.
 # Readers whose system asks for dark get the dark theme's palette, keeping the
@@ -34,8 +52,8 @@ NAV = (
     ("Story", "index.html"),
     ("Patterns", "types.html"),
     ("Modules", "modules.html"),
-    ("Figures", "gallery-light.html"),
-    ("Themes", "themes-light.html"),
+    ("Figures", "figures.html"),
+    ("Themes", "themes.html"),
     ("GitHub", REPO_URL),
 )
 
@@ -51,7 +69,10 @@ LOCAL_NAV = (
 NAV_CSS = """
 .site-nav { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
   gap: .5rem 1.5rem; padding: 18px 0 14px; border-bottom: 1px solid var(--rule); }
-.wordmark { color: var(--ink); font: 600 .875rem/1.2 var(--display); letter-spacing: -.01em; text-decoration: none; }
+.wordmark { display: inline-flex; align-items: center; gap: .55rem; align-self: center; color: var(--ink);
+  font: 600 1rem/1.2 var(--display); letter-spacing: -.015em; text-decoration: none; }
+.wordmark .mark { flex: none; display: block; }
+.wordmark .hyphen { color: var(--soft); }
 .site-nav ul { display: flex; flex-wrap: wrap; gap: .25rem 1.25rem; list-style: none; margin: 0; padding: 0; font-size: .9375rem; }
 .site-nav a { color: var(--muted); text-decoration: none; padding: .25rem 0; }
 .site-nav a:hover { color: var(--ink); }
@@ -74,7 +95,7 @@ def site_nav(current: str | None, links: tuple[tuple[str, str], ...] = NAV) -> s
     home = "index.html" if links is NAV else REPO_URL
     return (
         '<nav class="site-nav" aria-label="Site">\n'
-        f'  <a class="wordmark" href="{home}">document-design-system</a>\n'
+        f'  <a class="wordmark" href="{home}" aria-label="document-design-system">{MARK_SVG}<span>{WORDMARK_TEXT}</span></a>\n'
         f'  <ul>{"".join(items)}</ul>\n'
         "</nav>"
     )

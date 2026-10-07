@@ -55,6 +55,15 @@ GitHub Pages site follows one engagement in four acts by the reader's job.
 - Pinned authoring toolchain: `package.json` with `package-lock.json` (Node
   22.22.2 or newer, `engine-strict`) and `requirements-authoring.txt`, read by
   `scripts/pins.py`.
+- A mark and wordmark: a page whose lines are its reading order, the first line in
+  the one accent because the answer leads. The site navigation draws it on the
+  page's tokens; `assets/mark.svg` (now the favicon, replacing the wide banner) and
+  `assets/wordmark.svg` carry it for `<img>` use with their own dark mode.
+- Figures and Themes pages on the site. Every figure is inlined on the site's own
+  tokens and follows its dark palette; the theme comparison shows all five voices
+  in one row, the same proposal in three voices, and how a client brand becomes a
+  theme. Both lift their content from the showcase templates between explicit
+  markers, so the pages and the standalone documents cannot drift.
 
 ### Changed
 
@@ -106,6 +115,10 @@ GitHub Pages site follows one engagement in four acts by the reader's job.
   that could drift from the catalog; they are now generated.
 - The local Patterns page's presentation-design card pointed at a deck
   thumbnail that was never generated.
+- Every site navigation item opens a site page that carries the navigation, never
+  a standalone showcase document; a test and `build_site.py --check` fail on any
+  item that does not. The showcase documents, the proposal variants and the brand
+  exhibit return to the Figures or Themes page.
 
 ## 0.4.1
 

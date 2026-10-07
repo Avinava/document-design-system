@@ -214,6 +214,10 @@ def back_to_pattern(pattern: str) -> tuple[str, str, str]:
     return (f"types.html#{pattern}", "← Patterns", f"Back to the {pattern} pattern")
 
 
+def back_to_site_page(page: str, label: str) -> tuple[str, str, str]:
+    return (page, f"← {label}", f"Back to the {label} page")
+
+
 def back_to_home(section: str) -> tuple[str, str, str]:
     return (f"index.html#{section}", "← Home", "Back to the home page")
 
@@ -224,13 +228,13 @@ STORY_PAGES = {stop.page for stop in STORY}
 HTML_KEEP = {
     "inventory-report.html": back_to_story("inventory-report.html"),
     "capacity-deck.html": back_to_story("capacity-deck.html"),
-    "gallery-light.html": back_to_home("figures"),
-    "gallery-dark.html": back_to_home("figures"),
-    "themes-light.html": back_to_home("voice"),
-    "themes-dark.html": back_to_home("voice"),
-    "proposal-horizon.html": back_to_home("voice"),
-    "proposal-coral.html": back_to_home("voice"),
-    "brand.html": back_to_home("voice"),
+    "gallery-light.html": back_to_site_page("figures.html", "Figures"),
+    "gallery-dark.html": back_to_site_page("figures.html", "Figures"),
+    "themes-light.html": back_to_site_page("themes.html", "Themes"),
+    "themes-dark.html": back_to_site_page("themes.html", "Themes"),
+    "proposal-horizon.html": back_to_site_page("themes.html", "Themes"),
+    "proposal-coral.html": back_to_site_page("themes.html", "Themes"),
+    "brand.html": back_to_site_page("themes.html", "Themes"),
     "mulesoft.html": ("types.html#profiles", "← Patterns", "Back to the compatibility profiles"),
 }
 
@@ -259,7 +263,7 @@ def write_page_copy(src: Path, dest: Path, back: tuple[str, str, str]) -> None:
     html = src.read_text(encoding="utf-8")
     html = html.replace(
         "</head>",
-        '<link rel="icon" href="assets/banner.svg" type="image/svg+xml">\n</head>',
+        f"{site_parts.FAVICON_LINK}\n</head>",
         1,
     )
     # Screenshots live in docs/screenshots/ in the repository and in
@@ -686,6 +690,59 @@ def assemble_modules(dest: Path) -> None:
 
 
 # --------------------------------------------------------------------------
+# figures and themes pages
+# --------------------------------------------------------------------------
+
+
+def shared_block(template: str, name: str) -> tuple[str, str]:
+    """The CSS and markup a showcase template marks as shared with a site page:
+    `/* name: begin … */ … /* name: end */` and `<!-- name: begin --> … <!-- name: end -->`."""
+    raw = (ROOT / "templates" / template).read_text(encoding="utf-8")
+    css = re.search(rf"/\* {name}: begin[^*]*\*/(.*?)/\* {name}: end \*/", raw, re.S)
+    body = re.search(rf"<!-- {name}: begin -->(.*?)<!-- {name}: end -->", raw, re.S)
+    if not css or not body:
+        sys.exit(f"templates/{template} lost its '{name}: begin/end' markers")
+    return css.group(1).strip(), body.group(1).strip()
+
+
+def assemble_figures(dest: Path) -> None:
+    css, grid = shared_block("gallery.html", "figures")
+    grid = re.sub(r"<!-- @FIG ([a-z0-9-]+) -->", lambda m: figure(m.group(1)), grid)
+    marks = common_marks(
+        "figures.html",
+        "Figures — document-design-system",
+        "Every diagram and chart form the examples use, as SVG on the page's own tokens, "
+        "each with the reader's question it answers.",
+    )
+    marks.update({
+        "<!-- @@FAVICON -->": site_parts.FAVICON_LINK,
+        "/* @@GALLERY_CSS */": css,
+        "<!-- @@GALLERY -->": grid,
+        "@@FORMS_WORD_CAP": site_parts.words(diagram_forms()).capitalize(),
+        "@@RULES_WORD_CAP": site_parts.words(len(check_diagrams.RULES)).capitalize(),
+        "@@REPO": REPO_URL,
+    })
+    _assemble("site-figures.html", marks, dest)
+
+
+def assemble_themes(dest: Path) -> None:
+    css, panels = shared_block("themes.html", "panels")
+    marks = common_marks(
+        "themes.html",
+        "Themes — document-design-system",
+        "The same content under every theme, one proposal in three voices, and how a client's brand "
+        "becomes a theme with its contrast audited.",
+    )
+    marks.update({
+        "<!-- @@FAVICON -->": site_parts.FAVICON_LINK,
+        "/* @@PANELS_CSS */": css,
+        "<!-- @@PANELS -->": panels,
+        "@@REPO": REPO_URL,
+    })
+    _assemble("site-themes.html", marks, dest)
+
+
+# --------------------------------------------------------------------------
 # build and check
 # --------------------------------------------------------------------------
 
@@ -702,9 +759,9 @@ def populate(dest: Path) -> None:
 
     assets = dest / "assets"
     assets.mkdir(exist_ok=True)
-    banner = ASSETS / "banner.svg"
-    if banner.is_file():
-        shutil.copy2(banner, assets / "banner.svg")
+    for name in ("banner.svg", "mark.svg", "wordmark.svg"):
+        if (ASSETS / name).is_file():
+            shutil.copy2(ASSETS / name, assets / name)
 
     for slug in catalog.TYPES:
         src = EX / f"{slug}.html"
@@ -728,10 +785,12 @@ def populate(dest: Path) -> None:
     assemble_home("screenshots", dest / "index.html")
     assemble_docs_gallery("screenshots/thumbs", dest / "types.html", site=True)
     assemble_modules(dest / "modules.html")
+    assemble_figures(dest / "figures.html")
+    assemble_themes(dest / "themes.html")
     (dest / ".nojekyll").write_text("", encoding="utf-8")
 
 
-SITE_PAGES = ("index.html", "types.html", "modules.html")
+SITE_PAGES = ("index.html", "types.html", "modules.html", "figures.html", "themes.html")
 
 
 def check_built(dest: Path) -> None:
@@ -744,7 +803,13 @@ def check_built(dest: Path) -> None:
         if not path.is_file():
             fail(f"{name} failed to assemble")
         pages[name] = path.read_text(encoding="utf-8")
-    home, gallery, modules = (pages[n] for n in SITE_PAGES)
+    home, gallery, modules = pages["index.html"], pages["types.html"], pages["modules.html"]
+
+    # Every item in the navigation opens a site page that carries it; a nav
+    # item landing on a standalone document strands the reader.
+    for _, href in site_parts.NAV:
+        if not href.startswith("http") and href not in pages:
+            fail(f"navigation item {href} is not a site page")
 
     for name, text in pages.items():
         if "@@" in text:
@@ -871,7 +936,7 @@ def check_built(dest: Path) -> None:
         target, _, anchor = back_href.partition("#")
         if anchor and f'id="{anchor}"' not in pages[target]:
             fail(f"{name} returns to {back_href}, which has no such anchor")
-        if 'href="assets/banner.svg"' not in page.read_text(encoding="utf-8"):
+        if f'href="{site_parts.FAVICON}"' not in page.read_text(encoding="utf-8"):
             fail(f"{name} is missing the favicon")
 
     # docs/screenshots/ holds exactly what something shows: no orphan is

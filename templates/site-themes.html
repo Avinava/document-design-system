@@ -1,0 +1,106 @@
+<!doctype html>
+<!--
+  The Themes page: the same content block under every shipped theme, the same
+  proposal in three voices, and how a client's brand becomes a theme.
+
+  Assembled by scripts/build_site.py. The comparison panels and their CSS are
+  lifted from templates/themes.html (between its "panels: begin/end" markers),
+  the source of the standalone comparison documents. Each panel declares its
+  own data-theme, so the site's dark palette — which applies only at the
+  root — never repaints a panel.
+-->
+<html lang="en" data-theme="executive-navy">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Themes — document-design-system</title>
+<!-- @@META -->
+<!-- @@FAVICON -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* editorial-coral also selects :root, so the site's own theme comes last. */
+/* @@INLINE core/themes/editorial-coral.css @@ */
+/* @@INLINE core/themes/field-notes.css @@ */
+/* @@INLINE core/themes/console-violet.css @@ */
+/* @@INLINE core/themes/horizon.css @@ */
+/* @@INLINE core/themes/${THEME}.css @@ */
+/* @@INLINE core/base.css @@ */
+/* @@SITE_CSS */
+/* @@PANELS_CSS */
+
+.page-hero { padding: 64px 0 0; }
+.themes { margin-top: 40px; }
+/* Five voices in one row on a wide screen, so no panel is left on its own. */
+@media (min-width: 1000px) {
+  .themes { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+  .panel { padding: 16px; }
+  .panel .big { font-size: 1.875rem; }
+  .panel table { font-size: .75rem; }
+}
+.site-section { margin-top: 72px; padding-top: 28px; border-top: 1px solid var(--rule-strong); }
+.site-section h2 { margin: 0 0 .5rem; font-size: 1.5rem; letter-spacing: -.02em; }
+.site-section > p { max-width: 68ch; color: var(--muted); }
+.voices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; margin-top: 1.5rem; }
+.voices a { display: block; color: inherit; text-decoration: none; border: 1px solid var(--rule);
+  border-radius: var(--radius-md); overflow: hidden; background: var(--surface); }
+.voices img { display: block; width: 100%; height: auto; border-bottom: 1px solid var(--rule); }
+.voices .pad { padding: .75rem 1rem .9rem; }
+.voices strong { display: block; font-size: .9375rem; }
+.voices code { color: var(--soft); font-size: .8125rem; }
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; margin: 1.5rem 0 0;
+  padding: 0; list-style: none; counter-reset: step; }
+.steps li { counter-increment: step; border-top: 2px solid var(--accent); padding-top: .75rem; }
+.steps li::before { content: counter(step, decimal-leading-zero); display: block; color: var(--soft);
+  font: 500 .75rem/1 var(--mono); margin-bottom: .5rem; }
+.steps strong { display: block; margin-bottom: .25rem; }
+.steps p { margin: 0; color: var(--muted); font-size: .9375rem; }
+.standalone { margin: 1.25rem 0 0; color: var(--muted); font-size: .9375rem; }
+@media (max-width: 860px) { .voices, .steps { grid-template-columns: minmax(0, 1fr); } }
+/* @@DARK */
+/* @@INLINE core/print.css @@ */
+</style>
+</head>
+<body>
+<a class="skip-link" href="#themes">Skip to the themes</a>
+<div class="shell">
+<!-- @@NAV -->
+
+<header class="page-hero">
+  <h1 class="site-title">One contract, several voices</h1>
+  <p class="site-lead">The audience picks the voice. A theme sets type, colour and density through semantic tokens, declared with <code>data-theme</code>; changing it never moves a section and never changes a fact.</p>
+  <p class="site-lead">Identical markup in every panel below. Only <code>data-theme</code> differs, and each panel keeps its own theme whatever colour scheme your system asks for.</p>
+</header>
+
+<main id="themes">
+<!-- @@PANELS -->
+
+<section class="site-section" id="voices" aria-labelledby="voices-title">
+  <h2 id="voices-title">The same proposal, three voices</h2>
+  <p>One body, three themes: the board voice, the analytical voice, and a client's brand. The facts and their order do not move.</p>
+  <div class="voices">
+    <a href="proposal.html"><img src="screenshots/thumbs/proposal.png" alt="Proposal in executive-navy" width="640" height="400" loading="lazy"><div class="pad"><strong>Board voice</strong><code>executive-navy</code></div></a>
+    <a href="proposal-coral.html"><img src="screenshots/thumbs/proposal-coral.png" alt="Proposal in editorial-coral" width="640" height="400" loading="lazy"><div class="pad"><strong>Analytical voice</strong><code>editorial-coral</code></div></a>
+    <a href="proposal-horizon.html"><img src="screenshots/thumbs/proposal-horizon.png" alt="Proposal in horizon, a client brand" width="640" height="400" loading="lazy"><div class="pad"><strong>Client brand</strong><code>horizon</code></div></a>
+  </div>
+</section>
+
+<section class="site-section" id="brand" aria-labelledby="brand-title">
+  <h2 id="brand-title">Wear the client's brand</h2>
+  <p>Point <code>brand-theme-design</code> at a brand guide, a website, a screenshot or a few hex values. Brand colours are chosen for logos and routinely fail as body text, so nothing is eyeballed.</p>
+  <ol class="steps">
+    <li><strong>Extract with provenance</strong><p>Computed styles from real elements, each value traced to where it came from.</p></li>
+    <li><strong>Map to roles</strong><p>Mostly subtraction: one accent, the rest mapped to ink, paper, rule and status roles.</p></li>
+    <li><strong>Audit every pair</strong><p>Contrast at exact thresholds, accent hue clear of the status colours, a print ramp for dark themes.</p></li>
+  </ol>
+  <p class="standalone"><a href="brand.html">See how horizon was built</a>. To start your own, copy <code>core/themes/brand-template.css</code> and fill every TODO. The comparison as standalone documents: <a href="themes-light.html">light</a> · <a href="themes-dark.html">dark</a>.</p>
+</section>
+</main>
+
+<footer class="site-foot">
+  <p>The token contract is <a href="@@REPO/blob/main/core/tokens.md">core/tokens.md</a>; every theme declares every token, and <code>audit_theme.py</code> fails a theme that misses one.</p>
+</footer>
+</div>
+</body>
+</html>

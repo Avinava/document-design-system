@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32"
+     role="img" aria-labelledby="mark-title">
+  <title id="mark-title">document-design-system</title>
+  <!--
+    The mark: a page whose lines are its reading order. The first line is the
+    one accent, because the answer leads. Pattern is the order of the lines;
+    theme is the colour they wear. One accent, no gradients, no shadows.
+
+    Used as the favicon and inside <img>, which is an isolated document, so the
+    editorial-coral palette is carried as literals with its own dark mode, as
+    in banner.svg. The site navigation draws the same geometry inline on the
+    page's tokens instead (scripts/site_parts.py MARK_PATHS).
+  -->
+  <style>
+    .page   { fill: #2d3142; }
+    .line   { fill: #f5f5f5; }
+    .accent { fill: #eb6c36; }
+    @media (prefers-color-scheme: dark) {
+      .page   { fill: #f5f5f5; }
+      .line   { fill: #2d3142; }
+      .accent { fill: #f0875a; }
+    }
+  </style>
+  <rect class="page" x="0" y="0" width="32" height="32" rx="8"/>
+  <rect class="accent" x="8" y="7" width="12" height="3" rx="1.5"/>
+  <rect class="line" x="8" y="12.5" width="16" height="3" rx="1.5"/>
+  <rect class="line" x="8" y="18" width="16" height="3" rx="1.5"/>
+  <rect class="line" x="8" y="23.5" width="10" height="3" rx="1.5"/>
+</svg>
