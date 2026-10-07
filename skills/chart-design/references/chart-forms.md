@@ -9,6 +9,7 @@ Per-form construction rules. Each entry covers what the form is for, how to buil
 - [Line and time series](#line-and-time-series)
 - [Limit ledger](#limit-ledger)
 - [Stacked bar](#stacked-bar)
+- [Waterfall bridge](#waterfall-bridge)
 - [Scatter](#scatter)
 - [Small multiples](#small-multiples)
 - [Histogram and box plot](#histogram-and-box-plot)
@@ -87,6 +88,21 @@ A single horizontal track — the clearest way to show consumption against a cei
 - Three segments is the practical limit.
 
 **Failure mode:** the 100% stacked bar used to compare many categories. Every bar is the same length, so the only readable comparison is the bottom segment.
+
+---
+
+## Waterfall bridge
+
+**For:** how a total is built from its parts, or how one total moves to another — an estimate from its work packages, a forecast from last month's.
+
+- One row per step, read top to bottom. Each bar floats from the running total before it to the running total after it; a total starts at zero.
+- **The parts must sum to the totals.** `scripts/render_chart.mjs` refuses a spec whose declared total disagrees with its steps, because the chart would print one number and draw another.
+- Direction is carried three ways, never by hue alone: a signed label (`+9`, `−2`), the side the bar grows toward, and the label sitting at the bar's leading end.
+- Totals take the focal accent; steps are `var(--comparison-fill)`. Thin dotted connectors carry the running total from one bar to the next so the arithmetic can be audited by eye.
+- A pending or excluded change — a change request not yet approved — is drawn as a dashed outline after the total with its reason in words ("+3 · not approved"). It is never added to a total.
+- An estimate range belongs on the total as a whisker, labelled with its bounds.
+
+**Failure mode:** a bridge whose bars do not reconcile — rounded steps that sum to 23 beside a total of 24. Fix the numbers or name the rounding; never let the reader find it.
 
 ---
 

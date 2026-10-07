@@ -43,13 +43,32 @@ The spec:
 
 | Field | Notes |
 |---|---|
-| `form` | `bars`, `columns`, `line`, `scatter` |
+| `form` | `bars`, `columns`, `line`, `scatter`, `waterfall` |
 | `id` | Prefixes every generated ID so charts can share a document |
 | `title` | **States the finding**, not the variables |
 | `desc` | What a screen-reader user gets instead of the chart |
 | `focal` | The category that carries the accent. Omit for no focal mark |
 | `series` | Grouping field for `line` and `scatter` |
 | `size` | `doc-inline` (720), `full-width` (1100), `print-portrait` (640), `print-landscape` (980) |
+
+A `waterfall` takes `steps` in place of `data`, `x`, `y`, and `focal`:
+
+```json
+{
+  "form": "waterfall",
+  "id": "estimate-bridge",
+  "title": "Four work packages build the 24 engineer-week estimate",
+  "desc": "…",
+  "steps": [
+    {"label": "Dispatcher and queues", "delta": 9, "kind": "step"},
+    {"label": "Expected", "delta": 24, "kind": "total", "range": [22, 28]},
+    {"label": "CR-003 history panel", "delta": 3, "kind": "step", "excluded": "not approved"}
+  ],
+  "xLabel": "Engineer-weeks"
+}
+```
+
+`kind` is `start` (opens the bridge at a value), `step` (adds `delta`), or `total` (declares the running sum). A total that differs from the sum of the steps before it fails the render with both numbers. `excluded` draws a step dashed, with its reason, and keeps it out of every total; `range` draws a whisker on a total.
 
 `title` and `desc` are required. Writing the description is the fastest way to find out whether the chart has a point — if the sentence is "here are some values," the chart is a table.
 
