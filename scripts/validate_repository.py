@@ -17,6 +17,10 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import sync_skill_assets  # noqa: E402
+from sync_skill_assets import VENDORED_DIRS  # noqa: E402
+
 # --------------------------------------------------------------------------
 # frontmatter schema
 # --------------------------------------------------------------------------
@@ -355,6 +359,10 @@ def check_hex_literals(root: Path, palette: set[str]) -> None:
         # no token to reference from in there.
         if rel.parts[0] in {"examples", "assets", "site"}:
             continue
+        # Vendored copies are byte-identical to the canonical files, which are
+        # checked above; check_vendored_assets enforces the identity.
+        if is_vendored(rel):
+            continue
         if rel_str in HEX_EXEMPT_FILES:
             continue
         if any(rel_str.startswith(d + "/") for d in HEX_EXEMPT_DIRS):
@@ -520,11 +528,23 @@ def check_manifests(root: Path) -> None:
                     error(skill_dir.relative_to(root), "directory under skills/ has no SKILL.md")
 
 
+def is_vendored(rel: Path) -> bool:
+    """True for skills/<name>/{core,scripts,templates}/..., the generated copies."""
+    return len(rel.parts) > 3 and rel.parts[0] == "skills" and rel.parts[2] in VENDORED_DIRS
+
+
+def check_vendored_assets(root: Path) -> None:
+    for problem in sync_skill_assets.check_all(root):
+        error("skills", f"vendored asset drift: {problem} (run scripts/sync_skill_assets.py)")
+
+
 def check_links(root: Path) -> None:
     for md in sorted(root.rglob("*.md")):
         if any(p in {"node_modules", ".git", "dist"} for p in md.relative_to(root).parts):
             continue
         rel = md.relative_to(root)
+        if is_vendored(rel):
+            continue
         for target in LINK_RE.findall(md.read_text(encoding="utf-8")):
             target = target.split("#")[0].strip()
             if not target or target.startswith(("http://", "https://", "mailto:")):
@@ -554,6 +574,7 @@ def main() -> int:
     palette = check_themes(root)
     check_hex_literals(root, palette)
     check_manifests(root)
+    check_vendored_assets(root)
     check_links(root)
 
     for w in warnings:

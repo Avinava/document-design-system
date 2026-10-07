@@ -1,0 +1,185 @@
+/* print.css — print and PDF as a distinct output mode.
+ *
+ * Load this LAST. Print rendering can match a narrow-viewport media query, so
+ * without explicit overrides a desktop grid collapses to one column in the PDF.
+ * Placing this after the responsive rules is what prevents that.
+ *
+ * Browser-added headers and footers (URL, date, page number) are controlled by
+ * the print dialog, not by CSS. When a clean PDF matters, tell the user to
+ * disable them. Do not claim CSS suppresses them.
+ */
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 14mm 14mm 16mm;
+  }
+
+  /* --- theme normalization ------------------------------------------
+   * Print normalizes to white paper while keeping theme identity through
+   * ink, rules, and the accent. Dark methodology panels invert so they do
+   * not consume ink or reproduce badly in grayscale. */
+  :root,
+  [data-theme] {
+    --paper: #ffffff;
+    --surface: #ffffff;
+    --surface-muted: #f3f3f3;
+    --method-bg: #ffffff;
+    --method-ink: var(--ink);
+    --method-muted: var(--muted);
+  }
+
+  .methodology {
+    border: 1px solid var(--rule-strong);
+  }
+
+  html {
+    font-size: 10pt;
+    background: #fff;
+  }
+
+  body {
+    min-height: auto;
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* --- layout -------------------------------------------------------- */
+
+  .report-shell,
+  main {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .screen-only,
+  nav,
+  button,
+  [role="navigation"] {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  /* --- fragmentation --------------------------------------------------
+   * Protect small self-contained things. Let big things flow. Setting
+   * break-inside: avoid on every section produces half-empty pages when a
+   * section is taller than one page. */
+
+  h1, h2, h3 {
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+
+  p, li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  .metric-card,
+  .chart,
+  figure,
+  blockquote,
+  .callout,
+  .methodology {
+    break-inside: avoid-page;
+    page-break-inside: avoid;
+  }
+
+  section {
+    break-before: auto;
+  }
+
+  .page-break-before {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    break-after: page;
+    page-break-after: always;
+  }
+
+  /* --- tables ---------------------------------------------------------
+   * Long tables span pages with repeating headers. Never break-inside:
+   * avoid a whole table — it overflows or leaves large gaps. */
+
+  table {
+    width: 100%;
+    min-width: 0;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+  }
+
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
+
+  tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  th, td {
+    padding: 2.2mm 1.6mm;
+  }
+
+  /* --- overflow containers --------------------------------------------
+   * Changing overflow alone does not stop an oversized child clipping. The
+   * min-width reset is the part that actually matters. */
+
+  .table-scroll,
+  .diagram-scroll {
+    overflow: visible;
+  }
+
+  .table-scroll table,
+  .diagram-scroll svg {
+    min-width: 0 !important;
+  }
+
+  svg,
+  img,
+  canvas {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* --- compound components --------------------------------------------
+   * Generic structural rules above can strip padding from compound-class
+   * elements such as <section class="section methodology">. Restore it with
+   * a more specific selector, then check all four insets in the PDF. */
+
+  section.methodology {
+    padding: 18px 20px;
+  }
+
+  /* --- links -----------------------------------------------------------
+   * Append URLs only where the destination matters on paper. Never for
+   * fragment-only or javascript: links. */
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  a.external[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-family: ui-monospace, monospace;
+    font-size: 0.82em;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* US Letter alternative — swap the @page block above when the target
+ * organization requires it:
+ *
+ *   @page { size: Letter portrait; margin: 0.55in 0.55in 0.65in; }
+ *
+ * Do not switch the whole document to landscape because one table is wide.
+ * Simplify the printed columns first, or build a separate landscape appendix.
+ */

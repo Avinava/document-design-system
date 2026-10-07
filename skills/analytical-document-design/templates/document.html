@@ -1,0 +1,266 @@
+<!doctype html>
+<!--
+  Document skeleton.
+
+  The <style> block below carries a build marker instead of a copy of core/.
+  Assemble it with:
+
+      python scripts/build_document.py templates/document.html \
+             --theme editorial-coral --out report.html
+
+  or inline core/themes/<theme>.css, core/base.css, and core/print.css by hand,
+  in that order. Print rules must come last so they beat the responsive rules —
+  print rendering can match a narrow-viewport media query, and without that
+  ordering a desktop grid silently collapses to one column in the PDF.
+
+  Delete the sections this document does not need rather than padding them.
+-->
+<html lang="en" data-theme="editorial-coral">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where the work lives</title>
+
+<!-- Fonts for editorial-coral and executive-navy. Swap for the field-notes
+     import when using that theme. System fallbacks are in the token stacks, so
+     the document stays usable if this fails to load. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* @@INLINE core/themes/${THEME}.css @@ */
+/* @@INLINE core/base.css @@ */
+
+/* ---- document layout (not part of core) ---- */
+.report-shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 40px 32px 64px;
+}
+
+.identity-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 32px;
+}
+
+.title-block { margin-bottom: 40px; }
+.title-block p { color: var(--muted); font-size: 1.0625rem; }
+
+.section-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 40px;
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+}
+
+.metric-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.metric-value { font-size: 2.25rem; line-height: 1.1; }
+.metric-label { color: var(--muted); font-size: 0.875rem; margin-top: 4px; }
+.metric-denom { font-family: var(--mono); font-size: 0.75rem; color: var(--soft); margin-top: 4px; }
+
+figure { margin: 0 0 32px; }
+figcaption {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--soft);
+  margin-top: 8px;
+}
+
+section { margin-bottom: 48px; }
+
+@media (max-width: 640px) {
+  .report-shell { padding: 24px 16px 48px; }
+  .identity-bar { flex-direction: column; gap: 4px; }
+}
+
+/* @@INLINE core/print.css @@ */   /* must stay last */
+</style>
+</head>
+
+<body>
+<div class="report-shell">
+
+  <!-- 1. identity ------------------------------------------------------ -->
+  <div class="identity-bar">
+    <span class="eyebrow">Organization · Portfolio</span>
+    <span class="meta">Current snapshot</span>
+  </div>
+
+  <!-- A .print-only provenance block belongs here ONLY when the title block
+       below does not survive print — for example when the title lives inside a
+       sticky header that gets hidden. This template's title block prints fine,
+       so adding one would print the title twice. Verified in the PDF export;
+       see skills/analytical-document-design/references/print-production.md. -->
+
+  <!-- 2. title block --------------------------------------------------- -->
+  <header class="title-block">
+    <h1>Where the work lives</h1>
+    <p>How the current footprint is distributed across functions, owners, and vintages.</p>
+    <p class="meta">Source: normalized inventory export · As of 2026-08-12</p>
+  </header>
+
+  <!-- 3. section navigation (screen only) ------------------------------ -->
+  <nav class="section-nav screen-only" aria-label="Report sections">
+    <a href="#ledger">Ledger</a>
+    <a href="#concentration">Concentration</a>
+    <a href="#time">Time</a>
+    <a href="#ownership">Ownership</a>
+    <a href="#review">Review</a>
+    <a href="#largest">Largest</a>
+    <a href="#methodology">Methodology</a>
+  </nav>
+
+  <!-- 4. primary ledger ------------------------------------------------ -->
+  <section id="ledger">
+    <h2>Current footprint against limit</h2>
+    <div class="chart-frame">
+      <!-- limit ledger: one horizontal track, used vs remaining.
+           Needs an aria-label carrying the exact values — the shape alone
+           conveys nothing to a screen reader. -->
+      <svg role="img" aria-label="1.84 million of 2.50 million units used, 74 percent. 660 thousand units remaining."
+           viewBox="0 0 1000 48" width="100%">
+        <rect x="0" y="12" width="1000" height="24" rx="4" fill="var(--track-fill)"/>
+        <rect x="0" y="12" width="736" height="24" rx="4"
+              fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+      </svg>
+    </div>
+    <p class="meta">1.84M of 2.50M units (74%) · 660K remaining</p>
+  </section>
+
+  <!-- 5. decision metrics ---------------------------------------------- -->
+  <div class="metric-row">
+    <div class="card">
+      <div class="metric-value focal-value">41%</div>
+      <div class="metric-label">Held by the largest function</div>
+      <div class="metric-denom">of 1,842,110 included units</div>
+    </div>
+    <div class="card">
+      <div class="metric-value">312</div>
+      <div class="metric-label">No recorded modification in 5+ years</div>
+      <div class="metric-denom">of 4,180 included records</div>
+    </div>
+    <div class="card">
+      <div class="metric-value">88</div>
+      <div class="metric-label">Excluded from the total</div>
+      <div class="metric-denom">shown separately in methodology</div>
+    </div>
+  </div>
+
+  <!-- 6. concentration ------------------------------------------------- -->
+  <section id="concentration">
+    <h2>Where the footprint concentrates</h2>
+    <figure>
+      <div class="chart-frame">
+        <!-- inline the SVG from scripts/render_chart.mjs here -->
+      </div>
+      <figcaption>Source: normalized inventory export, as of 2026-08-12. Denominator: 1,842,110 included units.</figcaption>
+    </figure>
+  </section>
+
+  <!-- 7. time ---------------------------------------------------------- -->
+  <section id="time">
+    <h2>Current size by creation cohort</h2>
+    <!-- "current size by creation cohort" — NOT "amount added per year".
+         Records may have grown, shrunk, or been replaced after creation. -->
+    <figure>
+      <div class="chart-frame"></div>
+      <figcaption>Current footprint of records created in each year. Not a measure of growth — no historical snapshots exist.</figcaption>
+    </figure>
+  </section>
+
+  <!-- 8. ownership ------------------------------------------------------ -->
+  <section id="ownership">
+    <h2>Attribution</h2>
+    <p class="subtle">Attributed by last modifier, which may represent an automation or deployment account rather than a person.</p>
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <caption class="meta">Included records by last modifier · denominator 1,842,110 units</caption>
+          <thead>
+            <tr>
+              <th scope="col">Modifier</th>
+              <th scope="col" class="num">Records</th>
+              <th scope="col" class="num">Units</th>
+              <th scope="col" class="num">Share</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>svc-deploy <span class="tag">automation</span></td><td class="num">1,204</td><td class="num">612,400</td><td class="num">33.2%</td></tr>
+            <tr><td>a.okafor</td><td class="num">742</td><td class="num">388,910</td><td class="num">21.1%</td></tr>
+            <tr><td>m.lindqvist</td><td class="num">515</td><td class="num">274,300</td><td class="num">14.9%</td></tr>
+            <tr><td>r.iyer</td><td class="num">398</td><td class="num">201,650</td><td class="num">10.9%</td></tr>
+            <tr><td>ci-runner <span class="tag">automation</span></td><td class="num">287</td><td class="num">168,220</td><td class="num">9.1%</td></tr>
+            <tr><td>12 others</td><td class="num">1,034</td><td class="num">196,630</td><td class="num">10.7%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p class="meta">Two of the top five are deployment accounts, not people.</p>
+  </section>
+
+  <!-- 9. priority review ------------------------------------------------ -->
+  <section id="review">
+    <h2>Review candidates</h2>
+    <div class="callout">
+      <p><strong>Rule:</strong> no recorded modification in 5+ years <em>and</em> below version 50.</p>
+      <p><strong>312 records</strong> meet the rule, holding <strong>184,900 units</strong> — 10.0% of the included total.</p>
+      <p class="subtle">These are candidates for review, not confirmed savings. The rule is a triage heuristic and has not been validated against usage.</p>
+    </div>
+  </section>
+
+  <!-- 10. largest units — compact evidence table ------------------------ -->
+  <section id="largest">
+    <h2>Largest individual records</h2>
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <caption class="meta">Top records by current size</caption>
+          <thead>
+            <tr>
+              <th scope="col">Record</th>
+              <th scope="col">Function</th>
+              <th scope="col" class="num">Units</th>
+              <th scope="col" class="num">Share</th>
+              <th scope="col">Created</th>
+              <th scope="col">Version</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>ingest-events-raw</td><td>Ingestion</td><td class="num">214,800</td><td class="num">11.7%</td><td><span class="meta">2021-04-11</span></td><td><span class="meta">62</span></td></tr>
+            <tr><td>ingest-events-archive</td><td>Ingestion</td><td class="num">188,300</td><td class="num">10.2%</td><td><span class="meta">2020-09-02</span></td><td><span class="meta">41</span></td></tr>
+            <tr><td>transform-sessions</td><td>Transform</td><td class="num">142,050</td><td class="num">7.7%</td><td><span class="meta">2022-01-19</span></td><td><span class="meta">58</span></td></tr>
+            <tr><td>serve-aggregates</td><td>Serving</td><td class="num">96,400</td><td class="num">5.2%</td><td><span class="meta">2023-06-30</span></td><td><span class="meta">71</span></td></tr>
+            <tr><td>archive-cold-2020</td><td>Archive</td><td class="num">88,120</td><td class="num">4.8%</td><td><span class="meta">2020-02-14</span></td><td><span class="meta">33</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p class="meta">Version below 50 marks a compatibility level scheduled for retirement.</p>
+  </section>
+
+  <!-- 10. methodology --------------------------------------------------- -->
+  <section id="methodology" class="section methodology">
+    <h2>Methodology</h2>
+    <p><strong>Population.</strong> 4,180 included records totalling 1,842,110 units. 88 records are excluded: 61 archived before the retention cutoff and 27 with no readable size. Excluded records appear in the supporting CSV.</p>
+    <p><strong>Dates.</strong> "Created" is the record creation timestamp in the source system. "Modified" is the latest recorded change, which may be an automated deployment rather than substantive development.</p>
+    <p><strong>Classification.</strong> Function is inferred from name prefix and source metadata. 3,914 records classified at high confidence, 198 medium, 68 low. Per-record confidence is preserved in the CSV.</p>
+    <p class="subtle"><strong>Limitations.</strong> Cohort charts show current size grouped by creation year. They are not a measure of growth — no historical snapshots exist, so a record that grew after creation is counted entirely in its creation year.</p>
+    <p class="subtle">Generated 2026-08-12 from normalized inventory export.</p>
+  </section>
+
+</div>
+</body>
+</html>

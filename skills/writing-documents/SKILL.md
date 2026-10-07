@@ -113,13 +113,15 @@ acceptance contract is `core/document-patterns.md`. The invocation below uses
 `field-notes` as a concrete example; pass the type's `default-theme` instead.
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/build_document.py" \
-  "${CLAUDE_PLUGIN_ROOT}/templates/longform.html" \
+python3 "<skill-dir>/scripts/build_document.py" \
+  "<skill-dir>/templates/longform.html" \
   --theme field-notes --out document.html
-node "${CLAUDE_PLUGIN_ROOT}/scripts/export_pdf.mjs" document.html --out document.pdf
+node "<skill-dir>/scripts/export_pdf.mjs" document.html --out document.pdf
 ```
 
-`${CLAUDE_PLUGIN_ROOT}` is Claude Code's portable reference to the plugin directory. Working inside this repo, the bare `scripts/` and `templates/` paths are correct.
+`core/…`, `scripts/…` and `templates/…` are relative to this skill's directory — the
+folder that contains this `SKILL.md` — not to your working directory. The skill carries
+its own copy, so it works however it was installed.
 
 ## Leave alone
 

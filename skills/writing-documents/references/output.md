@@ -44,13 +44,13 @@ Pass `--theme` from that type's `default-theme` unless the user or a client
 brand named a different one.
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/build_document.py" \
-  "${CLAUDE_PLUGIN_ROOT}/templates/longform.html" \
+python3 "<skill-dir>/scripts/build_document.py" \
+  "<skill-dir>/templates/longform.html" \
   --theme field-notes --out document.html
-node "${CLAUDE_PLUGIN_ROOT}/scripts/export_pdf.mjs" document.html --out document.pdf
+node "<skill-dir>/scripts/export_pdf.mjs" document.html --out document.pdf
 ```
 
-Inside this repo, drop the `${CLAUDE_PLUGIN_ROOT}/` prefix.
+`<skill-dir>` is the folder that contains this skill's `SKILL.md`.
 
 ## HTML layout
 
@@ -64,7 +64,7 @@ Inside this repo, drop the `${CLAUDE_PLUGIN_ROOT}/` prefix.
 - Tables and figures numbered and captioned.
 - No JavaScript required to read the file.
 
-Print: `core/print.css` last. Body 10–11pt. Headings do not strand. Code must not clip. Read `skills/analytical-document-design/references/print-production.md` before claiming a document prints. Inspect the PDF.
+Print: `core/print.css` last. Body 10–11pt. Headings do not strand. Code must not clip. Read `references/print-production.md` from the `analytical-document-design` skill before claiming a document prints. Inspect the PDF.
 
 Diagrams from `diagram-design`; charts from `chart-design`. A design doc usually needs one or two diagrams and no charts.
 

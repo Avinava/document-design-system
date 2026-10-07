@@ -1,0 +1,256 @@
+/* base.css — component-to-token mapping.
+ *
+ * This file contains NO color literals. Every visual decision resolves through
+ * a token defined in core/themes/. That is what makes theme swapping, print
+ * normalization, and grayscale survival work without editing components.
+ *
+ * Load order matters:
+ *   1. a theme from core/themes/
+ *   2. this file
+ *   3. core/print.css   (last, so its overrides beat responsive rules)
+ */
+
+/* ---------------------------------------------------------------- reset */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ----------------------------------------------------------- derived */
+
+/* Derived from the base tokens so themes do not have to restate them.
+ * If color-mix() is unavailable in a target environment, define
+ * --comparison-fill and --track-fill explicitly in the theme instead.
+ *
+ * Declared on [data-theme] as well as :root so they re-derive at every theme
+ * boundary. Defined on :root alone they would resolve once, against the root
+ * theme, and a nested [data-theme="…"] section would keep the root's greys
+ * while everything around them changed — a subtle wrong that only shows up
+ * when two themes appear on one page. */
+:root,
+[data-theme] {
+  --comparison-fill: color-mix(in srgb, var(--muted) 16%, transparent);
+  --track-fill: color-mix(in srgb, var(--muted) 10%, transparent);
+}
+
+/* --- token aliases for embedded renderers ---------------------------
+ *
+ * Third-party renderers set their own theme variables on the element they
+ * emit. beautiful-mermaid, for example, writes --accent, --muted, and
+ * --surface onto its <svg> — names this system already uses.
+ *
+ * Emitting `--accent: var(--accent)` on that <svg> would be a self-reference,
+ * which CSS treats as invalid at computed-value time, so the diagram would
+ * lose its colors. Routing through these aliases breaks the cycle: the
+ * renderer writes `--accent: var(--dds-accent)`, and --dds-accent resolves
+ * here, on :root, where there is no collision.
+ *
+ * Add an alias whenever a renderer's namespace overlaps a token name.
+ *
+ * On [data-theme] too, for the same reason as the derived tokens above: a
+ * prerendered diagram inside a scoped theme must resolve against that theme. */
+:root,
+[data-theme] {
+  --dds-paper: var(--paper);
+  --dds-surface: var(--surface);
+  --dds-surface-muted: var(--surface-muted);
+  --dds-ink: var(--ink);
+  --dds-muted: var(--muted);
+  --dds-soft: var(--soft);
+  --dds-rule: var(--rule);
+  --dds-rule-strong: var(--rule-strong);
+  --dds-accent: var(--accent);
+  --dds-accent-tint: var(--accent-tint);
+}
+
+/* ------------------------------------------------------- typography */
+
+h1, h2, h3,
+.metric-value,
+.focal-value {
+  font-family: var(--display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+h1 { font-size: 2rem; margin: 0 0 0.5rem; }
+h2 { font-size: 1.375rem; margin: 2.5rem 0 0.75rem; }
+h3 { font-size: 1.0625rem; margin: 1.75rem 0 0.5rem; }
+
+p { margin: 0 0 1rem; max-width: 68ch; }
+
+/* Mono is for technical metadata only: dates, versions, identifiers, source
+ * names, compact labels. Body copy in mono is harder to read, not more
+ * credible. */
+.meta,
+.eyebrow,
+time,
+code,
+.identifier,
+.version {
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.01em;
+}
+
+.eyebrow {
+  color: var(--soft);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.subtle { color: var(--muted); }
+
+/* ---------------------------------------------------------- surfaces */
+
+/* Hierarchy comes from borders and spacing, not shadows. */
+.card,
+.table-wrap,
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.375rem;
+}
+
+.chart-frame {
+  background: var(--surface-muted);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+}
+
+.tag {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--rule);
+  padding: 0.125rem 0.4375rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+hr,
+.rule {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 2rem 0;
+}
+
+/* ------------------------------------------------------------ accent */
+
+/* One accent per visual region. Repeating it across every heading and card
+ * destroys the hierarchy it exists to create. */
+.focal-value,
+.focal-label {
+  color: var(--accent);
+}
+
+.accent-surface {
+  background: var(--accent-tint);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+}
+
+.accent-solid {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* ------------------------------------------------------------ status */
+
+/* Color alone never carries meaning — every status element also needs a
+ * written label, so it survives grayscale and color-blind reading. */
+.status-positive { color: var(--positive); }
+.status-warning  { color: var(--warning); }
+.status-critical { color: var(--critical); }
+
+/* ------------------------------------------------------- methodology */
+
+.methodology {
+  background: var(--method-bg);
+  color: var(--method-ink);
+  border-radius: var(--radius-md);
+  padding: 1.5rem 1.625rem;
+}
+
+.methodology h2,
+.methodology h3 { color: var(--method-ink); }
+.methodology .subtle,
+.methodology p { color: var(--method-muted); }
+
+/* ------------------------------------------------------------ tables */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 1px solid var(--rule-strong);
+  padding: 0.5rem 0.625rem;
+}
+
+td {
+  border-bottom: 1px solid var(--rule);
+  padding: 0.5rem 0.625rem;
+}
+
+/* Numbers align right and use tabular figures so columns scan vertically. */
+.num,
+td.num,
+th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+tbody tr:nth-child(even) { background: var(--surface-muted); }
+
+/* On small screens, let wide tables scroll rather than crushing columns.
+ * core/print.css unsets this — a scroll container clips in print. */
+.table-scroll,
+.diagram-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* -------------------------------------------------------------- SVG */
+
+/* Charts and diagrams style through these classes rather than through
+ * presentation attributes, so one stylesheet retheme reaches every figure. */
+.bar-focal      { fill: var(--accent-tint); stroke: var(--accent); }
+.bar-comparison { fill: var(--comparison-fill); stroke: var(--muted); }
+.track          { fill: var(--track-fill); }
+.axis-line      { stroke: var(--rule-strong); }
+.grid-line      { stroke: var(--rule); }
+.chart-label    { fill: var(--muted); font-family: var(--sans); font-size: 12px; }
+.chart-value    { fill: var(--ink); font-family: var(--sans); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+svg { max-width: 100%; height: auto; }
+
+/* --------------------------------------------------------- utilities */
+
+.print-only { display: none; }
+
+a { color: inherit; text-underline-offset: 2px; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

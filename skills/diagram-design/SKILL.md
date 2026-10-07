@@ -125,15 +125,13 @@ Two dials worth setting deliberately, because they change what belongs in the di
 
 ## Paths in this skill
 
-`core/…` and `scripts/…` are relative to the repo root. When this is installed as a
-plugin your working directory is your own project, not the plugin, so prefix them:
+`core/…`, `scripts/…` and `templates/…` are relative to this skill's directory — the
+folder that contains this `SKILL.md` — not to your working directory. Each skill carries
+its own copy, so it works however it was installed. Prefix them with that directory:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/render_diagram.mjs" in.mmd --id x --title "…" --desc "…" --out x.svg
+node "<skill-dir>/scripts/render_diagram.mjs" in.mmd --id x --title "…" --desc "…" --out x.svg
 ```
-
-`${CLAUDE_PLUGIN_ROOT}` is Claude Code's portable reference to the plugin's own
-directory. Working inside the repo itself, the bare paths are correct as written.
 
 ## Reference files
 
