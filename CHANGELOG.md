@@ -5,6 +5,11 @@ All notable changes to this project are documented here. Versions refer to the
 
 ## Unreleased
 
+## 0.4.0
+
+Every skill now installs on its own, which makes the repository installable with
+`npx skills add` and eligible for the skills.sh listing.
+
 ### Changed
 
 - Made every skill self-contained. Each skill now carries the `core/`, `scripts/`
