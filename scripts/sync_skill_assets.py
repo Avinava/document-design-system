@@ -68,6 +68,8 @@ MANIFEST: dict[str, tuple[str, ...]] = {
         "core/print.css",
         "core/tokens.md",
         "templates/diagram.svg",
+        "scripts/check_diagrams.py",
+        "scripts/import_diagram.py",
         "scripts/render_diagram.mjs",
     ),
     "presentation-design": (

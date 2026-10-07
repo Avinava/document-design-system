@@ -1,0 +1,13 @@
+<mxfile host="test"><diagram id="p1" name="Ingestion"><mxGraphModel dx="1000" dy="600" grid="1"><root>
+  <mxCell id="0"/>
+  <mxCell id="1" parent="0"/>
+  <mxCell id="ns" value="Namespace &lt;b&gt;ingest&lt;/b&gt;" style="swimlane;container=1;" vertex="1" parent="1"><mxGeometry x="200" y="40" width="360" height="200" as="geometry"/></mxCell>
+  <mxCell id="producer" value="Producers" style="rounded=1;" vertex="1" parent="1"><mxGeometry x="20" y="100" width="120" height="60" as="geometry"/></mxCell>
+  <UserObject id="gateway" label="Gateway&lt;br&gt;POST /events" link="https://example.invalid/never-followed" tooltip="ignored"><mxCell style="rounded=1;" vertex="1" parent="ns"><mxGeometry x="20" y="60" width="120" height="60" as="geometry"/></mxCell></UserObject>
+  <mxCell id="queue" value="Queue ingest" style="shape=cylinder;" vertex="1" parent="ns"><mxGeometry x="200" y="60" width="120" height="60" as="geometry"/></mxCell>
+  <mxCell id="warehouse" value="Warehouse" vertex="1" parent="1"><mxGeometry x="620" y="100" width="120" height="60" as="geometry"/></mxCell>
+  <mxCell id="e1" value="" edge="1" parent="1" source="producer" target="gateway"><mxGeometry relative="1" as="geometry"/></mxCell>
+  <mxCell id="e2" value="enqueue" edge="1" parent="ns" source="gateway" target="queue"><mxGeometry relative="1" as="geometry"/></mxCell>
+  <mxCell id="e3" edge="1" parent="1" source="queue" target="warehouse"><mxGeometry relative="1" as="geometry"/></mxCell>
+  <mxCell id="e3-label" value="consumer group" style="edgeLabel;html=1;" vertex="1" connectable="0" parent="e3"><mxGeometry x="-0.1" relative="1" as="geometry"/></mxCell>
+</root></mxGraphModel></diagram></mxfile>
