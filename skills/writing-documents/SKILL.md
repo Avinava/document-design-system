@@ -1,6 +1,6 @@
 ---
 name: writing-documents
-description: Write structured software-delivery and consultancy documents as Markdown in the repo by default. Use for canonical decision, contract, procedure, learning, system, incident, suite, plan, assurance, and brief types, including design and architecture docs, requirements, delivery plans, reviews, status, release, support, and service documentation. Produce designed HTML or PDF only when asked. Do not use for casual edits, metric-led reports (analytical-document-design), slides (presentation-design), standalone charts or diagrams, legal boilerplate, back-office commercial records, or unprompted restyling.
+description: Write structured software-delivery and consultancy documents as Markdown in the repo by default. Use for canonical decision, contract, procedure, learning, system, incident, suite, plan, assurance, and brief types, including design and architecture docs, requirements, delivery plans, reviews, status, release, support, and service documentation, and for composed documents (primers, orientation guides) built from a reading pattern when no type fits. Produce designed HTML or PDF only when asked. Do not use for casual edits, metric-led reports (analytical-document-design), slides (presentation-design), standalone charts or diagrams, legal boilerplate, back-office commercial records, or unprompted restyling.
 ---
 
 # Writing Documents
@@ -11,7 +11,7 @@ The failure mode is not ugliness. It is a document that is complete, accurate, a
 
 This skill is two layers. Do not glue them together.
 
-1. **Writing** (default) — pick the type, load its shape, write from evidence. Output is Markdown in the user's tree.
+1. **Writing** (default) — pick the shape (a type, or a composition from a pattern), write from evidence. Output is Markdown in the user's tree.
 2. **Design system** (opt-in) — tokens, themes, print, self-contained HTML. Load `core/` only when the user asked for HTML, PDF, print, a designed page, or "use the design system".
 
 ## Format first
@@ -20,7 +20,7 @@ This skill is two layers. Do not glue them together.
 
 | Format | Load | Do not load |
 |---|---|---|
-| `markdown` | this file, the type file, `references/writing.md`, `references/evidence.md` | `core/`, themes, `templates/longform.html`, print.css, `build_document.py` |
+| `markdown` | this file, the type file (or `references/composing.md` plus the nearest type's file), `references/writing.md`, `references/evidence.md` | `core/`, themes, `templates/longform.html`, print.css, `build_document.py` |
 | `html` / `pdf` | the above plus `references/output.md` and `core/` | — |
 | `both` | Markdown first (canonical in-repo), then HTML from that source | — |
 
@@ -36,14 +36,23 @@ Ask only when the slug is actually ambiguous or the request conflicts with anoth
 
 Never offer a designed HTML version unprompted.
 
-## Pick the type
+## Pick the shape
 
-Load `references/type-index.md` if the slug is unclear. Then load **one**
-`references/type-<slug>.md` before writing. The canonical catalog has 34 types
-grouped by reader movement; common labels such as HLD, LLD, TDD, PRD, API spec,
-PRR, and RAID route there as aliases rather than duplicate files or commands.
+Type first; compose when none fits.
 
-If several types apply, split. Two clear documents beat one that mixes a
+1. **A type fits.** Load `references/type-index.md` if the slug is unclear,
+   then load that `references/type-<slug>.md` before writing. The canonical
+   catalog has 34 types grouped by reader movement; common labels such as HLD,
+   LLD, TDD, PRD, API spec, PRR, and RAID route there as aliases rather than
+   duplicate files or commands.
+2. **No type fits.** Do not force the nearest preset. Pick the pattern from the
+   reader's-question table in `references/type-index.md`, then follow
+   `references/composing.md`: modules allowed for that pattern, the nearest
+   type's section discipline, and front matter `type: custom` with `pattern`,
+   `modules`, and `nearest-type`. A composed shape seen three times becomes a
+   type.
+
+If several reader questions apply, split. Two clear documents beat one that mixes a
 decision with a 3am checklist. Use `references/consultancy-lifecycle.md` for an
 engagement-spanning request and `references/suites.md` for linked sets.
 
@@ -83,7 +92,7 @@ The design system cannot rescue unclear writing, and clear writing survives bad 
 
 When format is `html` or `pdf`, `references/output.md` applies in full. Short version:
 
-- Assemble from `templates/longform.html`. The type reference declares the root `data-pattern`; theme stays independently selectable on `data-theme`.
+- Assemble from `templates/longform.html`. The type reference — or a composed document's front matter — declares the root `data-pattern`; theme stays independently selectable on `data-theme`.
 - Keep prose at 62–72 characters. Let maps, tables, timelines, comparisons, and registers use the wider shell when the pattern calls for them.
 - Diagrams from `diagram-design`; charts from `chart-design`.
 - Print via `core/print.css`. Inspect the PDF; do not claim print support from `@media print` alone.
@@ -108,8 +117,9 @@ hear. Do not use theme changes to simulate structural distinction.
 | `assurance` | verdict → evidence → findings → residual risk | test-report, threat-model, readiness-review, risk-register |
 | `brief` | current state → material change → action → next update | status-report, release-notes, workshop-summary, incident-update |
 
-Use the type reference's default pattern and theme. The full layout and
-acceptance contract is `core/document-patterns.md`. The invocation below uses
+Use the type reference's default pattern and theme; a composed document uses
+its declared pattern and the nearest type's theme. The full layout, module
+registry, and acceptance contract is `core/document-patterns.md`. The invocation below uses
 `field-notes` as a concrete example; pass the type's `default-theme` instead.
 
 ```bash
@@ -138,7 +148,8 @@ its own copy, so it works however it was installed.
 ## Before delivering
 
 - [ ] Format matches the request (markdown unless they asked for designed output).
-- [ ] The type's expected sections are present, or their absence is deliberate.
+- [ ] The type's or composition's expected sections are present, or their absence is deliberate.
+- [ ] A composed document declares `type: custom`, its pattern, nearest type, and only modules that pattern allows.
 - [ ] Inferred claims are labelled; unresolved items are open questions.
 - [ ] Every section leads with its conclusion.
 - [ ] Terms are defined on first use and used consistently.
@@ -147,7 +158,8 @@ its own copy, so it works however it was installed.
 
 ## Reference files
 
-- `references/type-index.md` — slug, aliases, path, shipped types.
+- `references/type-index.md` — reader's question → pattern, slug, aliases, path, shipped types.
+- `references/composing.md` — compose from a pattern when no type fits; promotion rule.
 - `references/type-design-doc.md`
 - `references/type-adr.md`
 - `references/type-spec.md`
