@@ -2,7 +2,7 @@
 
 Committed outputs. They serve three jobs at once: CI fixtures, the screenshots in the root README, and a working reference for what each skill produces.
 
-Every example belongs to one fictional engagement, Northwind Ingestion and its RFC 014; the facts are in [`WORLD.md`](WORLD.md). The GitHub Pages homepage walks that engagement in date order.
+Every example belongs to one fictional engagement, Northwind Ingestion and its RFC 014; the facts are in [`WORLD.md`](WORLD.md). The GitHub Pages homepage walks that engagement in four acts by the reader's job: understand, decide, deliver, run and hand on.
 
 The local Patterns page is [`index.html`](index.html): the reader's-question table first, then the eleven patterns, each with its characteristic modules, its presets and any composed example, followed by the lifecycle map, familiar names, the compatibility profile, and the six-skill strip. GitHub Pages publishes the same page at `/types.html`, beside the story homepage and a modules page with a specimen of every registered module.
 

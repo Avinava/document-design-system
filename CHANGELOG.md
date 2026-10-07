@@ -11,7 +11,7 @@ Compose, don't enumerate. The writing skill now composes a document from a
 pattern's modules when no preset fits, instead of forcing the nearest of its
 thirty-four presets. Diagrams gain three forms, a checker and importers; charts
 gain a waterfall that checks its totals; the toolchain is pinned; and the
-GitHub Pages site follows one engagement from incident to cutover.
+GitHub Pages site follows one engagement in four acts by the reader's job.
 
 ### Added
 
@@ -43,9 +43,12 @@ GitHub Pages site follows one engagement from incident to cutover.
 - `scripts/import_diagram.py`: draw.io (plain and compressed) and Mermaid
   flowchart structure as a neutral model with no coordinates, hardened against
   entities, oversized or deeply nested input, duplicate ids and dangling edges.
-- A rewritten GitHub Pages site: a story homepage (claim, the two dials, a dated
-  rail of the engagement's documents, composition, figures, a ledger of checks
-  with counts read at build time, skills, what's new, and the pinned toolchain);
+- A rewritten GitHub Pages site: a homepage that teaches one idea — the
+  reader's question picks the pattern, the audience picks the theme, both on
+  the same evidence-stated facts — then follows the engagement in four acts by
+  the reader's job (understand, decide, deliver, run and hand on), ending on the
+  composed primer; figures, a ledger of checks with counts read at build time,
+  skills, what's new, and the pinned toolchain;
   a Patterns page that starts from the reader's question; and a Modules page
   with a specimen of every registered module. Shared navigation, per-page meta
   and social preview, and a dark palette that follows the reader's system.
@@ -67,9 +70,15 @@ GitHub Pages site follows one engagement from incident to cutover.
   every version mention against the pins, and the licence table against the
   scripts' imports.
 - `build_site.py --check` derives its expectations from the catalog and the
-  story: every stop dated from its own example, every pattern, module and
-  composed example linked, every back link landing on an anchor that exists,
-  and the release on the site equal to `plugin.json`.
+  story: every act has stops, every stop's date read from its own example and
+  its pattern and theme from the built page, every module and composed example
+  linked, every back link landing on an anchor that exists, every image in
+  `docs/screenshots/` shown somewhere, and the release on the site equal to
+  `plugin.json`.
+- `shoot_examples.py` writes a full-size screenshot only when the README, an
+  example or the site shows it, and keeps the committed image when a capture
+  differs only by rendering noise, so a full reshoot of unchanged pages leaves
+  git clean. Unreferenced full-size images are no longer committed.
 - Example pages on the site return to the story stop or pattern they came from.
 - Install hints across scripts and skills say `npm ci` and the pinned
   requirements file in the repository, and an exact pinned line for a skill
@@ -91,6 +100,8 @@ GitHub Pages site follows one engagement from incident to cutover.
   not have.
 - The site's patterns, lifecycle map and familiar names were hand-written HTML
   that could drift from the catalog; they are now generated.
+- The local Patterns page's presentation-design card pointed at a deck
+  thumbnail that was never generated.
 
 ## 0.4.1
 

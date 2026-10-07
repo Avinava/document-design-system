@@ -1,11 +1,12 @@
 <!doctype html>
 <!--
-  GitHub Pages homepage: one engagement's documents, in the order a reader
-  meets them.
+  GitHub Pages homepage: the core idea once (the reader's question picks the
+  shape, the audience picks the voice, both on the same facts), then one
+  engagement's documents in four acts by the reader's job.
 
   Assembled by scripts/build_site.py, never opened from templates/. Every list
-  on this page (the story rail, the question table, the check counts, the
-  pinned dependencies) is generated there from the catalog, the STORY list,
+  on this page (the question and voice mappings, the acts, the check counts,
+  the pinned dependencies) is generated there from the catalog, ACTS, STORY,
   scripts/pins.py and the check scripts. @@SHOT is the screenshot directory.
 -->
 <html lang="en" data-theme="executive-navy">
@@ -39,56 +40,77 @@
 .asks a:hover q { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 3px; }
 .asks .becomes { display: block; margin-top: .3rem; color: var(--muted); font-size: .875rem; }
 
-/* ----------------------------------------------------------- story rail */
-.story { list-style: none; margin: 2.5rem 0 0; padding: 0; }
-.stop { display: grid; grid-template-columns: 7.25rem 1.5rem minmax(0, 1fr) minmax(0, 17rem); column-gap: 1.25rem;
-  position: relative; padding: 0 0 2.75rem; scroll-margin-top: 16px; }
-.stop::before { content: ""; position: absolute; left: calc(7.25rem + 1.25rem + .75rem - 1px); top: .5rem; bottom: -.25rem;
-  border-left: 2px solid var(--rule-strong); }
-.stop:last-child::before { display: none; }
-.stop time { grid-column: 1; text-align: right; padding-top: .1rem; color: var(--muted); font-size: .875rem; white-space: nowrap; }
-.stop .dot { grid-column: 2; justify-self: center; width: .9rem; height: .9rem; margin-top: .3rem; border-radius: 50%;
-  background: var(--paper); border: 2px solid var(--accent); position: relative; z-index: 1; }
-.stop .text { grid-column: 3; min-width: 0; }
-.stop .beat { margin: 0 0 .45rem; color: var(--muted); font-size: .9375rem; max-width: 60ch; }
-.stop h3 { margin: 0 0 .55rem; font-size: clamp(1.25rem, 2.2vw, 1.6rem); line-height: 1.2; letter-spacing: -.02em; max-width: 30ch; }
-.stop h3 a { text-decoration: none; }
-.stop h3 a:hover { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 4px; }
-.stop .shows { margin: 0; color: var(--ink); font-size: .9375rem; max-width: 60ch; }
-.stop .doc-kind { display: block; margin-top: .4rem; color: var(--soft); font-size: .8125rem; }
-.stop .thumb { grid-column: 4; display: block; border: 1px solid var(--rule); border-radius: var(--radius-md); overflow: hidden;
-  background: var(--surface); }
-.stop .thumb:hover { border-color: var(--accent); }
-.stop .thumb img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; }
-.stop.focal .dot { background: var(--accent); }
-
-/* ------------------------------------------------------------ two dials */
-.dials { display: grid; grid-template-columns: 1.35fr 1fr 1fr; gap: 1.25rem; }
-.dial { margin: 0; min-width: 0; }
-.dial h3 { margin: 0 0 .35rem; font-size: 1.125rem; }
-.dial p { margin: 0 0 .9rem; color: var(--muted); font-size: .9375rem; }
-.frame { display: block; border: 1px solid var(--rule); border-radius: var(--radius-md); overflow: hidden; background: var(--surface); }
-.frame:hover { border-color: var(--accent); }
-.frame img { display: block; width: 100%; height: auto; }
-.frame.crop img { aspect-ratio: 16 / 10; object-fit: cover; object-position: top; }
-.voices { display: grid; gap: .6rem; list-style: none; margin: 0; padding: 0; }
-.voices a { display: grid; grid-template-columns: 7rem 1fr; gap: .75rem; align-items: center; text-decoration: none; color: inherit; }
+/* ------------------------------------------------------------- the core */
+.core { border: 1px solid var(--rule-strong); border-radius: var(--radius-md); background: var(--paper); overflow: hidden; }
+.core-dials { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.dial { padding: 1.75rem 1.75rem 1.5rem; min-width: 0; scroll-margin-top: 8px; }
+.dial + .dial { border-left: 1px solid var(--rule-strong); }
+.dial h3, .facts h3 { margin: 0 0 .35rem; font: 600 clamp(1.3rem, 2.4vw, 1.65rem)/1.15 var(--display); letter-spacing: -.02em; }
+.dial > p, .facts > p { margin: 0 0 1.25rem; color: var(--muted); font-size: .9375rem; max-width: 52ch; }
+.maps-list { list-style: none; margin: 0; padding: 0; }
+.maps-list li { display: grid; grid-template-columns: minmax(0, 1fr) 2.25rem minmax(0, 8.5rem); align-items: baseline;
+  padding: .7rem 0; border-top: 1px solid var(--rule); }
+.maps-list q { quotes: "\201C" "\201D"; font: 500 1rem/1.4 var(--display); color: var(--ink); }
+.maps-list li > a:first-child { text-decoration: none; }
+.maps-list li > a:first-child:hover q { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 3px; }
+.maps-list .maps { align-self: center; height: 2px; margin: 0 .5rem; background: var(--accent); position: relative; }
+.maps-list .maps::after { content: ""; position: absolute; right: -1px; top: -4px; border: 5px solid transparent;
+  border-left: 6px solid var(--accent); border-right: 0; }
+.maps-list .to { font: 600 .875rem/1.3 var(--mono); color: var(--ink); }
+.maps-list a.to { text-decoration-color: var(--accent); text-underline-offset: 3px; }
+.maps-list .who { font: 500 1rem/1.4 var(--display); color: var(--ink); }
+.maps-list .used { display: block; margin-top: .15rem; font: 400 .8125rem/1.45 var(--sans); color: var(--soft); }
+.maps-list .used a { color: var(--muted); }
+.dial-more { margin: 1rem 0 0; font-size: .9375rem; color: var(--muted); }
+.voices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; list-style: none; margin: 1.25rem 0 0; padding: 0; }
+.voices a { display: block; text-decoration: none; color: inherit; }
 .voices img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; object-position: top;
   border: 1px solid var(--rule); border-radius: var(--radius-sm); }
 .voices a:hover img { border-color: var(--accent); }
-.voices strong { display: block; font-size: .9375rem; }
-.voices span { color: var(--muted); font-size: .8125rem; }
-.dials-foot { margin: 1.5rem 0 0; }
+.voices strong { display: block; margin-top: .4rem; font-size: .875rem; }
+.voices span { color: var(--soft); font: .75rem/1.3 var(--mono); overflow-wrap: anywhere; }
+.voices + .dial-more { margin-top: 1.1rem; }
+.facts { padding: 1.5rem 1.75rem 1.6rem; background: var(--surface); border-top: 1px solid var(--rule-strong); }
+.facts ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+.facts li { padding-left: .85rem; border-left: 3px solid var(--rule-strong); }
+.facts li:has(.state-verified) { border-left-color: var(--positive); }
+.facts li:has(.state-recommended) { border-left-color: var(--accent); }
+.facts li:has(.state-unresolved) { border-left-color: var(--warning); }
+.facts .claim { display: block; font: 500 .9375rem/1.4 var(--display); color: var(--ink); }
+.facts .state { display: inline-block; margin-top: .4rem; font: 600 .8125rem/1.3 var(--sans); color: var(--ink); }
+.facts .basis { display: block; color: var(--muted); font-size: .8125rem; }
+.facts .canonical { margin: 1.25rem 0 0; color: var(--muted); font-size: .9375rem; max-width: 72ch; }
+.core-foot { margin: 1.25rem 0 0; color: var(--muted); font-size: .9375rem; }
 
-/* -------------------------------------------------------------- compose */
-.primer { display: grid; grid-template-columns: minmax(0, 22rem) minmax(0, 1fr); gap: 2rem; align-items: start;
-  margin-top: 2.5rem; padding: 1.5rem; background: var(--surface); border: 1px dashed var(--rule-strong); border-radius: var(--radius-md); }
-.primer h3 { margin: 0 0 .5rem; font-size: 1.25rem; }
-.primer p { color: var(--muted); }
-.primer dl { display: grid; grid-template-columns: auto 1fr; gap: .35rem 1rem; margin: 1rem 0; font-size: .9375rem; }
-.primer dt { color: var(--soft); }
-.primer dd { margin: 0; color: var(--ink); }
-.promotion { margin: 1.25rem 0 0; font: 500 1.0625rem/1.45 var(--display); color: var(--ink); max-width: 56ch; }
+/* ------------------------------------------------------------ the story */
+.act { margin-top: 3.5rem; scroll-margin-top: 8px; }
+.act:first-of-type { margin-top: 2.5rem; }
+.act-head { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); column-gap: 1.25rem;
+  padding-top: 1.25rem; border-top: 2px solid var(--ink); }
+.act-num { grid-row: 1 / span 2; margin: -.2rem 0 0; font: 600 4rem/1 var(--display); letter-spacing: -.04em; color: var(--accent);
+  font-variant-numeric: tabular-nums; }
+.act-head h3 { margin: 0 0 .4rem; font: 600 clamp(1.35rem, 2.6vw, 1.85rem)/1.15 var(--display); letter-spacing: -.02em; max-width: 34ch; }
+.act-name { color: var(--muted); }
+.act-opening { margin: 0; color: var(--muted); font-size: 1rem; max-width: 62ch; }
+.stops { list-style: none; margin: 1.5rem 0 0; padding: 0 0 0 5.75rem; }
+.stop { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 15rem); column-gap: 2rem; align-items: start;
+  padding: 1.35rem 0; border-top: 1px solid var(--rule); scroll-margin-top: 16px; }
+.stop:target { background: var(--accent-tint); box-shadow: 0 0 0 .75rem var(--accent-tint); }
+.stop .text { min-width: 0; }
+.stop .reader { margin: 0 0 .3rem; color: var(--muted); font-size: .9375rem; }
+.stop h4 { margin: 0 0 .5rem; font: 600 clamp(1.15rem, 2vw, 1.4rem)/1.25 var(--display); letter-spacing: -.015em; max-width: 36ch; }
+.stop h4 a { text-decoration: none; color: var(--ink); }
+.stop h4 a:hover { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 4px; }
+.stop .why { margin: 0; color: var(--ink); font-size: .9375rem; max-width: 64ch; }
+.stop .why strong a { color: var(--ink); text-decoration-color: var(--accent); }
+.stop .meta { display: flex; flex-wrap: wrap; gap: .2rem 1.25rem; margin: .65rem 0 0; font-size: .8125rem; color: var(--soft); }
+.stop .meta dt { display: inline; }
+.stop .meta dd { display: inline; margin: 0 0 0 .35rem; color: var(--muted); font-family: var(--mono); }
+.stop .meta div { display: inline; }
+.stop .thumb { display: block; border: 1px solid var(--rule); border-radius: var(--radius-md); overflow: hidden; background: var(--surface); }
+.stop .thumb:hover { border-color: var(--accent); }
+.stop .thumb img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; }
+.story-end { margin: 2.5rem 0 0 5.75rem; font: 500 1.0625rem/1.45 var(--display); color: var(--ink); max-width: 60ch; }
 
 /* -------------------------------------------------------------- figures */
 .figure-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
@@ -130,20 +152,25 @@
 
 @media (max-width: 960px) {
   .hero { grid-template-columns: minmax(0, 1fr); gap: 2.5rem; }
-  .dials { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-  .dial-themes { grid-column: 1 / -1; }
-  .primer { grid-template-columns: minmax(0, 1fr); }
+  .core-dials { grid-template-columns: minmax(0, 1fr); }
+  .dial + .dial { border-left: 0; border-top: 1px solid var(--rule-strong); }
+  .facts ul { grid-template-columns: minmax(0, 1fr); gap: .9rem; }
+  .stops, .story-end { padding-left: 0; margin-left: 0; }
   .news { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 760px) {
   .hero { padding-top: 40px; }
-  .stop { grid-template-columns: 1.25rem minmax(0, 1fr); column-gap: .9rem; padding-bottom: 2.25rem; }
-  .stop::before { left: calc(.625rem - 1px); }
-  .stop .dot { grid-column: 1; grid-row: 1; }
-  .stop time { grid-column: 2; grid-row: 1; text-align: left; }
-  .stop .text { grid-column: 2; grid-row: 2; margin-top: .35rem; }
-  .stop .thumb { grid-column: 2; grid-row: 3; margin-top: .9rem; max-width: 22rem; }
-  .dials, .figure-grid { grid-template-columns: minmax(0, 1fr); }
+  .dial, .facts { padding: 1.25rem 1rem; }
+  .maps-list li { grid-template-columns: minmax(0, 1fr); }
+  .maps-list .maps { display: none; }
+  .maps-list .to { margin-top: .25rem; }
+  .maps-list .to::before { content: "\2192\00a0"; color: var(--accent); }
+  .voices { gap: .5rem; }
+  .act-head { grid-template-columns: 2.75rem minmax(0, 1fr); column-gap: .75rem; }
+  .act-num { font-size: 2.75rem; }
+  .stop { grid-template-columns: minmax(0, 1fr); }
+  .stop .thumb { margin-top: .9rem; max-width: 22rem; }
+  .figure-grid { grid-template-columns: minmax(0, 1fr); }
   .figure-grid figure { padding: 1rem .75rem .75rem; }
   .figure-grid .diagram-scroll svg { min-width: 560px; }
   .ledger .count { font-size: 1.5rem; }
@@ -166,64 +193,63 @@
 <header class="hero">
   <div>
     <h1 class="site-title">Documents that get a reader to a decision</h1>
-    <p class="site-lead">Every document turns two dials. The <strong>pattern</strong> sets how it reads: where the answer sits, what repeats, what the reader does last. The <strong>theme</strong> sets how it sounds. Turn one and the other stays where it was.</p>
-    <p class="site-lead">Six skills for writing documents, reports, diagrams, charts, decks and brand themes, all drawn on one set of design tokens. Writing lands as Markdown in your repository; designed HTML, when you ask for it, needs no JavaScript and prints.</p>
+    <p class="site-lead">Name the reader and the question they bring. The question picks the document's shape; the audience picks its voice; both sit on the same facts.</p>
+    <p class="site-lead">Six skills for documents, reports, diagrams, charts, decks and brand themes, on one set of design tokens. Writing lands as Markdown in your repository; designed HTML, when you ask for it, needs no JavaScript and prints.</p>
     <pre class="install"><code>/plugin marketplace add Avinava/document-design-system
 /plugin install document-design-system@document-design-system</code></pre>
     <p class="install-note">Claude Code plugin. Each skill also installs on its own with <code>npx skills add Avinava/document-design-system</code>.</p>
   </div>
   <aside class="asks" aria-labelledby="asks-title">
-    <h2 id="asks-title">Then ask for the document you need</h2>
+    <h2 id="asks-title">Then ask in plain words</h2>
     <ul>
       <!-- @@ASKS -->
     </ul>
   </aside>
 </header>
 
-<section class="site-section" id="story" aria-labelledby="story-title">
-  <h2 id="story-title">One engagement, end to end</h2>
-  <p class="site-lead">Every example here comes from one fictional engagement. Northwind Ingestion runs every producer through one shared queue, and that queue keeps stopping all of them at once. RFC 014 splits it in two. Each stop below is the document a reader needed at that moment, dated as the engagement dates it.</p>
-  <ol class="story">
-    <!-- @@STORY -->
-  </ol>
-</section>
-
-<section class="site-section" id="dials" aria-labelledby="dials-title">
-  <h2 id="dials-title">Two dials: how it reads, how it sounds</h2>
-  <p class="site-lead">The pattern fixes reading order — @@PATTERNS_WORD of them, from decision to brief, on the <a href="types.html">Patterns page</a>. The theme sets type, colour and density through tokens. Neither touches the facts, and changing the theme never changes the structure.</p>
-  <div class="dials">
-    <figure class="dial dial-themes">
-      <h3>Same content, every theme</h3>
-      <p>Identical markup in each panel. Only <code>data-theme</code> differs.</p>
-      <a class="frame" href="themes-light.html">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="@@SHOT/themes-dark.png">
-          <img alt="One content block rendered under each theme: editorial-coral, executive-navy, field-notes, console-violet and horizon" src="@@SHOT/themes-light.png" width="1280" height="1180" loading="lazy">
-        </picture>
-      </a>
-    </figure>
-    <figure class="dial">
-      <h3>Same proposal, three voices</h3>
-      <p>One body, three themes. The facts and the order do not move.</p>
-      <ul class="voices">
-        <li><a href="proposal.html"><img alt="" src="@@SHOT/thumbs/proposal.png" width="640" height="400" loading="lazy"><span><strong>Board voice</strong><span>executive-navy</span></span></a></li>
-        <li><a href="proposal-coral.html"><img alt="" src="@@SHOT/thumbs/proposal-coral.png" width="640" height="400" loading="lazy"><span><strong>Analytical voice</strong><span>editorial-coral</span></span></a></li>
-        <li><a href="proposal-horizon.html"><img alt="" src="@@SHOT/thumbs/proposal-horizon.png" width="640" height="400" loading="lazy"><span><strong>Client brand</strong><span>horizon</span></span></a></li>
+<section class="site-section" id="core" aria-labelledby="core-title">
+  <h2 id="core-title">The question picks the shape. The audience picks the voice.</h2>
+  <p class="site-lead">Two independent choices, and neither may touch the facts. Every mapping below is a document from the story further down.</p>
+  <div class="core">
+    <div class="core-dials">
+      <div class="dial" id="shape">
+        <h3>Reader's question → pattern</h3>
+        <p>The pattern fixes reading order: where the answer sits, what repeats, what the reader does last. It is declared with <code>data-pattern</code>.</p>
+        <ul class="maps-list">
+          <!-- @@SHAPES -->
+        </ul>
+        <p class="dial-more">The other @@OTHER_PATTERNS_WORD patterns, and all @@TYPES_WORD presets, start from the reader's question on the <a href="types.html">Patterns page</a>. When no preset fits, the pattern alone is enough to compose one.</p>
+      </div>
+      <div class="dial" id="voice">
+        <h3>Audience → theme</h3>
+        <p>The theme sets type, colour and density through tokens, declared with <code>data-theme</code>. Changing it never moves a section. <a href="themes-light.html">Compare every theme</a>.</p>
+        <ul class="maps-list">
+          <!-- @@VOICES -->
+        </ul>
+        <ul class="voices" aria-label="One proposal in three voices">
+          <li><a href="proposal.html"><img alt="" src="@@SHOT/thumbs/proposal.png" width="640" height="400" loading="lazy"><strong>Board voice</strong><span>executive-navy</span></a></li>
+          <li><a href="proposal-coral.html"><img alt="" src="@@SHOT/thumbs/proposal-coral.png" width="640" height="400" loading="lazy"><strong>Analytical voice</strong><span>editorial-coral</span></a></li>
+          <li><a href="proposal-horizon.html"><img alt="" src="@@SHOT/thumbs/proposal-horizon.png" width="640" height="400" loading="lazy"><strong>Client brand</strong><span>horizon</span></a></li>
+        </ul>
+        <p class="dial-more">One proposal body, three themes. The client brand was extracted with provenance, mapped to roles and contrast-audited; <a href="brand.html">see how</a>.</p>
+      </div>
+    </div>
+    <div class="facts" id="facts">
+      <h3>Both sit on the same facts</h3>
+      <p>Every example draws on one ledger, and every claim carries its evidence state. A missing fact stays unresolved; it is never invented.</p>
+      <ul>
+        <!-- @@FACTS -->
       </ul>
-    </figure>
-    <figure class="dial">
-      <h3>Or wear the client's brand</h3>
-      <p>Extract the brand with provenance, map it to roles, audit every contrast pair, then wear it.</p>
-      <a class="frame crop" href="brand.html"><img alt="How the horizon brand theme was built: extraction, mapping and contrast audit" src="@@SHOT/thumbs/brand.png" width="640" height="400" loading="lazy"></a>
-    </figure>
+      <p class="canonical">Markdown is the canonical form. Designed HTML is built from the same title and facts, and a test fails when the two disagree.</p>
+    </div>
   </div>
 </section>
 
-<section class="site-section" id="compose" aria-labelledby="compose-title">
-  <h2 id="compose-title">When no type fits, compose</h2>
-  <p class="site-lead">@@TYPES_WORD_CAP presets cover the usual engagement documents. When a request falls between them, start from the reader's question. It names the pattern, and the pattern names the modules the page may use.</p>
-  <!-- @@CHOOSER -->
-  <!-- @@PRIMER -->
+<section class="site-section" id="story" aria-labelledby="story-title">
+  <h2 id="story-title">One engagement, four acts</h2>
+  <p class="site-lead">Northwind Ingestion runs every producer through one shared queue, and that queue keeps stopping all of them at once. RFC 014 splits it in two. Each act is a job readers are doing; each document is the shape their question needed.</p>
+  <!-- @@STORY -->
+  <p class="story-end">@@STOPS_WORD_CAP documents, @@USED_PATTERNS_WORD patterns, @@VOICES_WORD voices, one ledger of facts. A shape composed three times becomes a preset; that is the only way the catalog grows.</p>
 </section>
 
 <section class="site-section" id="figures" aria-labelledby="figures-title">
@@ -260,7 +286,7 @@
 <section class="site-section" id="new" aria-labelledby="new-title">
   <h2 id="new-title">What's new in 0.5.0</h2>
   <ul class="news">
-    <li><strong>Compose when no type fits</strong><p>Route by the reader's question to a pattern, then build from the modules that pattern allows. The <a href="platform-primer.html">platform primer</a> is the worked example; a shape composed three times becomes a preset.</p></li>
+    <li><strong>Compose when no type fits</strong><p>Route by the reader's question to a pattern, then build from the modules that pattern allows. The <a href="platform-primer.html">platform primer</a> is the worked example.</p></li>
     <li><strong>Figures you can check</strong><p>Change view, deployment map and dependency graph join the diagram forms; a waterfall bridge joins the charts. Geometry and rendered bounds are checked, and draw.io or Mermaid files import as structure.</p></li>
     <li><strong>One catalog, pinned tools</strong><p>Types, patterns and modules are read from the type files and one module registry. The authoring toolchain is pinned to exact versions, and the attribution is corrected.</p></li>
   </ul>

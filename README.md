@@ -13,9 +13,10 @@
 
 ---
 
-**Documents that get a reader to a decision.** Every document turns two dials: the
-**pattern** sets how it reads — where the answer sits, what repeats, what the reader does
-last — and the **theme** sets how it sounds. Turn one and the other stays put.
+**Documents that get a reader to a decision.** Name the reader and the question they
+bring: the question picks the document's shape (its **pattern** — where the answer sits,
+what repeats, what the reader does last), the audience picks its voice (its **theme**), and
+both sit on the same facts. Turn one and the other stays put.
 
 Six skills share one set of design tokens: writing documents (thirty-four presets, and
 composition when none fits), analytical reports, diagrams, charts, decks, and brand
@@ -26,26 +27,45 @@ The same story is on the site: **[avinava.github.io/document-design-system](http
 
 ---
 
-## One engagement, end to end
+## One engagement, four acts
 
 Every example in this repository comes from one fictional engagement. Northwind
 Ingestion runs every producer through one shared queue, and that queue keeps stopping all
-of them at once; RFC 014 splits it in two. Each stop is the document a reader needed at
-that moment. Every fact comes from one ledger, [`examples/WORLD.md`](examples/WORLD.md).
+of them at once; RFC 014 splits it in two. The story is ordered by the reader's job, not
+the calendar: each document is the shape its reader's question needed. Every fact comes
+from one ledger, [`examples/WORLD.md`](examples/WORLD.md).
 
-| Date | What happens | The reader asks | Document |
-|---|---|---|---|
-| 2026-07-30 | The shared queue fills and every producer stops for 1 h 52 min | What happened, why, and what stops it recurring? | [Postmortem](examples/postmortem.html) |
-| 2026-08-12 | An inventory snapshot shows where the risk concentrates | Where does the platform footprint sit, measured? | [Analytical report](examples/inventory-report.html) |
-| 2026-08-12 | Platform presents the ask | What are you asking me for, and by when? | [Deck](examples/capacity-deck.html) |
-| 2026-08-18 | Discovery closes: the queue is the failure boundary | What did we learn, and should we proceed? | [Discovery brief](examples/discovery.html) |
-| 2026-08-18 | On-call keeps the single queue alive meanwhile | What do I do right now? | [Runbook](examples/runbook.html) with a deployment map |
-| 2026-08-26 | The split is sized | What will this take, and how confident are we? | [Basis of estimate](examples/estimate.html) with a waterfall |
-| 2026-08-26 | Delivery reports Amber | Where are we now, and what needs attention? | [Status report](examples/status-report.html) |
-| 2026-09-01 | RFC 014 goes to decision | Should we do this, and is the approach sound? | [Design doc](examples/design-doc.html) with a change view |
-| 2026-09-01 | Five gates carry the work to handoff | How will the agreed outcome be delivered and governed? | [Delivery plan](examples/delivery-plan.html) with a dependency graph |
-| 2026-10-28 | The readiness gate: conditional go | Is this change ready for production? | [Readiness review](examples/readiness-review.html) |
-| 2026-11-02 | Cutover, one partition at a time | How do we move safely and back out? | [Migration plan](examples/migration-plan.html) |
+**1. Understand — something broke; what is actually true?**
+
+| For | The reader asks | Shape, and why it answers |
+|---|---|---|
+| Platform and Reliability | What happened, why, and what stops it recurring? | [Postmortem](examples/postmortem.html), `incident` — impact before narrative, then timeline, cause and owned actions |
+| The platform review | Where does the platform footprint sit, measured? | [Analytical report](examples/inventory-report.html) — 41% is 1.84M of 2.50M units, the denominator named |
+| Platform, before funding the build | What did we learn, and should we proceed? | [Discovery brief](examples/discovery.html), `decision` — ends on go, stop or reframe |
+
+**2. Decide — should we do this, and what will it take?**
+
+| For | The reader asks | Shape, and why it answers |
+|---|---|---|
+| The Platform director, with reviewers | Should we do this, and is the approach sound? | [Design doc](examples/design-doc.html), `decision` — the ask and its deadline first, then a change view |
+| The Platform director | What will this take, and how confident are we? | [Basis of estimate](examples/estimate.html), `decision` — a waterfall to 24 engineer-weeks, CR-003 drawn but not counted |
+| The Platform director, in the room | What are you asking me for, and by when? | [Deck](examples/capacity-deck.html) — the same decision presented, one claim per slide |
+
+**3. Deliver — how do we get there without breaking producers?**
+
+| For | The reader asks | Shape, and why it answers |
+|---|---|---|
+| Platform, Reliability and the producer teams | How will the agreed outcome be delivered and governed? | [Delivery plan](examples/delivery-plan.html), `plan` — five gates; the critical path is the one accent |
+| The Platform director, Platform and Reliability | Where are we now, and what needs attention? | [Status report](examples/status-report.html), `brief` — Amber first, then the action each reader owns |
+| Reliability, which approves the gate | Is this change ready for production? | [Readiness review](examples/readiness-review.html), `assurance` — the verdict beside its evidence |
+| Platform, running the cutover | How do we move safely and back out? | [Migration plan](examples/migration-plan.html), `plan` — one partition at a time, the old queue kept recoverable |
+
+**4. Run and hand on — who keeps it alive, and how does the next engineer learn it?**
+
+| For | The reader asks | Shape, and why it answers |
+|---|---|---|
+| On-call, while the lag alert is firing | What do I do right now? | [Runbook](examples/runbook.html), `procedure` — safety before steps, with a deployment map |
+| An engineer joining from batch work | Can I reuse what I know from batch loads here? | [Platform primer](examples/platform-primer.html), `learning`, composed — no preset fits, so the pattern's modules build it |
 
 | | |
 |---|---|
@@ -216,7 +236,7 @@ Every row is a check that fails the build when it finds a problem.
 | `scripts/check_diagrams.py` | Eighteen rule IDs over every figure's coordinates (`--rules` lists them): accessibility shell, `var()`-only colour, structure classes, the 4px grid, node overlap, `viewBox` bounds, edge-label occlusion and gap, attachment fan, legend size, one emphasis family, callout limit |
 | `scripts/check_render.py` | Every example in Chromium at 1280px, 390px and print width under every theme, and the site pages in light and dark: no page-level horizontal scroll, no zero-size figure, no SVG text outside its `viewBox`, no table spilling from a wrapper that cannot scroll |
 | `scripts/audit_theme.py --all` | Contrast for every text pair, one accent, accent hue clear of the status colours, the dark-theme print rule |
-| `scripts/build_site.py --check` | Every story stop dated from its own source, every pattern, module and composed example linked, every back link landing on an anchor that exists, the release named on the site equal to `plugin.json` |
+| `scripts/build_site.py --check` | Every act has stops; every story stop's date read from its own source and its pattern and theme from the built page; every module and composed example linked; every back link landing on an anchor that exists; every image in `docs/screenshots/` shown somewhere and every one shown present; the release named on the site equal to `plugin.json` |
 | `python3 -m unittest discover -s tests` | Markdown and HTML share titles and facts; good and bad diagram fixtures, hostile importer fixtures, a waterfall that must fail on a wrong total |
 
 Print is verified by exporting a PDF and looking at it, not by the presence of
@@ -327,7 +347,7 @@ uv run playwright install chromium
 python3 scripts/build_examples.py          # reports, decks, figures, every preset and composed example, Patterns page
 python3 scripts/sync_skill_assets.py       # refresh each skill's generated copies of core/, scripts/, templates/
 python3 scripts/build_site.py              # GitHub Pages site in site/ (gitignored)
-uv run python3 scripts/shoot_examples.py   # refresh the screenshots above (after build_site.py for the site shots)
+uv run python3 scripts/shoot_examples.py   # refresh referenced screenshots; noise-only captures keep the committed image
 python3 scripts/inline_fonts.py rfc.html --font "Geist:400:geist.woff2" --out offline.html
 
 node scripts/render_diagram.mjs in.mmd --id x --title "…" --desc "…" --out x.svg

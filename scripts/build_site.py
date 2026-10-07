@@ -4,11 +4,13 @@
     python scripts/build_examples.py
     python scripts/build_site.py
 
-The site tells one engagement's story rather than listing artifacts:
+The site teaches one idea through one engagement: the reader's question picks
+the shape (pattern), the audience picks the voice (theme), and both sit on the
+same facts.
 
-    index.html     the story: claim, the engagement rail (STORY below), the two
-                   dials, composition, figures, checks, skills, what's new,
-                   and the pinned toolchain
+    index.html     claim and install, the core shown once, the story in four
+                   acts by the reader's job (ACTS and STORY below), figures,
+                   checks, skills, what's new, and the pinned toolchain
     types.html     the Patterns page: reader's question -> pattern -> presets
     modules.html   one specimen per registered module
 
@@ -65,75 +67,109 @@ DIAGRAM_FAMILIES = ROOT / "skills" / "diagram-design" / "references" / "diagram-
 
 
 @dataclass(frozen=True)
+class Act:
+    slug: str  # anchor: the act's section id is act-<slug>
+    name: str
+    question: str  # the job every reader in this act is doing
+    opening: str  # one sentence
+
+
+@dataclass(frozen=True)
 class Stop:
+    act: str  # Act.slug
     page: str  # published page
-    date: str  # as printed; must appear verbatim in `source`
-    source: str  # repository file the date is read from
-    beat: str  # what happens in the engagement here
+    reader: str  # who is reading, as it follows "For"
     question: str  # the reader's question the document answers
-    shows: str  # what the document does to answer it
-    kind: str  # what the document is
+    pattern: str | None  # the writing pattern it chose, or None for a report or deck
+    shape: str  # what the shape is, as shown
+    why: str  # one clause: why that shape answers that question
+    theme: str  # the voice it wears; must match the built page
     image: str  # under screenshots/: a thumbnail, or a slide for the deck
+    date: str | None = None  # quiet metadata; must appear verbatim in `source`
+    date_label: str = ""  # what the date is: the examples' dates are not one timeline
+    source: str = ""  # repository file the date is read from
 
 
-# Northwind Ingestion in date order. Dates are the examples' own (WORLD.md is
-# the ledger they share); --check fails if a date is not in its source file.
+# Northwind Ingestion, ordered by the reader's job rather than the calendar:
+# several example dates are data-as-of or review dates, so date order would
+# read as a log. --check verifies every date against its source file and every
+# pattern and theme against the built page.
+ACTS = (
+    Act("understand", "Understand", "Something broke. What is actually true?",
+        "Before anyone proposes a fix, three readers need the facts in the shape of their own question."),
+    Act("decide", "Decide", "Should we do this, and what will it take?",
+        "One decision, due 2026-09-01, reaches the Platform director three ways: argued, sized and presented."),
+    Act("deliver", "Deliver", "How do we get there without breaking producers?",
+        "With the work under way, the questions turn to sequence, current state and proof."),
+    Act("run", "Run and hand on", "Who keeps it alive, and how does the next engineer learn it?",
+        "The last readers are the ones who stay, and the last question is one no preset answers."),
+)
+
 STORY = (
-    Stop("postmortem.html", "2026-07-30", "examples/postmortem.md",
-         "The shared queue fills and every producer stops for 1 hour 52 minutes.",
-         TYPE_QUESTIONS["postmortem"],
-         "Impact before narrative, a timestamped reconstruction, and corrective actions with owners.",
-         "Postmortem, incident pattern", "thumbs/postmortem.png"),
-    Stop("inventory-report.html", "2026-08-12", "templates/document.html",
-         "An inventory snapshot shows where the risk concentrates.",
-         "Where does the platform footprint sit, measured?",
-         "41% of the footprint sits on ingestion, with named denominators, a limit ledger and a methodology block.",
-         "Analytical report", "thumbs/analytical-report.png"),
-    Stop("capacity-deck.html", "2026-08-12", "templates/deck.html",
-         "Platform presents the ask to the Platform director.",
-         "What are you asking me for, and by when?",
-         "Fourteen slides with claim titles: four of the last six incidents, three options, one recommendation.",
-         "Deck", "deck-compare.png"),
-    Stop("discovery.html", "2026-08-18", "examples/discovery.md",
-         "Discovery closes: the queue is the failure boundary.",
-         TYPE_QUESTIONS["discovery"],
-         "Evidence that faster detection alone will not fix it, and the fastest way to test the split.",
-         "Discovery brief, decision pattern", "thumbs/discovery.png"),
-    Stop("runbook.html", "2026-08-18", "examples/runbook.md",
-         "Until the split ships, on-call keeps the single queue alive.",
-         TYPE_QUESTIONS["runbook"],
-         "Safety first, then steps with checkpoints, beside a deployment map of clusters, namespace and replicas.",
-         "Runbook, procedure pattern", "thumbs/runbook.png"),
-    Stop("estimate.html", "2026-08-26", "examples/estimate.md",
-         "The split is sized before anyone commits to it.",
-         TYPE_QUESTIONS["estimate"],
-         "A waterfall from workstreams to 24 engineer-weeks, with the unapproved change request shown but not counted.",
-         "Basis of estimate, decision pattern", "thumbs/estimate.png"),
-    Stop("status-report.html", "2026-08-26", "examples/status-report.md",
-         "Delivery reports Amber: the decision and the test environment are still open.",
-         TYPE_QUESTIONS["status-report"],
-         "Current state in three cells, what moved, and the one action each reader owns.",
-         "Delivery status report, brief pattern", "thumbs/status-report.png"),
-    Stop("design-doc.html", "2026-09-01", "examples/design-doc.md",
-         "RFC 014 goes to the Platform director for a decision.",
-         TYPE_QUESTIONS["design-doc"],
-         "The ask up front, options on the same criteria, and a change view of one queue becoming two.",
-         "Design doc, decision pattern", "thumbs/design-doc.png"),
-    Stop("delivery-plan.html", "2026-09-01", "examples/delivery-plan.md",
-         "Five gates carry the work from the decision to handoff.",
-         TYPE_QUESTIONS["delivery-plan"],
-         "A milestone rail, workstreams, and a dependency graph whose critical path is the one accent.",
-         "Delivery plan, plan pattern", "thumbs/delivery-plan.png"),
-    Stop("readiness-review.html", "2026-10-28", "examples/readiness-review.md",
-         "The readiness gate: conditional go.",
-         TYPE_QUESTIONS["readiness-review"],
-         "The verdict beside its evidence; chaos and rollback evidence must close before release.",
-         "Production readiness review, assurance pattern", "thumbs/readiness-review.png"),
-    Stop("migration-plan.html", "2026-11-02", "examples/migration-plan.md",
-         "Cutover moves one partition at a time.",
-         TYPE_QUESTIONS["migration-plan"],
-         "Rehearsal, sequence and gates, with the original queue kept recoverable until hypercare closes.",
-         "Migration and cutover plan, plan pattern", "thumbs/migration-plan.png"),
+    Stop("understand", "postmortem.html", "Platform and Reliability", TYPE_QUESTIONS["postmortem"],
+         "incident", "Incident pattern",
+         "Impact comes before narrative, then a timeline, the cause, and corrective actions with owners.",
+         "console-violet", "thumbs/postmortem.png", "2026-07-30", "Incident", "examples/postmortem.md"),
+    Stop("understand", "inventory-report.html", "the platform review", "Where does the platform footprint sit, measured?",
+         None, "Analytical report",
+         "A measured claim carries its denominator: 41% of the footprint is 1.84M of 2.50M units.",
+         "editorial-coral", "thumbs/analytical-report.png", "2026-08-12", "Data as of", "templates/document.html"),
+    Stop("understand", "discovery.html", "Platform, before funding the build", TYPE_QUESTIONS["discovery"],
+         "decision", "Decision pattern",
+         "It ends on a next move: go, stop or reframe RFC 014, with the one-queue-down test that decides.",
+         "field-notes", "thumbs/discovery.png", "2026-08-18", "Window closed", "examples/discovery.md"),
+    Stop("decide", "design-doc.html", "the Platform director, with Reliability and the producer teams reviewing",
+         TYPE_QUESTIONS["design-doc"], "decision", "Decision pattern",
+         "The ask and its deadline come first, then options on the same criteria and a change view of one queue becoming two.",
+         "field-notes", "thumbs/design-doc.png", "2026-09-01", "Decide by", "examples/design-doc.md"),
+    Stop("decide", "estimate.html", "the Platform director", TYPE_QUESTIONS["estimate"],
+         "decision", "Decision pattern",
+         "The number and its confidence lead; a waterfall adds up to 24 engineer-weeks and draws CR-003 without counting it.",
+         "executive-navy", "thumbs/estimate.png", "2026-08-26", "As of", "examples/estimate.md"),
+    Stop("decide", "capacity-deck.html", "the Platform director, in the room", "What are you asking me for, and by when?",
+         None, "Deck",
+         "The same decision in another medium: one claim per slide, and the options compared on the same criteria.",
+         "executive-navy", "deck-compare.png", "2026-08-12", "Presented", "templates/deck.html"),
+    Stop("deliver", "delivery-plan.html", "Platform, Reliability and the producer teams", TYPE_QUESTIONS["delivery-plan"],
+         "plan", "Plan pattern",
+         "Baseline, workstreams, dependencies, then five gates; the critical path is the one accent in the dependency graph.",
+         "executive-navy", "thumbs/delivery-plan.png", "2026-08-31", "Baseline from", "examples/delivery-plan.md"),
+    Stop("deliver", "status-report.html", "the Platform director, Platform and Reliability", TYPE_QUESTIONS["status-report"],
+         "brief", "Brief pattern",
+         "Amber first, then what moved, then the one action each reader owns before the next report.",
+         "executive-navy", "thumbs/status-report.png", "2026-08-26", "Period ending", "examples/status-report.md"),
+    Stop("deliver", "readiness-review.html", "Reliability, which approves the gate", TYPE_QUESTIONS["readiness-review"],
+         "assurance", "Assurance pattern",
+         "The verdict comes first with its evidence beside it: conditional go until chaos and rollback evidence close.",
+         "console-violet", "thumbs/readiness-review.png", "2026-10-28", "Review", "examples/readiness-review.md"),
+    Stop("deliver", "migration-plan.html", "Platform, running the cutover", TYPE_QUESTIONS["migration-plan"],
+         "plan", "Plan pattern",
+         "Rehearsal, sequence and gates, one partition at a time, with the original queue kept until hypercare closes.",
+         "console-violet", "thumbs/migration-plan.png", "2026-11-02", "Cutover", "examples/migration-plan.md"),
+    Stop("run", "runbook.html", "on-call, while the lag alert is firing", TYPE_QUESTIONS["runbook"],
+         "procedure", "Procedure pattern",
+         "Safety before steps, a checkpoint after each, and a deployment map of cluster, namespace and replicas.",
+         "console-violet", "thumbs/runbook.png", "2026-08-18", "Reviewed", "examples/runbook.md"),
+    Stop("run", "platform-primer.html", "an engineer joining from batch and warehouse work",
+         COMPOSED_GALLERY["platform-primer"][1], "learning", "Learning pattern, composed",
+         "No preset answers it. The question picks the learning pattern, and the page is composed from that "
+         "pattern's modules: a scope strip, a learning goal, a crosswalk and takeaways.",
+         "field-notes", "thumbs/platform-primer.png"),
+)
+
+# Who each voice is for, in the examples' own theme rules (WORLD.md).
+THEME_AUDIENCE = {
+    "console-violet": "Engineers on the incident, the gate and the pager",
+    "executive-navy": "Leadership deciding and funding",
+    "field-notes": "Internal working documents",
+    "editorial-coral": "Analysis for a wider review",
+}
+
+# The core's facts strip: one claim per evidence state, from WORLD.md.
+FACTS = (
+    ("Four of the last six incidents trace to the shared queue", "Verified", "from incident tickets"),
+    ("Two independently recoverable queues reduce blast radius", "Recommended", "by RFC 014"),
+    ("Shed-and-alert rather than block", "Unresolved", "Reliability owns the decision"),
 )
 
 
@@ -190,11 +226,11 @@ HTML_KEEP = {
     "capacity-deck.html": back_to_story("capacity-deck.html"),
     "gallery-light.html": back_to_home("figures"),
     "gallery-dark.html": back_to_home("figures"),
-    "themes-light.html": back_to_home("dials"),
-    "themes-dark.html": back_to_home("dials"),
-    "proposal-horizon.html": back_to_home("dials"),
-    "proposal-coral.html": back_to_home("dials"),
-    "brand.html": back_to_home("dials"),
+    "themes-light.html": back_to_home("voice"),
+    "themes-dark.html": back_to_home("voice"),
+    "proposal-horizon.html": back_to_home("voice"),
+    "proposal-coral.html": back_to_home("voice"),
+    "brand.html": back_to_home("voice"),
     "mulesoft.html": ("types.html#profiles", "← Patterns", "Back to the compatibility profiles"),
 }
 
@@ -204,6 +240,13 @@ def type_back(slug: str) -> tuple[str, str, str]:
     if page in STORY_PAGES:
         return back_to_story(page)
     return back_to_pattern(catalog.TYPES[slug].pattern)
+
+
+def composed_back(slug: str) -> tuple[str, str, str]:
+    page = f"{slug}.html"
+    if page in STORY_PAGES:
+        return back_to_story(page)
+    return back_to_pattern(catalog.COMPOSED[slug][1])
 
 
 # Local targets of src/href/srcset attributes; external, data: and mailto: URLs
@@ -244,23 +287,92 @@ def write_page_copy(src: Path, dest: Path, back: tuple[str, str, str]) -> None:
 # --------------------------------------------------------------------------
 
 
+def render_stop(stop: Stop, shot: str) -> str:
+    shape = (
+        f'<a href="types.html#{stop.pattern}">{esc(stop.shape)}</a>' if stop.pattern else esc(stop.shape)
+    )
+    when = (
+        f'<div><dt>{esc(stop.date_label)}</dt><dd><time datetime="{stop.date}">{stop.date}</time></dd></div>'
+        if stop.date else ""
+    )
+    return (
+        f'<li class="stop" id="{story_anchor(stop.page)}">\n'
+        f'  <div class="text">\n'
+        f'    <p class="reader">For {esc(stop.reader)}</p>\n'
+        f'    <h4><a href="{stop.page}">{esc(stop.question)}</a></h4>\n'
+        f'    <p class="why"><strong>{shape}.</strong> {esc(stop.why)}</p>\n'
+        f'    <dl class="meta"><div><dt>Voice</dt><dd>{esc(stop.theme)}</dd></div>{when}</dl>\n'
+        f"  </div>\n"
+        f'  <a class="thumb" href="{stop.page}" tabindex="-1" aria-hidden="true">'
+        f'<img src="{shot}/{stop.image}" alt="" width="640" height="400" loading="lazy" decoding="async"></a>\n'
+        f"</li>"
+    )
+
+
 def render_story(shot: str) -> str:
-    items = []
-    for i, stop in enumerate(STORY):
-        focal = " focal" if i == len(STORY) - 1 else ""
-        items.append(
-            f'<li class="stop{focal}" id="{story_anchor(stop.page)}">\n'
-            f'  <time datetime="{stop.date}">{stop.date}</time><span class="dot" aria-hidden="true"></span>\n'
-            f'  <div class="text">\n'
-            f'    <p class="beat">{esc(stop.beat)}</p>\n'
-            f'    <h3><a href="{stop.page}">{esc(stop.question)}</a></h3>\n'
-            f'    <p class="shows">{esc(stop.shows)}<span class="doc-kind">{esc(stop.kind)}</span></p>\n'
-            f"  </div>\n"
-            f'  <a class="thumb" href="{stop.page}" tabindex="-1" aria-hidden="true">'
-            f'<img src="{shot}/{stop.image}" alt="" width="640" height="400" loading="lazy" decoding="async"></a>\n'
-            f"</li>"
+    acts = []
+    for number, act in enumerate(ACTS, 1):
+        stops = "\n".join(render_stop(stop, shot) for stop in STORY if stop.act == act.slug)
+        acts.append(
+            f'<section class="act" id="act-{act.slug}" aria-labelledby="act-{act.slug}-title">\n'
+            f'  <header class="act-head">\n'
+            f'    <p class="act-num" aria-hidden="true">{number}</p>\n'
+            f'    <h3 id="act-{act.slug}-title"><span class="sr-only">Act {number}: </span><span class="act-name">{esc(act.name)}.</span> '
+            f"{esc(act.question)}</h3>\n"
+            f'    <p class="act-opening">{esc(act.opening)}</p>\n'
+            f"  </header>\n"
+            f'  <ol class="stops">\n{stops}\n  </ol>\n'
+            f"</section>"
         )
-    return "\n".join(items)
+    return "\n".join(acts)
+
+
+def render_shape_rows() -> str:
+    """Question -> pattern, one row per pattern the story uses, in story order."""
+    rows, seen = [], set()
+    for stop in STORY:
+        if not stop.pattern or stop.pattern in seen:
+            continue
+        seen.add(stop.pattern)
+        rows.append(
+            f'<li><a href="{stop.page}"><q>{esc(stop.question)}</q></a>'
+            f'<span class="maps" aria-hidden="true"></span>'
+            f'<a class="to" href="types.html#{stop.pattern}">{esc(stop.pattern)}</a></li>'
+        )
+    return "\n".join(rows)
+
+
+def render_voice_rows() -> str:
+    """Audience -> theme, from the themes the story's documents wear."""
+    rows = []
+    for theme, audience in THEME_AUDIENCE.items():
+        stops = [s for s in STORY if s.theme == theme]
+        if not stops:
+            sys.exit(f"THEME_AUDIENCE names {theme}, which no story stop wears")
+        used = ", ".join(f'<a href="{s.page}">{esc(stop_title(s))}</a>' for s in stops)
+        rows.append(
+            f'<li><span class="who">{esc(audience)}<span class="used">{used}</span></span>'
+            f'<span class="maps" aria-hidden="true"></span><span class="to">{esc(theme)}</span></li>'
+        )
+    return "\n".join(rows)
+
+
+def stop_title(stop: Stop) -> str:
+    slug = Path(stop.page).stem
+    if slug in catalog.TYPES:
+        return catalog.TYPES[slug].title.lower()
+    if slug in COMPOSED_GALLERY:
+        return COMPOSED_GALLERY[slug][0].lower()
+    return stop.shape.lower()
+
+
+def render_facts() -> str:
+    return "\n".join(
+        f'<li><span class="claim">{esc(claim)}</span>'
+        f'<span class="state state-{state.lower()}">{esc(state)}</span>'
+        f'<span class="basis">{esc(basis)}</span></li>'
+        for claim, state, basis in FACTS
+    )
 
 
 def render_asks() -> str:
@@ -268,44 +380,6 @@ def render_asks() -> str:
         f'<li><a href="{page}"><q>{esc(text)}</q><span class="becomes">{esc(becomes)}</span></a></li>'
         for text, page, becomes in ASKS
     )
-
-
-def modules_used(slug: str) -> list[catalog.Module]:
-    bodies = catalog.example_bodies()
-    _, path = bodies[slug]
-    used = catalog.body_classes(path.read_text(encoding="utf-8"))
-    return [m for c, m in catalog.MODULES.items() if c in used]
-
-
-def render_primer(shot: str) -> str:
-    blocks = []
-    for slug, (theme, pattern) in catalog.COMPOSED.items():
-        title, question, nearest = COMPOSED_GALLERY[slug]
-        mods = ", ".join(
-            f'<a href="modules.html#{m.css_class}">{esc(m.name)}</a>'
-            for m in modules_used(slug)
-            if m.css_class not in {"section-num", "reading-time", "figure", "table-scroll"}
-        )
-        blocks.append(
-            '<div class="primer" id="composed">\n'
-            f'  <a class="frame crop" href="{slug}.html"><img alt="The {esc(title.lower())}: a composed document in the {pattern} pattern" '
-            f'src="{shot}/thumbs/{slug}.png" width="640" height="400" loading="lazy"></a>\n'
-            f'  <div>\n'
-            f'    <h3><a href="{slug}.html">{esc(title)}: {esc(question)}</a></h3>\n'
-            f'    <p>An engineer arriving from batch and warehouse work asks how ingestion maps onto what they know. '
-            f'No preset answers that, so the writing skill composes one.</p>\n'
-            f'    <dl><dt>Pattern</dt><dd><a href="types.html#{pattern}">{pattern.capitalize()}</a></dd>'
-            f'<dt>Modules</dt><dd>{mods}</dd>'
-            f'<dt>Nearest preset</dt><dd><a href="{nearest}.html">{esc(catalog.TYPES[nearest].title)}</a></dd>'
-            f'<dt>Theme</dt><dd>{esc(theme)}</dd></dl>\n'
-            f"  </div>\n"
-            f"</div>"
-        )
-    blocks.append(
-        '<p class="promotion">A shape composed three times becomes a preset. '
-        "That is the only way the catalog grows.</p>"
-    )
-    return "\n".join(blocks)
 
 
 def render_figures() -> str:
@@ -419,24 +493,29 @@ def common_marks(page: str, title: str, description: str) -> dict[str, str]:
 
 def home_marks(shot: str) -> dict[str, str]:
     types_word = site_parts.words(len(catalog.TYPES))
+    used = {stop.pattern for stop in STORY if stop.pattern}
     marks = common_marks(
         "index.html",
         "document-design-system — documents that get a reader to a decision",
-        "A design system for documents: pick the pattern for how it reads and the theme for how it sounds. "
-        "Follow one engagement from incident to cutover.",
+        "Name the reader and their question: the question picks the document's shape, the audience picks its "
+        "voice, and both sit on the same facts. Follow one engagement in four acts.",
     )
     marks.update({
         "<!-- @@ASKS -->": render_asks(),
         "<!-- @@STORY -->": render_story(shot),
-        "<!-- @@CHOOSER -->": site_parts.chooser(
-            lambda p: f"types.html#{p}", lambda s: f"{s}.html", "Reader's question, pattern, and presets"
-        ),
-        "<!-- @@PRIMER -->": render_primer(shot),
+        "<!-- @@SHAPES -->": render_shape_rows(),
+        "<!-- @@VOICES -->": render_voice_rows(),
+        "<!-- @@FACTS -->": render_facts(),
         "<!-- @@FIGURES -->": render_figures(),
         "<!-- @@LEDGER -->": render_ledger(),
         "<!-- @@BUILT_ON -->": render_built_on(),
         "@@TYPES_WORD_CAP": types_word.capitalize(),
+        "@@TYPES_WORD": types_word,
+        "@@STOPS_WORD_CAP": site_parts.words(len(STORY)).capitalize(),
+        "@@USED_PATTERNS_WORD": site_parts.words(len(used)),
+        "@@VOICES_WORD": site_parts.words(len({stop.theme for stop in STORY})),
         "@@PATTERNS_WORD": site_parts.words(len(catalog.PATTERNS)),
+        "@@OTHER_PATTERNS_WORD": site_parts.words(len(catalog.PATTERNS) - len(used)),
         "@@FORMS_WORD": site_parts.words(diagram_forms()),
         "@@SHOT": shot,
         "@@REPO": REPO_URL,
@@ -633,12 +712,13 @@ def populate(dest: Path) -> None:
             sys.exit(f"missing {src.relative_to(ROOT)} — run build_examples.py first")
         write_page_copy(src, dest / f"{slug}.html", type_back(slug))
 
-    # Composed examples return to the pattern they were composed in.
-    for slug, (_, pattern) in catalog.COMPOSED.items():
+    # Composed examples return to their story stop, or to the pattern they
+    # were composed in.
+    for slug in catalog.COMPOSED:
         src = EX / f"{slug}.html"
         if not src.is_file():
             sys.exit(f"missing {src.relative_to(ROOT)} — run build_examples.py first")
-        write_page_copy(src, dest / f"{slug}.html", back_to_pattern(pattern))
+        write_page_copy(src, dest / f"{slug}.html", composed_back(slug))
 
     for name, back in HTML_KEEP.items():
         src = EX / name
@@ -692,22 +772,40 @@ def check_built(dest: Path) -> None:
     # Homepage: the story, the patterns, the composed examples, the version.
     if "/plugin marketplace add Avinava/document-design-system" not in home:
         fail("homepage lost the install block")
+    act_slugs = [act.slug for act in ACTS]
+    if len(set(act_slugs)) != len(act_slugs):
+        fail("two acts share a slug")
+    for act in ACTS:
+        if not any(stop.act == act.slug for stop in STORY):
+            fail(f"act {act.slug} has no stops")
+        if f'id="act-{act.slug}"' not in home:
+            fail(f"homepage does not show act {act.slug}")
     for stop in STORY:
-        source = (ROOT / stop.source).read_text(encoding="utf-8")
-        if stop.date not in source:
-            fail(f"story stop {stop.page} is dated {stop.date}, which {stop.source} does not contain")
-        if not (dest / stop.page).is_file():
+        if stop.act not in act_slugs:
+            fail(f"story stop {stop.page} is in unknown act {stop.act}")
+        if stop.date:
+            source = (ROOT / stop.source).read_text(encoding="utf-8")
+            if stop.date not in source:
+                fail(f"story stop {stop.page} is dated {stop.date}, which {stop.source} does not contain")
+        published = dest / stop.page
+        if not published.is_file():
             fail(f"story stop {stop.page} is not in the published site")
+        built = published.read_text(encoding="utf-8")
+        if f'data-theme="{stop.theme}"' not in built:
+            fail(f"story stop {stop.page} says it wears {stop.theme}, which the page does not")
+        if stop.pattern and f'data-pattern="{stop.pattern}"' not in built:
+            fail(f"story stop {stop.page} says it uses the {stop.pattern} pattern, which the page does not")
         if f'id="{story_anchor(stop.page)}"' not in home or f'href="{stop.page}"' not in home:
             fail(f"homepage does not link story stop {stop.page}")
+        if f'class="site-back" href="{back_to_story(stop.page)[0]}"' not in built:
+            fail(f"story stop {stop.page} has no back link to its stop")
         if not (dest / "screenshots" / stop.image).is_file():
             fail(f"story stop {stop.page} has no image {stop.image}")
-    dates = [stop.date for stop in STORY]
-    if dates != sorted(dates):
-        fail("STORY is not in date order")
-    for pattern in catalog.PATTERNS:
+    for pattern in {stop.pattern for stop in STORY if stop.pattern}:
         if f'href="types.html#{pattern}"' not in home:
             fail(f"homepage does not link the {pattern} pattern")
+    if 'href="types.html"' not in home:
+        fail("homepage does not link the Patterns page")
     for slug in catalog.COMPOSED:
         if f'href="{slug}.html"' not in home:
             fail(f"homepage does not link composed example {slug}.html")
@@ -762,7 +860,7 @@ def check_built(dest: Path) -> None:
 
     # Every published example has a way back, and the anchor it targets exists.
     published = {f"{slug}.html": type_back(slug) for slug in catalog.TYPES}
-    published.update({f"{slug}.html": back_to_pattern(p) for slug, (_, p) in catalog.COMPOSED.items()})
+    published.update({f"{slug}.html": composed_back(slug) for slug in catalog.COMPOSED})
     published.update(HTML_KEEP)
     for name, (back_href, _, _) in published.items():
         page = dest / name
