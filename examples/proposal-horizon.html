@@ -305,6 +305,14 @@ tbody tr:nth-child(even) { background: var(--surface-muted); }
   -webkit-overflow-scrolling: touch;
 }
 
+/* A 720-unit figure squeezed onto a phone sets 13px labels at about 6px.
+ * Below this width the figure scrolls inside its wrapper instead, at a size
+ * that can still be read; core/print.css resets the floor for paper. */
+.diagram-scroll svg { min-width: 560px; }
+
+figure.figure { margin: 1.75rem 0; }
+.diagram-scroll > svg { display: block; width: 100%; height: auto; }
+
 /* -------------------------------------------------------------- SVG */
 
 /* Charts and diagrams style through these classes rather than through

@@ -297,6 +297,14 @@ tbody tr:nth-child(even) { background: var(--surface-muted); }
   -webkit-overflow-scrolling: touch;
 }
 
+/* A 720-unit figure squeezed onto a phone sets 13px labels at about 6px.
+ * Below this width the figure scrolls inside its wrapper instead, at a size
+ * that can still be read; core/print.css resets the floor for paper. */
+.diagram-scroll svg { min-width: 560px; }
+
+figure.figure { margin: 1.75rem 0; }
+.diagram-scroll > svg { display: block; width: 100%; height: auto; }
+
 /* -------------------------------------------------------------- SVG */
 
 /* Charts and diagrams style through these classes rather than through
@@ -1210,7 +1218,88 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
 </style>
 </head>
 <body>
-<article class="doc"><header class="doc-hero"><p class="eyebrow">Delivery plan · Amber</p><h1>Five gates carry RFC 014 from decision to handoff</h1><p class="lede">The 24 engineer-week baseline runs from 2026-08-31 to 2026-11-20; decision and environment ownership remain the active dependencies.</p></header><div class="plan-layout"><section><p class="component-label">Milestone rail</p><ol class="milestone-rail"><li><time>2026-09-01</time><div><strong>Design accepted</strong><p>RFC 014 and requirements bind delivery.</p></div></li><li><time>2026-09-18</time><div><strong>Chaos environment ready</strong><p>RAID-01 closes or the forecast moves.</p></div></li><li><time>2026-10-12</time><div><strong>Staging dual-write</strong><p>Both paths observed before cutover.</p></div></li><li><time>2026-10-28</time><div><strong>Readiness decision</strong><p>Evidence and waivers reviewed.</p></div></li><li><time>2026-11-02</time><div><strong>Production to handoff</strong><p>Cutover, hypercare, close on 2026-11-20.</p></div></li></ol></section><section class="section"><h2>Workstream board</h2><div class="workstream-board"><div><h3>Runtime</h3><p>Platform: dispatcher, queues, consumers.</p></div><div><h3>Assurance</h3><p>Reliability: failure behavior and gate.</p></div><div><h3>Producers</h3><p>Checkout, Catalog, Inventory fixtures by 2026-10-16.</p></div></div></section><aside class="plan-gates"><p class="component-label">Controls</p><h2>Forecast the gates</h2><p>Weekly status reports name movement. CR-003 is outside the baseline. A missed readiness criterion moves release rather than becoming a false completion.</p></aside></div></article>
+<article class="doc"><header class="doc-hero"><p class="eyebrow">Delivery plan · Amber</p><h1>Five gates carry RFC 014 from decision to handoff</h1><p class="lede">The 24 engineer-week baseline runs from 2026-08-31 to 2026-11-20; decision and environment ownership remain the active dependencies.</p></header><div class="plan-layout"><section><p class="component-label">Milestone rail</p><ol class="milestone-rail"><li><time>2026-09-01</time><div><strong>Design accepted</strong><p>RFC 014 and requirements bind delivery.</p></div></li><li><time>2026-09-18</time><div><strong>Chaos environment ready</strong><p>RAID-01 closes or the forecast moves.</p></div></li><li><time>2026-10-12</time><div><strong>Staging dual-write</strong><p>Both paths observed before cutover.</p></div></li><li><time>2026-10-28</time><div><strong>Readiness decision</strong><p>Evidence and waivers reviewed.</p></div></li><li><time>2026-11-02</time><div><strong>Production to handoff</strong><p>Cutover, hypercare, close on 2026-11-20.</p></div></li></ol></section><section class="section"><h2>Workstream board</h2><div class="workstream-board"><div><h3>Runtime</h3><p>Platform: dispatcher, queues, consumers.</p></div><div><h3>Assurance</h3><p>Reliability: failure behavior and gate.</p></div><div><h3>Producers</h3><p>Checkout, Catalog, Inventory fixtures by 2026-10-16.</p></div></div><figure class="figure"><div class="diagram-scroll"><svg role="img" aria-labelledby="wsd-title wsd-desc" viewBox="0 0 720 356" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+  <title id="wsd-title">RFC 014 delivery dependencies and the critical path</title>
+  <desc id="wsd-desc">Work runs left to right from the RFC 014 decision on 2026-09-01 to production and handoff from 2026-11-02 to 2026-11-20. The decision unblocks the chaos environment and the dispatcher work. The dispatcher feeds staging dual-write and the chaos tests; the chaos environment also feeds the chaos tests. Dual-write, chaos tests, and producer retry fixtures all gate the readiness decision on 2026-10-28, which gates production. The accent marks the critical path through the chaos environment, RAID-01, whose owner has not confirmed the 2026-09-18 date.</desc>
+
+  <defs>
+    <marker id="wsd-arrow" viewBox="0 0 8 8" refX="7" refY="4"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="wsd-arrow-focal" viewBox="0 0 8 8" refX="7" refY="4" markerUnits="userSpaceOnUse"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+    </marker>
+  </defs>
+
+  <!-- edges: off the critical path -->
+  <path class="edge" d="M136 152 H 144 Q 150 152 150 146 V 86 Q 150 80 156 80 H 164" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#wsd-arrow)"/>
+  <path class="edge" d="M276 80 H 304" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#wsd-arrow)"/>
+  <path class="edge" d="M276 96 H 284 Q 290 96 290 102 V 150 Q 290 156 296 156 H 304" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#wsd-arrow)"/>
+  <path class="edge" d="M416 80 H 424 Q 430 80 430 86 V 142 Q 430 148 436 148 H 444" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#wsd-arrow)"/>
+  <path class="edge" d="M416 256 H 424 Q 430 256 430 250 V 194 Q 430 188 436 188 H 444" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#wsd-arrow)"/>
+
+  <!-- edges: the critical path -->
+  <path class="edge" d="M136 176 H 164" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#wsd-arrow-focal)"/>
+  <path class="edge" d="M276 176 H 304" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#wsd-arrow-focal)"/>
+  <path class="edge" d="M416 168 H 444" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#wsd-arrow-focal)"/>
+  <path class="edge" d="M556 168 H 584" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#wsd-arrow-focal)"/>
+
+  <!-- nodes, columns in date order -->
+  <g class="node">
+    <rect x="24" y="136" width="112" height="64" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="80" y="164" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">RFC 014</text>
+    <text x="80" y="180" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">decision 09-01</text>
+  </g>
+  <g class="node">
+    <rect x="164" y="48" width="112" height="64" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="220" y="76" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Dispatcher</text>
+    <text x="220" y="92" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">+ two queues</text>
+  </g>
+  <g class="node node-focal">
+    <rect x="164" y="136" width="112" height="64" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="220" y="164" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Environment</text>
+    <text x="220" y="180" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">chaos · 09-18</text>
+  </g>
+  <g class="node">
+    <rect x="304" y="48" width="112" height="64" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="360" y="76" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Dual-write</text>
+    <text x="360" y="92" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">staging 10-12</text>
+  </g>
+  <g class="node">
+    <rect x="304" y="136" width="112" height="64" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="360" y="164" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Chaos tests</text>
+    <text x="360" y="180" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">one queue down</text>
+  </g>
+  <g class="node">
+    <rect x="304" y="224" width="112" height="64" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="360" y="252" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Retry fixtures</text>
+    <text x="360" y="268" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">producers 10-16</text>
+  </g>
+  <g class="node">
+    <rect x="444" y="136" width="112" height="64" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="500" y="164" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Readiness</text>
+    <text x="500" y="180" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">decision 10-28</text>
+  </g>
+  <g class="node">
+    <rect x="584" y="136" width="112" height="64" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="640" y="164" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Production</text>
+    <text x="640" y="180" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">11-02 → 11-20</text>
+  </g>
+
+  <g class="callout">
+    <path d="M220 200 C 220 212, 220 220, 220 228" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="220" y="244" text-anchor="middle" font-family="var(--sans)" font-size="12" font-style="italic" fill="var(--ink)">RAID-01:<tspan x="220" dy="15">owner unconfirmed</tspan></text>
+  </g>
+
+  <g class="legend">
+    <path d="M24 312 H 696" stroke="var(--rule)" stroke-width="1"/>
+    <path d="M28 332 H 52" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="60" y="336" font-family="var(--sans)" font-size="11" fill="var(--muted)">accent: critical path — a slip here moves production</text>
+    <text x="696" y="336" text-anchor="end" font-family="var(--sans)" font-size="11" fill="var(--muted)">Dates are 2026, month-day.</text>
+  </g>
+</svg></div><figcaption>Dependencies in date order. The critical path runs through the chaos environment, RAID-01.</figcaption></figure></section><aside class="plan-gates"><p class="component-label">Controls</p><h2>Forecast the gates</h2><p>Weekly status reports name movement. CR-003 is outside the baseline. A missed readiness criterion moves release rather than becoming a false completion.</p></aside></div></article>
 
 </body>
 </html>

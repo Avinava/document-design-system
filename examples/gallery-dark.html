@@ -355,6 +355,14 @@ tbody tr:nth-child(even) { background: var(--surface-muted); }
   -webkit-overflow-scrolling: touch;
 }
 
+/* A 720-unit figure squeezed onto a phone sets 13px labels at about 6px.
+ * Below this width the figure scrolls inside its wrapper instead, at a size
+ * that can still be read; core/print.css resets the floor for paper. */
+.diagram-scroll svg { min-width: 560px; }
+
+figure.figure { margin: 1.75rem 0; }
+.diagram-scroll > svg { display: block; width: 100%; height: auto; }
+
 /* -------------------------------------------------------------- SVG */
 
 /* Charts and diagrams style through these classes rather than through
@@ -608,7 +616,7 @@ a { color: inherit; text-underline-offset: 2px; }
     <figure class="fig">
       <span class="kind">Diagram · hand-authored SVG</span>
       <h3>Architecture</h3>
-      <div class="frame"><svg role="img" aria-labelledby="arch-title arch-desc" viewBox="0 0 720 340" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+      <div class="frame"><svg role="img" aria-labelledby="arch-title arch-desc" viewBox="0 0 720 316" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
   <title id="arch-title">Ingestion architecture</title>
   <desc id="arch-desc">Producers enter through a gateway inside the trust boundary, buffer in a queue, and are consumed into the warehouse. The queue is the only component without a failover, and it carries the whole ingestion path.</desc>
 
@@ -624,7 +632,7 @@ a { color: inherit; text-underline-offset: 2px; }
   </defs>
 
   <!-- boundaries -->
-  <g>
+  <g class="boundary">
     <rect x="128" y="56" width="404" height="152" rx="6"
           fill="none" stroke="var(--rule-strong)" stroke-width="1" stroke-dasharray="4 3"/>
     <text x="140" y="76" font-family="var(--sans)" font-size="11" fill="var(--soft)"
@@ -632,27 +640,29 @@ a { color: inherit; text-underline-offset: 2px; }
   </g>
 
   <!-- edges (drawn before nodes so line ends sit behind the boxes) -->
-  <path d="M104 132 H 152" fill="none" stroke="var(--muted)" stroke-width="1"
+  <path class="edge" d="M104 132 H 152" fill="none" stroke="var(--muted)" stroke-width="1"
         marker-end="url(#arch-arrow)"/>
-  <path d="M312 132 H 360" fill="none" stroke="var(--accent)" stroke-width="1.5"
+  <path class="edge" d="M312 132 H 360" fill="none" stroke="var(--accent)" stroke-width="1.5"
         marker-end="url(#arch-arrow-focal)"/>
-  <path d="M520 132 H 568" fill="none" stroke="var(--muted)" stroke-width="1"
+  <path class="edge" d="M520 132 H 568" fill="none" stroke="var(--muted)" stroke-width="1"
         marker-end="url(#arch-arrow)"/>
 
-  <!-- edge labels on a paper-colored backing so the line does not strike through -->
-  <rect x="316" y="116" width="40" height="16" fill="var(--paper)"/>
-  <text x="336" y="128" text-anchor="middle" font-family="var(--sans)"
-        font-size="11" fill="var(--muted)">async</text>
+  <!-- edge label: beside its edge, 8px clear, on a paper backing -->
+  <g class="edge-label">
+    <rect x="316" y="108" width="40" height="16" fill="var(--paper)"/>
+    <text x="336" y="120" text-anchor="middle" font-family="var(--sans)"
+          font-size="11" fill="var(--muted)">async</text>
+  </g>
 
   <!-- nodes -->
-  <g>
+  <g class="node node-external">
     <rect x="24" y="100" width="80" height="64" rx="6"
           fill="var(--surface)" stroke="var(--rule)" stroke-width="1" stroke-dasharray="4 3"/>
     <text x="64" y="136" text-anchor="middle" font-family="var(--sans)"
           font-size="13" fill="var(--soft)">Producers</text>
   </g>
 
-  <g>
+  <g class="node">
     <rect x="152" y="100" width="160" height="64" rx="6"
           fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
     <text x="232" y="130" text-anchor="middle" font-family="var(--sans)"
@@ -662,7 +672,7 @@ a { color: inherit; text-underline-offset: 2px; }
   </g>
 
   <!-- focal node: the one thing the diagram is about -->
-  <g>
+  <g class="node node-focal">
     <rect x="360" y="100" width="160" height="64" rx="6"
           fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
     <text x="440" y="130" text-anchor="middle" font-family="var(--sans)"
@@ -671,7 +681,7 @@ a { color: inherit; text-underline-offset: 2px; }
           font-size="11" fill="var(--muted)">single instance</text>
   </g>
 
-  <g>
+  <g class="node node-external">
     <rect x="568" y="100" width="128" height="64" rx="6"
           fill="var(--surface)" stroke="var(--rule)" stroke-width="1" stroke-dasharray="4 3"/>
     <text x="632" y="136" text-anchor="middle" font-family="var(--sans)"
@@ -679,7 +689,7 @@ a { color: inherit; text-underline-offset: 2px; }
   </g>
 
   <!-- callout: dashed Bezier leader, no arrowhead. At most two per diagram. -->
-  <g>
+  <g class="callout">
     <path d="M440 100 C 440 72, 456 48, 492 48"
           fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3"/>
     <text x="500" y="52" font-family="var(--sans)" font-size="12"
@@ -687,24 +697,337 @@ a { color: inherit; text-underline-offset: 2px; }
   </g>
 
   <!-- legend: inside the viewBox, or it is lost on export and in print -->
-  <g>
-    <path d="M24 268 H 700" stroke="var(--rule)" stroke-width="1"/>
-    <text x="24" y="292" font-family="var(--mono)" font-size="10"
+  <g class="legend">
+    <path d="M24 268 H 696" stroke="var(--rule)" stroke-width="1"/>
+    <text x="24" y="292" font-family="var(--mono)" font-size="11"
           fill="var(--soft)" letter-spacing="0.14em">LEGEND</text>
-    <rect x="104" y="282" width="20" height="12" rx="2" fill="var(--surface)"
+    <rect x="112" y="280" width="20" height="12" rx="2" fill="var(--surface)"
           stroke="var(--rule)" stroke-dasharray="4 3"/>
-    <text x="132" y="292" font-family="var(--sans)" font-size="11" fill="var(--muted)">external</text>
-    <rect x="212" y="282" width="20" height="12" rx="2" fill="var(--accent-tint)" stroke="var(--accent)"/>
-    <text x="240" y="292" font-family="var(--sans)" font-size="11" fill="var(--muted)">focal</text>
+    <text x="140" y="290" font-family="var(--sans)" font-size="11" fill="var(--muted)">dashed: outside Platform</text>
+    <rect x="312" y="280" width="20" height="12" rx="2" fill="var(--accent-tint)" stroke="var(--accent)"/>
+    <text x="340" y="290" font-family="var(--sans)" font-size="11" fill="var(--muted)">accent: single point of failure</text>
   </g>
 </svg></div>
       <figcaption>Position carries coupling, so this one is drawn, not laid out.</figcaption>
     </figure>
 
     <figure class="fig">
+      <span class="kind">Diagram · change view</span>
+      <h3>What changes, and what does not</h3>
+      <div class="frame"><svg role="img" aria-labelledby="qsc-title qsc-desc" viewBox="0 0 720 500" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+  <title id="qsc-title">RFC 014 change view: one queue becomes two</title>
+  <desc id="qsc-desc">Today, producers reach the warehouse through the gateway, the single ingest queue, and one consumer group. RFC 014 adds a stateless dispatcher after the gateway that hashes the event ID to one of two queues, ingest-a and ingest-b, each with its own consumer group. The accent marks the dispatcher. A change ledger lists each change by node id: dispatcher added, ingest-a and ingest-b added, consumer group changed, ingest removed once the shadow week closes; producers, gateway and warehouse are unchanged.</desc>
+
+  <defs>
+    <marker id="qsc-arrow" viewBox="0 0 8 8" refX="7" refY="4"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="qsc-arrow-focal" viewBox="0 0 8 8" refX="7" refY="4" markerUnits="userSpaceOnUse"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+    </marker>
+  </defs>
+
+  <!-- state labels and change tags: columns line up so unchanged nodes sit
+       directly above themselves and the eye reads only the difference -->
+  <g class="annotation">
+    <text x="28" y="36" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">TODAY</text>
+    <text x="376" y="40" font-family="var(--mono)" font-size="11" fill="var(--muted)">removed</text>
+    <path d="M24 136 H 696" stroke="var(--rule)" stroke-width="1"/>
+    <text x="28" y="160" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">RFC 014 · PROPOSED</text>
+    <text x="260" y="200" font-family="var(--mono)" font-size="11" fill="var(--muted)">added</text>
+    <text x="376" y="160" font-family="var(--mono)" font-size="11" fill="var(--muted)">added</text>
+    <text x="492" y="160" font-family="var(--mono)" font-size="11" fill="var(--muted)">changed</text>
+  </g>
+
+  <!-- edges: today -->
+  <path class="edge" d="M116 80 H 144" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#qsc-arrow)"/>
+  <path class="edge" d="M232 80 H 376" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#qsc-arrow)"/>
+  <path class="edge" d="M464 80 H 492" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#qsc-arrow)"/>
+  <path class="edge" d="M580 80 H 608" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#qsc-arrow)"/>
+
+  <!-- edges: proposed -->
+  <path class="edge" d="M116 240 H 144" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#qsc-arrow)"/>
+  <path class="edge" d="M232 240 H 260" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#qsc-arrow)"/>
+  <path class="edge" d="M348 228 H 354 Q 360 228 360 222 V 202 Q 360 196 366 196 H 376" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#qsc-arrow-focal)"/>
+  <path class="edge" d="M348 252 H 354 Q 360 252 360 258 V 278 Q 360 284 366 284 H 376" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#qsc-arrow-focal)"/>
+  <path class="edge" d="M464 196 H 492" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#qsc-arrow)"/>
+  <path class="edge" d="M464 284 H 492" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#qsc-arrow)"/>
+  <path class="edge" d="M580 196 H 586 Q 592 196 592 202 V 222 Q 592 228 598 228 H 608" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#qsc-arrow)"/>
+  <path class="edge" d="M580 284 H 586 Q 592 284 592 278 V 258 Q 592 252 598 252 H 608" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#qsc-arrow)"/>
+
+  <!-- nodes: today -->
+  <g class="node node-muted">
+    <rect x="28" y="48" width="88" height="64" rx="6" fill="var(--surface)" stroke="var(--rule)" stroke-width="1"/>
+    <text x="72" y="84" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--muted)">Producers</text>
+  </g>
+  <g class="node node-muted">
+    <rect x="144" y="48" width="88" height="64" rx="6" fill="var(--surface)" stroke="var(--rule)" stroke-width="1"/>
+    <text x="188" y="84" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--muted)">Gateway</text>
+  </g>
+  <g class="node">
+    <rect x="376" y="48" width="88" height="64" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="420" y="76" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Queue</text>
+    <text x="420" y="92" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">ingest</text>
+  </g>
+  <g class="node node-muted">
+    <rect x="492" y="48" width="88" height="64" rx="6" fill="var(--surface)" stroke="var(--rule)" stroke-width="1"/>
+    <text x="536" y="76" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--muted)">Consumers</text>
+    <text x="536" y="92" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">3 replicas</text>
+  </g>
+  <g class="node node-muted">
+    <rect x="608" y="48" width="88" height="64" rx="6" fill="var(--surface)" stroke="var(--rule)" stroke-width="1"/>
+    <text x="652" y="84" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--muted)">Warehouse</text>
+  </g>
+
+  <!-- nodes: proposed -->
+  <g class="node node-muted">
+    <rect x="28" y="208" width="88" height="64" rx="6" fill="var(--surface)" stroke="var(--rule)" stroke-width="1"/>
+    <text x="72" y="244" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--muted)">Producers</text>
+  </g>
+  <g class="node node-muted">
+    <rect x="144" y="208" width="88" height="64" rx="6" fill="var(--surface)" stroke="var(--rule)" stroke-width="1"/>
+    <text x="188" y="244" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--muted)">Gateway</text>
+  </g>
+  <g class="node node-focal">
+    <rect x="260" y="208" width="88" height="64" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="304" y="236" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Dispatcher</text>
+    <text x="304" y="252" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">by event ID</text>
+  </g>
+  <g class="node">
+    <rect x="376" y="164" width="88" height="64" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="420" y="192" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Queue</text>
+    <text x="420" y="208" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">ingest-a</text>
+  </g>
+  <g class="node">
+    <rect x="376" y="252" width="88" height="64" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="420" y="280" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Queue</text>
+    <text x="420" y="296" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">ingest-b</text>
+  </g>
+  <g class="node">
+    <rect x="492" y="164" width="88" height="64" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="536" y="192" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Consumers</text>
+    <text x="536" y="208" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">group a</text>
+  </g>
+  <g class="node">
+    <rect x="492" y="252" width="88" height="64" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="536" y="280" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Consumers</text>
+    <text x="536" y="296" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">group b</text>
+  </g>
+  <g class="node node-muted">
+    <rect x="608" y="208" width="88" height="64" rx="6" fill="var(--surface)" stroke="var(--rule)" stroke-width="1"/>
+    <text x="652" y="244" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--muted)">Warehouse</text>
+  </g>
+
+  <!-- change ledger, keyed by node id; the change is written, never only drawn -->
+  <g class="legend">
+    <path d="M24 344 H 696" stroke="var(--rule)" stroke-width="1"/>
+    <text x="28" y="368" font-family="var(--mono)" font-size="11" fill="var(--soft)" letter-spacing="0.14em">CHANGE LEDGER</text>
+    <text x="28" y="392" font-family="var(--mono)" font-size="11" fill="var(--ink)">dispatcher</text>
+    <text x="188" y="392" font-family="var(--mono)" font-size="11" fill="var(--muted)">added</text>
+    <text x="268" y="392" font-family="var(--sans)" font-size="12" fill="var(--ink)">Stateless; hashes the event ID to exactly one queue.</text>
+    <text x="28" y="414" font-family="var(--mono)" font-size="11" fill="var(--ink)">ingest-a, ingest-b</text>
+    <text x="188" y="414" font-family="var(--mono)" font-size="11" fill="var(--muted)">added</text>
+    <text x="268" y="414" font-family="var(--sans)" font-size="12" fill="var(--ink)">Independently recoverable; 24-hour retention unchanged.</text>
+    <text x="28" y="436" font-family="var(--mono)" font-size="11" fill="var(--ink)">consumer group</text>
+    <text x="188" y="436" font-family="var(--mono)" font-size="11" fill="var(--muted)">changed</text>
+    <text x="268" y="436" font-family="var(--sans)" font-size="12" fill="var(--ink)">One group per queue; each scales and recovers alone.</text>
+    <text x="28" y="458" font-family="var(--mono)" font-size="11" fill="var(--ink)">ingest</text>
+    <text x="188" y="458" font-family="var(--mono)" font-size="11" fill="var(--muted)">removed</text>
+    <text x="268" y="458" font-family="var(--sans)" font-size="12" fill="var(--ink)">Stays recoverable until the shadow week closes.</text>
+    <text x="28" y="480" font-family="var(--sans)" font-size="11" fill="var(--muted)">Unchanged: producer API, authentication, payload, warehouse schema, batch path.</text>
+  </g>
+</svg></div>
+      <figcaption>Before above after on shared columns; a ledger names each change by node id.</figcaption>
+    </figure>
+
+    <figure class="fig">
+      <span class="kind">Diagram · deployment map</span>
+      <h3>Where does it run?</h3>
+      <div class="frame"><svg role="img" aria-labelledby="idm-title idm-desc" viewBox="0 0 720 452" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+  <title id="idm-title">Where ingestion runs: prod-ingest and stage-ingest</title>
+  <desc id="idm-desc">In the prod-ingest cluster, namespace ingest runs the gateway and the ingest-consumer deployment. The gateway enqueues to the queue ingest, the consumers read from it and write to the warehouse; the queue and warehouse are dependencies whose hosting this map does not show. The accent marks the consumer deployment: three replicas run, operators add one at a time, and never more than six without Reliability. The stage-ingest cluster runs the same namespace and is where release candidate sha-8132c3 was tested and where dual-write begins.</desc>
+
+  <defs>
+    <marker id="idm-arrow" viewBox="0 0 8 8" refX="7" refY="4"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <!-- boundaries: cluster, then namespace — two levels, no deeper -->
+  <g class="boundary">
+    <rect x="24" y="24" width="496" height="272" rx="6" fill="none" stroke="var(--rule-strong)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="36" y="44" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">CLUSTER</text>
+    <text x="96" y="44" font-family="var(--mono)" font-size="11" fill="var(--ink)">prod-ingest</text>
+  </g>
+  <g class="boundary">
+    <rect x="40" y="60" width="464" height="220" rx="6" fill="none" stroke="var(--rule-strong)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="52" y="80" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">NAMESPACE</text>
+    <text x="128" y="80" font-family="var(--mono)" font-size="11" fill="var(--ink)">ingest</text>
+  </g>
+  <g class="boundary">
+    <rect x="24" y="316" width="496" height="76" rx="6" fill="none" stroke="var(--rule)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="36" y="336" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">CLUSTER</text>
+    <text x="96" y="336" font-family="var(--mono)" font-size="11" fill="var(--ink)">stage-ingest</text>
+  </g>
+
+  <g class="annotation">
+    <text x="560" y="100" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">DEPENDENCIES</text>
+    <text x="36" y="360" font-family="var(--sans)" font-size="12" fill="var(--muted)">Namespace ingest: gateway and ingest-consumer.</text>
+    <text x="36" y="378" font-family="var(--mono)" font-size="11" fill="var(--muted)">sha-8132c3 tested 2026-08-12 · dual-write from 2026-10-12</text>
+  </g>
+
+  <!-- edges -->
+  <path class="edge" d="M200 128 H 560" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#idm-arrow)"/>
+  <path class="edge" d="M560 160 H 532 Q 524 160 524 168 V 216 Q 524 224 516 224 H 488" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#idm-arrow)"/>
+  <path class="edge" d="M488 248 H 560" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#idm-arrow)"/>
+
+  <g class="edge-label">
+    <rect x="344" y="104" width="56" height="16" fill="var(--paper)"/>
+    <text x="372" y="116" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">enqueue</text>
+  </g>
+  <g class="edge-label">
+    <rect x="532" y="184" width="32" height="16" fill="var(--paper)"/>
+    <text x="548" y="196" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">read</text>
+  </g>
+
+  <!-- nodes -->
+  <g class="node">
+    <rect x="56" y="100" width="144" height="56" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="128" y="124" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Gateway</text>
+    <text x="128" y="140" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">POST /events</text>
+  </g>
+
+  <!-- focal: the deployment the runbook scales; replicas drawn as pips -->
+  <g class="node node-focal">
+    <rect x="232" y="184" width="256" height="80" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="248" y="208" font-family="var(--sans)" font-size="13" fill="var(--ink)">Consumer group</text>
+    <text x="248" y="224" font-family="var(--mono)" font-size="11" fill="var(--muted)">deploy/ingest-consumer</text>
+    <rect x="248" y="236" width="24" height="16" rx="2" fill="var(--surface)" stroke="var(--accent)" stroke-width="1"/>
+    <rect x="280" y="236" width="24" height="16" rx="2" fill="var(--surface)" stroke="var(--accent)" stroke-width="1"/>
+    <rect x="312" y="236" width="24" height="16" rx="2" fill="var(--surface)" stroke="var(--accent)" stroke-width="1"/>
+    <rect x="344" y="236" width="24" height="16" rx="2" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 2"/>
+    <text x="380" y="248" font-family="var(--mono)" font-size="11" fill="var(--ink)">+1 · max 6</text>
+  </g>
+
+  <g class="node node-external">
+    <rect x="560" y="112" width="136" height="64" rx="6" fill="var(--surface)" stroke="var(--rule)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="628" y="140" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--soft)">Queue</text>
+    <text x="628" y="156" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">ingest</text>
+  </g>
+  <g class="node node-external">
+    <rect x="560" y="220" width="136" height="56" rx="6" fill="var(--surface)" stroke="var(--rule)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="628" y="252" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--soft)">Warehouse</text>
+  </g>
+
+  <!-- legend: each encoding named in words -->
+  <g class="legend">
+    <path d="M24 408 H 696" stroke="var(--rule)" stroke-width="1"/>
+    <rect x="28" y="420" width="24" height="12" rx="2" fill="var(--surface)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="60" y="430" font-family="var(--sans)" font-size="11" fill="var(--muted)">replica running</text>
+    <rect x="176" y="420" width="24" height="12" rx="2" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 2"/>
+    <text x="208" y="430" font-family="var(--sans)" font-size="11" fill="var(--muted)">the one replica to add next</text>
+    <rect x="404" y="420" width="24" height="12" rx="2" fill="var(--surface)" stroke="var(--rule)" stroke-dasharray="4 3"/>
+    <text x="436" y="430" font-family="var(--sans)" font-size="11" fill="var(--muted)">dependency; hosting not shown</text>
+  </g>
+</svg></div>
+      <figcaption>Cluster, then namespace, then workload; dependencies stay outside the boundary.</figcaption>
+    </figure>
+
+    <figure class="fig">
+      <span class="kind">Diagram · dependency graph</span>
+      <h3>What waits on what?</h3>
+      <div class="frame"><svg role="img" aria-labelledby="wsd-title wsd-desc" viewBox="0 0 720 356" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+  <title id="wsd-title">RFC 014 delivery dependencies and the critical path</title>
+  <desc id="wsd-desc">Work runs left to right from the RFC 014 decision on 2026-09-01 to production and handoff from 2026-11-02 to 2026-11-20. The decision unblocks the chaos environment and the dispatcher work. The dispatcher feeds staging dual-write and the chaos tests; the chaos environment also feeds the chaos tests. Dual-write, chaos tests, and producer retry fixtures all gate the readiness decision on 2026-10-28, which gates production. The accent marks the critical path through the chaos environment, RAID-01, whose owner has not confirmed the 2026-09-18 date.</desc>
+
+  <defs>
+    <marker id="wsd-arrow" viewBox="0 0 8 8" refX="7" refY="4"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="wsd-arrow-focal" viewBox="0 0 8 8" refX="7" refY="4" markerUnits="userSpaceOnUse"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+    </marker>
+  </defs>
+
+  <!-- edges: off the critical path -->
+  <path class="edge" d="M136 152 H 144 Q 150 152 150 146 V 86 Q 150 80 156 80 H 164" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#wsd-arrow)"/>
+  <path class="edge" d="M276 80 H 304" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#wsd-arrow)"/>
+  <path class="edge" d="M276 96 H 284 Q 290 96 290 102 V 150 Q 290 156 296 156 H 304" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#wsd-arrow)"/>
+  <path class="edge" d="M416 80 H 424 Q 430 80 430 86 V 142 Q 430 148 436 148 H 444" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#wsd-arrow)"/>
+  <path class="edge" d="M416 256 H 424 Q 430 256 430 250 V 194 Q 430 188 436 188 H 444" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#wsd-arrow)"/>
+
+  <!-- edges: the critical path -->
+  <path class="edge" d="M136 176 H 164" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#wsd-arrow-focal)"/>
+  <path class="edge" d="M276 176 H 304" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#wsd-arrow-focal)"/>
+  <path class="edge" d="M416 168 H 444" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#wsd-arrow-focal)"/>
+  <path class="edge" d="M556 168 H 584" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#wsd-arrow-focal)"/>
+
+  <!-- nodes, columns in date order -->
+  <g class="node">
+    <rect x="24" y="136" width="112" height="64" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="80" y="164" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">RFC 014</text>
+    <text x="80" y="180" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">decision 09-01</text>
+  </g>
+  <g class="node">
+    <rect x="164" y="48" width="112" height="64" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="220" y="76" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Dispatcher</text>
+    <text x="220" y="92" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">+ two queues</text>
+  </g>
+  <g class="node node-focal">
+    <rect x="164" y="136" width="112" height="64" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="220" y="164" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Environment</text>
+    <text x="220" y="180" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">chaos · 09-18</text>
+  </g>
+  <g class="node">
+    <rect x="304" y="48" width="112" height="64" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="360" y="76" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Dual-write</text>
+    <text x="360" y="92" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">staging 10-12</text>
+  </g>
+  <g class="node">
+    <rect x="304" y="136" width="112" height="64" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="360" y="164" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Chaos tests</text>
+    <text x="360" y="180" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">one queue down</text>
+  </g>
+  <g class="node">
+    <rect x="304" y="224" width="112" height="64" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="360" y="252" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Retry fixtures</text>
+    <text x="360" y="268" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">producers 10-16</text>
+  </g>
+  <g class="node">
+    <rect x="444" y="136" width="112" height="64" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="500" y="164" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Readiness</text>
+    <text x="500" y="180" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">decision 10-28</text>
+  </g>
+  <g class="node">
+    <rect x="584" y="136" width="112" height="64" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="640" y="164" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Production</text>
+    <text x="640" y="180" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">11-02 → 11-20</text>
+  </g>
+
+  <g class="callout">
+    <path d="M220 200 C 220 212, 220 220, 220 228" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="220" y="244" text-anchor="middle" font-family="var(--sans)" font-size="12" font-style="italic" fill="var(--ink)">RAID-01:<tspan x="220" dy="15">owner unconfirmed</tspan></text>
+  </g>
+
+  <g class="legend">
+    <path d="M24 312 H 696" stroke="var(--rule)" stroke-width="1"/>
+    <path d="M28 332 H 52" stroke="var(--accent)" stroke-width="1.5"/>
+    <text x="60" y="336" font-family="var(--sans)" font-size="11" fill="var(--muted)">accent: critical path — a slip here moves production</text>
+    <text x="696" y="336" text-anchor="end" font-family="var(--sans)" font-size="11" fill="var(--muted)">Dates are 2026, month-day.</text>
+  </g>
+</svg></div>
+      <figcaption>Directed and acyclic, in date order; the one accent is the critical path.</figcaption>
+    </figure>
+
+    <figure class="fig">
       <span class="kind">Diagram · Mermaid prerendered</span>
       <h3>Sequence</h3>
-      <div class="frame"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 240" style="--bg:var(--dds-surface);--fg:var(--dds-ink);--line:var(--dds-rule-strong);--accent:var(--dds-accent);--muted:var(--dds-muted);--surface:var(--dds-surface-muted);--border:var(--dds-rule);max-width:720px" width="100%" role="img" aria-labelledby="ingestion-title ingestion-desc">
+      <div class="frame"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 240" style="--bg:var(--dds-surface);--fg:var(--dds-ink);--line:var(--dds-rule-strong);--accent:var(--dds-accent);--muted:var(--dds-muted);--surface:var(--dds-surface-muted);--border:var(--dds-rule);max-width:720px" width="100%" data-renderer="render_diagram" role="img" aria-labelledby="ingestion-title ingestion-desc">
   <title id="ingestion-title">Ingestion path</title>
   <desc id="ingestion-desc">Client posts events to the gateway, which enqueues them; the queue acknowledges.</desc>
 <style>
@@ -767,7 +1090,7 @@ a { color: inherit; text-underline-offset: 2px; }
     <figure class="fig">
       <span class="kind">Chart · ranked bars</span>
       <h3>Concentration</h3>
-      <div class="frame"><svg class="plot-d6a7b5" fill="currentColor" font-family="var(--sans)" font-size="10" text-anchor="middle" viewBox="0 0 720 320" style="background: transparent;max-width:720px" width="100%" role="img" aria-labelledby="fn-footprint-title fn-footprint-desc">
+      <div class="frame"><svg class="plot-d6a7b5" fill="currentColor" font-family="var(--sans)" font-size="10" text-anchor="middle" viewBox="0 0 720 320" style="background: transparent;max-width:720px" width="100%" data-renderer="render_chart" role="img" aria-labelledby="fn-footprint-title fn-footprint-desc">
   <title id="fn-footprint-title">Ingestion holds 41% of the footprint</title>
   <desc id="fn-footprint-desc">Five functions ranked by current size. Ingestion holds 41 percent of the 1.8 million unit total, more than the next three combined.</desc><style>:where(.plot-d6a7b5) {
   --plot-background: transparent;
@@ -779,14 +1102,14 @@ a { color: inherit; text-underline-offset: 2px; }
 :where(.plot-d6a7b5 text),
 :where(.plot-d6a7b5 tspan) {
   white-space: pre;
-}</style><g aria-label="y-axis tick" aria-hidden="true" fill="none" stroke="currentColor" transform="translate(0,22.5)"><path transform="translate(130,25)" d="M0,0L-6,0"></path><path transform="translate(130,75)" d="M0,0L-6,0"></path><path transform="translate(130,125)" d="M0,0L-6,0"></path><path transform="translate(130,175)" d="M0,0L-6,0"></path><path transform="translate(130,225)" d="M0,0L-6,0"></path></g><g aria-label="y-axis tick label" text-anchor="end" transform="translate(-9,22.5)"><text y="0.32em" transform="translate(130,25)">Ingestion</text><text y="0.32em" transform="translate(130,75)">Transform</text><text y="0.32em" transform="translate(130,125)">Serving</text><text y="0.32em" transform="translate(130,175)">Archive</text><text y="0.32em" transform="translate(130,225)">Other</text></g><g aria-label="x-axis tick" aria-hidden="true" fill="none" stroke="currentColor"><path transform="translate(130,276)" d="M0,0L0,6"></path><path transform="translate(199.5121951219512,276)" d="M0,0L0,6"></path><path transform="translate(269.0243902439024,276)" d="M0,0L0,6"></path><path transform="translate(338.5365853658536,276)" d="M0,0L0,6"></path><path transform="translate(408.04878048780483,276)" d="M0,0L0,6"></path><path transform="translate(477.5609756097561,276)" d="M0,0L0,6"></path><path transform="translate(547.0731707317073,276)" d="M0,0L0,6"></path><path transform="translate(616.5853658536585,276)" d="M0,0L0,6"></path><path transform="translate(686.0975609756097,276)" d="M0,0L0,6"></path></g><g aria-label="x-axis tick label" font-variant="tabular-nums" transform="translate(0,9)"><text y="0.71em" transform="translate(130,276)">0</text><text y="0.71em" transform="translate(199.5121951219512,276)">5</text><text y="0.71em" transform="translate(269.0243902439024,276)">10</text><text y="0.71em" transform="translate(338.5365853658536,276)">15</text><text y="0.71em" transform="translate(408.04878048780483,276)">20</text><text y="0.71em" transform="translate(477.5609756097561,276)">25</text><text y="0.71em" transform="translate(547.0731707317073,276)">30</text><text y="0.71em" transform="translate(616.5853658536585,276)">35</text><text y="0.71em" transform="translate(686.0975609756097,276)">40</text></g><g aria-label="x-axis label" text-anchor="end" transform="translate(17,41)"><text transform="translate(700,276)">Share of included total (%) →</text></g><g aria-label="bar"><rect x="130" width="570" y="25" height="45" fill="var(--accent-tint)" stroke="var(--accent)"></rect><rect x="130" width="305.8536585365854" y="75" height="45" fill="var(--comparison-fill)" stroke="var(--muted)"></rect><rect x="130" width="250.2439024390244" y="125" height="45" fill="var(--comparison-fill)" stroke="var(--muted)"></rect><rect x="130" width="166.8292682926829" y="175" height="45" fill="var(--comparison-fill)" stroke="var(--muted)"></rect><rect x="130" width="97.3170731707317" y="225" height="45" fill="var(--comparison-fill)" stroke="var(--muted)"></rect></g><g aria-label="rule" stroke="var(--rule-strong)"><line x1="130" x2="130" y1="20" y2="276"></line></g></svg></div>
+}</style><g aria-label="y-axis tick" aria-hidden="true" fill="none" stroke="currentColor" transform="translate(0,22.5)"><path transform="translate(130,25)" d="M0,0L-6,0"></path><path transform="translate(130,75)" d="M0,0L-6,0"></path><path transform="translate(130,125)" d="M0,0L-6,0"></path><path transform="translate(130,175)" d="M0,0L-6,0"></path><path transform="translate(130,225)" d="M0,0L-6,0"></path></g><g aria-label="y-axis tick label" text-anchor="end" transform="translate(-9,22.5)"><text y="0.32em" transform="translate(130,25)">Ingestion</text><text y="0.32em" transform="translate(130,75)">Transform</text><text y="0.32em" transform="translate(130,125)">Serving</text><text y="0.32em" transform="translate(130,175)">Archive</text><text y="0.32em" transform="translate(130,225)">Other</text></g><g aria-label="x-axis tick" aria-hidden="true" fill="none" stroke="currentColor"><path transform="translate(130,276)" d="M0,0L0,6"></path><path transform="translate(199.5121951219512,276)" d="M0,0L0,6"></path><path transform="translate(269.0243902439024,276)" d="M0,0L0,6"></path><path transform="translate(338.5365853658536,276)" d="M0,0L0,6"></path><path transform="translate(408.04878048780483,276)" d="M0,0L0,6"></path><path transform="translate(477.5609756097561,276)" d="M0,0L0,6"></path><path transform="translate(547.0731707317073,276)" d="M0,0L0,6"></path><path transform="translate(616.5853658536585,276)" d="M0,0L0,6"></path><path transform="translate(686.0975609756097,276)" d="M0,0L0,6"></path></g><g aria-label="x-axis tick label" font-variant="tabular-nums" transform="translate(0,9)"><text y="0.71em" transform="translate(130,276)">0</text><text y="0.71em" transform="translate(199.5121951219512,276)">5</text><text y="0.71em" transform="translate(269.0243902439024,276)">10</text><text y="0.71em" transform="translate(338.5365853658536,276)">15</text><text y="0.71em" transform="translate(408.04878048780483,276)">20</text><text y="0.71em" transform="translate(477.5609756097561,276)">25</text><text y="0.71em" transform="translate(547.0731707317073,276)">30</text><text y="0.71em" transform="translate(616.5853658536585,276)">35</text><text y="0.71em" transform="translate(686.0975609756097,276)">40</text></g><g aria-label="x-axis label" text-anchor="end" transform="translate(17,36)"><text transform="translate(700,276)">Share of included total (%) →</text></g><g aria-label="bar"><rect x="130" width="570" y="25" height="45" fill="var(--accent-tint)" stroke="var(--accent)"></rect><rect x="130" width="305.8536585365854" y="75" height="45" fill="var(--comparison-fill)" stroke="var(--muted)"></rect><rect x="130" width="250.2439024390244" y="125" height="45" fill="var(--comparison-fill)" stroke="var(--muted)"></rect><rect x="130" width="166.8292682926829" y="175" height="45" fill="var(--comparison-fill)" stroke="var(--muted)"></rect><rect x="130" width="97.3170731707317" y="225" height="45" fill="var(--comparison-fill)" stroke="var(--muted)"></rect></g><g aria-label="rule" stroke="var(--rule-strong)"><line x1="130" x2="130" y1="20" y2="276"></line></g></svg></div>
       <figcaption>Sorted descending, zero baseline, one focal bar.</figcaption>
     </figure>
 
     <figure class="fig">
       <span class="kind">Chart · columns</span>
       <h3>Cohorts</h3>
-      <div class="frame"><svg class="plot-d6a7b5" fill="currentColor" font-family="var(--sans)" font-size="10" text-anchor="middle" viewBox="0 0 720 320" style="background: transparent;max-width:720px" width="100%" role="img" aria-labelledby="cohorts-title cohorts-desc">
+      <div class="frame"><svg class="plot-d6a7b5" fill="currentColor" font-family="var(--sans)" font-size="10" text-anchor="middle" viewBox="0 0 720 320" style="background: transparent;max-width:720px" width="100%" data-renderer="render_chart" role="img" aria-labelledby="cohorts-title cohorts-desc">
   <title id="cohorts-title">Half the footprint was created before 2023</title>
   <desc id="cohorts-desc">Current size of records grouped by the year they were created. The 2022 cohort is the largest at 620 thousand units. This is a snapshot by creation year, not a measure of growth.</desc><style>:where(.plot-d6a7b5) {
   --plot-background: transparent;
@@ -805,7 +1128,7 @@ a { color: inherit; text-underline-offset: 2px; }
     <figure class="fig">
       <span class="kind">Chart · line</span>
       <h3>Time series</h3>
-      <div class="frame"><svg class="plot-d6a7b5" fill="currentColor" font-family="var(--sans)" font-size="10" text-anchor="middle" viewBox="0 0 720 320" style="background: transparent;max-width:720px" width="100%" role="img" aria-labelledby="latency-title latency-desc">
+      <div class="frame"><svg class="plot-d6a7b5" fill="currentColor" font-family="var(--sans)" font-size="10" text-anchor="middle" viewBox="0 0 720 320" style="background: transparent;max-width:720px" width="100%" data-renderer="render_chart" role="img" aria-labelledby="latency-title latency-desc">
   <title id="latency-title">p99 latency tripled after the June deploy</title>
   <desc id="latency-desc">Weekly p99 latency in milliseconds across twelve weeks. Latency holds near 140 milliseconds until week 7, then rises to 410 milliseconds and stays there.</desc><style>:where(.plot-d6a7b5) {
   --plot-background: transparent;
@@ -817,8 +1140,27 @@ a { color: inherit; text-underline-offset: 2px; }
 :where(.plot-d6a7b5 text),
 :where(.plot-d6a7b5 tspan) {
   white-space: pre;
-}</style><g aria-label="y-grid" aria-hidden="true" stroke="currentColor" stroke-opacity="0.1"><line x1="56" x2="700" y1="276" y2="276"></line><line x1="56" x2="700" y1="244.93203883495147" y2="244.93203883495147"></line><line x1="56" x2="700" y1="213.8640776699029" y2="213.8640776699029"></line><line x1="56" x2="700" y1="182.79611650485435" y2="182.79611650485435"></line><line x1="56" x2="700" y1="151.72815533980582" y2="151.72815533980582"></line><line x1="56" x2="700" y1="120.6601941747573" y2="120.6601941747573"></line><line x1="56" x2="700" y1="89.59223300970874" y2="89.59223300970874"></line><line x1="56" x2="700" y1="58.524271844660205" y2="58.524271844660205"></line><line x1="56" x2="700" y1="27.456310679611647" y2="27.456310679611647"></line></g><g aria-label="y-axis tick" aria-hidden="true" fill="none" stroke="currentColor"><path transform="translate(56,276)" d="M0,0L-6,0"></path><path transform="translate(56,244.93203883495147)" d="M0,0L-6,0"></path><path transform="translate(56,213.8640776699029)" d="M0,0L-6,0"></path><path transform="translate(56,182.79611650485435)" d="M0,0L-6,0"></path><path transform="translate(56,151.72815533980582)" d="M0,0L-6,0"></path><path transform="translate(56,120.6601941747573)" d="M0,0L-6,0"></path><path transform="translate(56,89.59223300970874)" d="M0,0L-6,0"></path><path transform="translate(56,58.524271844660205)" d="M0,0L-6,0"></path><path transform="translate(56,27.456310679611647)" d="M0,0L-6,0"></path></g><g aria-label="y-axis tick label" text-anchor="end" font-variant="tabular-nums" transform="translate(-9,0)"><text y="0.32em" transform="translate(56,276)">0</text><text y="0.32em" transform="translate(56,244.93203883495147)">50</text><text y="0.32em" transform="translate(56,213.8640776699029)">100</text><text y="0.32em" transform="translate(56,182.79611650485435)">150</text><text y="0.32em" transform="translate(56,151.72815533980582)">200</text><text y="0.32em" transform="translate(56,120.6601941747573)">250</text><text y="0.32em" transform="translate(56,89.59223300970874)">300</text><text y="0.32em" transform="translate(56,58.524271844660205)">350</text><text y="0.32em" transform="translate(56,27.456310679611647)">400</text></g><g aria-label="y-axis label" text-anchor="start" transform="translate(-53,-17)"><text y="0.71em" transform="translate(56,20)">↑ p99 latency (ms)</text></g><g aria-label="x-grid" aria-hidden="true" stroke="currentColor" stroke-opacity="0.1"><line x1="56" x2="56" y1="20" y2="276"></line><line x1="114.54545454545455" x2="114.54545454545455" y1="20" y2="276"></line><line x1="173.0909090909091" x2="173.0909090909091" y1="20" y2="276"></line><line x1="231.63636363636363" x2="231.63636363636363" y1="20" y2="276"></line><line x1="290.1818181818182" x2="290.1818181818182" y1="20" y2="276"></line><line x1="348.72727272727275" x2="348.72727272727275" y1="20" y2="276"></line><line x1="407.27272727272725" x2="407.27272727272725" y1="20" y2="276"></line><line x1="465.8181818181818" x2="465.8181818181818" y1="20" y2="276"></line><line x1="524.3636363636364" x2="524.3636363636364" y1="20" y2="276"></line><line x1="582.9090909090909" x2="582.9090909090909" y1="20" y2="276"></line><line x1="641.4545454545455" x2="641.4545454545455" y1="20" y2="276"></line><line x1="700" x2="700" y1="20" y2="276"></line></g><g aria-label="x-axis tick" aria-hidden="true" fill="none" stroke="currentColor"><path transform="translate(56,276)" d="M0,0L0,6"></path><path transform="translate(114.54545454545455,276)" d="M0,0L0,6"></path><path transform="translate(173.0909090909091,276)" d="M0,0L0,6"></path><path transform="translate(231.63636363636363,276)" d="M0,0L0,6"></path><path transform="translate(290.1818181818182,276)" d="M0,0L0,6"></path><path transform="translate(348.72727272727275,276)" d="M0,0L0,6"></path><path transform="translate(407.27272727272725,276)" d="M0,0L0,6"></path><path transform="translate(465.8181818181818,276)" d="M0,0L0,6"></path><path transform="translate(524.3636363636364,276)" d="M0,0L0,6"></path><path transform="translate(582.9090909090909,276)" d="M0,0L0,6"></path><path transform="translate(641.4545454545455,276)" d="M0,0L0,6"></path><path transform="translate(700,276)" d="M0,0L0,6"></path></g><g aria-label="x-axis tick label" font-variant="tabular-nums" transform="translate(0,9)"><text y="0.71em" transform="translate(56,276)">1</text><text y="0.71em" transform="translate(114.54545454545455,276)">2</text><text y="0.71em" transform="translate(173.0909090909091,276)">3</text><text y="0.71em" transform="translate(231.63636363636363,276)">4</text><text y="0.71em" transform="translate(290.1818181818182,276)">5</text><text y="0.71em" transform="translate(348.72727272727275,276)">6</text><text y="0.71em" transform="translate(407.27272727272725,276)">7</text><text y="0.71em" transform="translate(465.8181818181818,276)">8</text><text y="0.71em" transform="translate(524.3636363636364,276)">9</text><text y="0.71em" transform="translate(582.9090909090909,276)">10</text><text y="0.71em" transform="translate(641.4545454545455,276)">11</text><text y="0.71em" transform="translate(700,276)">12</text></g><g aria-label="x-axis label" text-anchor="end" transform="translate(17,41)"><text transform="translate(700,276)">Week →</text></g><g aria-label="line" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M56,190.252L114.545,187.767L173.091,189.631L231.636,185.903L290.182,188.388L348.727,182.796L407.273,109.476L465.818,32.427L524.364,24.35L582.909,28.699L641.455,20L700,21.243"></path></g><g aria-label="rule" stroke="var(--rule-strong)"><line x1="56" x2="700" y1="276" y2="276"></line></g></svg></div>
+}</style><g aria-label="y-grid" aria-hidden="true" stroke="currentColor" stroke-opacity="0.1"><line x1="56" x2="700" y1="276" y2="276"></line><line x1="56" x2="700" y1="244.93203883495147" y2="244.93203883495147"></line><line x1="56" x2="700" y1="213.8640776699029" y2="213.8640776699029"></line><line x1="56" x2="700" y1="182.79611650485435" y2="182.79611650485435"></line><line x1="56" x2="700" y1="151.72815533980582" y2="151.72815533980582"></line><line x1="56" x2="700" y1="120.6601941747573" y2="120.6601941747573"></line><line x1="56" x2="700" y1="89.59223300970874" y2="89.59223300970874"></line><line x1="56" x2="700" y1="58.524271844660205" y2="58.524271844660205"></line><line x1="56" x2="700" y1="27.456310679611647" y2="27.456310679611647"></line></g><g aria-label="y-axis tick" aria-hidden="true" fill="none" stroke="currentColor"><path transform="translate(56,276)" d="M0,0L-6,0"></path><path transform="translate(56,244.93203883495147)" d="M0,0L-6,0"></path><path transform="translate(56,213.8640776699029)" d="M0,0L-6,0"></path><path transform="translate(56,182.79611650485435)" d="M0,0L-6,0"></path><path transform="translate(56,151.72815533980582)" d="M0,0L-6,0"></path><path transform="translate(56,120.6601941747573)" d="M0,0L-6,0"></path><path transform="translate(56,89.59223300970874)" d="M0,0L-6,0"></path><path transform="translate(56,58.524271844660205)" d="M0,0L-6,0"></path><path transform="translate(56,27.456310679611647)" d="M0,0L-6,0"></path></g><g aria-label="y-axis tick label" text-anchor="end" font-variant="tabular-nums" transform="translate(-9,0)"><text y="0.32em" transform="translate(56,276)">0</text><text y="0.32em" transform="translate(56,244.93203883495147)">50</text><text y="0.32em" transform="translate(56,213.8640776699029)">100</text><text y="0.32em" transform="translate(56,182.79611650485435)">150</text><text y="0.32em" transform="translate(56,151.72815533980582)">200</text><text y="0.32em" transform="translate(56,120.6601941747573)">250</text><text y="0.32em" transform="translate(56,89.59223300970874)">300</text><text y="0.32em" transform="translate(56,58.524271844660205)">350</text><text y="0.32em" transform="translate(56,27.456310679611647)">400</text></g><g aria-label="y-axis label" text-anchor="start" transform="translate(-53,-17)"><text y="0.71em" transform="translate(56,20)">↑ p99 latency (ms)</text></g><g aria-label="x-grid" aria-hidden="true" stroke="currentColor" stroke-opacity="0.1"><line x1="56" x2="56" y1="20" y2="276"></line><line x1="114.54545454545455" x2="114.54545454545455" y1="20" y2="276"></line><line x1="173.0909090909091" x2="173.0909090909091" y1="20" y2="276"></line><line x1="231.63636363636363" x2="231.63636363636363" y1="20" y2="276"></line><line x1="290.1818181818182" x2="290.1818181818182" y1="20" y2="276"></line><line x1="348.72727272727275" x2="348.72727272727275" y1="20" y2="276"></line><line x1="407.27272727272725" x2="407.27272727272725" y1="20" y2="276"></line><line x1="465.8181818181818" x2="465.8181818181818" y1="20" y2="276"></line><line x1="524.3636363636364" x2="524.3636363636364" y1="20" y2="276"></line><line x1="582.9090909090909" x2="582.9090909090909" y1="20" y2="276"></line><line x1="641.4545454545455" x2="641.4545454545455" y1="20" y2="276"></line><line x1="700" x2="700" y1="20" y2="276"></line></g><g aria-label="x-axis tick" aria-hidden="true" fill="none" stroke="currentColor"><path transform="translate(56,276)" d="M0,0L0,6"></path><path transform="translate(114.54545454545455,276)" d="M0,0L0,6"></path><path transform="translate(173.0909090909091,276)" d="M0,0L0,6"></path><path transform="translate(231.63636363636363,276)" d="M0,0L0,6"></path><path transform="translate(290.1818181818182,276)" d="M0,0L0,6"></path><path transform="translate(348.72727272727275,276)" d="M0,0L0,6"></path><path transform="translate(407.27272727272725,276)" d="M0,0L0,6"></path><path transform="translate(465.8181818181818,276)" d="M0,0L0,6"></path><path transform="translate(524.3636363636364,276)" d="M0,0L0,6"></path><path transform="translate(582.9090909090909,276)" d="M0,0L0,6"></path><path transform="translate(641.4545454545455,276)" d="M0,0L0,6"></path><path transform="translate(700,276)" d="M0,0L0,6"></path></g><g aria-label="x-axis tick label" font-variant="tabular-nums" transform="translate(0,9)"><text y="0.71em" transform="translate(56,276)">1</text><text y="0.71em" transform="translate(114.54545454545455,276)">2</text><text y="0.71em" transform="translate(173.0909090909091,276)">3</text><text y="0.71em" transform="translate(231.63636363636363,276)">4</text><text y="0.71em" transform="translate(290.1818181818182,276)">5</text><text y="0.71em" transform="translate(348.72727272727275,276)">6</text><text y="0.71em" transform="translate(407.27272727272725,276)">7</text><text y="0.71em" transform="translate(465.8181818181818,276)">8</text><text y="0.71em" transform="translate(524.3636363636364,276)">9</text><text y="0.71em" transform="translate(582.9090909090909,276)">10</text><text y="0.71em" transform="translate(641.4545454545455,276)">11</text><text y="0.71em" transform="translate(700,276)">12</text></g><g aria-label="x-axis label" text-anchor="end" transform="translate(17,36)"><text transform="translate(700,276)">Week →</text></g><g aria-label="line" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M56,190.252L114.545,187.767L173.091,189.631L231.636,185.903L290.182,188.388L348.727,182.796L407.273,109.476L465.818,32.427L524.364,24.35L582.909,28.699L641.455,20L700,21.243"></path></g><g aria-label="rule" stroke="var(--rule-strong)"><line x1="56" x2="700" y1="276" y2="276"></line></g></svg></div>
       <figcaption>Straight segments; a spline would invent readings between points.</figcaption>
+    </figure>
+
+    <figure class="fig">
+      <span class="kind">Chart · waterfall bridge</span>
+      <h3>How the total is built</h3>
+      <div class="frame"><svg class="plot-d6a7b5" fill="currentColor" font-family="var(--sans)" font-size="10" text-anchor="middle" viewBox="0 0 720 276" style="background: transparent;max-width:720px" width="100%" data-renderer="render_chart" role="img" aria-labelledby="estimate-bridge-title estimate-bridge-desc">
+  <title id="estimate-bridge-title">Four work packages build the 24 engineer-week estimate</title>
+  <desc id="estimate-bridge-desc">Dispatcher and queues add 9 engineer-weeks, consumers and observability 6, testing and readiness 5, and cutover and handoff 4, for an expected 24 engineer-weeks within a 22 to 28 range. CR-003 would add 3 more but is excluded until approved.</desc><style>:where(.plot-d6a7b5) {
+  --plot-background: transparent;
+  display: block;
+  height: auto;
+  height: intrinsic;
+  max-width: 100%;
+}
+:where(.plot-d6a7b5 text),
+:where(.plot-d6a7b5 tspan) {
+  white-space: pre;
+}</style><g aria-label="x-grid" aria-hidden="true" stroke="currentColor" stroke-opacity="0.1"><line x1="189" x2="189" y1="16" y2="232"></line><line x1="254.83333333333331" x2="254.83333333333331" y1="16" y2="232"></line><line x1="320.6666666666667" x2="320.6666666666667" y1="16" y2="232"></line><line x1="386.5" x2="386.5" y1="16" y2="232"></line><line x1="452.3333333333333" x2="452.3333333333333" y1="16" y2="232"></line><line x1="518.1666666666666" x2="518.1666666666666" y1="16" y2="232"></line><line x1="584" x2="584" y1="16" y2="232"></line></g><g aria-label="x-axis tick" aria-hidden="true" fill="none" stroke="currentColor"><path transform="translate(189,232)" d="M0,0L0,6"></path><path transform="translate(254.83333333333331,232)" d="M0,0L0,6"></path><path transform="translate(320.6666666666667,232)" d="M0,0L0,6"></path><path transform="translate(386.5,232)" d="M0,0L0,6"></path><path transform="translate(452.3333333333333,232)" d="M0,0L0,6"></path><path transform="translate(518.1666666666666,232)" d="M0,0L0,6"></path><path transform="translate(584,232)" d="M0,0L0,6"></path></g><g aria-label="x-axis tick label" font-variant="tabular-nums" transform="translate(0,9)"><text y="0.71em" transform="translate(189,232)">0</text><text y="0.71em" transform="translate(254.83333333333331,232)">5</text><text y="0.71em" transform="translate(320.6666666666667,232)">10</text><text y="0.71em" transform="translate(386.5,232)">15</text><text y="0.71em" transform="translate(452.3333333333333,232)">20</text><text y="0.71em" transform="translate(518.1666666666666,232)">25</text><text y="0.71em" transform="translate(584,232)">30</text></g><g aria-label="x-axis label" text-anchor="end" transform="translate(133,36)"><text transform="translate(584,232)">Engineer-weeks →</text></g><g aria-label="rule" stroke="var(--rule-strong)"><line x1="189" x2="189" y1="16" y2="232"></line></g><g aria-label="y-axis tick label" text-anchor="end" font-variant="tabular-nums" transform="translate(-8,0)"><text y="0.32em" transform="translate(189,34)">Dispatcher and queues</text><text y="0.32em" transform="translate(189,70)">Consumers and observability</text><text y="0.32em" transform="translate(189,106)">Testing and readiness</text><text y="0.32em" transform="translate(189,142)">Cutover and handoff</text><text y="0.32em" transform="translate(189,178)">Expected</text><text y="0.32em" transform="translate(189,214)">CR-003 history panel</text></g><g aria-label="rule" stroke="var(--muted)" stroke-dasharray="2 2"><line x1="307.5" x2="307.5" y1="45.52" y2="58.48"></line><line x1="386.5" x2="386.5" y1="81.52" y2="94.47999999999999"></line><line x1="452.3333333333333" x2="452.3333333333333" y1="117.52" y2="130.48000000000002"></line><line x1="505.00000000000006" x2="505.00000000000006" y1="153.51999999999998" y2="166.48"></line><line x1="505.00000000000006" x2="505.00000000000006" y1="189.52" y2="202.48"></line></g><g aria-label="rect" fill="var(--comparison-fill)" stroke="var(--muted)"><rect x="189" y="22.48" width="118.5" height="23.040000000000003"></rect><rect x="307.5" y="58.48" width="79" height="23.04"></rect><rect x="386.5" y="94.47999999999999" width="65.83333333333331" height="23.040000000000006"></rect><rect x="452.3333333333333" y="130.48000000000002" width="52.66666666666674" height="23.039999999999964"></rect></g><g aria-label="rect" fill="var(--accent-tint)" stroke="var(--accent)"><rect x="189" y="166.48" width="316.00000000000006" height="23.04000000000002"></rect></g><g aria-label="rect" fill="none" stroke="var(--muted)" stroke-dasharray="4 3"><rect x="505.00000000000006" y="202.48" width="39.49999999999994" height="23.04000000000002"></rect></g><g aria-label="rule" stroke="var(--ink)" stroke-width="1.5"><line x1="478.6666666666667" x2="557.6666666666667" y1="178" y2="178"></line></g><g aria-label="rule" stroke="var(--ink)" stroke-width="1.5"><line x1="478.6666666666667" x2="478.6666666666667" y1="171.52" y2="184.48"></line><line x1="557.6666666666667" x2="557.6666666666667" y1="171.52" y2="184.48"></line></g><g aria-label="text" fill="var(--ink)" text-anchor="start" transform="translate(8,0)"><text y="0.32em" transform="translate(307.5,34)">+9</text><text y="0.32em" transform="translate(386.5,70)">+6</text><text y="0.32em" transform="translate(452.3333333333333,106)">+5</text><text y="0.32em" transform="translate(505.00000000000006,142)">+4</text><text y="0.32em" transform="translate(544.5,214)">+3 · not approved</text></g><g aria-label="text" fill="var(--ink)" text-anchor="start" font-weight="600" transform="translate(8,0)"><text y="0.32em" transform="translate(557.6666666666667,178)">24  (range 22–28)</text></g></svg></div>
+      <figcaption>Signed steps that must sum to the total; the excluded change is dashed, never added.</figcaption>
     </figure>
 
     <figure class="fig">

@@ -131,7 +131,9 @@ function makeResponsive(svg, targetWidth) {
         })
       : `${attrs} style="max-width:${targetWidth}px"`;
 
-    return `<svg${attrs} width="100%">`;
+    // data-renderer tells scripts/check_diagrams.py the layout is the
+    // renderer's own, so it applies the shell and bounds rules only.
+    return `<svg${attrs} width="100%" data-renderer="render_diagram">`;
   });
 }
 

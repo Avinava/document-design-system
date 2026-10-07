@@ -162,7 +162,7 @@ body { background: var(--surface-muted); }
 }
 
 @media print {
-  @page { size: 1280px 720px landscape; margin: 0; }
+  @page { size: 1280px 720px; margin: 0; }
 
   body { background: #fff; }
 
@@ -292,7 +292,7 @@ body { background: var(--surface-muted); }
         <title id="now-title">Current ingestion path</title>
         <desc id="now-desc">Checkout, Catalog, and Inventory call the gateway, which writes one queue with no failover, then a consumer, then the warehouse. The queue is the focal failure.</desc>
         <defs>
-          <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <marker id="now-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
             <polygon points="0 0, 8 3, 0 6" fill="var(--muted)"/>
           </marker>
         </defs>
@@ -309,12 +309,12 @@ body { background: var(--surface-muted); }
         <text x="796" y="158" font-family="var(--sans)" font-size="18" font-weight="600" fill="var(--ink)" text-anchor="middle">Consumer</text>
         <rect x="956" y="118" width="148" height="68" rx="4" fill="var(--surface)" stroke="var(--muted)" stroke-width="2"/>
         <text x="1030" y="158" font-family="var(--sans)" font-size="18" font-weight="600" fill="var(--ink)" text-anchor="middle">Warehouse</text>
-        <line x1="128" y1="46" x2="184" y2="130" stroke="var(--muted)" stroke-width="2" marker-end="url(#arr)"/>
-        <line x1="128" y1="154" x2="184" y2="154" stroke="var(--muted)" stroke-width="2" marker-end="url(#arr)"/>
-        <line x1="128" y1="258" x2="184" y2="174" stroke="var(--muted)" stroke-width="2" marker-end="url(#arr)"/>
-        <line x1="352" y1="152" x2="428" y2="152" stroke="var(--muted)" stroke-width="2" marker-end="url(#arr)"/>
-        <line x1="636" y1="152" x2="712" y2="152" stroke="var(--muted)" stroke-width="2" marker-end="url(#arr)"/>
-        <line x1="880" y1="152" x2="956" y2="152" stroke="var(--muted)" stroke-width="2" marker-end="url(#arr)"/>
+        <line x1="128" y1="46" x2="184" y2="130" stroke="var(--muted)" stroke-width="2" marker-end="url(#now-arrow)"/>
+        <line x1="128" y1="154" x2="184" y2="154" stroke="var(--muted)" stroke-width="2" marker-end="url(#now-arrow)"/>
+        <line x1="128" y1="258" x2="184" y2="174" stroke="var(--muted)" stroke-width="2" marker-end="url(#now-arrow)"/>
+        <line x1="352" y1="152" x2="428" y2="152" stroke="var(--muted)" stroke-width="2" marker-end="url(#now-arrow)"/>
+        <line x1="636" y1="152" x2="712" y2="152" stroke="var(--muted)" stroke-width="2" marker-end="url(#now-arrow)"/>
+        <line x1="880" y1="152" x2="956" y2="152" stroke="var(--muted)" stroke-width="2" marker-end="url(#now-arrow)"/>
       </svg>
     </figure>
     <p class="slide-note">Current state. Dispatcher and ingest-a/b are proposed, not drawn.</p>
@@ -379,10 +379,10 @@ body { background: var(--surface-muted); }
         <title id="next-title">Proposed ingestion path</title>
         <desc id="next-desc">Gateway to a stateless dispatcher that writes ingest-a or ingest-b by event-id hash, each with its own consumer, then the warehouse.</desc>
         <defs>
-          <marker id="arr2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <marker id="next-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
             <polygon points="0 0, 8 3, 0 6" fill="var(--muted)"/>
           </marker>
-          <marker id="arr2a" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <marker id="next-arrow-focal" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
             <polygon points="0 0, 8 3, 0 6" fill="var(--accent)"/>
           </marker>
         </defs>
@@ -401,13 +401,13 @@ body { background: var(--surface-muted); }
         <text x="834" y="272" font-family="var(--sans)" font-size="17" font-weight="600" fill="var(--ink)" text-anchor="middle">Consumer B</text>
         <rect x="956" y="136" width="148" height="68" rx="4" fill="var(--surface)" stroke="var(--muted)" stroke-width="2"/>
         <text x="1030" y="176" font-family="var(--sans)" font-size="18" font-weight="600" fill="var(--ink)" text-anchor="middle">Warehouse</text>
-        <line x1="184" y1="170" x2="248" y2="170" stroke="var(--muted)" stroke-width="2" marker-end="url(#arr2)"/>
-        <line x1="432" y1="152" x2="508" y2="80" stroke="var(--accent)" stroke-width="2" marker-end="url(#arr2a)"/>
-        <line x1="432" y1="188" x2="508" y2="260" stroke="var(--muted)" stroke-width="2" marker-end="url(#arr2)"/>
-        <line x1="684" y1="74" x2="756" y2="74" stroke="var(--muted)" stroke-width="2" marker-end="url(#arr2)"/>
-        <line x1="684" y1="266" x2="756" y2="266" stroke="var(--muted)" stroke-width="2" marker-end="url(#arr2)"/>
-        <line x1="912" y1="74" x2="956" y2="148" stroke="var(--muted)" stroke-width="2" marker-end="url(#arr2)"/>
-        <line x1="912" y1="266" x2="956" y2="192" stroke="var(--muted)" stroke-width="2" marker-end="url(#arr2)"/>
+        <line x1="184" y1="170" x2="248" y2="170" stroke="var(--muted)" stroke-width="2" marker-end="url(#next-arrow)"/>
+        <line x1="432" y1="152" x2="508" y2="80" stroke="var(--accent)" stroke-width="2" marker-end="url(#next-arrow-focal)"/>
+        <line x1="432" y1="188" x2="508" y2="260" stroke="var(--muted)" stroke-width="2" marker-end="url(#next-arrow)"/>
+        <line x1="684" y1="74" x2="756" y2="74" stroke="var(--muted)" stroke-width="2" marker-end="url(#next-arrow)"/>
+        <line x1="684" y1="266" x2="756" y2="266" stroke="var(--muted)" stroke-width="2" marker-end="url(#next-arrow)"/>
+        <line x1="912" y1="74" x2="956" y2="148" stroke="var(--muted)" stroke-width="2" marker-end="url(#next-arrow)"/>
+        <line x1="912" y1="266" x2="956" y2="192" stroke="var(--muted)" stroke-width="2" marker-end="url(#next-arrow)"/>
         <text x="452" y="112" font-family="var(--mono)" font-size="13" fill="var(--accent)">even hash</text>
         <text x="452" y="312" font-family="var(--mono)" font-size="13" fill="var(--muted)">odd hash</text>
       </svg>

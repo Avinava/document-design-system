@@ -356,6 +356,14 @@ tbody tr:nth-child(even) { background: var(--surface-muted); }
   -webkit-overflow-scrolling: touch;
 }
 
+/* A 720-unit figure squeezed onto a phone sets 13px labels at about 6px.
+ * Below this width the figure scrolls inside its wrapper instead, at a size
+ * that can still be read; core/print.css resets the floor for paper. */
+.diagram-scroll svg { min-width: 560px; }
+
+figure.figure { margin: 1.75rem 0; }
+.diagram-scroll > svg { display: block; width: 100%; height: auto; }
+
 /* -------------------------------------------------------------- SVG */
 
 /* Charts and diagrams style through these classes rather than through
@@ -1284,6 +1292,94 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
 
   <section aria-labelledby="before">
     <h2 id="before">Before changing anything</h2>
+    <figure class="figure"><div class="diagram-scroll"><svg role="img" aria-labelledby="idm-title idm-desc" viewBox="0 0 720 452" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+  <title id="idm-title">Where ingestion runs: prod-ingest and stage-ingest</title>
+  <desc id="idm-desc">In the prod-ingest cluster, namespace ingest runs the gateway and the ingest-consumer deployment. The gateway enqueues to the queue ingest, the consumers read from it and write to the warehouse; the queue and warehouse are dependencies whose hosting this map does not show. The accent marks the consumer deployment: three replicas run, operators add one at a time, and never more than six without Reliability. The stage-ingest cluster runs the same namespace and is where release candidate sha-8132c3 was tested and where dual-write begins.</desc>
+
+  <defs>
+    <marker id="idm-arrow" viewBox="0 0 8 8" refX="7" refY="4"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <!-- boundaries: cluster, then namespace — two levels, no deeper -->
+  <g class="boundary">
+    <rect x="24" y="24" width="496" height="272" rx="6" fill="none" stroke="var(--rule-strong)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="36" y="44" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">CLUSTER</text>
+    <text x="96" y="44" font-family="var(--mono)" font-size="11" fill="var(--ink)">prod-ingest</text>
+  </g>
+  <g class="boundary">
+    <rect x="40" y="60" width="464" height="220" rx="6" fill="none" stroke="var(--rule-strong)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="52" y="80" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">NAMESPACE</text>
+    <text x="128" y="80" font-family="var(--mono)" font-size="11" fill="var(--ink)">ingest</text>
+  </g>
+  <g class="boundary">
+    <rect x="24" y="316" width="496" height="76" rx="6" fill="none" stroke="var(--rule)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="36" y="336" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">CLUSTER</text>
+    <text x="96" y="336" font-family="var(--mono)" font-size="11" fill="var(--ink)">stage-ingest</text>
+  </g>
+
+  <g class="annotation">
+    <text x="560" y="100" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">DEPENDENCIES</text>
+    <text x="36" y="360" font-family="var(--sans)" font-size="12" fill="var(--muted)">Namespace ingest: gateway and ingest-consumer.</text>
+    <text x="36" y="378" font-family="var(--mono)" font-size="11" fill="var(--muted)">sha-8132c3 tested 2026-08-12 · dual-write from 2026-10-12</text>
+  </g>
+
+  <!-- edges -->
+  <path class="edge" d="M200 128 H 560" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#idm-arrow)"/>
+  <path class="edge" d="M560 160 H 532 Q 524 160 524 168 V 216 Q 524 224 516 224 H 488" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#idm-arrow)"/>
+  <path class="edge" d="M488 248 H 560" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#idm-arrow)"/>
+
+  <g class="edge-label">
+    <rect x="344" y="104" width="56" height="16" fill="var(--paper)"/>
+    <text x="372" y="116" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">enqueue</text>
+  </g>
+  <g class="edge-label">
+    <rect x="532" y="184" width="32" height="16" fill="var(--paper)"/>
+    <text x="548" y="196" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">read</text>
+  </g>
+
+  <!-- nodes -->
+  <g class="node">
+    <rect x="56" y="100" width="144" height="56" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="128" y="124" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Gateway</text>
+    <text x="128" y="140" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">POST /events</text>
+  </g>
+
+  <!-- focal: the deployment the runbook scales; replicas drawn as pips -->
+  <g class="node node-focal">
+    <rect x="232" y="184" width="256" height="80" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="248" y="208" font-family="var(--sans)" font-size="13" fill="var(--ink)">Consumer group</text>
+    <text x="248" y="224" font-family="var(--mono)" font-size="11" fill="var(--muted)">deploy/ingest-consumer</text>
+    <rect x="248" y="236" width="24" height="16" rx="2" fill="var(--surface)" stroke="var(--accent)" stroke-width="1"/>
+    <rect x="280" y="236" width="24" height="16" rx="2" fill="var(--surface)" stroke="var(--accent)" stroke-width="1"/>
+    <rect x="312" y="236" width="24" height="16" rx="2" fill="var(--surface)" stroke="var(--accent)" stroke-width="1"/>
+    <rect x="344" y="236" width="24" height="16" rx="2" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 2"/>
+    <text x="380" y="248" font-family="var(--mono)" font-size="11" fill="var(--ink)">+1 · max 6</text>
+  </g>
+
+  <g class="node node-external">
+    <rect x="560" y="112" width="136" height="64" rx="6" fill="var(--surface)" stroke="var(--rule)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="628" y="140" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--soft)">Queue</text>
+    <text x="628" y="156" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">ingest</text>
+  </g>
+  <g class="node node-external">
+    <rect x="560" y="220" width="136" height="56" rx="6" fill="var(--surface)" stroke="var(--rule)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="628" y="252" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--soft)">Warehouse</text>
+  </g>
+
+  <!-- legend: each encoding named in words -->
+  <g class="legend">
+    <path d="M24 408 H 696" stroke="var(--rule)" stroke-width="1"/>
+    <rect x="28" y="420" width="24" height="12" rx="2" fill="var(--surface)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="60" y="430" font-family="var(--sans)" font-size="11" fill="var(--muted)">replica running</text>
+    <rect x="176" y="420" width="24" height="12" rx="2" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 2"/>
+    <text x="208" y="430" font-family="var(--sans)" font-size="11" fill="var(--muted)">the one replica to add next</text>
+    <rect x="404" y="420" width="24" height="12" rx="2" fill="var(--surface)" stroke="var(--rule)" stroke-dasharray="4 3"/>
+    <text x="436" y="430" font-family="var(--sans)" font-size="11" fill="var(--muted)">dependency; hosting not shown</text>
+  </g>
+</svg></div><figcaption>Where you are working: one deployment, one replica at a time, six at most without Reliability.</figcaption></figure>
     <ul><li>Confirm access to the <code>ingest</code> namespace and the <em>Ingestion / lag</em> dashboard.</li><li>Start an incident note with the page time, current lag, queue depth, replica count, and request p99.</li><li>Do not restart the gateway or delete a queue.</li></ul>
   </section>
 
