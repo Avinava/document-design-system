@@ -1202,5 +1202,276 @@ class TestSkillSizeValidation(unittest.TestCase):
         self.assertTrue(any("description is" in e for e in found), found)
 
 
+FIXTURES = ROOT / "tests" / "fixtures"
+
+
+class TestDiagramChecks(unittest.TestCase):
+    """scripts/check_diagrams.py: one bad fixture per rule, each failing alone."""
+
+    def test_good_fixtures_pass(self):
+        from check_diagrams import check_paths
+
+        for path in sorted((FIXTURES / "diagrams" / "good").glob("*.svg")):
+            with self.subTest(fixture=path.name):
+                self.assertEqual([str(f) for f in check_paths([path])], [])
+
+    def test_every_rule_has_a_bad_fixture_that_fails_with_exactly_that_rule(self):
+        from check_diagrams import RULES, check_paths
+
+        bad = FIXTURES / "diagrams" / "bad"
+        self.assertEqual({p.stem for p in bad.glob("*.svg")}, set(RULES))
+        for rule in RULES:
+            with self.subTest(rule=rule):
+                found = {f.rule for f in check_paths([bad / f"{rule}.svg"])}
+                self.assertEqual(found, {rule})
+
+    def test_repository_figures_are_clean(self):
+        from check_diagrams import check_paths, default_inputs
+
+        findings = check_paths(default_inputs(ROOT))
+        self.assertEqual([str(f) for f in findings], [])
+
+    def test_doctype_is_refused(self):
+        from check_diagrams import check_svg
+
+        text = '<!DOCTYPE svg [<!ENTITY x "y">]><svg xmlns="http://www.w3.org/2000/svg"/>'
+        self.assertEqual({f.rule for f in check_svg(text, "inline")}, {"parse"})
+
+    def test_inline_svgs_in_html(self):
+        """Titled inline figures are checked; labelled marks and CSS text are not."""
+        from check_diagrams import check_paths
+        import tempfile
+
+        page = """<!doctype html><html><head><style>/* an <svg> in a comment */</style></head><body>
+<svg role="img" aria-label="74 percent" viewBox="0 0 300 20"><rect width="222" height="20"/></svg>
+<svg role="img" aria-labelledby="pg-title pg-desc" viewBox="0 0 100 40" width="100%">
+  <title id="pg-title">Inline</title><desc id="pg-desc">An inline figure.</desc>
+  <defs><marker id="arrow"/></defs>
+  <text x="80" y="20" font-size="13">far too long a label</text>
+</svg></body></html>"""
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "page.html"
+            path.write_text(page, encoding="utf-8")
+            found = sorted(f.rule for f in check_paths([path]))
+        self.assertEqual(found, ["bounds", "shell-id-prefix"])
+
+    def test_vendored_checker_runs_from_inside_the_skill(self):
+        import shutil
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            lone = Path(tmp) / "diagram-design"
+            shutil.copytree(SKILLS / "diagram-design", lone)
+            script = lone / "scripts" / "check_diagrams.py"
+            ok = subprocess.run([sys.executable, str(script)], capture_output=True, text=True)
+            self.assertEqual(ok.returncode, 0, ok.stdout + ok.stderr)
+            bad = subprocess.run(
+                [sys.executable, str(script), str(FIXTURES / "diagrams" / "bad" / "grid.svg")],
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(bad.returncode, 1)
+            self.assertIn(": grid: ", bad.stdout)
+
+    def test_every_hand_diagram_is_in_the_gallery(self):
+        from build_examples import HAND_DIAGRAMS
+
+        gallery = (ROOT / "templates" / "gallery.html").read_text(encoding="utf-8")
+        for slug in HAND_DIAGRAMS:
+            with self.subTest(slug=slug):
+                self.assertTrue((ROOT / "examples" / f"{slug}.svg").is_file())
+                self.assertIn(f"<!-- @FIG {slug} -->", gallery)
+
+
+class TestDiagramImport(unittest.TestCase):
+    """scripts/import_diagram.py: structure in, no coordinates out, hostile input refused."""
+
+    IMPORT = FIXTURES / "import"
+
+    def load(self, name: str, **kw) -> dict:
+        from import_diagram import import_file
+
+        return import_file(self.IMPORT / name, **kw)
+
+    def refused(self, path: Path, needle: str) -> None:
+        from import_diagram import DiagramImportError, import_file
+
+        with self.assertRaises(DiagramImportError) as ctx:
+            import_file(path)
+        self.assertIn(needle, str(ctx.exception))
+
+    def test_drawio_plain(self):
+        model = self.load("sample.drawio")
+        self.assertEqual(model["source"], "drawio")
+        self.assertEqual(
+            [(n["id"], n["label"], n["group"]) for n in model["nodes"]],
+            [
+                ("producer", "Producers", None),
+                ("gateway", "Gateway POST /events", "ns"),
+                ("queue", "Queue ingest", "ns"),
+                ("warehouse", "Warehouse", None),
+            ],
+        )
+        self.assertEqual(
+            [(e["from"], e["to"], e["label"]) for e in model["edges"]],
+            [("producer", "gateway", ""), ("gateway", "queue", "enqueue"),
+             ("queue", "warehouse", "consumer group")],
+        )
+        self.assertEqual(model["groups"], [{"id": "ns", "label": "Namespace ingest", "parent": None}])
+
+    def test_drawio_compressed_matches_plain(self):
+        self.assertEqual(self.load("sample-compressed.drawio"), self.load("sample.drawio"))
+
+    def test_model_carries_no_layout(self):
+        import json
+
+        for name in ("sample.drawio", "sample.mmd"):
+            with self.subTest(name=name):
+                text = json.dumps(self.load(name))
+                for key in ('"x"', '"y"', '"width"', '"height"', '"style"', "example.invalid"):
+                    self.assertNotIn(key, text)
+
+    def test_mermaid_flowchart(self):
+        model = self.load("sample.mmd")
+        self.assertEqual(model["source"], "mermaid")
+        self.assertEqual(
+            {n["id"]: (n["label"], n["group"]) for n in model["nodes"]},
+            {
+                "P": ("Producers", None), "G": ("Gateway", None), "D": ("Dispatcher", None),
+                "QA": ("ingest-a", "queues"), "QB": ("ingest-b", "queues"), "W": ("Warehouse", None),
+            },
+        )
+        self.assertEqual(
+            [(e["from"], e["to"], e["label"]) for e in model["edges"]],
+            [("P", "G", ""), ("G", "D", "hash event id"), ("D", "QA", ""), ("D", "QB", ""),
+             ("QA", "W", "consumer group a"), ("QB", "W", "consumer group b")],
+        )
+
+    def test_mermaid_ids_with_hyphens_and_tight_links(self):
+        from import_diagram import import_mermaid
+
+        model = import_mermaid("graph TD\n  ingest-a-->consumer-a\n  x-.->y;y==>z")
+        self.assertEqual(
+            [(e["from"], e["to"]) for e in model["edges"]],
+            [("ingest-a", "consumer-a"), ("x", "y"), ("y", "z")],
+        )
+
+    def test_other_mermaid_types_point_at_the_renderer(self):
+        self.refused(self.IMPORT / "sequence.mmd", "render_diagram.mjs")
+
+    def test_entity_expansion_is_refused(self):
+        self.refused(self.IMPORT / "hostile" / "entity-expansion.drawio", "DOCTYPE")
+
+    def test_zip_bomb_is_refused(self):
+        self.refused(self.IMPORT / "hostile" / "zip-bomb.drawio", "inflates past")
+
+    def test_duplicate_ids_are_refused(self):
+        self.refused(self.IMPORT / "hostile" / "duplicate-ids.drawio", "duplicate cell id")
+
+    def test_dangling_edges_are_refused(self):
+        self.refused(self.IMPORT / "hostile" / "dangling-edge.drawio", "does not exist")
+
+    def test_deep_nesting_is_refused(self):
+        self.refused(self.IMPORT / "hostile" / "deep-nesting.drawio", "nesting deeper")
+
+    def test_huge_element_counts_are_refused(self):
+        import tempfile
+        from import_diagram import MAX_ELEMENTS
+
+        cells = "".join(f'<mxCell id="c{i}" vertex="1" parent="1"/>' for i in range(MAX_ELEMENTS + 1))
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "huge.drawio"
+            path.write_text(f'<mxGraphModel><root><mxCell id="0"/>{cells}</root></mxGraphModel>')
+            self.refused(path, f"more than {MAX_ELEMENTS} elements")
+
+    def test_oversized_files_are_refused(self):
+        import tempfile
+        from import_diagram import MAX_BYTES
+
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "big.mmd"
+            path.write_bytes(b"graph LR\n" + b" " * MAX_BYTES)
+            self.refused(path, "the limit is")
+
+    def test_cli_exits_nonzero_with_a_reason(self):
+        result = subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / "import_diagram.py"),
+             str(self.IMPORT / "hostile" / "zip-bomb.drawio")],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("import_diagram:", result.stderr)
+        self.assertEqual(result.stdout, "")
+
+
+@unittest.skipUnless(__import__("shutil").which("node"), "node is not installed")
+class TestWaterfall(unittest.TestCase):
+    SPEC = ROOT / "examples" / "specs" / "estimate-bridge.json"
+
+    def render(self, spec_text: str) -> subprocess.CompletedProcess:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            spec = Path(td) / "spec.json"
+            spec.write_text(spec_text, encoding="utf-8")
+            out = Path(td) / "out.svg"
+            result = subprocess.run(
+                ["node", str(ROOT / "scripts" / "render_chart.mjs"), str(spec), "--out", str(out)],
+                capture_output=True,
+                text=True,
+            )
+            result.svg = out.read_text(encoding="utf-8") if out.is_file() else ""  # type: ignore[attr-defined]
+            return result
+
+    def test_a_total_that_does_not_add_up_fails(self):
+        text = self.SPEC.read_text(encoding="utf-8").replace('"delta": 24', '"delta": 25')
+        result = self.render(text)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("sum to 24", result.stderr)
+
+    def test_estimate_matches_its_markdown(self):
+        import json
+
+        steps = json.loads(self.SPEC.read_text(encoding="utf-8"))["steps"]
+        markdown = (ROOT / "examples" / "estimate.md").read_text(encoding="utf-8")
+        for step in steps:
+            if step["kind"] == "step" and "excluded" not in step:
+                with self.subTest(step=step["label"]):
+                    self.assertIn(f"| {step['label']} | {step['delta']} |", markdown)
+        self.assertIn("**Expected:** 24 engineer-weeks", markdown)
+
+    @unittest.skipUnless((ROOT / "node_modules" / "@observablehq" / "plot").is_dir(), "run npm ci")
+    def test_renders_with_focal_totals_and_a_named_exclusion(self):
+        from check_diagrams import check_svg
+
+        result = self.render(self.SPEC.read_text(encoding="utf-8"))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("var(--accent-tint)", result.svg)
+        self.assertIn("not approved", result.svg)
+        self.assertEqual([str(f) for f in check_svg(result.svg, "waterfall")], [])
+
+
+@unittest.skipUnless(
+    __import__("importlib.util").util.find_spec("playwright"),
+    "playwright is not installed (uv pip install -r requirements-authoring.txt)",
+)
+class TestRenderCheck(unittest.TestCase):
+    def test_broken_fixture_trips_every_check(self):
+        fixture = FIXTURES / "render"
+        result = subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / "check_render.py"),
+             "--root", str(fixture), "--theme", "field-notes", str(fixture / "broken.html")],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode == 2:
+            self.skipTest(result.stderr.strip())
+        self.assertEqual(result.returncode, 1, result.stderr)
+        for check in ("page-scroll", "figure-box", "text-bounds", "table-clip"):
+            with self.subTest(check=check):
+                self.assertIn(f"] {check}: ", result.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()
