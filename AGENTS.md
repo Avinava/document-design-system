@@ -38,6 +38,12 @@ For statements of work, estimates, and other delivery-commercial documents,
 never invent parties, rates, payment terms, legal clauses, approvals, or dates.
 Use the evidence states and leave missing terms unresolved.
 
+`skills/<name>/{core,scripts,templates}` are generated copies, so each skill
+works when installed on its own. Edit the repository-level `core/`, `scripts/`,
+and `templates/`, then run `python3 scripts/sync_skill_assets.py`; never edit a
+copy. A skill that starts using another shared file needs it added to `MANIFEST`
+in that script.
+
 GitHub Pages is source-built. Do not hand-edit `site/`; the workflow rebuilds
 examples before assembling the deployable site.
 

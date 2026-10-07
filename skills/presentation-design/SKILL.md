@@ -57,7 +57,7 @@ Slides are `1280 × 720` CSS pixels. That is the authoring unit; the deck scales
 - **8px spacing grid** at this scale, since everything is twice document scale.
 - One visual per slide. Two charts on one slide means the audience reads neither.
 
-The token contract in `core/tokens.md` applies in full. `templates/deck.html` is the worked example — fourteen slides covering every type in the table above. Assemble it to `examples/capacity-deck.html`.
+The token contract in `core/tokens.md` applies in full. `templates/deck.html` is the worked example — fourteen slides covering every type in the table above. Assemble it with `scripts/build_document.py`, for example to `capacity-deck.html`.
 
 ## Contrast and the room
 
@@ -127,12 +127,10 @@ A deck is usually delivered as a PDF, so the export is part of the deliverable, 
 
 ## Paths in this skill
 
-`core/…` and `scripts/…` are relative to the repo root. When this is installed as a
-plugin your working directory is your own project, not the plugin, so prefix them:
+`core/…`, `scripts/…` and `templates/…` are relative to this skill's directory — the
+folder that contains this `SKILL.md` — not to your working directory. Each skill carries
+its own copy, so it works however it was installed. Prefix them with that directory:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/export_pdf.mjs" deck.html --out deck.pdf
+node "<skill-dir>/scripts/export_pdf.mjs" deck.html --out deck.pdf
 ```
-
-`${CLAUDE_PLUGIN_ROOT}` is Claude Code's portable reference to the plugin's own
-directory. Working inside the repo itself, the bare paths are correct as written.

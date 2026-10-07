@@ -1,0 +1,35 @@
+<!doctype html>
+<!--
+  Long-form shell — bodies live in templates/types/<slug>.html.
+
+  Assemble with:
+      python scripts/build_examples.py
+  or, for a one-off:
+      python scripts/build_document.py templates/longform.html \
+             --theme field-notes --out document.html
+
+  Type files own section order and semantic components. This shell owns the
+  theme, document-pattern contract, responsive behavior, and print.
+-->
+<html lang="en" data-theme="field-notes" data-pattern="decision">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><!-- @@TITLE --></title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- @@FONTS -->
+
+<style>
+/* @@INLINE core/themes/${THEME}.css @@ */
+/* @@INLINE core/base.css @@ */
+/* @@INLINE core/document-patterns.css @@ */
+
+/* @@INLINE core/print.css @@ */   /* must stay last */
+</style>
+</head>
+<body>
+<!-- @@BODY -->
+</body>
+</html>

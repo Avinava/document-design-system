@@ -326,21 +326,45 @@ class TestWritingTypes(unittest.TestCase):
 
 
 class TestPortability(unittest.TestCase):
-    """The repo root is not the working directory for a plugin user."""
+    """A skill installed on its own receives only its own directory.
 
-    def test_script_invocations_document_the_plugin_root(self):
-        """A skill that tells the user to run scripts/... must also explain the
-        ${CLAUDE_PLUGIN_ROOT} form.
+    `npx skills add` copies skills/<name>/ and nothing else, so every core/,
+    scripts/ or templates/ file a skill relies on has to be inside it.
+    """
 
-        Installed as a plugin, the working directory is the user's own project,
-        where scripts/ does not exist — so a bare `python3 scripts/x.py` simply
-        fails. Claude Code's portable reference is ${CLAUDE_PLUGIN_ROOT}.
-        """
+    PATH_RE = re.compile(r"(?<![\w/.-])((?:core|scripts|templates)/[A-Za-z0-9_][A-Za-z0-9_./-]*\.[a-z]+)")
+
+    def skill_prose(self, skill: Path) -> list[Path]:
+        return [skill / "SKILL.md"] + sorted((skill / "references").glob("*.md"))
+
+    def test_referenced_files_ship_with_the_skill(self):
+        # Repo-only tools a skill may mention but must say so about.
+        repo_only = {"scripts/validate_repository.py"}
         for skill in skill_dirs():
-            files = [skill / "SKILL.md"] + sorted((skill / "references").glob("*.md"))
+            for doc in self.skill_prose(skill):
+                for ref in sorted(set(self.PATH_RE.findall(doc.read_text(encoding="utf-8")))):
+                    if ref in repo_only or "<" in ref:
+                        continue
+                    with self.subTest(skill=skill.name, doc=doc.name, ref=ref):
+                        self.assertTrue(
+                            (skill / ref).is_file(),
+                            f"{doc.relative_to(ROOT)} refers to {ref}, which is not "
+                            f"inside {skill.name}/ — add it to MANIFEST in "
+                            "scripts/sync_skill_assets.py",
+                        )
+
+    def test_no_plugin_root_variable(self):
+        """${CLAUDE_PLUGIN_ROOT} is unset outside a Claude Code plugin install."""
+        for skill in skill_dirs():
+            for doc in self.skill_prose(skill):
+                with self.subTest(doc=str(doc.relative_to(ROOT))):
+                    self.assertNotIn("CLAUDE_PLUGIN_ROOT", doc.read_text(encoding="utf-8"))
+
+    def test_script_invocations_explain_the_skill_directory(self):
+        for skill in skill_dirs():
             invokes = any(
-                re.search(r"(python3|node) scripts/", f.read_text(encoding="utf-8"))
-                for f in files
+                re.search(r"(python3|node) \"?(<skill-dir>/)?scripts/", f.read_text(encoding="utf-8"))
+                for f in self.skill_prose(skill)
                 if f.is_file()
             )
             if not invokes:
@@ -348,11 +372,43 @@ class TestPortability(unittest.TestCase):
             body = (skill / "SKILL.md").read_text(encoding="utf-8")
             with self.subTest(skill=skill.name):
                 self.assertIn(
-                    "CLAUDE_PLUGIN_ROOT",
+                    "relative to this skill's directory",
                     body,
-                    f"{skill.name} invokes scripts/ but never explains how that "
-                    "path resolves for a plugin user",
+                    f"{skill.name} invokes scripts/ but never says what they are relative to",
                 )
+
+    def test_vendored_assets_match_the_canonical_files(self):
+        from sync_skill_assets import check_all
+
+        self.assertEqual(
+            check_all(ROOT),
+            [],
+            "vendored skill assets drifted — run 'python3 scripts/sync_skill_assets.py'",
+        )
+
+    def test_vendored_scripts_run_from_inside_the_skill(self):
+        """The point of vendoring: build a document using only one skill's files."""
+        import shutil
+        import tempfile
+
+        src = SKILLS / "writing-documents"
+        with tempfile.TemporaryDirectory() as tmp:
+            lone = Path(tmp) / "writing-documents"
+            shutil.copytree(src, lone)
+            out = Path(tmp) / "doc.html"
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(lone / "scripts" / "build_document.py"),
+                    str(lone / "templates" / "longform.html"),
+                    "--theme", "field-notes",
+                    "--out", str(out),
+                ],
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertNotIn("@@INLINE", out.read_text(encoding="utf-8"))
 
 
 class TestTokenContract(unittest.TestCase):

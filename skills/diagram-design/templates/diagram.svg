@@ -1,0 +1,106 @@
+<!--
+  Hand-authored diagram starting point.
+
+  Use this when position carries meaning — architecture, quadrant, layer stack,
+  timeline, comparison. For sequence, state, class, and ER diagrams, where the
+  arrangement is dictated rather than chosen, use scripts/render_diagram.mjs.
+
+  Replace every "dg-example" with your diagram's own slug. Marker and gradient
+  IDs are document-global, so two diagrams sharing a slug will silently share
+  each other's definitions.
+
+  Geometry sits on a 4px grid. See skills/diagram-design/references/primitives.md.
+-->
+<figure class="diagram">
+  <svg role="img"
+       aria-labelledby="dg-example-title dg-example-desc"
+       viewBox="0 0 720 320"
+       width="100%"
+       style="max-width:720px">
+
+    <title id="dg-example-title">Short descriptive title</title>
+    <desc id="dg-example-desc">One or two sentences stating what the arrangement shows, including what the accent marks. This is what a screen-reader user and a grayscale reader get instead of the picture.</desc>
+
+    <defs>
+      <marker id="dg-example-arrow" viewBox="0 0 8 8" refX="7" refY="4"
+              markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+      </marker>
+      <marker id="dg-example-arrow-focal" viewBox="0 0 8 8" refX="7" refY="4"
+              markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+      </marker>
+    </defs>
+
+    <!-- Paint order: boundaries, then edges, then nodes, then callouts.
+         Nodes after edges so line ends do not poke through node borders. -->
+
+    <!-- ============ boundaries ============ -->
+    <g class="boundary">
+      <rect x="24" y="48" width="428" height="152" rx="6"
+            fill="none" stroke="var(--rule-strong)" stroke-width="1"
+            stroke-dasharray="4 3"/>
+      <text x="36" y="68"
+            font-family="var(--sans)" font-size="11" fill="var(--soft)"
+            letter-spacing="0.06em" text-transform="uppercase">TRUST BOUNDARY</text>
+    </g>
+
+    <!-- ============ edges ============ -->
+    <path d="M212 128 H 256"
+          fill="none" stroke="var(--muted)" stroke-width="1"
+          marker-end="url(#dg-example-arrow)"/>
+
+    <path d="M416 128 H 484"
+          fill="none" stroke="var(--accent)" stroke-width="1.5"
+          marker-end="url(#dg-example-arrow-focal)"/>
+
+    <!-- Edge label with a paper-colored backing so the line does not
+         strike through the text. -->
+    <rect x="424" y="112" width="40" height="16" fill="var(--paper)"/>
+    <text x="444" y="124" text-anchor="middle"
+          font-family="var(--sans)" font-size="11" fill="var(--muted)">async</text>
+
+    <!-- ============ nodes ============ -->
+
+    <!-- default node -->
+    <g class="node">
+      <rect x="52" y="96" width="160" height="64" rx="6"
+            fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+      <text x="132" y="132" text-anchor="middle"
+            font-family="var(--sans)" font-size="13" fill="var(--ink)">Gateway</text>
+    </g>
+
+    <!-- focal node: at most one or two per diagram -->
+    <g class="node node-focal">
+      <rect x="256" y="96" width="160" height="64" rx="6"
+            fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+      <text x="336" y="126" text-anchor="middle"
+            font-family="var(--sans)" font-size="13" fill="var(--ink)">Queue</text>
+      <text x="336" y="142" text-anchor="middle"
+            font-family="var(--mono)" font-size="11" fill="var(--muted)">v2.1</text>
+    </g>
+
+    <!-- external node: dashed, outside the boundary -->
+    <g class="node node-external">
+      <rect x="484" y="96" width="160" height="64" rx="6"
+            fill="var(--surface)" stroke="var(--rule)" stroke-width="1"
+            stroke-dasharray="4 3"/>
+      <text x="564" y="132" text-anchor="middle"
+            font-family="var(--sans)" font-size="13" fill="var(--soft)">Warehouse</text>
+    </g>
+
+    <!-- ============ callouts ============ -->
+    <!-- Dashed Bézier leader, no arrowhead — a callout points, it does not flow.
+         At most two per diagram. -->
+    <g class="callout">
+      <path d="M336 96 C 336 72, 352 60, 380 60"
+            fill="none" stroke="var(--accent)" stroke-width="1"
+            stroke-dasharray="3 3"/>
+      <text x="388" y="64"
+            font-family="var(--sans)" font-size="12" font-style="italic"
+            fill="var(--ink)">no failover</text>
+    </g>
+
+  </svg>
+  <figcaption>Caption naming the system and the as-of date.</figcaption>
+</figure>

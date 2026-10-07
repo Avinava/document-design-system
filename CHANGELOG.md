@@ -5,6 +5,16 @@ All notable changes to this project are documented here. Versions refer to the
 
 ## Unreleased
 
+### Changed
+
+- Made every skill self-contained. Each skill now carries the `core/`, `scripts/`
+  and `templates/` files it uses, generated from the repository-level originals by
+  `scripts/sync_skill_assets.py`, so it works when installed on its own with
+  `npx skills add`. Drift is a validation error.
+- Skill prose resolves those files relative to the skill's own directory instead
+  of `${CLAUDE_PLUGIN_ROOT}`, which is unset outside a plugin install.
+- Documented `npx skills add` as an install path.
+
 ## 0.3.0
 
 `writing-documents` now covers a practical software-consultancy lifecycle:

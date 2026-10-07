@@ -1,0 +1,100 @@
+/* console-violet — the dark theme.
+ *
+ * Register: engineering readouts, ops reviews, incident write-ups, service
+ * inventories — documents read on a screen rather than printed. That is a
+ * distinct voice, not an inversion of one of the light themes.
+ *
+ * Why violet and not the obvious choices:
+ *
+ *   amber  is 6 degrees from --warning. In a system where status colors are
+ *          load-bearing, an accent that close to a status hue makes every
+ *          genuine warning ambiguous.
+ *   teal   is 4 degrees from executive-navy's accent, so the two themes would
+ *          be hard to tell apart at thumbnail size.
+ *   cyan   on a dark canvas is the "AI dashboard" look that
+ *          analytical-document-design lists as an anti-pattern.
+ *
+ * Violet sits 97 degrees from the nearest status color and more than 60 from
+ * every other theme accent. Kept desaturated and paired with hairlines, it
+ * reads editorial rather than neon.
+ *
+ * Status colors are re-tuned rather than inherited: the light themes' values
+ * (--positive #34735b and friends) fail contrast on a dark surface, so a dark
+ * theme has to restate them regardless.
+ *
+ * Fonts: IBM Plex Sans (display + sans), IBM Plex Mono. A coherent technical
+ * family, distinct from Manrope/Geist and Source Sans.
+ *
+ * Contrast verified against --surface: ink 13.07, muted 6.94, soft 5.55,
+ * accent 5.66, accent-ink on accent 6.63. All clear WCAG AA.
+ */
+
+[data-theme="console-violet"] {
+  --paper: #1a1d26;
+  --surface: #22262f;
+  --surface-muted: #2b303c;
+
+  --ink: #edeef2;
+  --muted: #a8b0bf;
+  --soft: #949dae;
+
+  /* Hairlines invert to light-on-dark at the same opacities the light themes
+   * use, per the inversion convention in core/tokens.md. */
+  --rule: rgba(237, 238, 242, 0.14);
+  --rule-strong: rgba(237, 238, 242, 0.32);
+
+  --accent: #a892e0;
+  --accent-tint: rgba(168, 146, 224, 0.14);
+  --accent-ink: #16181f;
+
+  --positive: #5cb98b;
+  --warning: #f2c14e;
+  --critical: #ec6572;
+
+  /* The methodology block goes deeper than the page rather than lighter — on
+   * dark, recession reads as "supporting material" the way an inverted panel
+   * does on light. */
+  --method-bg: #12141b;
+  --method-ink: #edeef2;
+  --method-muted: #a8b0bf;
+
+  --display: 'IBM Plex Sans', system-ui, sans-serif;
+  --sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --radius-sm: 3px;
+  --radius-md: 5px;
+}
+
+/* --- print ------------------------------------------------------------
+ *
+ * REQUIRED for any dark theme. core/print.css flattens the surfaces to white
+ * but deliberately leaves the ink ramp alone, because for a light theme that
+ * ramp is already dark and carries the theme's identity into print.
+ *
+ * A dark theme inverted onto white paper would print near-white text on white
+ * — invisible — with hairlines to match. So the ink ramp is restored here,
+ * where the knowledge belongs, rather than by making print.css generically
+ * flatten every theme and cost the light themes their per-theme ink.
+ *
+ * This block wins because the theme is inlined before print.css and
+ * [data-theme="console-violet"] outranks [data-theme].
+ *
+ * The accent survives print unchanged: violet on white is 4.0:1, which
+ * carries a focal bar and still reads in grayscale.
+ */
+@media print {
+  [data-theme="console-violet"] {
+    --ink: #24272f;
+    --muted: #4f5560;
+    --soft: #6b7280;
+
+    --rule: rgba(36, 39, 47, 0.14);
+    --rule-strong: rgba(36, 39, 47, 0.34);
+
+    --accent-ink: #ffffff;
+
+    --method-ink: #24272f;
+    --method-muted: #4f5560;
+  }
+}

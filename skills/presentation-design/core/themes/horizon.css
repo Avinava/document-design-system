@@ -1,0 +1,49 @@
+/* horizon — a client brand applied to the token contract.
+ *
+ * This is the worked example from skills/brand-theme-design/references/mapping.md
+ * made into a real theme. Navy is the system's board voice; this is what
+ * brand-theme-design produces from a guide.
+ *
+ * Input (fictional guide): Primary #0B5FFF, Ink #101828, Slate #475467,
+ * Cloud #F2F4F7, Success #12B76A, Warning #F79009, Error #F04438.
+ * Fonts: Söhne (licensed — not redistributed). Inter is the metric fallback.
+ *
+ * Provenance is in the comments. Do not treat these as decoration.
+ *
+ * Fonts: Inter (display + sans), IBM Plex Mono (mono).
+ */
+
+[data-theme="horizon"] {
+  /* Cloud lightened so surface can sit above it. */
+  --paper: #f9fafb;            /* Cloud, lifted ← mapping.md */
+  --surface: #ffffff;
+  --surface-muted: #f2f4f7;    /* Cloud proper ← brand guide */
+
+  --ink: #101828;              /* brand ink. 16:1 on surface */
+  --muted: #475467;            /* brand slate. 7.5:1 */
+  --soft: #667085;             /* one step up; guide has no tertiary */
+
+  --rule: rgba(16, 24, 40, 0.12);
+  --rule-strong: rgba(16, 24, 40, 0.34);
+
+  /* Primary is accent only because the rest of the palette is neutral. */
+  --accent: #0b5fff;           /* brand primary ← guide */
+  --accent-tint: rgba(11, 95, 255, 0.10);
+  --accent-ink: #ffffff;       /* 4.9:1 on that blue */
+
+  /* Brand status, re-checked against --surface. */
+  --positive: #0e9f57;         /* #12B76A darkened to clear AA on white */
+  --warning: #b54708;          /* #F79009 darkened — logo orange fails as text */
+  --critical: #d92d20;         /* #F04438 darkened the same way */
+
+  --method-bg: #101828;
+  --method-ink: #f9fafb;
+  --method-muted: #c5cdd6;
+
+  --display: 'Inter', system-ui, sans-serif;
+  --sans: 'Inter', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+}

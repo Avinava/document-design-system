@@ -105,15 +105,16 @@ That is more useful than a theme that technically renders and quietly fails its 
 
 ## Paths in this skill
 
-`core/…` and `scripts/…` are relative to the repo root. When this is installed as a
-plugin your working directory is your own project, not the plugin, so prefix them:
+`core/…`, `scripts/…` and `templates/…` are relative to this skill's directory — the
+folder that contains this `SKILL.md` — not to your working directory. Each skill carries
+its own copy, so it works however it was installed. Prefix them with that directory:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/audit_theme.py" theme.css
+python3 "<skill-dir>/scripts/audit_theme.py" theme.css
 ```
 
-`${CLAUDE_PLUGIN_ROOT}` is Claude Code's portable reference to the plugin's own
-directory. Working inside the repo itself, the bare paths are correct as written.
+`scripts/validate_repository.py` exists only in the `document-design-system` repository
+and is not part of the skill.
 
 ## Reference files
 

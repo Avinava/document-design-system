@@ -34,21 +34,20 @@ cannot collide that way.
 <details>
 <summary>Or install it as plain skills, without the plugin system</summary>
 
-The skills read `core/` and run `scripts/`, both of which live at the repo root — so the
-repo has to stay intact. Clone it, then link the skills you want:
-
 ```bash
-git clone https://github.com/Avinava/document-design-system ~/src/dds
-mkdir -p .claude/skills
-ln -s ~/src/dds/skills/analytical-document-design .claude/skills/
-ln -s ~/src/dds/skills/diagram-design            .claude/skills/
-# …and so on, or link all six:
-# for d in ~/src/dds/skills/*/; do ln -s "$d" .claude/skills/; done
+npx skills add Avinava/document-design-system                      # all six
+npx skills add Avinava/document-design-system --skill chart-design # just one
 ```
 
-Symlinks rather than copies, so `core/` and `scripts/` still resolve. Copying the skill
-directories on their own leaves every `core/tokens.md` reference dangling and every
-script invocation pointing at nothing.
+Each skill is self-contained: it carries its own copy of the `core/` tokens, the
+`scripts/` and the `templates/` it uses, so a skill works wherever it lands. Those copies
+are generated from the repository-level `core/`, `scripts/` and `templates/` by
+`python3 scripts/sync_skill_assets.py`; edit the originals and re-run it, never the copies.
+
+Without the CLI, copy any `skills/<name>/` directory into `.claude/skills/` (or your
+agent's skills directory).
+
+The slash commands such as `/document-design-system:handoff` ship only with the plugin.
 
 </details>
 
