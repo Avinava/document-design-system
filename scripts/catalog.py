@@ -3,21 +3,24 @@
 
     python3 scripts/catalog.py         # print types grouped by pattern
 
-The catalog has exactly two sources:
+The catalog has exactly three sources:
 
 - each `skills/writing-documents/references/type-<slug>.md` declares one type in
   its fenced `yaml` block;
 - `core/document-patterns.md` declares the reading patterns in its families
-  table and the module registry in its "Modules" table.
+  table and the module registry in its "Modules" table;
+- `skills/writing-documents/references/type-index.md` routes the reader's
+  question to a pattern in its "Start from the reader's question" table, and
+  `consultancy-lifecycle.md` beside it groups the types by engagement stage.
 
 Everything else — the example build, the Pages site, the validator, the tests —
 reads the catalog from here instead of keeping its own copy. Adding or changing
 a type means editing its type file; nothing else repeats the slug-to-pattern
 mapping.
 
-The module-level `TYPES`, `PATTERNS` and `MODULES` load lazily on first access
-from this repository. Tools that check another tree (the validator runs against
-a path) call `load_types(root)` / `load_patterns(root)` / `load_modules(root)`.
+The module-level `TYPES`, `PATTERNS`, `MODULES`, `QUESTIONS` and `LIFECYCLE`
+load lazily on first access from this repository. Tools that check another
+tree (the validator runs against a path) call the matching `load_*(root)`.
 
 Standard library only. Repository-only: no vendored skill script imports it.
 """
@@ -32,6 +35,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 TYPE_DIR = Path("skills/writing-documents/references")
+TYPE_INDEX = TYPE_DIR / "type-index.md"
+LIFECYCLE_MD = TYPE_DIR / "consultancy-lifecycle.md"
 PATTERNS_MD = Path("core/document-patterns.md")
 THEMES_DIR = Path("core/themes")
 COMMAND_PREFIX = "/document-design-system:"
@@ -118,6 +123,20 @@ class Pattern:
     movement: str
     modules: tuple[str, ...]  # characteristic modules, as named in prose
     types: tuple[str, ...]  # type slugs, in table order
+
+
+@dataclass(frozen=True)
+class Question:
+    question: str
+    pattern: str
+    presets: tuple[str, ...]  # type slugs, in table order
+
+
+@dataclass(frozen=True)
+class Stage:
+    name: str
+    need: str
+    owners: tuple[str, ...]  # type slugs, in table order
 
 
 @dataclass(frozen=True)
@@ -300,6 +319,72 @@ def load_modules(root: Path = ROOT) -> dict[str, Module]:
     return modules
 
 
+QUESTIONS_HEADER = ["The reader asks", "Pattern", "Presets in that pattern"]
+
+
+def load_questions(root: Path = ROOT) -> list[Question]:
+    """The reader-question router from type-index.md, in table order."""
+    source = root / TYPE_INDEX
+    rows = _section_table(source.read_text(encoding="utf-8"), r"Start from the reader's question")
+    if not rows:
+        raise CatalogError(f"{TYPE_INDEX}: no table under '## Start from the reader's question'")
+    if rows[0] != QUESTIONS_HEADER:
+        raise CatalogError(f"{TYPE_INDEX}: question table header must be {QUESTIONS_HEADER}, got {rows[0]}")
+    questions: list[Question] = []
+    for row in rows[1:]:
+        if len(row) != len(QUESTIONS_HEADER):
+            raise CatalogError(f"{TYPE_INDEX}: question row has {len(row)} cells: {row}")
+        pattern = CODE.fullmatch(row[1])
+        if not pattern:
+            raise CatalogError(f"{TYPE_INDEX}: pattern cell must be `code`, got {row[1]!r}")
+        questions.append(Question(row[0], pattern.group(1), tuple(CODE.findall(row[2]))))
+    return questions
+
+
+LIFECYCLE_HEADER = ["Stage", "Typical reader need", "Candidate owners"]
+
+
+def load_lifecycle(root: Path = ROOT) -> list[Stage]:
+    """Engagement stages and their candidate owner types, from consultancy-lifecycle.md."""
+    source = root / LIFECYCLE_MD
+    text = source.read_text(encoding="utf-8")
+    rows: list[list[str]] = []
+    for line in text.splitlines():
+        if line.startswith("|"):
+            if re.fullmatch(r"\|[\s|:-]+\|", line.strip()):
+                continue
+            rows.append(_cells(line))
+        elif rows:
+            break
+    if not rows or rows[0] != LIFECYCLE_HEADER:
+        raise CatalogError(f"{LIFECYCLE_MD}: first table header must be {LIFECYCLE_HEADER}")
+    stages: list[Stage] = []
+    for row in rows[1:]:
+        if len(row) != len(LIFECYCLE_HEADER):
+            raise CatalogError(f"{LIFECYCLE_MD}: stage row has {len(row)} cells: {row}")
+        owners = tuple(part.strip() for part in row[2].split(",") if part.strip())
+        stages.append(Stage(row[0], row[1], owners))
+    return stages
+
+
+def question_problems(questions: list[Question], patterns: dict[str, Pattern]) -> list[str]:
+    """The router must name every pattern once, with exactly that pattern's presets."""
+    found: list[str] = []
+    seen = [q.pattern for q in questions]
+    for name in patterns:
+        if seen.count(name) != 1:
+            found.append(f"{TYPE_INDEX}: pattern `{name}` appears {seen.count(name)} times in the question table")
+    for q in questions:
+        if q.pattern not in patterns:
+            found.append(f"{TYPE_INDEX}: question routes to unknown pattern `{q.pattern}`")
+        elif q.presets != patterns[q.pattern].types:
+            found.append(
+                f"{TYPE_INDEX}: presets for `{q.pattern}` are {', '.join(q.presets)}; "
+                f"the families table lists {', '.join(patterns[q.pattern].types)}"
+            )
+    return found
+
+
 # --------------------------------------------------------------------------
 # module use (core/document-patterns.css and the example bodies)
 # --------------------------------------------------------------------------
@@ -431,12 +516,15 @@ _LOADERS = {
     "TYPES": load_types,
     "PATTERNS": load_patterns,
     "MODULES": load_modules,
+    "QUESTIONS": load_questions,
+    "LIFECYCLE": load_lifecycle,
 }
 _CACHE: dict[str, object] = {}
 
 
 def __getattr__(name: str) -> object:
-    """TYPES: {slug: Type}; PATTERNS: {name: Pattern}; MODULES: {class: Module}.
+    """TYPES: {slug: Type}; PATTERNS: {name: Pattern}; MODULES: {class: Module};
+    QUESTIONS: [Question]; LIFECYCLE: [Stage].
 
     Loaded from this repository on first access, so importing the module for
     its parsers never fails on a malformed file.

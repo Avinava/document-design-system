@@ -207,6 +207,24 @@ def check_writing_types(root: Path) -> None:
 
     for where, message in catalog.problems(types, patterns, catalog.theme_names(root)):
         error(where.relative_to(root) if where.is_absolute() else where, message)
+    if (root / catalog.TYPE_INDEX).is_file():
+        try:
+            questions = catalog.load_questions(root)
+        except catalog.CatalogError as exc:
+            error(catalog.TYPE_INDEX, str(exc))
+        else:
+            for message in catalog.question_problems(questions, patterns):
+                error(catalog.TYPE_INDEX, message)
+    if (root / catalog.LIFECYCLE_MD).is_file():
+        try:
+            stages = catalog.load_lifecycle(root)
+        except catalog.CatalogError as exc:
+            error(catalog.LIFECYCLE_MD, str(exc))
+        else:
+            for stage in stages:
+                for owner in stage.owners:
+                    if owner not in types:
+                        error(catalog.LIFECYCLE_MD, f'stage "{stage.name}" names `{owner}`, which has no type file')
 
     slugs = set(types)
     commands = root / "commands"
