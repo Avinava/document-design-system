@@ -2,7 +2,9 @@
 
 Committed outputs. They serve three jobs at once: CI fixtures, the screenshots in the root README, and a working reference for what each skill produces.
 
-The local type gallery is [`index.html`](index.html) — thirty-four canonical types grouped by eleven reading patterns, followed by one compatibility profile, theme variants, and the six-skill strip. GitHub Pages uses a full homepage at the site root and this gallery at `/types.html`.
+Every example belongs to one fictional engagement, Northwind Ingestion and its RFC 014; the facts are in [`WORLD.md`](WORLD.md). The GitHub Pages homepage walks that engagement in date order.
+
+The local Patterns page is [`index.html`](index.html): the reader's-question table first, then the eleven patterns, each with its characteristic modules, its presets and any composed example, followed by the lifecycle map, familiar names, the compatibility profile, and the six-skill strip. GitHub Pages publishes the same page at `/types.html`, beside the story homepage and a modules page with a specimen of every registered module.
 
 All of them rebuild from source — nothing here is hand-maintained.
 
@@ -17,6 +19,7 @@ python3 scripts/build_examples.py
 |---|---|---|
 | `inventory-report.html` | analytical-document-design | editorial-coral |
 | `design-doc.html` (and 33 other canonical slugs) | writing-documents | see table below |
+| `platform-primer.html` | writing-documents, composed in the `learning` pattern (`type: custom`) | field-notes |
 | `capacity-deck.html` | presentation-design | executive-navy |
 | `gallery-light.html` / `gallery-dark.html` | diagram-design + chart-design | editorial-coral / console-violet |
 | `themes-light.html` / `themes-dark.html` | the token contract itself | four house styles + horizon |
@@ -45,6 +48,14 @@ Bodies live in `templates/types/<slug>.html`. The shared world is [`WORLD.md`](W
 
 `mulesoft` remains a compatibility profile of canonical `service-docs`; it is
 not a second type.
+
+### Composed examples
+
+A composed example has no type. Its Markdown front matter declares `type:
+custom`, its `pattern`, the `modules` it uses, and its `nearest-type`; its body
+lives in `templates/composed/<slug>.html` and may use only modules the registry
+allows for that pattern. `platform-primer` is the worked example: a primer for
+engineers joining Platform from batch work, nearest type `explanation`.
 
 Pattern and theme are independent root attributes. See
 [`../core/document-patterns.md`](../core/document-patterns.md) for the contract.
