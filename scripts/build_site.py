@@ -30,18 +30,26 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from build_document import build  # noqa: E402
 from build_examples import LONGFORM, assemble_docs_gallery  # noqa: E402
 
+# Where each published copy's fixed back-link leads: (href, label, aria-label).
+BACK_TO_TYPES = ("types.html", "← Patterns", "Back to document patterns")
+BACK_TO_HOME = ("index.html", "← Home", "Back to the home page")
+
 HTML_KEEP = {
-    "inventory-report.html",
-    "capacity-deck.html",
-    "gallery-light.html",
-    "gallery-dark.html",
-    "themes-light.html",
-    "themes-dark.html",
-    "proposal-horizon.html",
-    "proposal-coral.html",
-    "brand.html",
-    "mulesoft.html",
+    "inventory-report.html": BACK_TO_HOME,
+    "capacity-deck.html": BACK_TO_HOME,
+    "gallery-light.html": BACK_TO_HOME,
+    "gallery-dark.html": BACK_TO_HOME,
+    "themes-light.html": BACK_TO_HOME,
+    "themes-dark.html": BACK_TO_HOME,
+    "proposal-horizon.html": BACK_TO_TYPES,
+    "proposal-coral.html": BACK_TO_TYPES,
+    "brand.html": BACK_TO_HOME,
+    "mulesoft.html": BACK_TO_TYPES,
 }
+
+# Local targets of src/href/srcset attributes; external, data: and mailto: URLs
+# and in-page anchors are not site files.
+LOCAL_REF = re.compile(r'(?:src|href|srcset)="(?!https?:|mailto:|data:|#)([^"\s]+)')
 
 HOME_MUST_CONTAIN = (
     "src=\"assets/banner.svg\"",
@@ -70,7 +78,7 @@ HOME_MUST_CONTAIN = (
 )
 
 
-def write_page_copy(src: Path, dest: Path, back_href: str | None = None) -> None:
+def write_page_copy(src: Path, dest: Path, back: tuple[str, str, str]) -> None:
     """Copy an assembled page and add Pages-only navigation affordances."""
     html = src.read_text(encoding="utf-8")
     html = html.replace(
@@ -78,17 +86,23 @@ def write_page_copy(src: Path, dest: Path, back_href: str | None = None) -> None
         '<link rel="icon" href="assets/banner.svg" type="image/svg+xml">\n</head>',
         1,
     )
-    if back_href:
-        control = (
-            '<style>.site-back{position:fixed;z-index:20;top:12px;left:12px;'
-            'padding:.45rem .7rem;border:1px solid var(--rule-strong);border-radius:999px;'
-            'background:var(--paper);color:var(--ink);font:600 .72rem/1 var(--mono);'
-            'text-decoration:none;box-shadow:0 2px 12px color-mix(in srgb,var(--ink) 10%,transparent)}'
-            '.site-back:focus-visible{outline:3px solid var(--accent);outline-offset:2px}'
-            '@media print{.site-back{display:none}}</style>\n'
-            f'<a class="site-back" href="{back_href}" aria-label="Back to document patterns">← Patterns</a>\n'
-        )
-        html = html.replace("<body>", "<body>\n" + control, 1)
+    # Screenshots live in docs/screenshots/ in the repository and in
+    # screenshots/ on Pages, so a repository-relative image path would break.
+    html = html.replace("../docs/screenshots/", "screenshots/")
+    back_href, back_label, back_aria = back
+    control = (
+        '<style>.site-back{position:fixed;z-index:20;top:12px;left:12px;'
+        'padding:.45rem .7rem;border:1px solid var(--rule-strong);border-radius:999px;'
+        'background:var(--paper);color:var(--ink);font:600 .72rem/1 var(--mono);'
+        'text-decoration:none;box-shadow:0 2px 12px color-mix(in srgb,var(--ink) 10%,transparent)}'
+        '.site-back:focus-visible{outline:3px solid var(--accent);outline-offset:2px}'
+        # Narrow screens have no free gutter, so the control joins the flow
+        # there instead of covering the page's first line.
+        '@media(max-width:900px){.site-back{position:static;display:inline-block;margin:12px 0 0 16px}}'
+        '@media print{.site-back{display:none}}</style>\n'
+        f'<a class="site-back" href="{back_href}" aria-label="{back_aria}">{back_label}</a>\n'
+    )
+    html = html.replace("<body>", "<body>\n" + control, 1)
     dest.write_text(html, encoding="utf-8")
 
 
@@ -134,16 +148,12 @@ def populate(dest: Path) -> None:
         src = EX / f"{slug}.html"
         if not src.is_file():
             sys.exit(f"missing {src.relative_to(ROOT)} — run build_examples.py first")
-        write_page_copy(src, dest / f"{slug}.html", "types.html")
+        write_page_copy(src, dest / f"{slug}.html", BACK_TO_TYPES)
 
-    for name in HTML_KEEP:
+    for name, back in HTML_KEEP.items():
         src = EX / name
         if src.is_file():
-            write_page_copy(
-                src,
-                dest / name,
-                "types.html" if name.startswith("proposal-") or name == "mulesoft.html" else None,
-            )
+            write_page_copy(src, dest / name, back)
 
     assemble_home("screenshots", dest / "index.html")
     assemble_docs_gallery(
@@ -196,6 +206,17 @@ def check_built(dest: Path) -> None:
             sys.exit(f"types.html missing consultancy navigation {needle!r}")
     if '<section class="group">\n  <h2>The skills</h2>' in gallery:
         sys.exit("types.html should not repeat the six-skill strip")
+    for name, (back_href, _, _) in HTML_KEEP.items():
+        page = dest / name
+        if not page.is_file():
+            sys.exit(f"site missing {name}")
+        if f'class="site-back" href="{back_href}"' not in page.read_text(encoding="utf-8"):
+            sys.exit(f"{name} has no way back to {back_href}")
+    for page in sorted(dest.glob("*.html")):
+        for ref in LOCAL_REF.findall(page.read_text(encoding="utf-8")):
+            target = ref.split("#")[0].split("?")[0]
+            if target and not (dest / target).exists():
+                sys.exit(f"{page.name} refers to {ref}, which is not in the published site")
     print(f"ok: {index.stat().st_size:,} bytes homepage, {types.stat().st_size:,} bytes types")
 
 
