@@ -575,6 +575,7 @@ a { color: inherit; text-underline-offset: 2px; }
 
 .page { max-width: 1240px; margin: 0 auto; padding: 40px 32px 64px; }
 
+/* panels: begin — shared with the site's Themes page (scripts/build_site.py) */
 .themes {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -635,6 +636,7 @@ a { color: inherit; text-underline-offset: 2px; }
 
 @media (max-width: 1100px) { .themes { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 640px)  { .themes { grid-template-columns: 1fr; } }
+/* panels: end */
 
 /* ---- inlined from core/print.css ---- */
 /* print.css — print and PDF as a distinct output mode.
@@ -831,6 +833,7 @@ a { color: inherit; text-underline-offset: 2px; }
   <h1>One contract, several voices</h1>
   <p class="subtle">Identical markup in every panel. Only <code>data-theme</code> differs — surfaces, ink, accent, typography, border character, and the methodology treatment all follow from the token contract. <code>horizon</code> is a client brand, not a fifth house style.</p>
 
+  <!-- panels: begin -->
   <div class="themes">
 
     <section class="panel" data-theme="editorial-coral">
@@ -944,6 +947,7 @@ a { color: inherit; text-underline-offset: 2px; }
     </section>
 
   </div>
+  <!-- panels: end -->
 </div>
 </body>
 </html>

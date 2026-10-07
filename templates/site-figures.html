@@ -1,0 +1,74 @@
+<!doctype html>
+<!--
+  The Figures page: every diagram and chart form, inlined on the site's own
+  tokens, so the figures follow this page's theme and its dark palette.
+
+  Assembled by scripts/build_site.py. The figure grid and its CSS are lifted
+  from templates/gallery.html (between its "figures: begin/end" markers), the
+  same source the standalone gallery documents are built from, so the two
+  cannot drift.
+-->
+<html lang="en" data-theme="executive-navy">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Figures — document-design-system</title>
+<!-- @@META -->
+<!-- @@FAVICON -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* @@INLINE core/themes/${THEME}.css @@ */
+/* @@INLINE core/base.css @@ */
+/* @@SITE_CSS */
+/* @@GALLERY_CSS */
+
+.page-hero { padding: 64px 0 0; }
+.gallery { margin-top: 40px; }
+.gallery .fig { margin: 0; min-width: 0; }
+.how { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; margin: 64px 0 0;
+  padding: 28px 0 0; border-top: 1px solid var(--rule-strong); }
+.how h2 { margin: 0 0 .4rem; font-size: 1.0625rem; letter-spacing: -.01em; }
+.how p { margin: 0; color: var(--muted); font-size: .9375rem; }
+.standalone { margin: 40px 0 0; color: var(--muted); font-size: .9375rem; }
+@media (max-width: 860px) { .how { grid-template-columns: minmax(0, 1fr); } }
+/* On a phone a figure scrolls inside its frame at a size its labels can be
+   read at, rather than shrinking them to a few pixels. */
+@media (max-width: 640px) {
+  .gallery .frame { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .gallery .frame > svg[role="img"]:not([aria-label]) { min-width: 520px; }
+}
+/* @@DARK */
+/* @@INLINE core/print.css @@ */
+</style>
+</head>
+<body>
+<a class="skip-link" href="#figures">Skip to the figures</a>
+<div class="shell">
+<!-- @@NAV -->
+
+<header class="page-hero">
+  <h1 class="site-title">Figures that stay true</h1>
+  <p class="site-lead">Every figure here is SVG whose colours are <code>var(--…)</code>. They are inlined on this page, so they wear its theme — and if your system asks for dark, they follow it with nothing re-rendered.</p>
+  <p class="site-lead">@@FORMS_WORD_CAP diagram forms and the chart forms are documented in the skills; these are the ones the examples use, each with the question it answers.</p>
+</header>
+
+<main id="figures">
+<!-- @@GALLERY -->
+
+<section class="how" aria-label="How figures are made">
+  <div><h2>Drawn where position means something</h2><p>Architecture, change views, deployment maps and dependency graphs are hand-authored on a 4px grid with one accent, because their layout carries meaning.</p></div>
+  <div><h2>Laid out where the protocol decides</h2><p>Sequence diagrams are prerendered from Mermaid; charts are computed with Plot. Both come out as SVG on tokens, never as images.</p></div>
+  <div><h2>Checked, not eyeballed</h2><p>@@RULES_WORD_CAP geometry and markup rules run on every figure's coordinates, and every page is rendered at 1280px, 390px and print to catch clipping.</p></div>
+</section>
+
+<p class="standalone">The same figures as standalone documents, for comparing themes: <a href="gallery-light.html">editorial-coral</a> · <a href="gallery-dark.html">console-violet</a>.</p>
+</main>
+
+<footer class="site-foot">
+  <p>Mermaid and draw.io files are inputs: their structure is imported and redrawn on tokens. Rules and forms are in the <a href="@@REPO/blob/main/skills/diagram-design/SKILL.md">diagram</a> and <a href="@@REPO/blob/main/skills/chart-design/SKILL.md">chart</a> skills.</p>
+</footer>
+</div>
+</body>
+</html>

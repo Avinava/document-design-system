@@ -638,6 +638,35 @@ class TestAssets(unittest.TestCase):
         remote = [u for u in re.findall(r"url\(([^)]*)\)", svg) if "http" in u]
         self.assertEqual(remote, [], "banner must not reference remote urls")
 
+    def test_mark_and_wordmark_are_self_contained(self):
+        """The mark is the favicon and the wordmark ships for <img> use: both
+        are isolated documents, so the same rules as the banner apply."""
+        import xml.dom.minidom
+
+        for name in ("mark.svg", "wordmark.svg"):
+            path = ROOT / "assets" / name
+            with self.subTest(asset=name):
+                self.assertTrue(path.is_file(), f"assets/{name} is missing")
+                xml.dom.minidom.parse(str(path))
+                svg = path.read_text(encoding="utf-8")
+                self.assertIn("<title", svg)
+                self.assertIn("viewBox", svg)
+                self.assertNotIn("var(--", svg)
+                self.assertIn("prefers-color-scheme", svg)
+                for construct in ("@import", "xlink:href", "<image", "src="):
+                    self.assertNotIn(construct, svg)
+
+    def test_navigation_mark_matches_the_mark_file(self):
+        """The inline mark in the site navigation draws the same geometry as
+        assets/mark.svg, on tokens instead of literals."""
+        import site_parts
+
+        geometry = lambda svg: re.findall(r'<rect[^>]*?x="[^"]*"[^>]*?y="[^"]*"[^>]*?width="[^"]*"[^>]*?height="[^"]*"', svg)
+        shape = lambda svg: [re.sub(r'\s*(class|fill)="[^"]*"', "", r) for r in geometry(svg)]
+        file_svg = (ROOT / "assets" / "mark.svg").read_text(encoding="utf-8")
+        self.assertEqual(shape(site_parts.MARK_SVG), shape(file_svg))
+        self.assertNotRegex(site_parts.MARK_SVG, r"#[0-9a-fA-F]{3,8}\b")
+
     def test_readme_shows_the_banner(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         self.assertIn("assets/banner.svg", readme)
@@ -1681,6 +1710,28 @@ class TestRenderCheck(unittest.TestCase):
         if result.returncode == 2:
             self.skipTest(result.stderr.strip())
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+
+class TestSiteNavigation(unittest.TestCase):
+    """Every item in the site navigation opens a page that carries the
+    navigation. A nav item that lands on a standalone example document strands
+    the reader with only a back link."""
+
+    def test_every_local_nav_target_is_a_site_page_with_the_nav(self):
+        import build_site
+        import site_parts
+
+        local = [href for _, href in site_parts.NAV if not href.startswith("http")]
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = Path(tmp)
+            with contextlib.redirect_stdout(io.StringIO()):
+                build_site.populate(dest)
+            for href in local:
+                with self.subTest(page=href):
+                    self.assertIn(href, build_site.SITE_PAGES, f"nav item {href} is not a site page")
+                    html = (dest / href).read_text(encoding="utf-8")
+                    self.assertIn('<nav class="site-nav"', html)
+                    self.assertIn(f'href="{href}" aria-current="page"', html)
 
 
 @unittest.skipUnless(

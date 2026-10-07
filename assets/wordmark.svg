@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 344 40" width="344" height="40"
+     role="img" aria-labelledby="wordmark-title">
+  <title id="wordmark-title">document-design-system</title>
+  <!--
+    The wordmark: the mark (see mark.svg) beside the name. The hyphens step
+    back to the soft ink so the three words read as one name without the
+    punctuation competing; the accent stays on the mark's single line.
+
+    Renders inside <img>, an isolated document, so colours are literals with
+    their own dark mode and the type is a system stack — a web font cannot be
+    relied on here. The site navigation sets the same name in live text.
+  -->
+  <style>
+    .page   { fill: #2d3142; }
+    .line   { fill: #f5f5f5; }
+    .accent { fill: #eb6c36; }
+    .ink    { fill: #2d3142; }
+    .soft   { fill: #7a8399; }
+    .name   { font-family: 'Manrope', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+              font-size: 22px; font-weight: 600; letter-spacing: -0.4px; }
+    @media (prefers-color-scheme: dark) {
+      .page   { fill: #f5f5f5; }
+      .line   { fill: #2d3142; }
+      .accent { fill: #f0875a; }
+      .ink    { fill: #f5f5f5; }
+      .soft   { fill: #8e98ac; }
+    }
+  </style>
+  <g transform="translate(4 4)">
+    <rect class="page" x="0" y="0" width="32" height="32" rx="8"/>
+    <rect class="accent" x="8" y="7" width="12" height="3" rx="1.5"/>
+    <rect class="line" x="8" y="12.5" width="16" height="3" rx="1.5"/>
+    <rect class="line" x="8" y="18" width="16" height="3" rx="1.5"/>
+    <rect class="line" x="8" y="23.5" width="10" height="3" rx="1.5"/>
+  </g>
+  <text class="name ink" x="48" y="28">document<tspan class="soft">-</tspan>design<tspan class="soft">-</tspan>system</text>
+</svg>
