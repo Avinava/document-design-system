@@ -14,16 +14,13 @@ the type gallery resolve its ../docs/screenshots/thumbs/ previews.
 
 from __future__ import annotations
 
-import functools
-import http.server
-import socketserver
 import sys
-import threading
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
 sys.path.insert(0, str(ROOT / "scripts"))
+from _serve import serve  # noqa: E402
 from pins import REPO_PYTHON_HINT  # noqa: E402
 
 EX = ROOT / "examples"
@@ -108,22 +105,6 @@ SLIDE_SHOTS = {
 }
 
 
-class QuietHandler(http.server.SimpleHTTPRequestHandler):
-    """SimpleHTTPRequestHandler logs every request to stderr; that noise buries
-    the one line per screenshot that the caller actually wants to see."""
-
-    def log_message(self, *args) -> None:  # noqa: D102
-        pass
-
-
-def serve() -> socketserver.TCPServer:
-    handler = functools.partial(QuietHandler, directory=str(ROOT))
-    socketserver.TCPServer.allow_reuse_address = True
-    httpd = socketserver.TCPServer(("127.0.0.1", PORT), handler)
-    threading.Thread(target=httpd.serve_forever, daemon=True).start()
-    return httpd
-
-
 def main() -> None:
     only = set(sys.argv[1:]) if len(sys.argv) > 1 else None
 
@@ -140,7 +121,7 @@ def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     thumbs = OUT / "thumbs"
     thumbs.mkdir(exist_ok=True)
-    httpd = serve()
+    httpd, base = serve(ROOT, PORT)
 
     try:
         with sync_playwright() as p:
@@ -151,7 +132,7 @@ def main() -> None:
                     continue
                 page = browser.new_page(viewport={"width": w, "height": h},
                                         device_scale_factor=2)
-                page.goto(f"http://127.0.0.1:{PORT}/examples/{page_file}", wait_until="networkidle")
+                page.goto(f"{base}/examples/{page_file}", wait_until="networkidle")
                 # Web fonts render as fallbacks if the shot is taken before they
                 # load, and the result looks subtly wrong in a way that is easy
                 # to miss in a thumbnail.
@@ -177,7 +158,7 @@ def main() -> None:
                     continue
                 page = browser.new_page(viewport={"width": 1280, "height": 760},
                                         device_scale_factor=2)
-                page.goto(f"http://127.0.0.1:{PORT}/examples/{page_file}", wait_until="networkidle")
+                page.goto(f"{base}/examples/{page_file}", wait_until="networkidle")
                 page.evaluate("document.fonts.ready")
                 slide = page.locator("section.slide").nth(index)
                 slide.scroll_into_view_if_needed()

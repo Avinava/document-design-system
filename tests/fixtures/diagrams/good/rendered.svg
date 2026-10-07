@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 301 143" width="100%" data-renderer="render_diagram" role="img" aria-labelledby="fxr-title fxr-desc">
+  <title id="fxr-title">Fixture: renderer output</title>
+  <desc id="fxr-desc">Renderer layout is off the 4px grid and unmarked; only the shell and bounds rules apply.</desc>
+  <g>
+    <rect x="13.5" y="21" width="99" height="37.5" rx="3" fill="var(--dds-surface)" stroke="var(--dds-rule)"/>
+    <text x="63" y="44" font-size="13" text-anchor="middle" fill="var(--dds-ink)">Client</text>
+  </g>
+  <g>
+    <rect x="13.5" y="40" width="99" height="37.5" fill="var(--dds-surface)"/>
+  </g>
+  <line x1="112.5" y1="39.75" x2="187" y2="39.75" stroke="var(--dds-rule-strong)"/>
+</svg>

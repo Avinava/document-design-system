@@ -14,7 +14,7 @@ Pinned exactly. The Node packages install with `npm ci` from `package.json` and 
 | [`@observablehq/plot`](https://github.com/observablehq/plot) | npm | 0.6.17 | ISC — Observable, Inc. | `scripts/render_chart.mjs` |
 | [`jsdom`](https://github.com/jsdom/jsdom) | npm | 30.1.2 | MIT | `scripts/render_chart.mjs` |
 | [`playwright`](https://github.com/microsoft/playwright) | npm | 1.63.0 | Apache-2.0 — Microsoft | `scripts/export_pdf.mjs` |
-| [`playwright`](https://github.com/microsoft/playwright-python) | PyPI | 1.63.0 | Apache-2.0 — Microsoft | `scripts/shoot_examples.py`, `scripts/extract_site_theme.py` |
+| [`playwright`](https://github.com/microsoft/playwright-python) | PyPI | 1.63.0 | Apache-2.0 — Microsoft | `scripts/shoot_examples.py`, `scripts/extract_site_theme.py`, `scripts/check_render.py` |
 | [`pillow`](https://github.com/python-pillow/Pillow) | PyPI | 12.3.0 | MIT-CMU (historical PIL licence, also listed as HPND) | `scripts/shoot_examples.py` |
 
 ## Optional escape hatches
