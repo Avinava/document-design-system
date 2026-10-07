@@ -16,7 +16,7 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: "22"
+          node-version-file: .nvmrc
 
       # Pointed at a directory, `claude plugin validate` checks ONLY the
       # marketplace manifest when both manifests exist — it announces
@@ -74,10 +74,12 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: "22"
+          node-version-file: .nvmrc
 
-      - name: Install authoring-time renderers
-        run: npm install --no-save beautiful-mermaid @observablehq/plot jsdom
+      - name: Install the pinned authoring-time renderers
+        # package-lock.json pins every version; .npmrc's engine-strict fails
+        # the install on a Node older than package.json's engines floor.
+        run: npm ci
 
       - name: Render a diagram and check the output contract
         run: |

@@ -5,7 +5,9 @@
  *   node scripts/export_pdf.mjs report.html --out report.pdf
  *   node scripts/export_pdf.mjs deck.html   --out deck.pdf --preset deck
  *
- * Requires: npm install playwright && npx playwright install chromium
+ * Requires (authoring time only): `npm ci` inside the repository, or
+ * `npm i playwright@1.63.0` where the skill is installed on its own; then
+ * `npx playwright install chromium`.
  *
  * Chromium is the right engine here for one reason: the artifact was authored
  * against Chrome, so only Chrome's print path guarantees the PDF matches what
@@ -70,7 +72,8 @@ async function main() {
   } catch {
     console.error(
       'playwright is not installed.\n' +
-        '  npm install playwright && npx playwright install chromium\n' +
+        '  in the repository:      npm ci && npx playwright install chromium\n' +
+        '  in an installed skill:  npm i playwright@1.63.0 && npx playwright install chromium\n' +
         'It is an authoring-time dependency only.'
     );
     process.exit(1);

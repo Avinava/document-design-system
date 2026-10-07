@@ -13,7 +13,7 @@ That is what keeps a chart sharp in print, correct when the document is emailed 
 ## The renderer
 
 ```bash
-npm install @observablehq/plot jsdom   # authoring-time only
+npm i @observablehq/plot@0.6.17 jsdom@30.1.2   # authoring-time only, Node 22.22.2+; `npm ci` inside the repository
 
 node scripts/render_chart.mjs spec.json --out chart.svg
 ```
@@ -90,7 +90,7 @@ Use one mark with a per-datum `fill` function instead. `scripts/render_chart.mjs
 
 ## Alternatives
 
-**Vega-Lite + `vl-convert`** — if you would rather specify charts as JSON data than as JS calls. `vl-convert` is a Rust binary with Python bindings that renders a spec to static SVG with no browser and no Node. The tradeoff: it bakes colors into the output, so a theme change means re-rendering rather than a CSS swap.
+**Vega-Lite + `vl-convert-python`** — if you would rather specify charts as JSON data than as JS calls. `vl-convert-python` (BSD-3-Clause) is a Rust library with Python bindings that renders a spec to static SVG with no browser and no Node. Use a 1.9.x release (`uv pip install 'vl-convert-python>=1.9,<2'`); avoid the 2.0 release candidates. The tradeoff: it bakes colors into the output, so a theme change means re-rendering rather than a CSS swap.
 
 **matplotlib** — for a Python-only toolchain, `savefig(format='svg')` is offline and dependency-light. Its defaults need substantial styling work to match this system, and its text-as-paths behavior needs care or the labels stop being selectable and stop inheriting `var(--sans)`.
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Read a site's palette and typography off its computed styles.
 
-    pip install playwright && playwright install chromium
+    uv pip install playwright==1.63.0 && uv run playwright install chromium
     python3 scripts/extract_site_theme.py https://example.com
     python3 scripts/extract_site_theme.py https://example.com /docs --out brand.json
 
@@ -93,7 +93,9 @@ def main() -> int:
     except ImportError:
         print(
             "playwright is not installed.\n"
-            "  pip install playwright && playwright install chromium\n"
+            "  in the repository:      uv venv && uv pip install -r requirements-authoring.txt\n"
+            "  in an installed skill:  uv pip install playwright==1.63.0\n"
+            "  then:                   uv run playwright install chromium\n"
             "It is an authoring-time dependency only.\n"
             "Alternative: read a screenshot or the brand guide PDF directly — see\n"
             "skills/brand-theme-design/references/extraction.md",

@@ -4,7 +4,9 @@
  *
  *   node scripts/render_chart.mjs spec.json --out chart.svg
  *
- * Requires: npm install @observablehq/plot jsdom   (authoring-time only)
+ * Requires (authoring time only, Node 22.22.2 or newer): `npm ci` inside the
+ * repository, or `npm i @observablehq/plot@0.6.17 jsdom@30.1.2` where the skill
+ * is installed on its own.
  *
  * The spec is deliberately small. It covers the forms in
  * skills/chart-design/references/chart-forms.md and refuses the ones that
@@ -179,7 +181,8 @@ async function main() {
   } catch {
     fail(
       '@observablehq/plot and jsdom are not installed.\n' +
-        '  npm install @observablehq/plot jsdom\n' +
+        '  in the repository:      npm ci\n' +
+        '  in an installed skill:  npm i @observablehq/plot@0.6.17 jsdom@30.1.2\n' +
         'Both are authoring-time only — the rendered SVG carries neither.'
     );
   }

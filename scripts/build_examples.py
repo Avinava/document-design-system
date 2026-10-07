@@ -28,6 +28,7 @@ TYPES = ROOT / "templates" / "types"
 
 sys.path.insert(0, str(ROOT / "scripts"))
 from build_document import build  # noqa: E402
+from pins import REPO_NPM_HINT  # noqa: E402
 
 # figure slug -> (renderer, spec, extra args)
 CHARTS = {
@@ -329,8 +330,7 @@ def render_figures() -> None:
             "--out", str(EX / f"{slug}.svg"),
         ])
     if not ok:
-        print("  (reusing committed SVGs — run `npm install beautiful-mermaid "
-              "@observablehq/plot jsdom` to re-render)")
+        print(f"  (reusing committed SVGs — run `{REPO_NPM_HINT}` to re-render)")
 
 
 def figure(slug: str) -> str:

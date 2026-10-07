@@ -278,14 +278,15 @@ A theme changes the visual voice, never the information architecture. It must no
 
 ## Tooling
 
-All of it runs on the authoring machine. The delivered artifact is plain HTML and SVG.
+All of it runs on the authoring machine. The delivered artifact is plain HTML and SVG. Node 22.22.2 or newer is required (`.npmrc` sets `engine-strict`, so an older Node fails at install); the validator, tests and document build need only the Python standard library.
 
 ```bash
-npm install beautiful-mermaid @observablehq/plot jsdom     # renderers
-pip install playwright && playwright install chromium      # PDF + screenshots
+nvm use && npm ci                                           # renderers + PDF export, pinned in package-lock.json
+uv venv && uv pip install -r requirements-authoring.txt     # screenshots + brand extraction, pinned
+uv run playwright install chromium
 
 python3 scripts/build_examples.py       # reports, decks, figures, all 34 types, gallery index
-python3 scripts/shoot_examples.py       # refresh the screenshots above
+uv run python3 scripts/shoot_examples.py   # refresh the screenshots above
 python3 scripts/build_site.py           # GitHub Pages homepage + types gallery in site/ (gitignored)
 python3 scripts/inline_fonts.py rfc.html --font "Geist:400:geist.woff2" --out offline.html
 python3 scripts/validate_repository.py .
@@ -323,7 +324,7 @@ The live site is [avinava.github.io/document-design-system](https://avinava.gith
 - **[Observable Plot](https://observablehq.com/plot/)** (ISC) — chart scales and layout.
 - Anthropic's **skill-creator** conventions — progressive disclosure and description-writing patterns.
 
-Full dependency licensing, including the MPL-2.0 note on the optional D2 escape hatch, is in [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).
+Full dependency licensing, with the pinned version of every authoring-time package, is in [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).
 
 ## Contributing
 

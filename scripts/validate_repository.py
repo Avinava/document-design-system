@@ -12,12 +12,14 @@ Standard library only. Exit code 1 on any error.
 
 from __future__ import annotations
 
+import ast
 import json
 import re
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import pins  # noqa: E402
 import sync_skill_assets  # noqa: E402
 from sync_skill_assets import VENDORED_DIRS  # noqa: E402
 
@@ -528,6 +530,170 @@ def check_manifests(root: Path) -> None:
                     error(skill_dir.relative_to(root), "directory under skills/ has no SKILL.md")
 
 
+# --------------------------------------------------------------------------
+# authoring toolchain
+# --------------------------------------------------------------------------
+
+# `name@<x.y.z>` (npm, optionally scoped) and `name==<x.y.z>` (PyPI). The lookbehind
+# keeps an email address or a path segment from reading as a package.
+NPM_PIN_RE = re.compile(r"(?<![\w@/.-])((?:@[a-z0-9][\w.-]*/)?[a-z0-9][\w.-]*)@(\d+\.\d+\.\d+)\b")
+PYPI_PIN_RE = re.compile(r"(?<![\w.-])([A-Za-z0-9][\w.-]*)==(\d+(?:\.\d+)*)\b")
+
+LICENSES = "THIRD_PARTY_LICENSES.md"
+# A dependency row: [`package`](url) | registry | version | license | ...
+LICENSE_ROW_RE = re.compile(r"^\|\s*\[`([^`]+)`\]\([^)]*\)\s*\|\s*(npm|PyPI)\s*\|\s*([^|]*?)\s*\|", re.M)
+REGISTRY = {"npm": "npm", "PyPI": "pypi"}
+
+# Import name -> distribution name, where the two differ.
+IMPORT_TO_DIST = {"PIL": "pillow"}
+# Static `import … from 'x'`, bare `import 'x'`, and dynamic `import('x')`.
+MJS_IMPORT_RE = re.compile(r"""(?:\bfrom\s+|^\s*import\s+|\bimport\s*\(\s*)['"]([^'"]+)['"]""", re.M)
+
+
+def script_and_skill_files(root: Path) -> list[Path]:
+    """The canonical scripts plus every skill's prose: what a user actually runs or reads."""
+    files = [p for p in sorted((root / "scripts").glob("*")) if p.suffix in {".py", ".mjs"}]
+    for skill in sorted((root / "skills").glob("*/")):
+        files.append(skill / "SKILL.md")
+        files.extend(sorted((skill / "references").glob("*.md")))
+    return [p for p in files if p.is_file()]
+
+
+def pinned_mention_files(root: Path) -> list[Path]:
+    """Every file whose version mentions must agree with the pins."""
+    docs = [root / name for name in ("README.md", LICENSES, "examples/README.md", "AGENTS.md")]
+    return script_and_skill_files(root) + [p for p in docs if p.is_file()]
+
+
+def load_pins(root: Path) -> dict[str, dict[str, str]] | None:
+    try:
+        return pins.pins(root)
+    except FileNotFoundError as exc:
+        error(Path(Path(exc.filename).name), "missing — the authoring toolchain is pinned there")
+    except (ValueError, json.JSONDecodeError) as exc:
+        error(Path(pins.PACKAGE_JSON), str(exc))
+    return None
+
+
+def check_pins(root: Path) -> None:
+    """Every `pkg@x.y.z` / `pkg==x.y.z` in docs and scripts names a pinned
+    package at its pinned version, so a hint can never install something the
+    lockfile does not."""
+    found = load_pins(root)
+    if found is None:
+        return
+    for path in pinned_mention_files(root):
+        rel = path.relative_to(root)
+        text = path.read_text(encoding="utf-8")
+        for registry, pattern, manifest in (
+            ("npm", NPM_PIN_RE, pins.PACKAGE_JSON),
+            ("pypi", PYPI_PIN_RE, pins.REQUIREMENTS),
+        ):
+            for m in pattern.finditer(text):
+                name, version = m.group(1), m.group(2)
+                key = name.lower() if registry == "pypi" else name
+                line = text.count("\n", 0, m.start()) + 1
+                pinned = found[registry].get(key)
+                if pinned is None:
+                    error(rel, f"line {line}: {m.group(0)} is not pinned in {manifest}")
+                elif pinned != version:
+                    error(rel, f"line {line}: {m.group(0)} disagrees with {manifest} ({pinned})")
+
+
+def script_imports(root: Path) -> dict[tuple[str, str], list[Path]]:
+    """Third-party packages imported by scripts/*.mjs and scripts/*.py.
+
+    Returns {(registry, distribution): [importing scripts]}.
+    """
+    scripts = root / "scripts"
+    local = {p.stem for p in scripts.glob("*.py")}
+    found: dict[tuple[str, str], list[Path]] = {}
+
+    def add(key: tuple[str, str], path: Path) -> None:
+        found.setdefault(key, [])
+        if path not in found[key]:
+            found[key].append(path)
+
+    for path in sorted(scripts.glob("*.mjs")):
+        for spec in MJS_IMPORT_RE.findall(path.read_text(encoding="utf-8")):
+            if spec.startswith(("node:", ".", "/")):
+                continue
+            parts = spec.split("/")
+            name = "/".join(parts[:2]) if spec.startswith("@") else parts[0]
+            add(("npm", name), path)
+
+    for path in sorted(scripts.glob("*.py")):
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        except SyntaxError as exc:
+            error(path.relative_to(root), f"does not parse: {exc}")
+            continue
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                modules = [alias.name for alias in node.names]
+            elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+                modules = [node.module]
+            else:
+                continue
+            for module in modules:
+                top = module.split(".")[0]
+                if top in sys.stdlib_module_names or top in local or top == "__future__":
+                    continue
+                add(("pypi", IMPORT_TO_DIST.get(top, top).lower()), path)
+    return found
+
+
+def check_dependencies(root: Path) -> None:
+    """The license table and the code agree in both directions.
+
+    Every third-party import in scripts/ and every pinned package has a row in
+    THIRD_PARTY_LICENSES.md (at its pinned version), and every row is used by a
+    script or named by a skill — a row nobody references is an attribution for
+    a dependency that no longer exists.
+    """
+    licenses = root / LICENSES
+    if not licenses.is_file():
+        error(Path(LICENSES), "missing")
+        return
+    rows: dict[tuple[str, str], str] = {}
+    for name, registry, version in LICENSE_ROW_RE.findall(licenses.read_text(encoding="utf-8")):
+        reg = REGISTRY[registry]
+        rows[(reg, name.lower() if reg == "pypi" else name)] = version
+
+    imports = script_imports(root)
+    for (registry, name), users in sorted(imports.items()):
+        if (registry, name) not in rows:
+            for user in users:
+                error(
+                    user.relative_to(root),
+                    f"imports {name} ({registry}), which has no row in {LICENSES}",
+                )
+
+    found = load_pins(root)
+    if found is not None:
+        for registry, entries in found.items():
+            for name, version in sorted(entries.items()):
+                listed = rows.get((registry, name))
+                if listed is None:
+                    error(Path(LICENSES), f"pinned {registry} package {name} has no row")
+                elif listed != version:
+                    error(
+                        Path(LICENSES),
+                        f"{name} ({registry}) is listed at {listed!r} but pinned at {version}",
+                    )
+
+    corpus = "\n".join(p.read_text(encoding="utf-8") for p in script_and_skill_files(root)).lower()
+    for registry, name in sorted(rows):
+        if (registry, name) in imports:
+            continue
+        if name.lower() not in corpus:
+            error(
+                Path(LICENSES),
+                f"{name} ({registry}) is listed but no script or skill references it — "
+                "remove the row or the dependency it describes",
+            )
+
+
 def is_vendored(rel: Path) -> bool:
     """True for skills/<name>/{core,scripts,templates}/..., the generated copies."""
     return len(rel.parts) > 3 and rel.parts[0] == "skills" and rel.parts[2] in VENDORED_DIRS
@@ -574,6 +740,8 @@ def main() -> int:
     palette = check_themes(root)
     check_hex_literals(root, palette)
     check_manifests(root)
+    check_pins(root)
+    check_dependencies(root)
     check_vendored_assets(root)
     check_links(root)
 

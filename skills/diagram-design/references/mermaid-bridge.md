@@ -29,7 +29,7 @@ The deciding question is whether the arrangement is chosen or dictated.
 ## The renderer
 
 ```bash
-npm install beautiful-mermaid   # authoring-time only
+npm i beautiful-mermaid@1.1.3   # authoring-time only, Node 22.22.2+; `npm ci` inside the repository
 
 node scripts/render_diagram.mjs diagram.mmd \
   --id ingest \
@@ -85,7 +85,7 @@ That is mostly fine, because the missing ones divide cleanly:
 
 - **Should be hand-authored anyway** — timeline, quadrant, C4. Position carries meaning in all three.
 - **Are charts, not diagrams** — pie, sankey, XY. Use `chart-design`.
-- **Genuinely need a renderer** — gantt, gitgraph. Use [`mermaidx`](https://github.com/MohammadRaziei/mermaidx), which is browserless. Avoid `@mermaid-js/mermaid-cli`: it drives headless Chromium through Puppeteer, which is a ~170MB prerequisite and a startup cost per invocation for something that should be a function call.
+- **Genuinely need a renderer** — gantt, gitgraph. Use [`mermaidx`](https://github.com/MohammadRaziei/mermaidx), a browserless Python package (`uv pip install mermaidx`). Avoid `@mermaid-js/mermaid-cli`: it drives headless Chromium through Puppeteer, which is a ~170MB prerequisite and a startup cost per invocation for something that should be a function call.
 
 For dense directed graphs beyond what any of these lay out well, `@hpcc-js/wasm-graphviz` (Apache-2.0) gives real Graphviz with no system install. Its output styles per-attribute rather than through CSS variables, so it needs a post-pass rewriting `fill` and `stroke` into `var(--…)` before it belongs in a themed document.
 

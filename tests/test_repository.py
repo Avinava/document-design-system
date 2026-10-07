@@ -821,5 +821,199 @@ class TestManifestValidation(unittest.TestCase):
         )
 
 
+class TestToolchain(unittest.TestCase):
+    """One set of pins, and every hint, doc and license row agreeing with it."""
+
+    def test_pins_are_exact_and_cover_the_renderers(self):
+        import pins
+
+        found = pins.pins(ROOT)
+        self.assertEqual(
+            set(found["npm"]),
+            {"beautiful-mermaid", "@observablehq/plot", "jsdom", "playwright"},
+        )
+        self.assertEqual(set(found["pypi"]), {"playwright", "pillow"})
+        for registry, entries in found.items():
+            for name, version in entries.items():
+                with self.subTest(registry=registry, name=name):
+                    self.assertRegex(version, r"^\d+\.\d+\.\d+$")
+
+    def test_lockfile_matches_package_json(self):
+        import json
+
+        import pins
+
+        lock = json.loads((ROOT / "package-lock.json").read_text(encoding="utf-8"))
+        declared = pins.npm_pins(ROOT)
+        self.assertEqual(lock["packages"][""]["dependencies"], declared)
+        for name, version in declared.items():
+            with self.subTest(name=name):
+                self.assertEqual(lock["packages"][f"node_modules/{name}"]["version"], version)
+
+    def test_node_floor_is_declared_once_and_enforced(self):
+        import json
+
+        package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
+        self.assertEqual(package["engines"]["node"], ">=22.22.2")
+        self.assertIn("engine-strict=true", (ROOT / ".npmrc").read_text(encoding="utf-8"))
+        self.assertEqual((ROOT / ".nvmrc").read_text(encoding="utf-8").strip(), "22")
+
+    def test_vendored_scripts_carry_the_canonical_standalone_hint(self):
+        """Vendored scripts cannot import pins.py, so their literal hint is checked here."""
+        import pins
+
+        expected = {
+            "render_diagram.mjs": pins.npm_hint("beautiful-mermaid"),
+            "render_chart.mjs": pins.npm_hint("@observablehq/plot", "jsdom"),
+            "export_pdf.mjs": pins.npm_hint("playwright"),
+            "extract_site_theme.py": pins.python_hint("playwright"),
+        }
+        for script, hint in expected.items():
+            with self.subTest(script=script):
+                text = (ROOT / "scripts" / script).read_text(encoding="utf-8")
+                self.assertIn(hint, text)
+                self.assertIn("npm ci" if script.endswith(".mjs") else "requirements-authoring.txt", text)
+
+    def test_hints_name_exact_versions(self):
+        import pins
+
+        self.assertEqual(pins.npm_hint("jsdom", root=ROOT), f"npm i jsdom@{pins.npm_pins(ROOT)['jsdom']}")
+        self.assertEqual(
+            pins.python_hint("pillow", root=ROOT),
+            f"uv pip install pillow=={pins.python_pins(ROOT)['pillow']}",
+        )
+
+
+class TestToolchainValidation(unittest.TestCase):
+    """check_pins and check_dependencies must reject what they claim to."""
+
+    def run_checks(self, mutate=None) -> list[str]:
+        import shutil
+        import tempfile
+
+        import validate_repository as vr
+
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            for name in ("package.json", "requirements-authoring.txt", "THIRD_PARTY_LICENSES.md", "README.md"):
+                shutil.copy2(ROOT / name, tmp / name)
+            (tmp / "scripts").mkdir()
+            for script in sorted((ROOT / "scripts").glob("*")):
+                if script.suffix in {".py", ".mjs"}:
+                    shutil.copy2(script, tmp / "scripts" / script.name)
+            for skill in skill_dirs():
+                dest = tmp / "skills" / skill.name
+                shutil.copytree(skill / "references", dest / "references")
+                shutil.copy2(skill / "SKILL.md", dest / "SKILL.md")
+            if mutate:
+                mutate(tmp)
+            vr.errors.clear()
+            vr.warnings.clear()
+            try:
+                vr.check_pins(tmp)
+                vr.check_dependencies(tmp)
+                return list(vr.errors)
+            finally:
+                vr.errors.clear()
+                vr.warnings.clear()
+
+    def assert_rejects(self, needle: str, mutate) -> None:
+        found = self.run_checks(mutate)
+        self.assertTrue(any(needle in e for e in found), f"expected {needle!r}, got {found}")
+
+    @staticmethod
+    def edit(rel: str, old: str, new: str):
+        def mutate(tmp: Path) -> None:
+            path = tmp / rel
+            text = path.read_text(encoding="utf-8")
+            assert old in text, f"{old!r} not in {rel}"
+            path.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+        return mutate
+
+    @staticmethod
+    def write(rel: str, body: str):
+        def mutate(tmp: Path) -> None:
+            (tmp / rel).write_text(body, encoding="utf-8")
+
+        return mutate
+
+    def test_unmutated_copy_passes(self):
+        self.assertEqual(self.run_checks(), [])
+
+    def test_rejects_a_version_range(self):
+        self.assert_rejects(
+            "not an exact version",
+            self.edit("package.json", '"jsdom": "30.1.2"', '"jsdom": "^30.1.2"'),
+        )
+
+    def test_rejects_a_stale_hint(self):
+        self.assert_rejects(
+            "disagrees with package.json",
+            self.edit("scripts/render_chart.mjs", "jsdom@30.1.2", "jsdom@29.0.0"),
+        )
+
+    def test_rejects_a_stale_python_hint(self):
+        self.assert_rejects(
+            "disagrees with requirements-authoring.txt",
+            self.edit("scripts/extract_site_theme.py", "playwright==1.63.0", "playwright==1.40.0"),
+        )
+
+    def test_rejects_a_pin_for_an_unmanaged_package(self):
+        self.assert_rejects(
+            "is not pinned in package.json",
+            self.edit("README.md", "## Tooling", "## Tooling\n\n`npm i left-pad@1.3.0`"),
+        )
+
+    def test_rejects_an_unlisted_node_import(self):
+        self.assert_rejects(
+            "imports left-pad (npm), which has no row",
+            self.write("scripts/pad.mjs", "const m = await import('left-pad');\n"),
+        )
+
+    def test_rejects_an_unlisted_python_import(self):
+        self.assert_rejects(
+            "imports requests (pypi), which has no row",
+            self.write("scripts/fetch.py", "import json\nimport requests\n"),
+        )
+
+    def test_ignores_stdlib_node_builtins_and_local_modules(self):
+        self.assertEqual(
+            self.run_checks(
+                lambda tmp: (
+                    (tmp / "scripts" / "ok.mjs").write_text(
+                        "import { readFileSync } from 'node:fs';\nimport './local.mjs';\n", encoding="utf-8"
+                    ),
+                    (tmp / "scripts" / "ok.py").write_text(
+                        "import json\nfrom pins import pins\nfrom PIL import Image\n", encoding="utf-8"
+                    ),
+                )
+            ),
+            [],
+        )
+
+    def test_rejects_a_license_row_nothing_references(self):
+        self.assert_rejects(
+            "no script or skill references it",
+            self.edit(
+                "THIRD_PARTY_LICENSES.md",
+                "| [`jsdom`]",
+                "| [`sketchy-lines`](https://example.invalid) | npm | unpinned | MIT | nothing |\n| [`jsdom`]",
+            ),
+        )
+
+    def test_rejects_a_license_row_at_the_wrong_version(self):
+        self.assert_rejects(
+            "is listed at '30.0.0' but pinned at 30.1.2",
+            self.edit("THIRD_PARTY_LICENSES.md", "| npm | 30.1.2 |", "| npm | 30.0.0 |"),
+        )
+
+    def test_rejects_a_pinned_package_with_no_row(self):
+        self.assert_rejects(
+            "pinned pypi package pillow has no row",
+            self.edit("THIRD_PARTY_LICENSES.md", "| [`pillow`]", "| pillow"),
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

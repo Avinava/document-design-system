@@ -7,7 +7,7 @@ The local type gallery is [`index.html`](index.html) — thirty-four canonical t
 All of them rebuild from source — nothing here is hand-maintained.
 
 ```bash
-npm install beautiful-mermaid @observablehq/plot jsdom
+npm ci   # Node 22.22.2 or newer; see .nvmrc
 python3 scripts/build_examples.py
 ```
 

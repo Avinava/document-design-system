@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Screenshot the built examples into docs/screenshots/ for the README.
 
-    pip install playwright pillow && playwright install chromium
+    uv venv && uv pip install -r requirements-authoring.txt
+    uv run playwright install chromium
     python scripts/build_examples.py
-    python scripts/shoot_examples.py
+    uv run python scripts/shoot_examples.py
 
 Serves the repository root over localhost rather than using file:// URLs — a file:// page
 cannot load the Google Fonts stylesheet consistently, and the screenshots would
@@ -21,6 +22,10 @@ import threading
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+
+sys.path.insert(0, str(ROOT / "scripts"))
+from pins import REPO_PYTHON_HINT  # noqa: E402
+
 EX = ROOT / "examples"
 OUT = ROOT / "docs" / "screenshots"
 PORT = 8931
@@ -128,7 +133,7 @@ def main() -> None:
     except ImportError:
         sys.exit(
             "playwright and Pillow are required.\n"
-            "  pip install playwright pillow && playwright install chromium\n"
+            f"  {REPO_PYTHON_HINT}\n"
             "They are authoring-time dependencies only."
         )
 
