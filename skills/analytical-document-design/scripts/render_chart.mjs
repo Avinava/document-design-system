@@ -13,7 +13,7 @@
  * chart-design rejects, so the honest default is also the easy one.
  *
  *   {
- *     "form":  "bars" | "columns" | "line" | "scatter",
+ *     "form":  "bars" | "columns" | "line" | "scatter" | "waterfall",
  *     "id":    "fn-footprint",
  *     "title": "Ingestion holds 41% of the footprint",
  *     "desc":  "Nine functions ranked by size. Ingestion holds 41 percent of
@@ -28,6 +28,10 @@
  *     "size":  "doc-inline",
  *     "zero":  true            // bars/columns: enforced, see below
  *   }
+ *
+ * A waterfall replaces "data", "x", "y" and "focal" with "steps" — see
+ * waterfallRows() below. Every declared total must equal the sum of the steps
+ * before it, or the render fails.
  *
  * Observable Plot (ISC) does the layout. This wrapper exists because Plot's
  * raw output is not safe to drop into a designed document:
@@ -48,7 +52,177 @@ const SIZES = {
   'print-landscape': { width: 980, height: 380 },
 };
 
-const FORMS = new Set(['bars', 'columns', 'line', 'scatter']);
+const FORMS = new Set(['bars', 'columns', 'line', 'scatter', 'waterfall']);
+
+const STEP_KINDS = new Set(['start', 'step', 'total']);
+const ROW = 36; // px per waterfall row: a 22px bar plus air for the connector
+
+/**
+ * Validate a waterfall spec and compute where each bar sits.
+ *
+ * A bridge's whole claim is that its parts sum to its totals, so a declared
+ * total that disagrees with its steps is an error, not a rendering choice:
+ * the chart would show one number and its bars another.
+ *
+ *   steps: [{ label, delta, kind: "start" | "step" | "total",
+ *             excluded?: "reason",          // step only: drawn, never summed
+ *             range?: [low, high] }]        // total only: drawn as a whisker
+ */
+function waterfallRows(spec) {
+  if (!Array.isArray(spec.steps) || spec.steps.length === 0) {
+    fail('a waterfall spec needs a non-empty "steps" array of { label, delta, kind }.');
+  }
+  let running = 0;
+  let counted = 0;
+  return spec.steps.map((s, i) => {
+    const where = `steps[${i}]${s && s.label ? ` ("${s.label}")` : ''}`;
+    if (!s || typeof s.label !== 'string' || !s.label.trim()) fail(`${where} needs a "label".`);
+    if (typeof s.delta !== 'number' || !Number.isFinite(s.delta)) fail(`${where} needs a numeric "delta".`);
+    if (!STEP_KINDS.has(s.kind)) fail(`${where} has kind "${s.kind}"; use start, step, or total.`);
+    if (s.excluded != null && (s.kind !== 'step' || typeof s.excluded !== 'string')) {
+      fail(`${where}: "excluded" is a reason string, and only a step can be excluded.`);
+    }
+    if (s.range != null && s.kind !== 'total') fail(`${where}: only a total carries a "range".`);
+    if (s.kind === 'start' && counted > 0) fail(`${where}: a start can only open the bridge.`);
+
+    const row = { i, label: s.label, delta: s.delta, kind: s.kind, excluded: s.excluded ?? null };
+    if (s.kind === 'start') {
+      [row.x1, row.x2] = [0, s.delta];
+      running = s.delta;
+      counted++;
+    } else if (s.kind === 'total') {
+      if (counted === 0) fail(`${where}: a total needs steps before it.`);
+      if (Math.abs(s.delta - running) > 1e-9) {
+        fail(
+          `${where} declares a total of ${s.delta}, but the steps before it sum to ${running}.\n` +
+            'Fix the steps or the total; a bridge that does not add up cannot be drawn.'
+        );
+      }
+      if (s.range != null) {
+        const [lo, hi] = Array.isArray(s.range) ? s.range : [];
+        if (!(Number.isFinite(lo) && Number.isFinite(hi) && lo <= s.delta && s.delta <= hi)) {
+          fail(`${where}: "range" must be [low, high] with low <= ${s.delta} <= high.`);
+        }
+        row.range = [lo, hi];
+      }
+      [row.x1, row.x2] = [0, s.delta];
+    } else {
+      [row.x1, row.x2] = [running, running + s.delta];
+      if (!row.excluded) {
+        running += s.delta;
+        counted++;
+      }
+    }
+    return row;
+  });
+}
+
+function signed(n) {
+  return n < 0 ? `−${Math.abs(n)}` : `+${n}`;
+}
+
+/**
+ * A horizontal bridge: one row per step, read top to bottom.
+ *
+ * Direction is carried three ways so no reader depends on hue: a signed
+ * label (+9 / −2), the side the bar grows toward, and the label sitting at
+ * the bar's leading end. Totals start at zero and take the focal accent;
+ * an excluded step is a dashed outline that the total does not include.
+ */
+function waterfallPlot(Plot, spec, rows, size, document) {
+  const n = rows.length;
+  const steps = rows.filter((r) => r.kind !== 'total' && !r.excluded);
+  const totals = rows.filter((r) => r.kind === 'total' || r.kind === 'start');
+  const excluded = rows.filter((r) => r.excluded);
+  const lead = (r) => (isDecrease(r) ? Math.min(r.x1, r.x2) : Math.max(r.x1, r.x2, ...(r.range || [])));
+  const text = (r) =>
+    r.kind === 'total'
+      ? `${r.delta}${r.range ? `  (range ${r.range[0]}–${r.range[1]})` : ''}`
+      : r.excluded
+        ? `${signed(r.delta)} · ${r.excluded}`
+        : r.kind === 'start' ? `${r.delta}` : signed(r.delta);
+
+  // Connectors carry the running total from one bar's end to the next bar's
+  // start, so the eye can audit the arithmetic without reading numbers.
+  const links = rows.slice(1).map((r, k) => {
+    const prev = rows[k];
+    return { x: prev.kind === 'total' || !prev.excluded ? prev.x2 : prev.x1, y1: k + 0.32, y2: k + 1 - 0.32 };
+  });
+
+  const half = 0.32;
+  const right = Math.max(...rows.map((r) => Math.max(r.x1, r.x2, ...(r.range || []))));
+  const left = Math.min(0, ...rows.map((r) => Math.min(r.x1, r.x2)));
+  const marginTop = 16;
+  const marginBottom = 44;
+  const longest = Math.max(...rows.map((r) => r.label.length));
+  return {
+    document,
+    width: size.width,
+    height: marginTop + marginBottom + n * ROW,
+    marginTop,
+    marginBottom,
+    marginLeft: Math.min(240, Math.max(96, Math.ceil(longest * 6.4) + 16)),
+    marginRight: 136,
+    style: { background: 'transparent' },
+    // Round the domain out to whole ticks so the last bar, whisker, or
+    // excluded step never ends exactly on the frame edge.
+    x: { label: spec.xLabel ?? null, labelOffset: 36, grid: true, domain: niceDomain(left, right) },
+    y: { domain: [n - 0.5, -0.5], axis: null },
+    marks: [
+      Plot.ruleX([0], { stroke: 'var(--rule-strong)' }),
+      Plot.axisY(rows.map((r) => r.i), {
+        tickSize: 0,
+        tickPadding: 8,
+        tickFormat: (i) => rows[i].label,
+        label: null,
+      }),
+      Plot.ruleX(links, {
+        x: 'x', y1: 'y1', y2: 'y2', stroke: 'var(--muted)', strokeDasharray: '2 2',
+      }),
+      Plot.rect(steps, {
+        x1: 'x1', x2: 'x2', y1: (r) => r.i - half, y2: (r) => r.i + half,
+        fill: 'var(--comparison-fill)', stroke: 'var(--muted)', strokeWidth: 1,
+      }),
+      Plot.rect(totals, {
+        x1: 'x1', x2: 'x2', y1: (r) => r.i - half, y2: (r) => r.i + half,
+        fill: 'var(--accent-tint)', stroke: 'var(--accent)', strokeWidth: 1,
+      }),
+      Plot.rect(excluded, {
+        x1: 'x1', x2: 'x2', y1: (r) => r.i - half, y2: (r) => r.i + half,
+        fill: 'none', stroke: 'var(--muted)', strokeWidth: 1, strokeDasharray: '4 3',
+      }),
+      // The estimate range, as a whisker through the total's end.
+      Plot.ruleY(rows.filter((r) => r.range), {
+        y: 'i', x1: (r) => r.range[0], x2: (r) => r.range[1], stroke: 'var(--ink)', strokeWidth: 1.5,
+      }),
+      Plot.ruleX(rows.filter((r) => r.range).flatMap((r) => r.range.map((x) => ({ x, i: r.i }))), {
+        x: 'x', y1: (d) => d.i - 0.18, y2: (d) => d.i + 0.18, stroke: 'var(--ink)', strokeWidth: 1.5,
+      }),
+      // Value labels sit at each bar's leading end: right of an increase,
+      // left of a decrease. Totals are set in the heavier weight.
+      Plot.text(rows.filter((r) => !isDecrease(r) && r.kind !== 'total'), {
+        x: lead, y: 'i', text, dx: 8, textAnchor: 'start', fill: 'var(--ink)',
+      }),
+      Plot.text(rows.filter(isDecrease), {
+        x: lead, y: 'i', text, dx: -8, textAnchor: 'end', fill: 'var(--ink)',
+      }),
+      Plot.text(rows.filter((r) => r.kind === 'total'), {
+        x: lead, y: 'i', text, dx: 8, textAnchor: 'start', fill: 'var(--ink)', fontWeight: 600,
+      }),
+    ],
+  };
+}
+
+function niceDomain(lo, hi, ticks = 6) {
+  const raw = (hi - lo) / ticks;
+  const mag = 10 ** Math.floor(Math.log10(raw));
+  const step = [1, 2, 5, 10].map((m) => m * mag).find((s) => s >= raw);
+  return [Math.floor(lo / step) * step, Math.ceil(hi / step) * step];
+}
+
+function isDecrease(r) {
+  return r.kind === 'step' && r.delta < 0;
+}
 
 function parseArgs(argv) {
   const args = {};
@@ -154,7 +328,9 @@ function makeResponsive(svg, targetWidth) {
         })
       : `${attrs} style="max-width:${targetWidth}px"`;
 
-    return `<svg${attrs} width="100%">`;
+    // data-renderer tells scripts/check_diagrams.py the layout is the
+    // renderer's own, so it applies the shell and bounds rules only.
+    return `<svg${attrs} width="100%" data-renderer="render_chart">`;
   });
 }
 
@@ -173,19 +349,6 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const specPath = args._[0];
   if (!specPath) fail('usage: render_chart.mjs <spec.json> [--out chart.svg]');
-
-  let Plot, JSDOM;
-  try {
-    Plot = await import('@observablehq/plot');
-    ({ JSDOM } = await import('jsdom'));
-  } catch {
-    fail(
-      '@observablehq/plot and jsdom are not installed.\n' +
-        '  in the repository:      npm ci\n' +
-        '  in an installed skill:  npm i @observablehq/plot@0.6.17 jsdom@30.1.2\n' +
-        'Both are authoring-time only — the rendered SVG carries neither.'
-    );
-  }
 
   let spec;
   try {
@@ -214,7 +377,8 @@ async function main() {
         'a screen-reader user gets instead of the chart.'
     );
   }
-  if (!Array.isArray(spec.data) || spec.data.length === 0) {
+  const bridge = spec.form === 'waterfall' ? waterfallRows(spec) : null;
+  if (!bridge && (!Array.isArray(spec.data) || spec.data.length === 0)) {
     fail('spec needs a non-empty "data" array.');
   }
 
@@ -229,8 +393,26 @@ async function main() {
   // and survives someone later adding a line mark to the same plot.
   const isBar = spec.form === 'bars' || spec.form === 'columns';
 
+  // Imported after the spec is validated, so a spec error (a waterfall total
+  // that does not add up, an unknown form) is reported even where the
+  // renderer's dependencies are not installed.
+  let Plot, JSDOM;
+  try {
+    Plot = await import('@observablehq/plot');
+    ({ JSDOM } = await import('jsdom'));
+  } catch {
+    fail(
+      '@observablehq/plot and jsdom are not installed.\n' +
+        '  in the repository:      npm ci\n' +
+        '  in an installed skill:  npm i @observablehq/plot@0.6.17 jsdom@30.1.2\n' +
+        'Both are authoring-time only — the rendered SVG carries neither.'
+    );
+  }
+
   const dom = new JSDOM('');
-  const chart = Plot.plot({
+  const chart = bridge
+    ? Plot.plot(waterfallPlot(Plot, spec, bridge, size, dom.window.document))
+    : Plot.plot({
     document: dom.window.document,
     width: size.width,
     height: size.height,
@@ -239,6 +421,10 @@ async function main() {
     style: { background: 'transparent' },
     x: {
       label: spec.xLabel ?? null,
+      // Plot's default puts the axis label 3px above the frame's bottom edge,
+      // so a descender in the theme's typeface pokes out of the viewBox and
+      // is clipped. scripts/check_render.py measures exactly that.
+      labelOffset: 36,
       grid: spec.form !== 'bars',
       ...(isBar && spec.form === 'bars' ? { zero: true } : {}),
       // For columns the x axis is categories (years, months, buckets), not a

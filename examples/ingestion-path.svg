@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 240" style="--bg:var(--dds-surface);--fg:var(--dds-ink);--line:var(--dds-rule-strong);--accent:var(--dds-accent);--muted:var(--dds-muted);--surface:var(--dds-surface-muted);--border:var(--dds-rule);max-width:720px" width="100%" role="img" aria-labelledby="ingestion-title ingestion-desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 240" style="--bg:var(--dds-surface);--fg:var(--dds-ink);--line:var(--dds-rule-strong);--accent:var(--dds-accent);--muted:var(--dds-muted);--surface:var(--dds-surface-muted);--border:var(--dds-rule);max-width:720px" width="100%" data-renderer="render_diagram" role="img" aria-labelledby="ingestion-title ingestion-desc">
   <title id="ingestion-title">Ingestion path</title>
   <desc id="ingestion-desc">Client posts events to the gateway, which enqueues them; the queue acknowledges.</desc>
 <style>

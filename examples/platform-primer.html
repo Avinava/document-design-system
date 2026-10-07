@@ -297,6 +297,14 @@ tbody tr:nth-child(even) { background: var(--surface-muted); }
   -webkit-overflow-scrolling: touch;
 }
 
+/* A 720-unit figure squeezed onto a phone sets 13px labels at about 6px.
+ * Below this width the figure scrolls inside its wrapper instead, at a size
+ * that can still be read; core/print.css resets the floor for paper. */
+.diagram-scroll svg { min-width: 560px; }
+
+figure.figure { margin: 1.75rem 0; }
+.diagram-scroll > svg { display: block; width: 100%; height: auto; }
+
 /* -------------------------------------------------------------- SVG */
 
 /* Charts and diagrams style through these classes rather than through
@@ -1440,7 +1448,7 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
     <p>In a batch pipeline, the warehouse side decides when data moves: a schedule fires, a job reads files, a load commits. Here the producers decide. Checkout, Catalog, and Inventory send each event over HTTP the moment it happens, and every hop after that runs continuously.</p>
     <p><code>producer → gateway → ingest → consumer group → warehouse</code></p>
     <figure class="figure">
-      <div class="system-map diagram-scroll"><svg role="img" aria-labelledby="arch-title arch-desc" viewBox="0 0 720 340" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+      <div class="system-map diagram-scroll"><svg role="img" aria-labelledby="arch-title arch-desc" viewBox="0 0 720 316" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
   <title id="arch-title">Ingestion architecture</title>
   <desc id="arch-desc">Producers enter through a gateway inside the trust boundary, buffer in a queue, and are consumed into the warehouse. The queue is the only component without a failover, and it carries the whole ingestion path.</desc>
 
@@ -1456,7 +1464,7 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
   </defs>
 
   <!-- boundaries -->
-  <g>
+  <g class="boundary">
     <rect x="128" y="56" width="404" height="152" rx="6"
           fill="none" stroke="var(--rule-strong)" stroke-width="1" stroke-dasharray="4 3"/>
     <text x="140" y="76" font-family="var(--sans)" font-size="11" fill="var(--soft)"
@@ -1464,27 +1472,29 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
   </g>
 
   <!-- edges (drawn before nodes so line ends sit behind the boxes) -->
-  <path d="M104 132 H 152" fill="none" stroke="var(--muted)" stroke-width="1"
+  <path class="edge" d="M104 132 H 152" fill="none" stroke="var(--muted)" stroke-width="1"
         marker-end="url(#arch-arrow)"/>
-  <path d="M312 132 H 360" fill="none" stroke="var(--accent)" stroke-width="1.5"
+  <path class="edge" d="M312 132 H 360" fill="none" stroke="var(--accent)" stroke-width="1.5"
         marker-end="url(#arch-arrow-focal)"/>
-  <path d="M520 132 H 568" fill="none" stroke="var(--muted)" stroke-width="1"
+  <path class="edge" d="M520 132 H 568" fill="none" stroke="var(--muted)" stroke-width="1"
         marker-end="url(#arch-arrow)"/>
 
-  <!-- edge labels on a paper-colored backing so the line does not strike through -->
-  <rect x="316" y="116" width="40" height="16" fill="var(--paper)"/>
-  <text x="336" y="128" text-anchor="middle" font-family="var(--sans)"
-        font-size="11" fill="var(--muted)">async</text>
+  <!-- edge label: beside its edge, 8px clear, on a paper backing -->
+  <g class="edge-label">
+    <rect x="316" y="108" width="40" height="16" fill="var(--paper)"/>
+    <text x="336" y="120" text-anchor="middle" font-family="var(--sans)"
+          font-size="11" fill="var(--muted)">async</text>
+  </g>
 
   <!-- nodes -->
-  <g>
+  <g class="node node-external">
     <rect x="24" y="100" width="80" height="64" rx="6"
           fill="var(--surface)" stroke="var(--rule)" stroke-width="1" stroke-dasharray="4 3"/>
     <text x="64" y="136" text-anchor="middle" font-family="var(--sans)"
           font-size="13" fill="var(--soft)">Producers</text>
   </g>
 
-  <g>
+  <g class="node">
     <rect x="152" y="100" width="160" height="64" rx="6"
           fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
     <text x="232" y="130" text-anchor="middle" font-family="var(--sans)"
@@ -1494,7 +1504,7 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
   </g>
 
   <!-- focal node: the one thing the diagram is about -->
-  <g>
+  <g class="node node-focal">
     <rect x="360" y="100" width="160" height="64" rx="6"
           fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
     <text x="440" y="130" text-anchor="middle" font-family="var(--sans)"
@@ -1503,7 +1513,7 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
           font-size="11" fill="var(--muted)">single instance</text>
   </g>
 
-  <g>
+  <g class="node node-external">
     <rect x="568" y="100" width="128" height="64" rx="6"
           fill="var(--surface)" stroke="var(--rule)" stroke-width="1" stroke-dasharray="4 3"/>
     <text x="632" y="136" text-anchor="middle" font-family="var(--sans)"
@@ -1511,7 +1521,7 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
   </g>
 
   <!-- callout: dashed Bezier leader, no arrowhead. At most two per diagram. -->
-  <g>
+  <g class="callout">
     <path d="M440 100 C 440 72, 456 48, 492 48"
           fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3"/>
     <text x="500" y="52" font-family="var(--sans)" font-size="12"
@@ -1519,15 +1529,15 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
   </g>
 
   <!-- legend: inside the viewBox, or it is lost on export and in print -->
-  <g>
-    <path d="M24 268 H 700" stroke="var(--rule)" stroke-width="1"/>
-    <text x="24" y="292" font-family="var(--mono)" font-size="10"
+  <g class="legend">
+    <path d="M24 268 H 696" stroke="var(--rule)" stroke-width="1"/>
+    <text x="24" y="292" font-family="var(--mono)" font-size="11"
           fill="var(--soft)" letter-spacing="0.14em">LEGEND</text>
-    <rect x="104" y="282" width="20" height="12" rx="2" fill="var(--surface)"
+    <rect x="112" y="280" width="20" height="12" rx="2" fill="var(--surface)"
           stroke="var(--rule)" stroke-dasharray="4 3"/>
-    <text x="132" y="292" font-family="var(--sans)" font-size="11" fill="var(--muted)">external</text>
-    <rect x="212" y="282" width="20" height="12" rx="2" fill="var(--accent-tint)" stroke="var(--accent)"/>
-    <text x="240" y="292" font-family="var(--sans)" font-size="11" fill="var(--muted)">focal</text>
+    <text x="140" y="290" font-family="var(--sans)" font-size="11" fill="var(--muted)">dashed: outside Platform</text>
+    <rect x="312" y="280" width="20" height="12" rx="2" fill="var(--accent-tint)" stroke="var(--accent)"/>
+    <text x="340" y="290" font-family="var(--sans)" font-size="11" fill="var(--muted)">accent: single point of failure</text>
   </g>
 </svg></div>
       <figcaption>Current runtime path. The queue is the only component without a failover, and every first-party producer passes through it.</figcaption>

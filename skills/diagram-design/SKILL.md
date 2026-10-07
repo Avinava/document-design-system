@@ -1,6 +1,6 @@
 ---
 name: diagram-design
-description: Design editorial-quality diagrams as self-contained inline SVG — architecture diagrams, flows, sequences, state machines, data models, timelines, layer stacks, quadrants, comparisons, and system maps. Use when explaining how a system is arranged, how a process moves, how components depend on each other, or how options compare; when a Mermaid or draw.io diagram needs to be converted into a document's design system; or when an existing diagram looks auto-generated and needs editorial judgment. Do not use for quantitative charts of measured data (use chart-design), for the surrounding report structure (use analytical-document-design), for UI mockups or wireframes, or for producing editable .drawio files.
+description: Design editorial-quality diagrams as self-contained inline SVG — architecture diagrams, flows, sequences, state machines, data models, timelines, layer stacks, quadrants, comparisons, system maps, change views, deployment maps, and dependency graphs. Use when explaining how a system is arranged, how a process moves, how components depend on each other, or how options compare; when a Mermaid or draw.io diagram needs to be converted into a document's design system; or when an existing diagram looks auto-generated and needs editorial judgment. Do not use for quantitative charts of measured data (use chart-design), for the surrounding report structure (use analytical-document-design), for UI mockups or wireframes, or for producing editable .drawio files.
 ---
 
 # Diagram Design
@@ -37,6 +37,9 @@ Match the form to the relationship being shown, not to the data you happen to ha
 | How something narrows or concentrates | Funnel |
 | How sets overlap | Venn |
 | How one thing decomposes into parts | Tree / nested |
+| What a change adds, removes, and leaves alone | Change view |
+| Where each part runs: cluster, namespace, replicas | Deployment map |
+| What must finish before what, and which chain sets the date | Dependency graph |
 
 If the answer is "several of these," the diagram is doing too much. Split it. Two clear diagrams beat one complete one — a reader who has to decode a diagram has already lost the time the diagram was meant to save.
 
@@ -69,7 +72,7 @@ An SVG referenced through `<img src="…">` — a README banner, an email, an em
 | Inline in the document | `var(--…)` references | Follows the document's `data-theme` |
 | `<img>`, email, external embed | Literal values | Self-contained; use `@media (prefers-color-scheme: dark)` inside the SVG's own `<style>` |
 
-Decide the destination before drawing, because it is not a cosmetic difference — the same file cannot do both. `assets/banner.svg` is the worked example of the second case.
+Decide the destination before drawing, because it is not a cosmetic difference — the same file cannot do both. For the second case, write literal colours for the light reading into the shapes, then add a `<style>` block inside the SVG whose `@media (prefers-color-scheme: dark)` rule overrides those fills and strokes by class, so one file serves both host themes without reaching for the page's tokens.
 
 ## Visual rules
 
@@ -83,6 +86,8 @@ The token contract is in `core/tokens.md` and applies in full. Diagram-specific 
 - **Label every edge that isn't obvious.** An unlabelled arrow means "leads to," and nothing else. If it means "on failure," "async," or "read-only," say so.
 - **Direction is a decision.** Left-to-right for process and time. Top-to-bottom for hierarchy and layers. Do not mix within one diagram.
 - **No orphan nodes.** Anything unconnected either needs an edge or does not belong.
+- **Never encode meaning in lightness alone.** Every theme is legible, and a dark theme inverts which fill reads heavier, so "darker means more" breaks the moment the theme changes. Legends name each encoding in words ("dashed: outside Platform"), never only by swatch.
+- **Mark the structure.** `g.node` (`node-focal`, `node-external`, `node-muted`), `path.edge`, `g.edge-label`, `g.boundary`, `g.legend`, `g.callout`, `g.annotation` — the classes are what `scripts/check_diagrams.py` measures.
 
 Full geometry, node, edge, and callout specifications are in `references/primitives.md`.
 
@@ -96,7 +101,7 @@ So: accept Mermaid as a source, convert it to a themed SVG, ship the SVG.
 |---|---|
 | Sequence, state, class, ER, flowchart where auto-layout is honest | `scripts/render_diagram.mjs` — renders via `beautiful-mermaid` into an SVG whose colors are `var(--…)` references, so it inherits the document's theme with zero JavaScript |
 | Architecture, quadrant, layer stack, timeline, comparison — anything where **position carries meaning** | Hand-author from `templates/diagram.svg`. Auto-layout does not know that "closer" means "coupled," so it will destroy the point of the diagram |
-| Existing `.mmd`, `.drawio`, or a diagram in a doc | Convert, then apply the rules above — do not embed as-is |
+| Existing `.drawio` or Mermaid flowchart | `scripts/import_diagram.py` extracts nodes, edges, and groups as JSON with no coordinates; redraw that structure under the rules above — never embed the original |
 
 The rule underneath: **auto-layout is acceptable when the arrangement is arbitrary, and unacceptable when the arrangement is the message.**
 
@@ -122,6 +127,8 @@ Two dials worth setting deliberately, because they change what belongs in the di
 - [ ] No color-only encoding.
 - [ ] No shadows, gradients, or glow.
 - [ ] Renders correctly at the intended size, not just at authoring size.
+- [ ] Legends name every encoding in words; nothing relies on lightness alone.
+- [ ] `scripts/check_diagrams.py figure.svg` reports no findings.
 
 ## Paths in this skill
 
@@ -131,13 +138,16 @@ its own copy, so it works however it was installed. Prefix them with that direct
 
 ```bash
 node "<skill-dir>/scripts/render_diagram.mjs" in.mmd --id x --title "…" --desc "…" --out x.svg
+python3 "<skill-dir>/scripts/check_diagrams.py" x.svg          # markup and geometry rules
+python3 "<skill-dir>/scripts/import_diagram.py" old.drawio     # structure only, as JSON
 ```
 
 ## Reference files
 
 - `references/diagram-families.md` — per-form construction rules and failure modes.
 - `references/primitives.md` — node, edge, label, callout, and grid specifications.
-- `references/mermaid-bridge.md` — Mermaid and draw.io import, the renderer, theme bridging, coverage limits.
+- `references/mermaid-bridge.md` — the Mermaid renderer, theme bridging, coverage limits.
+- `references/importing.md` — draw.io and Mermaid import: the neutral model, the safety caps, and redrawing.
 
 ## Credits
 

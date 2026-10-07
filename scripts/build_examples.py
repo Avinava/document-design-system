@@ -39,6 +39,7 @@ CHARTS = {
     # Full-width variant for the deck. A doc-inline chart dropped into a
     # 1280px slide sits in the middle with its labels shrunk to nothing.
     "footprint-by-function-wide": "specs/footprint-wide.json",
+    "estimate-bridge": "specs/estimate-bridge.json",
 }
 
 DIAGRAMS = {
@@ -48,6 +49,15 @@ DIAGRAMS = {
         "Client posts events to the gateway, which enqueues them; the queue acknowledges.",
     ),
 }
+
+# Hand-authored figures: committed SVGs, checked by scripts/check_diagrams.py
+# rather than rendered. Each one is also shown on the figure gallery.
+HAND_DIAGRAMS = [
+    "platform-architecture",
+    "queue-split-change",
+    "ingest-deployment",
+    "workstream-dependencies",
+]
 
 # output -> (template, theme)
 DOCUMENTS = {
@@ -514,7 +524,7 @@ def build_documents() -> None:
         # gallery.html uses named slots; the report uses positional ones.
         if out.startswith("gallery"):
             gallery_figs = [f for f in CHARTS if not f.endswith("-wide")]
-            for slug in gallery_figs + list(DIAGRAMS) + ["platform-architecture"]:
+            for slug in gallery_figs + list(DIAGRAMS) + HAND_DIAGRAMS:
                 html = html.replace(f"<!-- @FIG {slug} -->", figure(slug))
         elif out == "inventory-report.html":
             for marker, slug in REPORT_SLOTS:
