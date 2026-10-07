@@ -58,6 +58,10 @@ GitHub Pages site follows one engagement in four acts by the reader's job.
 
 ### Changed
 
+- The README is rewritten around the core — the question picks the shape, the
+  audience picks the voice, both sit on the same facts — then the four acts, figures,
+  checks, skills and install. Layout, tooling, verification and contribution rules
+  move to `CONTRIBUTING.md`.
 - `writing-documents` picks the shape, not only the type: a type when one fits,
   composition otherwise. `core/document-patterns.md` selection rules say the
   same.

@@ -909,7 +909,7 @@ class TestToolchainValidation(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as td:
             tmp = Path(td)
-            for name in ("package.json", "requirements-authoring.txt", "THIRD_PARTY_LICENSES.md", "README.md"):
+            for name in ("package.json", "requirements-authoring.txt", "THIRD_PARTY_LICENSES.md", "README.md", "CONTRIBUTING.md"):
                 shutil.copy2(ROOT / name, tmp / name)
             (tmp / "scripts").mkdir()
             for script in sorted((ROOT / "scripts").glob("*")):
@@ -976,7 +976,7 @@ class TestToolchainValidation(unittest.TestCase):
     def test_rejects_a_pin_for_an_unmanaged_package(self):
         self.assert_rejects(
             "is not pinned in package.json",
-            self.edit("README.md", "## Tooling", "## Tooling\n\n`npm i left-pad@1.3.0`"),
+            self.edit("CONTRIBUTING.md", "## Tooling", "## Tooling\n\n`npm i left-pad@1.3.0`"),
         )
 
     def test_rejects_an_unlisted_node_import(self):
