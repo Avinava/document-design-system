@@ -5,6 +5,108 @@ All notable changes to this project are documented here. Versions refer to the
 
 ## Unreleased
 
+## 0.5.0
+
+Compose, don't enumerate. The writing skill now composes a document from a
+pattern's modules when no preset fits, instead of forcing the nearest of its
+thirty-four presets. Diagrams gain three forms, a checker and importers; charts
+gain a waterfall that checks its totals; the toolchain is pinned; and the
+GitHub Pages site follows one engagement in four acts by the reader's job.
+
+### Added
+
+- Composition in `writing-documents`: `references/composing.md` (match a type or
+  familiar name, else pick the pattern by the reader's question, then compose
+  from that pattern's allowed modules with the nearest type's discipline),
+  `type: custom` front matter, the `/document-design-system:compose` command, and
+  the promotion rule — a shape composed three times becomes a type.
+- A "Start from the reader's question" table in `type-index.md` routing each
+  question to its pattern and presets, and more familiar names routed to
+  existing types.
+- A module registry in `core/document-patterns.md` naming every module class,
+  the patterns allowed to use it, and its purpose; CSS for the documented ask
+  band and learning goal; and two new modules, the scope strip and the
+  crosswalk (fit written as a word, never colour alone).
+- A worked composed example, the platform primer (`learning` pattern, nearest
+  type `explanation`), in Markdown and designed HTML.
+- Three diagram forms with their own layouts — change view, deployment map and
+  dependency graph — with worked figures in the design doc, migration plan,
+  architecture guide, runbook and delivery plan.
+- A waterfall bridge in `render_chart.mjs` that fails the render when a declared
+  total is not the sum of its steps; the estimate bridges its work packages to
+  24 engineer-weeks with the unapproved change request drawn but not counted.
+- `scripts/check_diagrams.py`: eighteen geometry and markup rules read from SVG
+  coordinates, each with a stable ID and a failing fixture.
+- `scripts/check_render.py`: every example in Chromium at 1280px, 390px and
+  print width under every theme, and site pages under light and dark colour
+  schemes.
+- `scripts/import_diagram.py`: draw.io (plain and compressed) and Mermaid
+  flowchart structure as a neutral model with no coordinates, hardened against
+  entities, oversized or deeply nested input, duplicate ids and dangling edges.
+- A rewritten GitHub Pages site: a homepage that teaches one idea — the
+  reader's question picks the pattern, the audience picks the theme, both on
+  the same evidence-stated facts — then follows the engagement in four acts by
+  the reader's job (understand, decide, deliver, run and hand on), ending on the
+  composed primer; figures, a ledger of checks with counts read at build time,
+  skills, what's new, and the pinned toolchain;
+  a Patterns page that starts from the reader's question; and a Modules page
+  with a specimen of every registered module. Shared navigation, per-page meta
+  and social preview, and a dark palette that follows the reader's system.
+- Pinned authoring toolchain: `package.json` with `package-lock.json` (Node
+  22.22.2 or newer, `engine-strict`) and `requirements-authoring.txt`, read by
+  `scripts/pins.py`.
+
+### Changed
+
+- The README is rewritten around the core — the question picks the shape, the
+  audience picks the voice, both sit on the same facts — then the four acts, figures,
+  checks, skills and install. Layout, tooling, verification and contribution rules
+  move to `CONTRIBUTING.md`.
+- `writing-documents` picks the shape, not only the type: a type when one fits,
+  composition otherwise. `core/document-patterns.md` selection rules say the
+  same.
+- `scripts/catalog.py` is the single source for types, patterns, modules, the
+  reader-question table and lifecycle stages; the build, site, validator and
+  tests read it instead of keeping copies.
+- The validator replaces the `SKILL.md` line warning with a 14,000-byte error,
+  checks every type's pattern and default theme, the registry against the
+  stylesheet and the bodies, the question table against the families table,
+  every version mention against the pins, and the licence table against the
+  scripts' imports.
+- `build_site.py --check` derives its expectations from the catalog and the
+  story: every act has stops, every stop's date read from its own example and
+  its pattern and theme from the built page, every module and composed example
+  linked, every back link landing on an anchor that exists, every image in
+  `docs/screenshots/` shown somewhere, and the release on the site equal to
+  `plugin.json`.
+- `shoot_examples.py` writes a full-size screenshot only when the README, an
+  example or the site shows it, and keeps the committed image when a capture
+  differs only by rendering noise, so a full reshoot of unchanged pages leaves
+  git clean. Unreferenced full-size images are no longer committed.
+- Example pages on the site return to the story stop or pattern they came from.
+- Install hints across scripts and skills say `npm ci` and the pinned
+  requirements file in the repository, and an exact pinned line for a skill
+  installed on its own.
+
+### Fixed
+
+- The diagram skill claimed a draw.io conversion it did not have; it now
+  describes the importer that exists.
+- `THIRD_PARTY_LICENSES.md`: vl-convert-python is BSD-3-Clause (1.9.x), unused
+  D2 and Rough.js rows removed, mermaidx marked as a PyPI package, Playwright
+  split into its npm and PyPI packages, Pillow added, and the design-influence
+  credit extended.
+- The architecture figure and diagram template follow the markup contract; the
+  deck's marker ids are prefixed and its `@page` size is valid; a chart's x-axis
+  label no longer clips its descenders.
+- The output reference no longer describes a stale longform shell, and the
+  diagram skill no longer points at a repository file an installed skill does
+  not have.
+- The site's patterns, lifecycle map and familiar names were hand-written HTML
+  that could drift from the catalog; they are now generated.
+- The local Patterns page's presentation-design card pointed at a deck
+  thumbnail that was never generated.
+
 ## 0.4.1
 
 The published site gets navigation and image fixes.

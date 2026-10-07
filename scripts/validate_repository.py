@@ -12,12 +12,15 @@ Standard library only. Exit code 1 on any error.
 
 from __future__ import annotations
 
+import ast
 import json
 import re
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import catalog  # noqa: E402
+import pins  # noqa: E402
 import sync_skill_assets  # noqa: E402
 from sync_skill_assets import VENDORED_DIRS  # noqa: E402
 
@@ -29,7 +32,10 @@ ALLOWED_KEYS = {"name", "description"}
 NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 MAX_NAME = 64
 MAX_DESCRIPTION = 1024
-MAX_SKILL_LINES = 400
+# A SKILL.md loads in full whenever the skill triggers, so its size is a cost
+# paid on every use. Bytes rather than lines: a line cap rewards long lines.
+# Counted with line endings normalised to LF so a CRLF checkout measures the same.
+MAX_SKILL_BYTES = 14_000
 
 # Hex literals are allowed only where the palette is defined. Everywhere else
 # they mean a component has learned about a theme, which is the one thing the
@@ -48,6 +54,10 @@ HEX_EXEMPT_FILES = {
     # That is provenance, not a component learning a theme.
     "templates/brand.html",
 }
+
+# Installed dependencies and build output: not this repository's sources.
+# .venv is where the documented `uv venv` puts the authoring Python packages.
+SKIP_DIRS = {"node_modules", ".git", "dist", ".venv", "venv"}
 
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)#][^)]*)\)")
 
@@ -154,70 +164,74 @@ def check_skill(skill_dir: Path, root: Path) -> None:
         if "use when" not in desc.lower() and "use for" not in desc.lower():
             warn(rel_md, 'description should say "Use when ..." or "Use for ..."')
 
-    line_count = text.count("\n") + 1
-    if line_count > MAX_SKILL_LINES:
-        warn(
+    size = len(text.replace("\r\n", "\n").encode("utf-8"))
+    if size > MAX_SKILL_BYTES:
+        error(
             rel_md,
-            f"{line_count} lines, over the {MAX_SKILL_LINES}-line target — "
+            f"{size:,} bytes, over the {MAX_SKILL_BYTES:,}-byte cap — "
             "move depth into references/ so it loads only when needed",
         )
 
 
-TYPE_YAML = re.compile(r"^```yaml\n(.*?)^```", re.M | re.S)
-
-
 def check_writing_types(root: Path) -> None:
-    """Type files in writing-documents declare a slug that matches the filename.
+    """The type references, the families table, commands and bodies agree.
 
-    Commands, type bodies, and example HTML/Markdown must use the same slug
-    set — a command without a type file (or the reverse) is how the catalog
-    and the skill drift apart.
+    The catalog is parsed from the type files and core/document-patterns.md
+    (scripts/catalog.py). A command or body without a type file — or the
+    reverse — is how the catalog and the skill drift apart.
     """
-    skill = root / "skills" / "writing-documents"
-    ref_dir = skill / "references"
-    if not ref_dir.is_dir():
+    if not (root / catalog.TYPE_DIR).is_dir():
         return
 
-    slugs: set[str] = set()
-    for path in sorted(ref_dir.glob("type-*.md")):
-        if path.name == "type-index.md":
-            continue
+    types: dict[str, catalog.Type] = {}
+    for path in catalog.type_files(root):
         rel = path.relative_to(root)
-        text = path.read_text(encoding="utf-8")
-        m = TYPE_YAML.search(text)
-        if not m:
-            error(rel, "missing yaml metadata fence (slug, title, command, path)")
+        try:
+            parsed = catalog.parse_type(path)
+        except catalog.CatalogError as exc:
+            error(rel, str(exc))
             continue
-        meta = {}
-        for line in m.group(1).splitlines():
-            if ":" not in line:
-                continue
-            key, _, value = line.partition(":")
-            meta[key.strip()] = value.strip()
-        slug = meta.get("slug", "").strip()
-        expected = path.name[len("type-") : -len(".md")]
-        if not slug:
-            error(rel, "yaml metadata has no slug")
-        elif slug != expected:
-            error(rel, f'slug "{slug}" does not match filename (expected "{expected}")')
-        else:
-            slugs.add(expected)
-        if "command:" in m.group(1) and f"/document-design-system:{expected}" not in m.group(1):
-            error(
-                rel,
-                f'command must be /document-design-system:{expected}',
-            )
-        if "Reader's question" not in text and "Reader’s question" not in text:
+        types[parsed.slug] = parsed
+        if "Reader's question" not in path.read_text(encoding="utf-8").replace("\u2019", "'"):
             error(rel, "missing reader's question")
 
-    # Compatibility profiles keep stable commands and example bodies without
-    # pretending to be second canonical types.
-    compatibility_profiles = {"mulesoft"}
+    try:
+        patterns = catalog.load_patterns(root)
+    except (OSError, catalog.CatalogError) as exc:
+        error(catalog.PATTERNS_MD, str(exc))
+        return
+    try:
+        catalog.load_modules(root)
+    except catalog.CatalogError as exc:
+        error(catalog.PATTERNS_MD, str(exc))
 
+    for where, message in catalog.problems(types, patterns, catalog.theme_names(root)):
+        error(where.relative_to(root) if where.is_absolute() else where, message)
+    if (root / catalog.TYPE_INDEX).is_file():
+        try:
+            questions = catalog.load_questions(root)
+        except catalog.CatalogError as exc:
+            error(catalog.TYPE_INDEX, str(exc))
+        else:
+            for message in catalog.question_problems(questions, patterns):
+                error(catalog.TYPE_INDEX, message)
+    if (root / catalog.LIFECYCLE_MD).is_file():
+        try:
+            stages = catalog.load_lifecycle(root)
+        except catalog.CatalogError as exc:
+            error(catalog.LIFECYCLE_MD, str(exc))
+        else:
+            for stage in stages:
+                for owner in stage.owners:
+                    if owner not in types:
+                        error(catalog.LIFECYCLE_MD, f'stage "{stage.name}" names `{owner}`, which has no type file')
+
+    slugs = set(types)
     commands = root / "commands"
     if commands.is_dir() and slugs:
+        allowed = slugs | catalog.COMPATIBILITY_PROFILES | catalog.NON_TYPE_COMMANDS
         cmd_slugs = {p.stem for p in commands.glob("*.md")}
-        for extra in sorted(cmd_slugs - slugs - compatibility_profiles):
+        for extra in sorted(cmd_slugs - allowed):
             error(
                 (commands / f"{extra}.md").relative_to(root),
                 f'command "{extra}" has no matching type-{extra}.md',
@@ -231,7 +245,7 @@ def check_writing_types(root: Path) -> None:
     types_dir = root / "templates" / "types"
     if types_dir.is_dir() and slugs:
         body_slugs = {p.stem for p in types_dir.glob("*.html")}
-        for extra in sorted(body_slugs - slugs - compatibility_profiles):
+        for extra in sorted(body_slugs - slugs - catalog.COMPATIBILITY_PROFILES):
             error(
                 (types_dir / f"{extra}.html").relative_to(root),
                 f'type body "{extra}" has no matching type-{extra}.md',
@@ -241,6 +255,35 @@ def check_writing_types(root: Path) -> None:
                 Path("templates/types") / f"{missing}.html",
                 f"missing type body for shipped type {missing}",
             )
+
+
+def check_modules(root: Path) -> None:
+    """The module registry, the pattern stylesheet and the example bodies agree.
+
+    Every registered class has CSS and every module class in the CSS is
+    registered; each pattern's characteristic modules are used by at least one
+    of its examples; and no body uses a module its pattern does not allow.
+    """
+    if not (root / catalog.PATTERNS_CSS).is_file() or not (root / catalog.PATTERNS_MD).is_file():
+        return
+    try:
+        types = catalog.load_types(root)
+        patterns = catalog.load_patterns(root)
+        modules = catalog.load_modules(root)
+    except catalog.CatalogError:
+        return  # check_writing_types reports malformed catalog files
+    if not modules:
+        error(catalog.PATTERNS_MD, "no '## Modules' registry table")
+        return
+    bodies = {
+        name: (pattern, catalog.body_classes(path.read_text(encoding="utf-8")))
+        for name, (pattern, path) in catalog.example_bodies(root, types).items()
+    }
+    for message in catalog.module_problems(modules, patterns, catalog.stylesheet_classes(root), bodies):
+        error(catalog.PATTERNS_MD, message)
+    for slug in catalog.COMPOSED:
+        if not (root / catalog.COMPOSED_DIR / f"{slug}.html").is_file():
+            error(catalog.COMPOSED_DIR / f"{slug}.html", f"missing body for composed example {slug}")
 
 
 def check_commands(root: Path) -> None:
@@ -347,7 +390,7 @@ def check_hex_literals(root: Path, palette: set[str]) -> None:
         rel = path.relative_to(root)
         rel_str = rel.as_posix()
 
-        if any(part in {"node_modules", ".git", "dist"} for part in rel.parts):
+        if any(part in SKIP_DIRS for part in rel.parts):
             continue
         # examples/ holds assembled output, which contains the inlined theme by
         # definition. The rule is about sources — a built document is supposed
@@ -528,6 +571,170 @@ def check_manifests(root: Path) -> None:
                     error(skill_dir.relative_to(root), "directory under skills/ has no SKILL.md")
 
 
+# --------------------------------------------------------------------------
+# authoring toolchain
+# --------------------------------------------------------------------------
+
+# `name@<x.y.z>` (npm, optionally scoped) and `name==<x.y.z>` (PyPI). The lookbehind
+# keeps an email address or a path segment from reading as a package.
+NPM_PIN_RE = re.compile(r"(?<![\w@/.-])((?:@[a-z0-9][\w.-]*/)?[a-z0-9][\w.-]*)@(\d+\.\d+\.\d+)\b")
+PYPI_PIN_RE = re.compile(r"(?<![\w.-])([A-Za-z0-9][\w.-]*)==(\d+(?:\.\d+)*)\b")
+
+LICENSES = "THIRD_PARTY_LICENSES.md"
+# A dependency row: [`package`](url) | registry | version | license | ...
+LICENSE_ROW_RE = re.compile(r"^\|\s*\[`([^`]+)`\]\([^)]*\)\s*\|\s*(npm|PyPI)\s*\|\s*([^|]*?)\s*\|", re.M)
+REGISTRY = {"npm": "npm", "PyPI": "pypi"}
+
+# Import name -> distribution name, where the two differ.
+IMPORT_TO_DIST = {"PIL": "pillow"}
+# Static `import … from 'x'`, bare `import 'x'`, and dynamic `import('x')`.
+MJS_IMPORT_RE = re.compile(r"""(?:\bfrom\s+|^\s*import\s+|\bimport\s*\(\s*)['"]([^'"]+)['"]""", re.M)
+
+
+def script_and_skill_files(root: Path) -> list[Path]:
+    """The canonical scripts plus every skill's prose: what a user actually runs or reads."""
+    files = [p for p in sorted((root / "scripts").glob("*")) if p.suffix in {".py", ".mjs"}]
+    for skill in sorted((root / "skills").glob("*/")):
+        files.append(skill / "SKILL.md")
+        files.extend(sorted((skill / "references").glob("*.md")))
+    return [p for p in files if p.is_file()]
+
+
+def pinned_mention_files(root: Path) -> list[Path]:
+    """Every file whose version mentions must agree with the pins."""
+    docs = [root / name for name in ("README.md", "CONTRIBUTING.md", LICENSES, "examples/README.md", "AGENTS.md")]
+    return script_and_skill_files(root) + [p for p in docs if p.is_file()]
+
+
+def load_pins(root: Path) -> dict[str, dict[str, str]] | None:
+    try:
+        return pins.pins(root)
+    except FileNotFoundError as exc:
+        error(Path(Path(exc.filename).name), "missing — the authoring toolchain is pinned there")
+    except (ValueError, json.JSONDecodeError) as exc:
+        error(Path(pins.PACKAGE_JSON), str(exc))
+    return None
+
+
+def check_pins(root: Path) -> None:
+    """Every `pkg@x.y.z` / `pkg==x.y.z` in docs and scripts names a pinned
+    package at its pinned version, so a hint can never install something the
+    lockfile does not."""
+    found = load_pins(root)
+    if found is None:
+        return
+    for path in pinned_mention_files(root):
+        rel = path.relative_to(root)
+        text = path.read_text(encoding="utf-8")
+        for registry, pattern, manifest in (
+            ("npm", NPM_PIN_RE, pins.PACKAGE_JSON),
+            ("pypi", PYPI_PIN_RE, pins.REQUIREMENTS),
+        ):
+            for m in pattern.finditer(text):
+                name, version = m.group(1), m.group(2)
+                key = name.lower() if registry == "pypi" else name
+                line = text.count("\n", 0, m.start()) + 1
+                pinned = found[registry].get(key)
+                if pinned is None:
+                    error(rel, f"line {line}: {m.group(0)} is not pinned in {manifest}")
+                elif pinned != version:
+                    error(rel, f"line {line}: {m.group(0)} disagrees with {manifest} ({pinned})")
+
+
+def script_imports(root: Path) -> dict[tuple[str, str], list[Path]]:
+    """Third-party packages imported by scripts/*.mjs and scripts/*.py.
+
+    Returns {(registry, distribution): [importing scripts]}.
+    """
+    scripts = root / "scripts"
+    local = {p.stem for p in scripts.glob("*.py")}
+    found: dict[tuple[str, str], list[Path]] = {}
+
+    def add(key: tuple[str, str], path: Path) -> None:
+        found.setdefault(key, [])
+        if path not in found[key]:
+            found[key].append(path)
+
+    for path in sorted(scripts.glob("*.mjs")):
+        for spec in MJS_IMPORT_RE.findall(path.read_text(encoding="utf-8")):
+            if spec.startswith(("node:", ".", "/")):
+                continue
+            parts = spec.split("/")
+            name = "/".join(parts[:2]) if spec.startswith("@") else parts[0]
+            add(("npm", name), path)
+
+    for path in sorted(scripts.glob("*.py")):
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        except SyntaxError as exc:
+            error(path.relative_to(root), f"does not parse: {exc}")
+            continue
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                modules = [alias.name for alias in node.names]
+            elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+                modules = [node.module]
+            else:
+                continue
+            for module in modules:
+                top = module.split(".")[0]
+                if top in sys.stdlib_module_names or top in local or top == "__future__":
+                    continue
+                add(("pypi", IMPORT_TO_DIST.get(top, top).lower()), path)
+    return found
+
+
+def check_dependencies(root: Path) -> None:
+    """The license table and the code agree in both directions.
+
+    Every third-party import in scripts/ and every pinned package has a row in
+    THIRD_PARTY_LICENSES.md (at its pinned version), and every row is used by a
+    script or named by a skill — a row nobody references is an attribution for
+    a dependency that no longer exists.
+    """
+    licenses = root / LICENSES
+    if not licenses.is_file():
+        error(Path(LICENSES), "missing")
+        return
+    rows: dict[tuple[str, str], str] = {}
+    for name, registry, version in LICENSE_ROW_RE.findall(licenses.read_text(encoding="utf-8")):
+        reg = REGISTRY[registry]
+        rows[(reg, name.lower() if reg == "pypi" else name)] = version
+
+    imports = script_imports(root)
+    for (registry, name), users in sorted(imports.items()):
+        if (registry, name) not in rows:
+            for user in users:
+                error(
+                    user.relative_to(root),
+                    f"imports {name} ({registry}), which has no row in {LICENSES}",
+                )
+
+    found = load_pins(root)
+    if found is not None:
+        for registry, entries in found.items():
+            for name, version in sorted(entries.items()):
+                listed = rows.get((registry, name))
+                if listed is None:
+                    error(Path(LICENSES), f"pinned {registry} package {name} has no row")
+                elif listed != version:
+                    error(
+                        Path(LICENSES),
+                        f"{name} ({registry}) is listed at {listed!r} but pinned at {version}",
+                    )
+
+    corpus = "\n".join(p.read_text(encoding="utf-8") for p in script_and_skill_files(root)).lower()
+    for registry, name in sorted(rows):
+        if (registry, name) in imports:
+            continue
+        if name.lower() not in corpus:
+            error(
+                Path(LICENSES),
+                f"{name} ({registry}) is listed but no script or skill references it — "
+                "remove the row or the dependency it describes",
+            )
+
+
 def is_vendored(rel: Path) -> bool:
     """True for skills/<name>/{core,scripts,templates}/..., the generated copies."""
     return len(rel.parts) > 3 and rel.parts[0] == "skills" and rel.parts[2] in VENDORED_DIRS
@@ -540,7 +747,7 @@ def check_vendored_assets(root: Path) -> None:
 
 def check_links(root: Path) -> None:
     for md in sorted(root.rglob("*.md")):
-        if any(p in {"node_modules", ".git", "dist"} for p in md.relative_to(root).parts):
+        if any(p in SKIP_DIRS for p in md.relative_to(root).parts):
             continue
         rel = md.relative_to(root)
         if is_vendored(rel):
@@ -569,11 +776,14 @@ def main() -> int:
     for skill in skills:
         check_skill(skill, root)
     check_writing_types(root)
+    check_modules(root)
     check_commands(root)
 
     palette = check_themes(root)
     check_hex_literals(root, palette)
     check_manifests(root)
+    check_pins(root)
+    check_dependencies(root)
     check_vendored_assets(root)
     check_links(root)
 

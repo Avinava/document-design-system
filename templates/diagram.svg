@@ -9,7 +9,10 @@
   IDs are document-global, so two diagrams sharing a slug will silently share
   each other's definitions.
 
-  Geometry sits on a 4px grid. See skills/diagram-design/references/primitives.md.
+  Geometry sits on a 4px grid. Every top-level element is marked: g.node
+  (+ node-focal | node-external | node-muted), path.edge, g.edge-label,
+  g.boundary, g.legend, g.callout, or g.annotation. scripts/check_diagrams.py
+  verifies the markup and the geometry. See references/primitives.md.
 -->
 <figure class="diagram">
   <svg role="img"
@@ -46,19 +49,22 @@
     </g>
 
     <!-- ============ edges ============ -->
-    <path d="M212 128 H 256"
+    <path class="edge" d="M212 128 H 256"
           fill="none" stroke="var(--muted)" stroke-width="1"
           marker-end="url(#dg-example-arrow)"/>
 
-    <path d="M416 128 H 484"
+    <path class="edge" d="M416 128 H 484"
           fill="none" stroke="var(--accent)" stroke-width="1.5"
           marker-end="url(#dg-example-arrow-focal)"/>
 
-    <!-- Edge label with a paper-colored backing so the line does not
-         strike through the text. -->
-    <rect x="424" y="112" width="40" height="16" fill="var(--paper)"/>
-    <text x="444" y="124" text-anchor="middle"
-          font-family="var(--sans)" font-size="11" fill="var(--muted)">async</text>
+    <!-- Edge label: beside its edge, 6-10px clear of the stroke, on a
+         paper-colored backing so any line passing behind does not strike
+         through the text. -->
+    <g class="edge-label">
+      <rect x="428" y="104" width="40" height="16" fill="var(--paper)"/>
+      <text x="448" y="116" text-anchor="middle"
+            font-family="var(--sans)" font-size="11" fill="var(--muted)">async</text>
+    </g>
 
     <!-- ============ nodes ============ -->
 

@@ -12,7 +12,7 @@ Casual edits to an existing file keep that file's format. Do not create a parall
 
 | Format | Load | Do not load |
 |---|---|---|
-| `markdown` | `SKILL.md`, `type-<slug>.md`, `writing.md`, `evidence.md` | `core/`, themes, `templates/longform.html`, `print.css`, `build_document.py`, `brand-theme-design` |
+| `markdown` | `SKILL.md`, `type-<slug>.md` (or `composing.md` plus the nearest type's file), `writing.md`, `evidence.md` | `core/`, themes, `templates/longform.html`, `print.css`, `build_document.py`, `brand-theme-design` |
 | `html` / `pdf` | the above plus this file and `core/` | — |
 | `both` | Markdown first, then HTML from that source | letting the two drift |
 
@@ -20,7 +20,7 @@ Markdown stays canonical in a git repo. HTML is a generated, shareable rendering
 
 ## Conventional paths
 
-If the user did not name a path, use the type file's `path:` value. Stay in an existing file when they are already editing one.
+If the user did not name a path, use the type file's `path:` value; a composed document uses the nearest type's path unless a sibling folder fits better (`docs/primers/`). Stay in an existing file when they are already editing one.
 
 On Markdown: ATX headings (`#`, `##`), fenced code with a language, repo-relative links. Mermaid stays a fenced `mermaid` block.
 
@@ -28,7 +28,7 @@ On HTML: prerender Mermaid through `diagram-design` / `scripts/render_diagram.mj
 
 ## HTML assembly
 
-`templates/longform.html` is the shell — measure, status banner, TOC, optional non-goals box, changelog. Type files own section order. Do not force the RFC outline onto every type.
+`templates/longform.html` is the shell: the root `data-theme` and `data-pattern`, the inlined theme, `core/base.css`, `core/document-patterns.css`, and `core/print.css` last. It carries no content of its own. The body — an `<article class="doc">` — owns section order and every module, from the type file's shape or the composition's declared modules. Do not force the RFC outline onto every type.
 
 Pattern and theme on the root:
 
@@ -42,6 +42,13 @@ contract is in `core/document-patterns.md`. A proposal can change from
 `executive-navy` to a client theme without ceasing to be a `decision` document.
 Pass `--theme` from that type's `default-theme` unless the user or a client
 brand named a different one.
+
+A composed document assembles the same way. Its front matter supplies the
+pattern (`pattern:`) and the theme comes from `nearest-type`'s
+`default-theme`. Build the body from the modules listed in `modules:` — each
+must be allowed for the pattern in the module registry in
+`core/document-patterns.md` — and set `data-pattern` on the root from the front
+matter, not from the nearest type.
 
 ```bash
 python3 "<skill-dir>/scripts/build_document.py" \

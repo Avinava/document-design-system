@@ -297,6 +297,14 @@ tbody tr:nth-child(even) { background: var(--surface-muted); }
   -webkit-overflow-scrolling: touch;
 }
 
+/* A 720-unit figure squeezed onto a phone sets 13px labels at about 6px.
+ * Below this width the figure scrolls inside its wrapper instead, at a size
+ * that can still be read; core/print.css resets the floor for paper. */
+.diagram-scroll svg { min-width: 560px; }
+
+figure.figure { margin: 1.75rem 0; }
+.diagram-scroll > svg { display: block; width: 100%; height: auto; }
+
 /* -------------------------------------------------------------- SVG */
 
 /* Charts and diagrams style through these classes rather than through
@@ -532,6 +540,112 @@ pre .lang {
   font-size: 0.9375rem;
 }
 
+/* ---------------------------------------------------- orientation modules */
+
+/* Scope strip: who the page is for, how long it takes, what to read with it,
+ * and what it is not. A strip of equal cells, read left to right before the
+ * first section, so a wrong reader can leave in ten seconds. */
+.scope-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  margin: 1.5rem 0 2.5rem;
+  background: var(--rule-strong);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.scope-strip > div {
+  min-width: 0;
+  padding: 0.9rem 1rem 1rem;
+  background: var(--surface);
+}
+
+.scope-strip dt,
+.ask-band dt {
+  color: var(--soft);
+  font: 500 0.6875rem/1.4 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.scope-strip dd {
+  margin: 0.35rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.scope-strip dd strong {
+  display: block;
+  font: 600 1.25rem/1.2 var(--display);
+}
+
+/* Crosswalk: a term in the reader's world, the term here, how well the
+ * reader's intuition carries over, and what changes. Fit is always written
+ * as a word; the glyph shape (filled, half, open) and the status token only
+ * repeat it, so the table survives greyscale print and colour blindness. */
+.crosswalk { margin: 1.75rem 0 2rem; }
+.crosswalk table { width: 100%; min-width: 720px; border-collapse: collapse; }
+
+.crosswalk caption {
+  caption-side: top;
+  padding-bottom: 0.6rem;
+  color: var(--soft);
+  font: 0.6875rem/1.45 var(--mono);
+  text-align: left;
+}
+
+.crosswalk thead th {
+  color: var(--soft);
+  font: 500 0.6875rem/1.4 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.crosswalk tbody th,
+.crosswalk tbody td { vertical-align: top; padding: 0.75rem 0.75rem; }
+.crosswalk tbody th { color: var(--ink); font-weight: 600; white-space: nowrap; }
+.crosswalk tbody td:last-child { color: var(--muted); }
+
+.crosswalk [data-fit] {
+  white-space: nowrap;
+  font: 600 0.75rem/1.5 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.crosswalk [data-fit]::before {
+  content: "";
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-right: 0.45rem;
+  vertical-align: -0.08rem;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+
+.crosswalk [data-fit="holds"] { color: var(--positive); }
+.crosswalk [data-fit="holds"]::before { background: currentColor; }
+.crosswalk [data-fit="partial"] { color: var(--warning); }
+.crosswalk [data-fit="partial"]::before { background: linear-gradient(90deg, currentColor 50%, transparent 50%); }
+.crosswalk [data-fit="breaks"] { color: var(--critical); }
+.crosswalk [data-fit="breaks"]::before { background: transparent; }
+
+.crosswalk-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.75rem;
+  max-width: none;
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.crosswalk-legend [data-fit] { margin-right: 0.35rem; }
+
 /* ------------------------------------------------------------- decision */
 
 html[data-pattern="decision"] .doc { --doc-max: 1100px; }
@@ -556,6 +670,48 @@ html[data-pattern="decision"] .doc { --doc-max: 1100px; }
 .decision-rail h3 { color: inherit; margin-top: 0; }
 .decision-rail p,
 .decision-rail li { color: var(--method-muted); }
+
+/* Ask band: the decision asked for, before any argument. The claim sits on
+ * the left; who decides, by when, and what happens if declined sit on the
+ * right as a short ledger. */
+.ask-band {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 0.5rem 2.5rem;
+  align-items: start;
+  margin: 0 0 2.75rem;
+  padding: 1.25rem 1.4rem 1.35rem;
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-top: 4px solid var(--accent);
+  border-radius: var(--radius-md);
+}
+
+.ask-band > .component-label { grid-column: 1 / -1; margin: 0; }
+
+.ask-band h2 {
+  margin: 0;
+  max-width: 28ch;
+  font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+.ask-band h2 + p { margin: 0.6rem 0 0; color: var(--muted); }
+
+.ask-band dl { display: grid; gap: 0; margin: 0; }
+
+.ask-band dl > div {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.ask-band dl > div:first-child { border-top: 0; padding-top: 0.15rem; }
+.ask-band dt { padding-top: 0.2rem; }
+.ask-band dd { margin: 0; font-weight: 600; }
 
 /* --------------------------------------------------------------- record */
 
@@ -690,6 +846,48 @@ html[data-pattern="learning"] .section {
   border-top-width: 2px;
   margin-top: 4.5rem;
   padding-top: 2rem;
+}
+
+/* Learning goal: what the reader will be able to do at the end, stated
+ * before the first lesson so every section can be checked against it. Each
+ * goal carries an open box the reader ticks mentally, not a bullet. */
+.learning-goal {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.32fr) minmax(0, 1fr);
+  gap: 0.75rem 2rem;
+  margin: 2rem 0 2.5rem;
+  padding: 1.25rem 1.4rem;
+  background: var(--accent-tint);
+  border-radius: var(--radius-md);
+}
+
+.learning-goal .component-label { margin: 0.15rem 0 0.35rem; }
+.learning-goal h2 { margin: 0 0 0.35rem; font-size: 1.15rem; }
+
+.learning-goal ul {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.learning-goal li {
+  position: relative;
+  max-width: 68ch;
+  padding-left: 1.75rem;
+}
+
+.learning-goal li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.3em;
+  width: 0.95rem;
+  height: 0.95rem;
+  border: 2px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
 }
 
 /* --------------------------------------------------------------- system */
@@ -944,6 +1142,8 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
   .contract-index { display: none; }
   .response-band,
   .document-map { grid-template-columns: 1fr; }
+  .scope-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ask-band { grid-template-columns: 1fr; gap: 1rem; }
 }
 
 @media (max-width: 620px) {
@@ -970,6 +1170,10 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
   .brief-grid { grid-template-columns: 1fr; }
   .next-checkpoint { grid-column: 1; }
   .procedure-steps > li { padding-left: 2.75rem; }
+  .scope-strip,
+  .learning-goal { grid-template-columns: 1fr; }
+  .ask-band dl > div { grid-template-columns: 6.5rem minmax(0, 1fr); }
+  .learning-goal { gap: 0.5rem; }
 }
 
 @media print {
@@ -1019,6 +1223,12 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
   .brief-status,
   .action-required { break-inside: avoid; }
   .procedure-steps > li { break-inside: avoid; }
+  .ask-band,
+  .scope-strip,
+  .learning-goal { break-inside: avoid; }
+  .ask-band { margin-bottom: 1.5rem; }
+  .crosswalk table { min-width: 0; }
+  .crosswalk tr { break-inside: avoid; }
 }
 
 /* ---- inlined from core/print.css ---- */
@@ -1218,13 +1428,22 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
     <div class="doc-meta" aria-label="Onboarding metadata"><span><strong>Audience:</strong> incoming platform engineer</span><span><strong>Environment:</strong> local only</span><span><strong>Owner:</strong> Platform</span><span><strong>Outcome:</strong> explain, run, verify</span></div>
   </header>
 
+  <section class="learning-goal" aria-labelledby="goal">
+    <div><p class="component-label">Learning goal · 55 minutes</p><h2 id="goal">By the end, you can</h2></div>
+    <ul>
+      <li>draw the current path and mark its single failure boundary;</li>
+      <li>run one synthetic event locally and read its <code>202</code> correctly;</li>
+      <li>separate current, proposed, and unresolved facts without production access.</li>
+    </ul>
+  </section>
+
   <nav class="toc" aria-label="Onboarding contents"><p class="component-label">Learning path</p><ol><li><a href="#model">The working model</a></li><li><a href="#boundaries">Boundaries that matter</a></li><li><a href="#read">Read the request path</a></li><li><a href="#run">Run one event</a></li><li><a href="#ready">Prove readiness</a></li></ol></nav>
 
   <section class="section" id="model">
     <div class="section-head"><span class="section-num">01</span><h2>The working model</h2><span class="reading-time">8 min</span></div>
     <p>Northwind Ingestion is an internal acceptance and landing path. Producers send events to the gateway; one shared queue buffers them; consumers validate and write them to the warehouse.</p>
     <div class="keypoint"><p><strong>Carry this sentence:</strong> the current queue is both the buffer and the failure boundary for every first-party producer.</p></div>
-    <div class="system-map diagram-scroll"><svg role="img" aria-labelledby="arch-title arch-desc" viewBox="0 0 720 340" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+    <div class="system-map diagram-scroll"><svg role="img" aria-labelledby="arch-title arch-desc" viewBox="0 0 720 316" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
   <title id="arch-title">Ingestion architecture</title>
   <desc id="arch-desc">Producers enter through a gateway inside the trust boundary, buffer in a queue, and are consumed into the warehouse. The queue is the only component without a failover, and it carries the whole ingestion path.</desc>
 
@@ -1240,7 +1459,7 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
   </defs>
 
   <!-- boundaries -->
-  <g>
+  <g class="boundary">
     <rect x="128" y="56" width="404" height="152" rx="6"
           fill="none" stroke="var(--rule-strong)" stroke-width="1" stroke-dasharray="4 3"/>
     <text x="140" y="76" font-family="var(--sans)" font-size="11" fill="var(--soft)"
@@ -1248,27 +1467,29 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
   </g>
 
   <!-- edges (drawn before nodes so line ends sit behind the boxes) -->
-  <path d="M104 132 H 152" fill="none" stroke="var(--muted)" stroke-width="1"
+  <path class="edge" d="M104 132 H 152" fill="none" stroke="var(--muted)" stroke-width="1"
         marker-end="url(#arch-arrow)"/>
-  <path d="M312 132 H 360" fill="none" stroke="var(--accent)" stroke-width="1.5"
+  <path class="edge" d="M312 132 H 360" fill="none" stroke="var(--accent)" stroke-width="1.5"
         marker-end="url(#arch-arrow-focal)"/>
-  <path d="M520 132 H 568" fill="none" stroke="var(--muted)" stroke-width="1"
+  <path class="edge" d="M520 132 H 568" fill="none" stroke="var(--muted)" stroke-width="1"
         marker-end="url(#arch-arrow)"/>
 
-  <!-- edge labels on a paper-colored backing so the line does not strike through -->
-  <rect x="316" y="116" width="40" height="16" fill="var(--paper)"/>
-  <text x="336" y="128" text-anchor="middle" font-family="var(--sans)"
-        font-size="11" fill="var(--muted)">async</text>
+  <!-- edge label: beside its edge, 8px clear, on a paper backing -->
+  <g class="edge-label">
+    <rect x="316" y="108" width="40" height="16" fill="var(--paper)"/>
+    <text x="336" y="120" text-anchor="middle" font-family="var(--sans)"
+          font-size="11" fill="var(--muted)">async</text>
+  </g>
 
   <!-- nodes -->
-  <g>
+  <g class="node node-external">
     <rect x="24" y="100" width="80" height="64" rx="6"
           fill="var(--surface)" stroke="var(--rule)" stroke-width="1" stroke-dasharray="4 3"/>
     <text x="64" y="136" text-anchor="middle" font-family="var(--sans)"
           font-size="13" fill="var(--soft)">Producers</text>
   </g>
 
-  <g>
+  <g class="node">
     <rect x="152" y="100" width="160" height="64" rx="6"
           fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
     <text x="232" y="130" text-anchor="middle" font-family="var(--sans)"
@@ -1278,7 +1499,7 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
   </g>
 
   <!-- focal node: the one thing the diagram is about -->
-  <g>
+  <g class="node node-focal">
     <rect x="360" y="100" width="160" height="64" rx="6"
           fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
     <text x="440" y="130" text-anchor="middle" font-family="var(--sans)"
@@ -1287,7 +1508,7 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
           font-size="11" fill="var(--muted)">single instance</text>
   </g>
 
-  <g>
+  <g class="node node-external">
     <rect x="568" y="100" width="128" height="64" rx="6"
           fill="var(--surface)" stroke="var(--rule)" stroke-width="1" stroke-dasharray="4 3"/>
     <text x="632" y="136" text-anchor="middle" font-family="var(--sans)"
@@ -1295,7 +1516,7 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
   </g>
 
   <!-- callout: dashed Bezier leader, no arrowhead. At most two per diagram. -->
-  <g>
+  <g class="callout">
     <path d="M440 100 C 440 72, 456 48, 492 48"
           fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3"/>
     <text x="500" y="52" font-family="var(--sans)" font-size="12"
@@ -1303,15 +1524,15 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
   </g>
 
   <!-- legend: inside the viewBox, or it is lost on export and in print -->
-  <g>
-    <path d="M24 268 H 700" stroke="var(--rule)" stroke-width="1"/>
-    <text x="24" y="292" font-family="var(--mono)" font-size="10"
+  <g class="legend">
+    <path d="M24 268 H 696" stroke="var(--rule)" stroke-width="1"/>
+    <text x="24" y="292" font-family="var(--mono)" font-size="11"
           fill="var(--soft)" letter-spacing="0.14em">LEGEND</text>
-    <rect x="104" y="282" width="20" height="12" rx="2" fill="var(--surface)"
+    <rect x="112" y="280" width="20" height="12" rx="2" fill="var(--surface)"
           stroke="var(--rule)" stroke-dasharray="4 3"/>
-    <text x="132" y="292" font-family="var(--sans)" font-size="11" fill="var(--muted)">external</text>
-    <rect x="212" y="282" width="20" height="12" rx="2" fill="var(--accent-tint)" stroke="var(--accent)"/>
-    <text x="240" y="292" font-family="var(--sans)" font-size="11" fill="var(--muted)">focal</text>
+    <text x="140" y="290" font-family="var(--sans)" font-size="11" fill="var(--muted)">dashed: outside Platform</text>
+    <rect x="312" y="280" width="20" height="12" rx="2" fill="var(--accent-tint)" stroke="var(--accent)"/>
+    <text x="340" y="290" font-family="var(--sans)" font-size="11" fill="var(--muted)">accent: single point of failure</text>
   </g>
 </svg></div>
     <p>The diagram also shows the proposed dispatcher and split queues. Those components are not production facts yet; they belong to RFC 014.</p>

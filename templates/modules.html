@@ -1,0 +1,84 @@
+<!doctype html>
+<!--
+  The Modules page: one specimen per registered module, rendered with the real
+  classes from core/document-patterns.css.
+
+  Assembled by scripts/build_site.py from catalog.MODULES. Each specimen is
+  lifted from an example body that uses the module, so the page shows what the
+  examples actually ship; "used in" is computed by scanning those bodies.
+-->
+<html lang="en" data-theme="executive-navy">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Document modules — document-design-system</title>
+<!-- @@META -->
+<link rel="icon" href="assets/banner.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* @@INLINE core/themes/${THEME}.css @@ */
+/* @@INLINE core/base.css @@ */
+/* @@INLINE core/document-patterns.css @@ */
+/* @@SITE_CSS */
+
+.modules-hero { padding: 64px 0 0; }
+.module-index { columns: 4 12rem; column-gap: 1.5rem; margin: 2rem 0 0; padding: 1.25rem 0 0; list-style: none;
+  border-top: 1px solid var(--rule-strong); font-size: .9375rem; }
+.module-index li { break-inside: avoid; padding: .2rem 0; }
+.module-index a { color: var(--ink); text-decoration-color: var(--rule-strong); }
+
+.module { display: grid; grid-template-columns: minmax(0, 18rem) minmax(0, 1fr); gap: 2.25rem; padding: 56px 0;
+  border-top: 1px solid var(--rule-strong); scroll-margin-top: 8px; }
+.module:first-of-type { margin-top: 64px; }
+.module-head h2 { margin: 0 0 .25rem; font-size: 1.5rem; letter-spacing: -.02em; }
+.module-head .class-name { display: block; margin-bottom: .75rem; color: var(--soft); }
+.module-head .purpose { color: var(--ink); margin: 0 0 1rem; }
+.module-head dl { margin: 0; font-size: .875rem; }
+.module-head dt { color: var(--soft); margin-top: .65rem; }
+.module-head dd { margin: .15rem 0 0; color: var(--muted); }
+.module-head dd a { color: var(--muted); text-decoration-color: var(--rule-strong); }
+.module-head dd a:hover { color: var(--ink); }
+.specimen-frame { min-width: 0; padding: 1.5rem 1.75rem; background: var(--paper); border: 1px solid var(--rule);
+  border-radius: var(--radius-md); overflow-x: auto; }
+.specimen-frame > :first-child { margin-top: 0; }
+.specimen-frame > :last-child { margin-bottom: 0; }
+.specimen-source { margin: .6rem 0 0; color: var(--soft); font-size: .8125rem; }
+.specimen-source a { color: var(--muted); }
+.module.unused .specimen-frame { border-style: dashed; }
+
+@media (max-width: 960px) {
+  .module { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; padding: 40px 0; }
+}
+@media (max-width: 620px) {
+  .specimen-frame { padding: 1rem .9rem; }
+}
+/* @@DARK */
+/* @@INLINE core/print.css @@ */
+</style>
+</head>
+<body>
+<a class="skip-link" href="#modules">Skip to the modules</a>
+<div class="shell">
+<!-- @@NAV -->
+
+<header class="modules-hero">
+  <h1 class="site-title">The parts a pattern is built from</h1>
+  <p class="site-lead">A module is one class in <code>core/document-patterns.css</code> with one reading job. @@MODULES_WORD_CAP are registered. A page uses only the modules its pattern allows, which is what keeps a composed document reading like its pattern.</p>
+  <p class="site-lead">Each specimen below is lifted from an example that uses it and rendered with the real stylesheet. Specimens wear this page's theme; open the example to see each one in its own.</p>
+  <ul class="module-index" aria-label="Modules">
+    <!-- @@INDEX -->
+  </ul>
+</header>
+
+<main id="modules">
+<!-- @@MODULES -->
+</main>
+
+<footer class="site-foot">
+  <p>The registry is the Modules table in <a href="@@REPO/blob/main/core/document-patterns.md#modules">core/document-patterns.md</a>. The validator fails when a registered class has no CSS, when CSS styles an unregistered class, or when a body uses a module its pattern does not allow.</p>
+</footer>
+</div>
+</body>
+</html>

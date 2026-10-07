@@ -16,8 +16,8 @@ Skills describe **judgment** — what to measure, when a chart earns its place, 
 | `themes/horizon.css` | A client brand applied. Worked example from brand-theme-design. |
 | `themes/brand-template.css` | Documented slot for your own brand. Copy, fill every TODO, rename. |
 | `base.css` | Component-to-token mapping. Contains no color literals. |
-| `document-patterns.md` | The eleven structural families and their selection contract. |
-| `document-patterns.css` | Pattern layouts and modules. Contains no color literals. |
+| `document-patterns.md` | The eleven structural families, how to select one (a type when one fits, the pattern otherwise), and the module registry: every module class, the patterns that may use it, and its purpose. |
+| `document-patterns.css` | Pattern layouts and the registered modules. Contains no color literals; the validator fails when it styles a class the registry does not name. |
 | `print.css` | Print and PDF as a distinct output mode. Load last. |
 | `a11y.md` | Accessibility contract: SVG labelling, contrast, grayscale, focus. |
 
@@ -49,4 +49,5 @@ A change here reaches all six skills, so:
 1. Adding a token means adding it to **every** theme, including `brand-template.css`, and documenting it in `tokens.md`.
 2. Renaming a token means updating every skill that names it.
 3. Never add a second decorative accent. The one-accent rule is load-bearing — it is what makes the focal signal legible.
-4. Run `python scripts/validate_repository.py .` before committing.
+4. A new module class goes into the Modules table in `document-patterns.md` in the same change; the registry and the stylesheet must agree.
+5. Run `python3 scripts/validate_repository.py .` and `python3 scripts/audit_theme.py --all` before committing.

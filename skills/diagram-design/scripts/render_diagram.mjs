@@ -11,7 +11,9 @@
  *        --desc "Events enter through the gateway and land in the warehouse." \
  *        --size doc-inline --out diagram.svg
  *
- * Requires: npm install beautiful-mermaid
+ * Requires (authoring time only, Node 22.22.2 or newer): `npm ci` inside the
+ * repository, or `npm i beautiful-mermaid@1.1.3` where the skill is installed
+ * on its own.
  *
  * beautiful-mermaid (MIT, Craft Docs) does the parsing and layout. This wrapper
  * exists because its raw output is not safe to drop into a designed document:
@@ -129,7 +131,9 @@ function makeResponsive(svg, targetWidth) {
         })
       : `${attrs} style="max-width:${targetWidth}px"`;
 
-    return `<svg${attrs} width="100%">`;
+    // data-renderer tells scripts/check_diagrams.py the layout is the
+    // renderer's own, so it applies the shell and bounds rules only.
+    return `<svg${attrs} width="100%" data-renderer="render_diagram">`;
   });
 }
 
@@ -165,7 +169,8 @@ async function main() {
   } catch {
     console.error(
       'beautiful-mermaid is not installed.\n' +
-        '  npm install beautiful-mermaid\n' +
+        '  in the repository:      npm ci\n' +
+        '  in an installed skill:  npm i beautiful-mermaid@1.1.3\n' +
         'It is an authoring-time dependency only — the rendered SVG carries none of it.'
     );
     process.exit(1);

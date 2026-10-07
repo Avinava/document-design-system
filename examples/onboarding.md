@@ -10,6 +10,12 @@ Read the current path, learn where familiar queue assumptions fail, run one
 event locally, and finish with the questions worth asking on your first on-call
 review.
 
+**Learning goal.** By the end, you can:
+
+- draw the current path and mark its single failure boundary;
+- run one synthetic event locally and read its `202` correctly;
+- separate current, proposed, and unresolved facts without production access.
+
 ## The working model
 
 Northwind Ingestion is an internal acceptance and landing path. Producers send

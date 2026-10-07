@@ -16,6 +16,11 @@ Per-form construction rules. Each entry covers what the form is for, what to lab
 - [Funnel](#funnel)
 - [Venn](#venn)
 - [Tree / nested](#tree--nested)
+- [Change view](#change-view)
+- [Deployment map](#deployment-map)
+- [Dependency graph](#dependency-graph)
+
+A form earns a place in this list only when it needs a layout none of the others has. A new form for a new subject drawn in an old layout is just that old form.
 
 ---
 
@@ -196,3 +201,54 @@ Per-form construction rules. Each entry covers what the form is for, what to lab
 - **Accent:** the branch under discussion.
 
 **Failure mode:** an unbalanced tree presented as a taxonomy. If one branch has twelve children and the others have two, the decomposition rule is not doing its job.
+
+---
+
+## Change view
+
+**For:** what a change adds, removes, and leaves alone — the before and after of one system, read together.
+
+- Stack the two states on **shared columns**: today above, proposed below, every unchanged component directly above itself. The eye then reads only the difference; side-by-side states make the reader match boxes across a gap.
+- Tag every changed node in words — `added`, `removed`, `changed` — above the node or its column. Never by colour or lightness alone: a theme swap or a grayscale print must not erase the change.
+- Draw a removed component in the "today" state with a dashed outline and its tag; do not leave it out, or the reader cannot see what the new parts replace.
+- Mute what does not change (`node-muted`). Present, legible, receding.
+- Close with a **change ledger** inside the `viewBox`: one row per change, keyed by the node's real identifier (`dispatcher`, `ingest-a`), the change word, and one line on what it means. End with one line naming what is explicitly unchanged.
+- **Accent:** the one added component the change hinges on, not every added box.
+
+**Failure mode:** two complete architecture diagrams side by side with nothing marked. The reader plays spot-the-difference and misses the removal.
+
+**Hand-author this one.** Column alignment is the content.
+
+---
+
+## Deployment map
+
+**For:** where each part runs — cluster, namespace, workload, replicas — and what sits outside.
+
+- Nest at most two levels of boundary: cluster, then namespace. A third level (node pool, zone) is a second diagram.
+- Boundary labels carry the real identifiers in `var(--mono)` (`prod-ingest`, `ingest`) beside a short uppercase kind (`CLUSTER`, `NAMESPACE`).
+- Show replicas as small pips inside their workload node, not as separate nodes: they are one deployment, and a row of full-size boxes reads as several services. Mark the scaling control the reader owns — the next replica as a dashed pip, the ceiling as text.
+- Dependencies whose hosting the document does not establish sit outside every boundary, dashed, and the legend says the hosting is not shown. Placing a box inside a boundary is a claim about where it runs.
+- A second environment that mirrors the first can be a slim boundary with one line of text, not a repeated drawing.
+- **Accent:** the workload the reader will act on.
+
+**Failure mode:** a cloud-console screenshot redrawn — every service, every zone, every load balancer. Keep only what the reader's task touches.
+
+**Hand-author this one.** Containment is the content.
+
+---
+
+## Dependency graph
+
+**For:** what must finish before what, and which chain sets the date.
+
+- Directed and **acyclic**. A cycle is a planning error to resolve, not a shape to draw.
+- Lay out left to right in date order: each column is a point in time, so position reads as "earlier" and "later". Put dates on the nodes in `var(--mono)`, and state the year once in the legend.
+- Fan several incoming edges across the side they meet, at least 12px apart, so convergence on a gate reads as several distinct dependencies.
+- Mark the **critical path as the one accent**: its edges in `var(--accent)` at 1.5px, its nodes outlined in accent. Every other edge stays muted. The legend says what the accent means ("a slip here moves production").
+- A callout may name the risk on the critical path — the dependency with no confirmed owner — and nothing else.
+- **Accent:** the critical path, and the single node on it the reader can still influence.
+
+**Failure mode:** a Gantt chart turned sideways. If bars and durations matter more than precedence, use a timeline; this form is about what waits on what.
+
+**Hand-author this one.** Auto-layout reorders columns by edge crossings and loses the date order.

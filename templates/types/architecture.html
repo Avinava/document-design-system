@@ -35,8 +35,14 @@
         <p>Adding one consumer replica is the safe local recovery control. Because every producer shares the queue, current recovery is also shared.</p>
       </section>
 
+      <section class="section" aria-labelledby="placement">
+        <div class="section-head"><span class="section-num">04</span><h2 id="placement">Runtime placement</h2><span class="reading-time">deployment</span></div>
+        <div class="system-map diagram-scroll"><!-- @FIG ingest-deployment --></div>
+        <p>The gateway and <code>ingest-consumer</code> run in namespace <code>ingest</code> on <code>prod-ingest</code>; staging mirrors the namespace on <code>stage-ingest</code>. Replica changes are the only scaling control operators own.</p>
+      </section>
+
       <section class="section" aria-labelledby="trust">
-        <div class="section-head"><span class="section-num">04</span><h2 id="trust">Trust and data boundaries</h2><span class="reading-time">security</span></div>
+        <div class="section-head"><span class="section-num">05</span><h2 id="trust">Trust and data boundaries</h2><span class="reading-time">security</span></div>
         <ul><li>The gateway terminates producer identity and enforces the audience claim.</li><li>Event bodies remain opaque to routing; domain validation belongs to gateway schema and consumers.</li><li>Queue and warehouse credentials are runtime secrets, never document content.</li><li>The proposed dispatcher inherits gateway identity and adds no body store.</li></ul>
       </section>
     </div>

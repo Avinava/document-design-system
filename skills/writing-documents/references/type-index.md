@@ -1,8 +1,30 @@
 # Type index
 
-Load this file when the requested name is unclear. Route to one canonical
-reader job, then load exactly one `type-<slug>.md`. Aliases are not filenames or
-duplicate slash commands.
+Load this file when the requested name is unclear. Route by the reader's
+question: if a type or alias fits, load its `type-<slug>.md`; if none fits,
+pick the pattern from the table below and compose with `composing.md`. Aliases
+are not filenames or duplicate slash commands.
+
+## Start from the reader's question
+
+| The reader asks | Pattern | Presets in that pattern |
+|---|---|---|
+| Should we do this, and what do you need from me? | `decision` | `design-doc`, `discovery`, `proposal`, `project-charter`, `estimate`, `change-request` |
+| Why is it like this, and is that settled? | `record` | `adr` |
+| What exactly must be true, and how do I check it? | `contract` | `spec`, `api-contract`, `reference`, `requirements`, `statement-of-work`, `support-model` |
+| What do I do, in what order, and how do I recover? | `procedure` | `handoff`, `how-to`, `runbook` |
+| How does this work, so I can reason about it myself? | `learning` | `explanation`, `onboarding`, `tutorial` |
+| How is it arranged, and where are the boundaries? | `system` | `architecture`, `design-handoff` |
+| What happened, why, and what stops it recurring? | `incident` | `postmortem` |
+| Where is each fact about this service owned? | `suite` | `service-docs` |
+| How will the work get done, and what gates it? | `plan` | `delivery-plan`, `migration-plan`, `test-strategy` |
+| Is it good enough, on what evidence? | `assurance` | `test-report`, `threat-model`, `readiness-review`, `risk-register` |
+| Where are we now, and what needs my attention? | `brief` | `status-report`, `release-notes`, `workshop-summary`, `incident-update` |
+
+When the question matches a row but none of its presets match the reader or the
+document's job — a primer for engineers arriving from another discipline, a
+glossary-led orientation, a comparison of two internal platforms — compose in
+that pattern with `composing.md` rather than forcing the nearest preset.
 
 ## Canonical catalog
 
@@ -62,6 +84,23 @@ Every canonical command is `/document-design-system:<slug>`.
 - Service handbook or application documentation → `service-docs`.
 - Scope change or variation → `change-request`.
 - Formal meeting/workshop readout → `workshop-summary`; casual note edits stay casual.
+- Solution architecture document, integration design, target-state design →
+  `design-doc`; as-built or current-state integration landscape → `architecture`.
+- Interface agreement, interface control document, integration contract → `spec`.
+- Business case, investment paper, funding request → `proposal`.
+- Inception or discovery readout, current-state assessment → `discovery`.
+- Rough order of magnitude, sizing → `estimate`.
+- Knowledge-transfer pack, operational handover → `handoff`.
+- Cutover plan, cutover runbook, rollback plan → `migration-plan`; the minute-by-minute
+  operator steps inside it → `runbook`.
+- Go/no-go, launch readiness, operational acceptance → `readiness-review`.
+- Steering pack, programme update, RAG report → `status-report`.
+- UAT plan → `test-strategy`; UAT sign-off or test summary report → `test-report`.
+- Service catalogue entry, SLA/OLA description → `support-model`.
+- Lessons learned, incident review → `postmortem`; live incident comms → `incident-update`.
+- Primer, orientation guide, concept guide → `explanation` if it explains one
+  system's why; compose in `learning` when the reader's starting world matters
+  (see `composing.md`).
 
 ## Compatibility profile
 
@@ -79,3 +118,6 @@ type.
 - MSAs, NDAs, invoices, procurement, HR, and invented legal clauses are out of
   scope. `statement-of-work` covers supplied delivery-commercial terms only.
 - If several reader jobs apply, use `consultancy-lifecycle.md` and `suites.md`.
+- A request no type or alias fits is composed (`composing.md`), not refused and
+  not forced into the nearest preset. The out-of-scope list above still applies
+  to composed documents.

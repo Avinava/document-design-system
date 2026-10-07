@@ -6,6 +6,7 @@ All values are on a 4px grid. Off-grid geometry is the most reliable visual tell
 
 ## Contents
 
+- [Markup contract](#markup-contract)
 - [Canvas and grid](#canvas-and-grid)
 - [Nodes](#nodes)
 - [Edges](#edges)
@@ -13,7 +14,25 @@ All values are on a 4px grid. Off-grid geometry is the most reliable visual tell
 - [Boundaries and groups](#boundaries-and-groups)
 - [Callouts](#callouts)
 - [Legends](#legends)
+- [Form geometry](#form-geometry)
 - [The SVG shell](#the-svg-shell)
+- [Checking the rules](#checking-the-rules)
+
+## Markup contract
+
+A hand-authored diagram marks its structure with classes, so a checker can measure it and a reader of the source can find the parts. Every element directly under `<svg>` (after `<title>`, `<desc>`, `<defs>`) is one of these:
+
+| Element | Class | Holds |
+|---|---|---|
+| `<g>` | `node` + optional `node-focal`, `node-external`, `node-muted` | The box `<rect>` first, then its `<text>` lines |
+| `<path>` or `<line>` | `edge` | One connector |
+| `<g>` | `edge-label` | A backing `<rect>` first, then the `<text>` |
+| `<g>` | `boundary` | The dashed `<rect>` and its label |
+| `<g>` | `legend` | Everything in the key, including a change ledger |
+| `<g>` | `callout` | The leader `<path>` and its italic `<text>` |
+| `<g>` | `annotation` | Free text: state labels, column tags, notes |
+
+Nothing is drawn unmarked. A bare `<g>` or a loose `<text>` is a part the checker cannot reason about and a reviewer cannot find.
 
 ## Canvas and grid
 
@@ -126,12 +145,16 @@ An edge that must pass behind a node it does not connect to should be dashed, to
 | Technical identifier | `var(--mono)` | 11px | `var(--muted)` |
 | Boundary label | `var(--sans)` | 11px, uppercase, 0.06em tracking | `var(--soft)` |
 
-Edge labels sit **on** the edge with a small `var(--paper)` backing rect so the line does not strike through the text:
+Edge labels sit **beside** their edge, 6–10px clear of the stroke (routing rule 2), in a `g.edge-label` with a `var(--paper)` backing rect so any other line that passes behind does not strike through the text:
 
 ```html
-<rect x="200" y="46" width="48" height="16" fill="var(--paper)"/>
-<text x="224" y="58" class="edge-label" text-anchor="middle">async</text>
+<g class="edge-label">
+  <rect x="200" y="36" width="48" height="16" fill="var(--paper)"/>
+  <text x="224" y="48" text-anchor="middle">async</text>
+</g>
 ```
+
+Paint the label before the nodes it sits between, and keep its backing clear of every node: a node painted after a label hides it.
 
 SVG has no text wrapping. Break long labels into explicit `<tspan>` lines with a 15px line step, or shorten the label. Do not let a label overflow its node.
 
@@ -173,8 +196,18 @@ Prefer direct labelling. A legend is a lookup table the reader has to hold in me
 When one is genuinely needed (repeated encodings across several diagrams):
 
 - Place it inside the `viewBox`, or it will be lost on export and in print.
-- Horizontal, below the diagram, 11px `var(--muted)`.
+- Horizontal, below the diagram, 11px minimum, `var(--muted)`.
 - Encode by line style or shape, not by fill color alone.
+- Name each encoding in words next to its swatch: "dashed: outside Platform", not "dashed".
+- Never let lightness carry meaning on its own. A dark theme inverts which fill reads heavier, so a "darker means more" key is true in one theme and false in the next.
+
+## Form geometry
+
+**Change view.** Two states stacked on shared columns: column pitch is node width plus gap (88 + 28 = 116 at `doc-inline`), so an unchanged node sits directly above itself. State labels (`TODAY`, `RFC 014 · PROPOSED`) are boundary-label style at the top-left of each band; a 1px `var(--rule)` divides the bands. Change tags are 11px `var(--mono)` set 8px above the node or column they mark. The ledger sits below a second divider: identifier column in `var(--mono)` 11px, change word in `var(--muted)`, note in 12px sans, rows 22px apart.
+
+**Deployment map.** Cluster boundary, then namespace boundary 16px inside it, then workloads 16px inside that. Replica pips are 24 × 16, `rx` 2, 8px apart, on a row 12px above the workload's bottom edge; the next replica is the same pip dashed (`3 2`). Dependencies sit at least 40px outside the outermost boundary so their edges visibly cross it.
+
+**Dependency graph.** One column per date, node pitch 140 at `doc-inline` (112 + 28); rows 88 apart (64 + 24). Edges bend once each way with `r=6` quarter-arcs in the column gap. Inputs converging on one gate fan along its side at least 12px apart; the worked example spaces three of them 20px apart, centred on the node.
 
 ## The SVG shell
 
@@ -194,3 +227,16 @@ When one is genuinely needed (repeated encodings across several diagrams):
 Paint order matters: boundaries first, then edges, then nodes, then callouts. Nodes drawn after edges hide the line ends that would otherwise poke through their borders.
 
 Keep `<figure>` non-breaking in print so the caption never separates from the diagram — `core/print.css` handles this.
+
+The root `<svg>` carries a `viewBox` and either no size or `width="100%"`, never a pixel width or height: a fixed size stops the figure scaling into a column or a printed page. Every `id` starts with the figure's slug — the `<title>` id minus `-title`.
+
+## Checking the rules
+
+`scripts/check_diagrams.py` reads the coordinates and reports each broken rule by a stable ID, without rendering anything:
+
+```bash
+python3 scripts/check_diagrams.py figure.svg        # or a page: every titled inline <svg>
+python3 scripts/check_diagrams.py --rules           # list the rule IDs
+```
+
+It checks the shell, `var()`-only colour, the markup contract, the 4px grid on rects, node overlap, the `viewBox` bounds (text estimated at 0.6em per character), edge-label occlusion and its 6px gap, the 12px attachment fan, the 11px legend floor, one emphasis family, and at most two callouts. Output of `scripts/render_diagram.mjs` is marked `data-renderer` and gets only the shell and bounds rules, because the renderer owns its layout.

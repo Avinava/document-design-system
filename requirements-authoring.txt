@@ -1,0 +1,8 @@
+# Authoring-time Python dependencies: screenshots (scripts/shoot_examples.py)
+# and brand extraction (scripts/extract_site_theme.py). The validator, tests
+# and document build stay standard-library only.
+#
+#   uv venv && uv pip install -r requirements-authoring.txt
+#   uv run playwright install chromium
+playwright==1.63.0
+pillow==12.3.0

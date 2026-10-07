@@ -297,6 +297,14 @@ tbody tr:nth-child(even) { background: var(--surface-muted); }
   -webkit-overflow-scrolling: touch;
 }
 
+/* A 720-unit figure squeezed onto a phone sets 13px labels at about 6px.
+ * Below this width the figure scrolls inside its wrapper instead, at a size
+ * that can still be read; core/print.css resets the floor for paper. */
+.diagram-scroll svg { min-width: 560px; }
+
+figure.figure { margin: 1.75rem 0; }
+.diagram-scroll > svg { display: block; width: 100%; height: auto; }
+
 /* -------------------------------------------------------------- SVG */
 
 /* Charts and diagrams style through these classes rather than through
@@ -532,6 +540,112 @@ pre .lang {
   font-size: 0.9375rem;
 }
 
+/* ---------------------------------------------------- orientation modules */
+
+/* Scope strip: who the page is for, how long it takes, what to read with it,
+ * and what it is not. A strip of equal cells, read left to right before the
+ * first section, so a wrong reader can leave in ten seconds. */
+.scope-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  margin: 1.5rem 0 2.5rem;
+  background: var(--rule-strong);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.scope-strip > div {
+  min-width: 0;
+  padding: 0.9rem 1rem 1rem;
+  background: var(--surface);
+}
+
+.scope-strip dt,
+.ask-band dt {
+  color: var(--soft);
+  font: 500 0.6875rem/1.4 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.scope-strip dd {
+  margin: 0.35rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.scope-strip dd strong {
+  display: block;
+  font: 600 1.25rem/1.2 var(--display);
+}
+
+/* Crosswalk: a term in the reader's world, the term here, how well the
+ * reader's intuition carries over, and what changes. Fit is always written
+ * as a word; the glyph shape (filled, half, open) and the status token only
+ * repeat it, so the table survives greyscale print and colour blindness. */
+.crosswalk { margin: 1.75rem 0 2rem; }
+.crosswalk table { width: 100%; min-width: 720px; border-collapse: collapse; }
+
+.crosswalk caption {
+  caption-side: top;
+  padding-bottom: 0.6rem;
+  color: var(--soft);
+  font: 0.6875rem/1.45 var(--mono);
+  text-align: left;
+}
+
+.crosswalk thead th {
+  color: var(--soft);
+  font: 500 0.6875rem/1.4 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.crosswalk tbody th,
+.crosswalk tbody td { vertical-align: top; padding: 0.75rem 0.75rem; }
+.crosswalk tbody th { color: var(--ink); font-weight: 600; white-space: nowrap; }
+.crosswalk tbody td:last-child { color: var(--muted); }
+
+.crosswalk [data-fit] {
+  white-space: nowrap;
+  font: 600 0.75rem/1.5 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.crosswalk [data-fit]::before {
+  content: "";
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-right: 0.45rem;
+  vertical-align: -0.08rem;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+
+.crosswalk [data-fit="holds"] { color: var(--positive); }
+.crosswalk [data-fit="holds"]::before { background: currentColor; }
+.crosswalk [data-fit="partial"] { color: var(--warning); }
+.crosswalk [data-fit="partial"]::before { background: linear-gradient(90deg, currentColor 50%, transparent 50%); }
+.crosswalk [data-fit="breaks"] { color: var(--critical); }
+.crosswalk [data-fit="breaks"]::before { background: transparent; }
+
+.crosswalk-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.75rem;
+  max-width: none;
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.crosswalk-legend [data-fit] { margin-right: 0.35rem; }
+
 /* ------------------------------------------------------------- decision */
 
 html[data-pattern="decision"] .doc { --doc-max: 1100px; }
@@ -556,6 +670,48 @@ html[data-pattern="decision"] .doc { --doc-max: 1100px; }
 .decision-rail h3 { color: inherit; margin-top: 0; }
 .decision-rail p,
 .decision-rail li { color: var(--method-muted); }
+
+/* Ask band: the decision asked for, before any argument. The claim sits on
+ * the left; who decides, by when, and what happens if declined sit on the
+ * right as a short ledger. */
+.ask-band {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 0.5rem 2.5rem;
+  align-items: start;
+  margin: 0 0 2.75rem;
+  padding: 1.25rem 1.4rem 1.35rem;
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-top: 4px solid var(--accent);
+  border-radius: var(--radius-md);
+}
+
+.ask-band > .component-label { grid-column: 1 / -1; margin: 0; }
+
+.ask-band h2 {
+  margin: 0;
+  max-width: 28ch;
+  font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+.ask-band h2 + p { margin: 0.6rem 0 0; color: var(--muted); }
+
+.ask-band dl { display: grid; gap: 0; margin: 0; }
+
+.ask-band dl > div {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.ask-band dl > div:first-child { border-top: 0; padding-top: 0.15rem; }
+.ask-band dt { padding-top: 0.2rem; }
+.ask-band dd { margin: 0; font-weight: 600; }
 
 /* --------------------------------------------------------------- record */
 
@@ -690,6 +846,48 @@ html[data-pattern="learning"] .section {
   border-top-width: 2px;
   margin-top: 4.5rem;
   padding-top: 2rem;
+}
+
+/* Learning goal: what the reader will be able to do at the end, stated
+ * before the first lesson so every section can be checked against it. Each
+ * goal carries an open box the reader ticks mentally, not a bullet. */
+.learning-goal {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.32fr) minmax(0, 1fr);
+  gap: 0.75rem 2rem;
+  margin: 2rem 0 2.5rem;
+  padding: 1.25rem 1.4rem;
+  background: var(--accent-tint);
+  border-radius: var(--radius-md);
+}
+
+.learning-goal .component-label { margin: 0.15rem 0 0.35rem; }
+.learning-goal h2 { margin: 0 0 0.35rem; font-size: 1.15rem; }
+
+.learning-goal ul {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.learning-goal li {
+  position: relative;
+  max-width: 68ch;
+  padding-left: 1.75rem;
+}
+
+.learning-goal li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.3em;
+  width: 0.95rem;
+  height: 0.95rem;
+  border: 2px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
 }
 
 /* --------------------------------------------------------------- system */
@@ -944,6 +1142,8 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
   .contract-index { display: none; }
   .response-band,
   .document-map { grid-template-columns: 1fr; }
+  .scope-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ask-band { grid-template-columns: 1fr; gap: 1rem; }
 }
 
 @media (max-width: 620px) {
@@ -970,6 +1170,10 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
   .brief-grid { grid-template-columns: 1fr; }
   .next-checkpoint { grid-column: 1; }
   .procedure-steps > li { padding-left: 2.75rem; }
+  .scope-strip,
+  .learning-goal { grid-template-columns: 1fr; }
+  .ask-band dl > div { grid-template-columns: 6.5rem minmax(0, 1fr); }
+  .learning-goal { gap: 0.5rem; }
 }
 
 @media print {
@@ -1019,6 +1223,12 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
   .brief-status,
   .action-required { break-inside: avoid; }
   .procedure-steps > li { break-inside: avoid; }
+  .ask-band,
+  .scope-strip,
+  .learning-goal { break-inside: avoid; }
+  .ask-band { margin-bottom: 1.5rem; }
+  .crosswalk table { min-width: 0; }
+  .crosswalk tr { break-inside: avoid; }
 }
 
 /* ---- inlined from core/print.css ---- */
@@ -1222,6 +1432,19 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
     </div>
   </header>
 
+  <section class="ask-band" aria-labelledby="the-ask">
+    <p class="component-label">The ask</p>
+    <div>
+      <h2 id="the-ask">Fund two Platform engineers for one quarter</h2>
+      <p>Release only when one failed queue cannot stall the other.</p>
+    </div>
+    <dl>
+      <div><dt>Decide by</dt><dd>2026-09-01</dd></div>
+      <div><dt>Decider</dt><dd>Platform director</dd></div>
+      <div><dt>If declined</dt><dd>Record the single queue as an accepted risk</dd></div>
+    </dl>
+  </section>
+
   <div class="doc-grid">
     <div>
       <section aria-labelledby="rationale">
@@ -1257,7 +1480,7 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
     </div>
 
     <aside class="decision-rail" aria-labelledby="ask">
-      <p class="component-label">The ask</p>
+      <p class="component-label">Decision terms</p>
       <h2 id="ask">Approve the staffed quarter</h2>
       <p><strong>Decision:</strong> fund two Platform engineers from 2026-09-07 through 2026-11-27.</p>
       <h3>Release gate</h3>

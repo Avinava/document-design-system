@@ -1,0 +1,40 @@
+<!doctype html>
+<!-- Fixture for scripts/check_render.py: each block breaks one check. -->
+<html lang="en" data-theme="field-notes">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Render check fixture</title>
+<style>
+  body { margin: 0; }
+  .wide { width: 900px; height: 8px; }
+  .table-scroll { overflow: hidden; width: 200px; }
+  .table-scroll table { width: 600px; }
+</style>
+</head>
+<body>
+  <!-- page-scroll: wider than a 390px phone -->
+  <div class="wide"></div>
+
+  <!-- text-bounds: a label that runs past the right edge of its viewBox -->
+  <figure>
+    <svg role="img" aria-labelledby="fr-title fr-desc" viewBox="0 0 200 40" width="100%" style="max-width:200px">
+      <title id="fr-title">Overflowing label</title>
+      <desc id="fr-desc">A label that starts near the right edge.</desc>
+      <text x="150" y="24" font-size="13">a label far too long to fit</text>
+    </svg>
+  </figure>
+
+  <!-- figure-box: a figure that collapses to nothing -->
+  <figure>
+    <svg role="img" aria-labelledby="fz-title fz-desc" viewBox="0 0 200 40" style="width:0;height:0">
+      <title id="fz-title">Collapsed figure</title>
+      <desc id="fz-desc">Sized to zero by its stylesheet.</desc>
+      <rect x="0" y="0" width="200" height="40"/>
+    </svg>
+  </figure>
+
+  <!-- table-clip: a scroll wrapper that cannot scroll -->
+  <div class="table-scroll"><table><tr><td>clipped</td></tr></table></div>
+</body>
+</html>

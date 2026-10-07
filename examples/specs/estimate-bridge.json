@@ -1,0 +1,16 @@
+{
+  "form": "waterfall",
+  "id": "estimate-bridge",
+  "title": "Four work packages build the 24 engineer-week estimate",
+  "desc": "Dispatcher and queues add 9 engineer-weeks, consumers and observability 6, testing and readiness 5, and cutover and handoff 4, for an expected 24 engineer-weeks within a 22 to 28 range. CR-003 would add 3 more but is excluded until approved.",
+  "steps": [
+    { "label": "Dispatcher and queues", "delta": 9, "kind": "step" },
+    { "label": "Consumers and observability", "delta": 6, "kind": "step" },
+    { "label": "Testing and readiness", "delta": 5, "kind": "step" },
+    { "label": "Cutover and handoff", "delta": 4, "kind": "step" },
+    { "label": "Expected", "delta": 24, "kind": "total", "range": [22, 28] },
+    { "label": "CR-003 history panel", "delta": 3, "kind": "step", "excluded": "not approved" }
+  ],
+  "xLabel": "Engineer-weeks",
+  "size": "doc-inline"
+}

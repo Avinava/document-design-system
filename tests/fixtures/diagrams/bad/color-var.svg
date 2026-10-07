@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="fx-title fx-desc" viewBox="0 0 720 280" width="100%">
+  <title id="fx-title">Fixture: every contract element</title>
+  <desc id="fx-desc">A gateway writes to a focal queue inside a boundary; two edges leave the queue for two consumers. Used by the check_diagrams tests.</desc>
+  <defs>
+    <marker id="fx-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <g class="annotation">
+    <text x="24" y="36" font-family="var(--sans)" font-size="13" fill="var(--ink)">Fixture</text>
+  </g>
+  <g class="boundary">
+    <rect x="200" y="48" width="208" height="152" rx="6" fill="none" stroke="var(--rule-strong)" stroke-dasharray="4 3"/>
+    <text x="212" y="68" font-family="var(--sans)" font-size="11" fill="var(--soft)">BOUNDARY</text>
+  </g>
+  <path class="edge" d="M184 128 H 224" fill="none" stroke="var(--muted)" marker-end="url(#fx-arrow)"/>
+  <path class="edge" d="M384 112 H 432 Q 440 112 440 104 V 96 Q 440 88 448 88 H 488" fill="none" stroke="var(--muted)" marker-end="url(#fx-arrow)"/>
+  <path class="edge" d="M384 144 H 432 Q 440 144 440 152 V 160 Q 440 168 448 168 H 488" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#fx-arrow)"/>
+  <g class="edge-label">
+    <rect x="444" y="60" width="40" height="16" fill="var(--paper)"/>
+    <text x="464" y="72" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">even</text>
+  </g>
+  <g class="node node-external">
+    <rect x="24" y="96" width="160" height="64" rx="6" fill="var(--surface)" stroke="var(--rule)" stroke-dasharray="4 3"/>
+    <text x="104" y="132" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--soft)">Producer</text>
+  </g>
+  <g class="node node-focal">
+    <rect x="224" y="96" width="160" height="64" rx="6" fill="var(--accent-tint)" stroke="var(--accent)"/>
+    <text x="304" y="132" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Queue</text>
+  </g>
+  <g class="node">
+    <rect x="488" y="56" width="160" height="64" rx="6" fill="var(--surface)" stroke="var(--rule-strong)"/>
+    <text x="568" y="92" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Consumer A</text>
+  </g>
+  <g class="node node-muted">
+    <rect x="488" y="136" width="160" height="64" rx="6" fill="var(--surface)" stroke="var(--rule)"/>
+    <text x="568" y="172" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--muted)">Consumer B</text>
+  </g>
+  <g class="callout">
+    <path d="M304 160 C 304 192, 320 216, 344 216" fill="none" stroke="var(--accent)" stroke-dasharray="3 3"/>
+    <text x="352" y="220" font-family="var(--sans)" font-size="12" font-style="italic" fill="var(--ink)">one buffer</text>
+  </g>
+  <g class="legend">
+    <rect x="24" y="240" width="20" height="12" rx="2" fill="var(--surface)" stroke="var(--rule)" stroke-dasharray="4 3"/>
+    <text x="52" y="250" font-family="var(--sans)" font-size="11" fill="rgb(107, 107, 107)">dashed: outside the boundary</text>
+  </g>
+</svg>

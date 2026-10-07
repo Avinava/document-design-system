@@ -1,0 +1,86 @@
+<article class="doc">
+  <header class="doc-hero">
+    <p class="eyebrow">Primer · composed from the learning pattern</p>
+    <h1>Northwind Ingestion for engineers who know batch</h1>
+    <p class="lede">You already know how scheduled loads land in a warehouse. This primer maps that knowledge onto a path that never waits for a window: what carries over, what bends, and the two habits that break here.</p>
+  </header>
+
+  <dl class="scope-strip" aria-label="Scope">
+    <div><dt>For</dt><dd>Engineers joining Platform from the batch and warehouse side</dd></div>
+    <div><dt>Read time</dt><dd><strong>25 min</strong>five sections, no setup</dd></div>
+    <div><dt>Read with</dt><dd><a href="onboarding.html">Onboarding</a> to run it, <a href="explanation.html">the explanation</a> for why it halts, <a href="runbook.html">the runbook</a> when lag rises</dd></div>
+    <div><dt>This is not</dt><dd>A setup checklist, an operating procedure, or the RFC 014 decision</dd></div>
+  </dl>
+
+  <section class="learning-goal" aria-labelledby="goal">
+    <div><p class="component-label">Learning goal</p><h2 id="goal">By the end, you can</h2></div>
+    <ul>
+      <li>trace one event from producer to warehouse and name who owns each hop;</li>
+      <li>say which batch habits carry over, which bend, and which break on this path;</li>
+      <li>read lag the way Platform does, and know when to stop changing replicas.</li>
+    </ul>
+  </section>
+
+  <section class="section" id="path">
+    <div class="section-head"><span class="section-num">01</span><h2>The path is pushed, not pulled</h2><span class="reading-time">5 min</span></div>
+    <p>In a batch pipeline, the warehouse side decides when data moves: a schedule fires, a job reads files, a load commits. Here the producers decide. Checkout, Catalog, and Inventory send each event over HTTP the moment it happens, and every hop after that runs continuously.</p>
+    <p><code>producer → gateway → ingest → consumer group → warehouse</code></p>
+    <figure class="figure">
+      <div class="system-map diagram-scroll"><!-- @FIG platform-architecture --></div>
+      <figcaption>Current runtime path. The queue is the only component without a failover, and every first-party producer passes through it.</figcaption>
+    </figure>
+    <p>Platform owns the gateway, the <code>ingest</code> queue, and the consumers. Producer teams own their retries and payload quality. Both the gateway and the consumers run in the <code>ingest</code> namespace, on <code>prod-ingest</code> in production and <code>stage-ingest</code> in staging.</p>
+    <div class="takeaway"><p><strong>Section takeaway:</strong> nothing on this path runs on a timer. Work arrives when producers send it, so capacity problems show up as waiting, not as a late job.</p></div>
+  </section>
+
+  <section class="section" id="crosswalk">
+    <div class="section-head"><span class="section-num">02</span><h2>What carries over from batch, and what breaks</h2><span class="reading-time">8 min</span></div>
+    <p>Most of your warehouse knowledge still applies once an event is in the consumer group. The surprises are upstream of it, where batch thinking assumes a window and a job boundary that this path does not have.</p>
+    <div class="crosswalk">
+      <div class="table-scroll">
+        <table>
+          <caption>Batch term → term here, with how well the batch intuition fits</caption>
+          <thead><tr><th scope="col">In batch</th><th scope="col">Here</th><th scope="col">Fit</th><th scope="col">What to adjust</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Target table</th><td>Warehouse</td><td data-fit="holds">Holds</td><td>The same warehouse analytics and operations read. Its schema is outside RFC 014.</td></tr>
+            <tr><th scope="row">Loader job</th><td>Consumer group, three replicas</td><td data-fit="holds">Holds</td><td>Validates and writes events to the warehouse. Scale it one replica at a time.</td></tr>
+            <tr><th scope="row">Landing area</th><td>Queue <code>ingest</code></td><td data-fit="partial">Partial</td><td>Holds work between arrival and load, but it is shared by every producer, has no failover, and keeps events for 24 hours.</td></tr>
+            <tr><th scope="row">Rerun</th><td>Retry with the same event ID</td><td data-fit="partial">Partial</td><td>Producers retry single events. Repeating an accepted ID must not create a second warehouse row; a new ID makes a second event.</td></tr>
+            <tr><th scope="row">Freshness check</th><td>Lag, <code>ingest_lag_seconds</code></td><td data-fit="partial">Partial</td><td>Freshness is how far consumers trail arrivals, not whether a job finished.</td></tr>
+            <tr><th scope="row">Schedule</th><td>None on this path</td><td data-fit="breaks">Breaks</td><td>Nothing waits for a trigger. Scheduled file imports still exist, on the separate batch path.</td></tr>
+            <tr><th scope="row">Load window</th><td><code>202</code> at the gateway</td><td data-fit="breaks">Breaks</td><td>There is no window to finish inside. The gateway answers each event as soon as the queue accepts it.</td></tr>
+            <tr><th scope="row">Failed run</th><td>Shared-queue halt</td><td data-fit="breaks">Breaks</td><td>A failed batch run stops its own load. A full queue stops Checkout, Catalog, and Inventory together.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="crosswalk-legend"><span><span data-fit="holds">Holds</span> your intuition is right</span><span><span data-fit="partial">Partial</span> right shape, different limits</span><span><span data-fit="breaks">Breaks</span> unlearn it here</span></p>
+    </div>
+    <div class="takeaway"><p><strong>Section takeaway:</strong> trust your instincts from the consumer group onward. Upstream of it, replace “window” with “acceptance” and “failed job” with “shared halt”.</p></div>
+  </section>
+
+  <section class="section" id="acceptance">
+    <div class="section-head"><span class="section-num">03</span><h2>Acceptance is not arrival</h2><span class="reading-time">4 min</span></div>
+    <p>A batch load is done when the rows are in the table. Here, the gateway's answer comes much earlier: it returns <code>202</code> only after the queue has accepted the event, and the warehouse write happens later, in the consumer group.</p>
+    <figure class="specimen"><pre><span class="lang">http</span>POST /events
+X-Request-Id: req_7f3
+
+{"id":"evt_01","type":"checkout.paid"}
+
+202 {"id":"evt_01","status":"accepted"}</pre><figcaption>The event ID is the retry anchor; the request ID is echoed on every response for tracing.</figcaption></figure>
+    <div class="takeaway"><p><strong>Section takeaway:</strong> <code>202</code> means queued, not warehoused. When you reason about a missing row, start from lag, not from the gateway.</p></div>
+  </section>
+
+  <section class="section" id="lag">
+    <div class="section-head"><span class="section-num">04</span><h2>Freshness is lag, and lag has one safe response</h2><span class="reading-time">5 min</span></div>
+    <p>Platform watches <code>ingest_lag_seconds</code> on the <code>Ingestion / lag</code> dashboard. Normal alerting pages after lag exceeds 120 seconds for five minutes; the corrective action from the 2026-07-30 incident changes that to 60 seconds and names the producer blast radius in the page.</p>
+    <p>That incident lasted 1 hour 52 minutes, and warehouse freshness peaked at 118 minutes. The safe mitigation is the one the runbook prescribes: add one consumer replica, observe lag for three minutes, and do not exceed six replicas without Reliability.</p>
+    <div class="takeaway"><p><strong>Section takeaway:</strong> lag is your freshness signal. The safe response is one replica at a time, and a queue is never deleted as mitigation or rollback.</p></div>
+  </section>
+
+  <section class="section" id="next">
+    <div class="section-head"><span class="section-num">05</span><h2>What changes next, and what this primer leaves out</h2><span class="reading-time">3 min</span></div>
+    <p>RFC 014 proposes a stateless dispatcher after the gateway that splits traffic across <code>ingest-a</code> and <code>ingest-b</code>, each with its own consumer group. The producer-facing path, the warehouse schema, the batch path, and 24-hour retention do not change. Until it is approved, treat it as proposed, not current.</p>
+    <p>Not covered here, because the platform's fact ledger does not settle them: how the batch path's schedules are owned, bulk backfill into the warehouse, and the warehouse schema itself. Ask Platform before assuming any of them behave like the event path.</p>
+    <div class="takeaway"><p><strong>Section takeaway:</strong> you now have the model. Run it with the onboarding, and keep the runbook open the first time lag rises.</p></div>
+  </section>
+</article>

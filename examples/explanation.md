@@ -7,6 +7,12 @@
 The important property is not queue size. It is the absence of an independent
 path: every producer and consumer shares the same place where work can wait.
 
+**Learning goal.** After reading, you can explain:
+
+- why one full queue stops every producer, not only the busiest one;
+- why more capacity delays saturation but does not change who stops;
+- what RFC 014 defines as the leftover when one queue fails.
+
 ## One queue creates one fate
 
 Checkout, Catalog, and Inventory enter through the same gateway and wait on the

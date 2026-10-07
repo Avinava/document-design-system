@@ -16,7 +16,7 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: "22"
+          node-version-file: .nvmrc
 
       # Pointed at a directory, `claude plugin validate` checks ONLY the
       # marketplace manifest when both manifests exist — it announces
@@ -44,6 +44,12 @@ jobs:
 
       - name: Validate repository
         run: python scripts/validate_repository.py .
+
+      - name: Check diagram markup and geometry
+        # Every hand-authored figure, rendered figure, and titled inline SVG
+        # in examples/, plus the diagram template. Rule IDs are listed by
+        # `python scripts/check_diagrams.py --rules`.
+        run: python scripts/check_diagrams.py
 
       - name: Audit every theme
         # Contrast, one-accent, accent hue separation, and the dark-theme print
@@ -74,10 +80,12 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: "22"
+          node-version-file: .nvmrc
 
-      - name: Install authoring-time renderers
-        run: npm install --no-save beautiful-mermaid @observablehq/plot jsdom
+      - name: Install the pinned authoring-time renderers
+        # package-lock.json pins every version; .npmrc's engine-strict fails
+        # the install on a Node older than package.json's engines floor.
+        run: npm ci
 
       - name: Render a diagram and check the output contract
         run: |
@@ -110,6 +118,19 @@ jobs:
           # Plot hardcodes a white plot background; the wrapper must neutralize it.
           ! grep -q -- '--plot-background: white' /tmp/c.svg
 
+      - name: Render a waterfall and check its totals
+        run: |
+          node scripts/render_chart.mjs examples/specs/estimate-bridge.json --out /tmp/w.svg
+          grep -q 'viewBox=' /tmp/w.svg
+          grep -q '<title id="estimate-bridge-title">' /tmp/w.svg
+          grep -q 'data-renderer="render_chart"' /tmp/w.svg
+          # Totals take the focal accent; the excluded step is drawn dashed.
+          grep -q 'var(--accent-tint)' /tmp/w.svg
+          grep -q 'not approved' /tmp/w.svg
+          # A declared total that disagrees with its steps must fail the render.
+          sed 's/"delta": 24/"delta": 25/' examples/specs/estimate-bridge.json > /tmp/w-bad.json
+          ! node scripts/render_chart.mjs /tmp/w-bad.json --out /tmp/w-bad.svg
+
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
@@ -136,3 +157,28 @@ jobs:
             echo "examples/ is stale — run 'python scripts/build_examples.py' and commit"
             exit 1
           }
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Install the pinned browser checks
+        run: |
+          uv venv
+          uv pip install -r requirements-authoring.txt
+          uv run playwright install --with-deps chromium
+
+      - name: Render every example and check figures stay in bounds
+        # 1280, 390 and print widths under every theme: no page-level
+        # horizontal scroll, no zero-size figure, no SVG text outside its
+        # viewBox, no table spilling from a wrapper that cannot scroll.
+        run: uv run python scripts/check_render.py
+
+      - name: Render the Pages site in light and dark
+        # The homepage, Patterns and Modules pages follow the reader's colour
+        # scheme, so they are checked under both.
+        run: |
+          python scripts/build_site.py
+          uv run python scripts/check_render.py --root site --scheme light --scheme dark \
+            site/index.html site/types.html site/modules.html

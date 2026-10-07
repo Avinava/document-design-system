@@ -6,6 +6,15 @@
     <div class="doc-meta" aria-label="Explanation metadata"><span><strong>Question:</strong> why does local backpressure become a platform halt?</span><span><strong>Scope:</strong> current architecture</span></div>
   </header>
 
+  <section class="learning-goal" aria-labelledby="goal">
+    <div><p class="component-label">Learning goal</p><h2 id="goal">After reading, you can explain</h2></div>
+    <ul>
+      <li>why one full queue stops every producer, not only the busiest one;</li>
+      <li>why more capacity delays saturation but does not change who stops;</li>
+      <li>what RFC 014 defines as the leftover when one queue fails.</li>
+    </ul>
+  </section>
+
   <section class="section">
     <div class="section-head"><span class="section-num">01</span><h2>One queue creates one fate</h2><span class="reading-time">model</span></div>
     <p>Checkout, Catalog, and Inventory enter through the same gateway and wait on the same queue. Their traffic volumes differ, but their ability to make progress does not: when the queue cannot accept, the gateway has nowhere else to place any producer’s event.</p>

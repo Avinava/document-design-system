@@ -1,6 +1,6 @@
 ---
 name: chart-design
-description: Design honest, accessible charts of quantitative data as inline SVG — bar and column charts, line and time series, limit ledgers, distributions, scatter plots, and small multiples. Use when visualizing measured values, choosing a chart type, picking or fixing chart colors, building a categorical palette from design tokens, setting axes and scales, labelling series, or making an existing chart readable in grayscale and in print. Do not use for diagrams of structure or process such as architecture or flows (use diagram-design), for the surrounding report narrative and metric semantics (use analytical-document-design), or for interactive dashboards that require a client-side charting library.
+description: Design honest, accessible charts of quantitative data as inline SVG — bar and column charts, line and time series, limit ledgers, distributions, scatter plots, small multiples, and waterfall bridges. Use when visualizing measured values, choosing a chart type, picking or fixing chart colors, building a categorical palette from design tokens, setting axes and scales, labelling series, or making an existing chart readable in grayscale and in print. Do not use for diagrams of structure or process such as architecture or flows (use diagram-design), for the surrounding report narrative and metric semantics (use analytical-document-design), or for interactive dashboards that require a client-side charting library.
 ---
 
 # Chart Design
@@ -34,6 +34,7 @@ If the data does not support the chart's implicit claim, change the chart, not t
 | Used versus available against a limit | Limit ledger (single track) |
 | Composition of a whole, 2–3 parts | Stacked bar, labelled |
 | Composition of a whole, many parts | Ranked bars — not a pie |
+| How a total is built from its parts | Waterfall bridge — parts must sum to the total |
 | Relationship between two measures | Scatter |
 | The same comparison across groups | Small multiples |
 | Distribution shape | Histogram or box plot |
@@ -104,7 +105,7 @@ To generate charts from data rather than hand-authoring them, `scripts/render_ch
 - [ ] Bars start at zero; any truncated axis is labelled and visible.
 - [ ] Every percentage names its denominator.
 - [ ] Series are direct-labelled, not legend-only.
-- [ ] No meaning is carried by hue alone.
+- [ ] No meaning is carried by hue or lightness alone; legends name the encoding in words.
 - [ ] Legible in grayscale.
 - [ ] The title states the finding.
 - [ ] `viewBox`, `<title>` first, `<desc>`, unique IDs.

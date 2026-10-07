@@ -1,0 +1,14 @@
+%% Northwind ingestion, proposed path (RFC 014)
+flowchart LR
+  P[Producers] --> G[Gateway]
+  G -->|hash event id| D{{Dispatcher}}
+  subgraph queues [Queues]
+    QA[(ingest-a)]
+    QB[(ingest-b)]
+  end
+  D --> QA & QB
+  QA -- consumer group a --> W[Warehouse]
+  QB -.->|consumer group b| W
+  click W "https://example.invalid" "never followed"
+  classDef focal stroke-width:2px
+  class D focal

@@ -13,7 +13,7 @@ That is what keeps a chart sharp in print, correct when the document is emailed 
 ## The renderer
 
 ```bash
-npm install @observablehq/plot jsdom   # authoring-time only
+npm i @observablehq/plot@0.6.17 jsdom@30.1.2   # authoring-time only, Node 22.22.2+; `npm ci` inside the repository
 
 node scripts/render_chart.mjs spec.json --out chart.svg
 ```
@@ -43,13 +43,32 @@ The spec:
 
 | Field | Notes |
 |---|---|
-| `form` | `bars`, `columns`, `line`, `scatter` |
+| `form` | `bars`, `columns`, `line`, `scatter`, `waterfall` |
 | `id` | Prefixes every generated ID so charts can share a document |
 | `title` | **States the finding**, not the variables |
 | `desc` | What a screen-reader user gets instead of the chart |
 | `focal` | The category that carries the accent. Omit for no focal mark |
 | `series` | Grouping field for `line` and `scatter` |
 | `size` | `doc-inline` (720), `full-width` (1100), `print-portrait` (640), `print-landscape` (980) |
+
+A `waterfall` takes `steps` in place of `data`, `x`, `y`, and `focal`:
+
+```json
+{
+  "form": "waterfall",
+  "id": "estimate-bridge",
+  "title": "Four work packages build the 24 engineer-week estimate",
+  "desc": "…",
+  "steps": [
+    {"label": "Dispatcher and queues", "delta": 9, "kind": "step"},
+    {"label": "Expected", "delta": 24, "kind": "total", "range": [22, 28]},
+    {"label": "CR-003 history panel", "delta": 3, "kind": "step", "excluded": "not approved"}
+  ],
+  "xLabel": "Engineer-weeks"
+}
+```
+
+`kind` is `start` (opens the bridge at a value), `step` (adds `delta`), or `total` (declares the running sum). A total that differs from the sum of the steps before it fails the render with both numbers. `excluded` draws a step dashed, with its reason, and keeps it out of every total; `range` draws a whisker on a total.
 
 `title` and `desc` are required. Writing the description is the fastest way to find out whether the chart has a point — if the sentence is "here are some values," the chart is a table.
 
@@ -90,7 +109,7 @@ Use one mark with a per-datum `fill` function instead. `scripts/render_chart.mjs
 
 ## Alternatives
 
-**Vega-Lite + `vl-convert`** — if you would rather specify charts as JSON data than as JS calls. `vl-convert` is a Rust binary with Python bindings that renders a spec to static SVG with no browser and no Node. The tradeoff: it bakes colors into the output, so a theme change means re-rendering rather than a CSS swap.
+**Vega-Lite + `vl-convert-python`** — if you would rather specify charts as JSON data than as JS calls. `vl-convert-python` (BSD-3-Clause) is a Rust library with Python bindings that renders a spec to static SVG with no browser and no Node. Use a 1.9.x release (`uv pip install 'vl-convert-python>=1.9,<2'`); avoid the 2.0 release candidates. The tradeoff: it bakes colors into the output, so a theme change means re-rendering rather than a CSS swap.
 
 **matplotlib** — for a Python-only toolchain, `savefig(format='svg')` is offline and dependency-light. Its defaults need substantial styling work to match this system, and its text-as-paths behavior needs care or the labels stop being selectable and stop inheriting `var(--sans)`.
 

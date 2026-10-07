@@ -1,119 +1,150 @@
 <!doctype html>
-<!-- Pattern-first type gallery. Assemble with scripts/build_examples.py. -->
-<html lang="en" data-theme="field-notes">
+<!--
+  The Patterns page: start from the reader's question, then the eleven
+  patterns with their modules, presets and composed examples.
+
+  Assembled by scripts/build_examples.py (examples/index.html, local) and by
+  scripts/build_site.py (types.html on Pages). Every list on this page comes
+  from scripts/catalog.py; nothing here names a type or pattern by hand.
+-->
+<html lang="en" data-theme="executive-navy">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Document patterns and types — document-design-system</title>
+<title>Document patterns — document-design-system</title>
+<!-- @@META -->
 <link rel="icon" href="assets/banner.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 /* @@INLINE core/themes/${THEME}.css @@ */
 /* @@INLINE core/base.css @@ */
-.skip-link { position: absolute; left: -9999px; }
-.skip-link:focus { left: 1rem; top: 1rem; z-index: 10; padding: .6rem .8rem; background: var(--paper); color: var(--ink); }
-.shell { max-width: 1180px; margin: 0 auto; padding: 32px 32px 80px; }
-.site-nav { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-bottom: 16px; border-bottom: 1px solid var(--rule); }
-.wordmark { color: var(--ink); font: 600 .8125rem/1 var(--mono); text-decoration: none; }
-.site-nav ul { display: flex; gap: 1rem; list-style: none; margin: 0; padding: 0; white-space: nowrap; }
-.site-nav a { color: var(--muted); text-decoration: none; }
-.site-nav a:hover, .site-nav a[aria-current="page"] { color: var(--ink); }
-.gallery-hero { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(260px, .65fr); gap: 3rem; align-items: end; padding: 5rem 0 3rem; }
-.gallery-hero h1 { max-width: 13ch; margin: .3rem 0 1rem; font-size: clamp(2.6rem, 7vw, 5.8rem); letter-spacing: -.055em; line-height: .94; }
-.gallery-hero .lead { max-width: 58ch; color: var(--muted); font-size: 1.15rem; }
-.axis-note { border: 1px solid var(--rule-strong); border-radius: var(--radius-md); padding: 1.25rem; background: var(--surface); }
-.axis-note p { margin: 0 0 .75rem; }
-.axis-note p:last-child { margin-bottom: 0; }
-.axis-note strong { display: inline-block; min-width: 5rem; color: var(--ink); }
-.pattern-jump { display: flex; gap: .5rem; overflow-x: auto; padding: .25rem 0 1.25rem; border-bottom: 1px solid var(--rule); scrollbar-width: thin; }
-.pattern-jump a { flex: 0 0 auto; border: 1px solid var(--rule); border-radius: 999px; padding: .42rem .72rem; color: var(--muted); text-decoration: none; font: 500 .75rem/1 var(--mono); }
-.pattern-jump a:hover { border-color: var(--accent); color: var(--ink); }
-.catalog-orientation { padding: 2.5rem 0 1rem; }
-.catalog-orientation > h2 { margin-bottom: .5rem; }
-.catalog-orientation > p { max-width: 68ch; color: var(--muted); }
-.lifecycle-map { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .75rem; margin: 1.5rem 0 2rem; }
-.lifecycle-map section { min-width: 0; padding: 1rem; border: 1px solid var(--rule); border-top: 3px solid var(--accent); border-radius: var(--radius-md); background: var(--surface); }
-.lifecycle-map h3 { margin: .35rem 0 .7rem; font-size: 1rem; }
-.lifecycle-map p { margin: 0; color: var(--muted); font-size: .82rem; }
-.lifecycle-map a, .common-names a { color: var(--ink); text-decoration-color: var(--rule-strong); text-underline-offset: 2px; }
-.common-names { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem 1.5rem; margin: 1rem 0 2rem; padding: 1.25rem; background: var(--surface-muted); border-radius: var(--radius-md); font-size: .85rem; }
-.common-names p { margin: 0; }
-.pattern-section { display: grid; grid-template-columns: minmax(230px, .35fr) minmax(0, 1fr); gap: 2.5rem; padding: 4rem 0; border-bottom: 1px solid var(--rule-strong); scroll-margin-top: 1rem; }
-.pattern-section > header { display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-content: start; position: sticky; top: 1rem; align-self: start; }
-.pattern-index { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: var(--radius-sm); background: var(--accent); color: var(--accent-ink); font: 600 .75rem/1 var(--mono); }
-.pattern-section h2 { margin: .1rem 0 .5rem; font-size: 2rem; }
-.pattern-section header p:last-child { margin: 0; color: var(--muted); }
-.type-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-.type-card { display: grid; grid-template-rows: 175px 1fr; min-width: 0; color: inherit; text-decoration: none; background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius-md); overflow: hidden; transition: transform .16s ease, border-color .16s ease; }
-.type-card:hover { transform: translateY(-2px); border-color: var(--accent); }
-.type-card img { display: block; width: 100%; height: 175px; object-fit: cover; object-position: top; background: var(--surface-muted); border-bottom: 1px solid var(--rule); }
-.type-card .pad { padding: .9rem 1rem 1.1rem; }
-.kind, .theme { color: var(--soft); font: 500 .6875rem/1 var(--mono); letter-spacing: .04em; text-transform: uppercase; }
-.theme { float: right; text-transform: none; letter-spacing: 0; }
-.type-card h3 { margin: .45rem 0 0; font-size: 1.03rem; line-height: 1.35; }
-.pattern-record .type-cards, .pattern-incident .type-cards, .pattern-suite .type-cards { grid-template-columns: 1fr; }
-.pattern-record .type-card, .pattern-incident .type-card, .pattern-suite .type-card { grid-template-columns: minmax(240px, .7fr) 1fr; grid-template-rows: minmax(210px, auto); }
-.pattern-record .type-card img, .pattern-incident .type-card img, .pattern-suite .type-card img { height: 100%; border: 0; border-right: 1px solid var(--rule); }
-.pattern-incident { background: var(--surface-muted); margin-inline: -2rem; padding-inline: 2rem; }
-.group { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--rule-strong); }
-.group .lead { color: var(--muted); }
-.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
-.card { display: block; color: inherit; text-decoration: none; border: 1px solid var(--rule); border-radius: var(--radius-md); overflow: hidden; background: var(--surface); }
-.card img { display: block; width: 100%; height: 130px; object-fit: cover; object-position: top; border-bottom: 1px solid var(--rule); }
-.card .pad { padding: .8rem 1rem 1rem; }
-.card h3 { margin: .35rem 0 0; font-size: .95rem; }
-footer { margin-top: 4rem; color: var(--soft); font: .75rem/1.5 var(--mono); }
-@media (max-width: 760px) {
-  .shell { padding: 20px 16px 48px; }
-  .site-nav { align-items: flex-start; }
-  .site-nav ul { max-width: 68vw; overflow-x: auto; padding-bottom: .4rem; }
-  .gallery-hero { grid-template-columns: 1fr; gap: 1.5rem; padding: 3.5rem 0 2rem; }
-  .gallery-hero h1 { font-size: clamp(2.7rem, 15vw, 4.4rem); }
-  .pattern-section { grid-template-columns: 1fr; gap: 1.25rem; padding: 3rem 0; }
-  .pattern-section > header { position: static; }
-  .type-cards { grid-template-columns: 1fr; }
-  .pattern-record .type-card, .pattern-incident .type-card, .pattern-suite .type-card { grid-template-columns: 1fr; grid-template-rows: 155px 1fr; }
-  .pattern-record .type-card img, .pattern-incident .type-card img, .pattern-suite .type-card img { height: 155px; border-right: 0; border-bottom: 1px solid var(--rule); }
-  .pattern-incident { margin-inline: -1rem; padding-inline: 1rem; }
-  .lifecycle-map, .common-names { grid-template-columns: 1fr; }
+/* @@SITE_CSS */
+
+.patterns-hero { padding: 64px 0 8px; }
+.patterns-hero .chooser { margin-top: 2rem; }
+
+.pattern-section { display: grid; grid-template-columns: minmax(0, 20rem) minmax(0, 1fr); gap: 2.5rem;
+  padding: 64px 0; border-top: 1px solid var(--rule-strong); scroll-margin-top: 8px; }
+.pattern-section:first-child { margin-top: 72px; }
+.pattern-head { position: sticky; top: 1.25rem; align-self: start; }
+.pattern-head h2 { font-size: 2rem; letter-spacing: -.025em; margin: 0 0 .5rem; }
+.pattern-head .movement { font: 500 1.0625rem/1.45 var(--display); color: var(--ink); margin: 0 0 .75rem; }
+.pattern-head .promise { color: var(--muted); margin: 0 0 1.25rem; }
+.pattern-head h3 { font: 500 .8125rem/1.3 var(--sans); color: var(--soft); margin: 0 0 .5rem; }
+.module-links { display: flex; flex-wrap: wrap; gap: .35rem; list-style: none; margin: 0; padding: 0; }
+.module-links a, .module-links span { display: inline-block; padding: .2rem .55rem; border: 1px solid var(--rule-strong);
+  border-radius: 999px; font-size: .8125rem; color: var(--ink); text-decoration: none; }
+.module-links a:hover { border-color: var(--accent); background: var(--accent-tint); }
+
+.preset-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.preset { display: grid; grid-template-rows: auto 1fr; min-width: 0; color: inherit; text-decoration: none;
+  background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius-md); overflow: hidden; }
+.preset:hover { border-color: var(--accent); }
+.preset img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; object-position: top;
+  background: var(--surface-muted); border-bottom: 1px solid var(--rule); }
+.preset .pad { padding: .85rem 1rem 1rem; }
+.preset .name { display: block; font: 600 .9375rem/1.3 var(--sans); color: var(--ink); }
+.preset .question { display: block; margin-top: .3rem; color: var(--muted); font-size: .9375rem; line-height: 1.4; }
+.preset .theme { display: block; margin-top: .6rem; font-size: .75rem; color: var(--soft); }
+.preset.composed { border-style: dashed; border-color: var(--rule-strong); }
+.preset .label { display: inline-block; margin-left: .35rem; padding: 0 .4rem; border: 1px dashed var(--rule-strong); border-radius: var(--radius-sm); font-size: .75rem; font-weight: 500; color: var(--muted); }
+
+.catalog-maps { padding-top: 88px; }
+.catalog-maps h2 { font-size: clamp(1.65rem, 3.2vw, 2.4rem); letter-spacing: -.025em; margin: 0 0 .75rem; }
+.lifecycle { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; margin: 2rem 0 0;
+  padding: 0; list-style: none; border-top: 2px solid var(--ink); }
+.lifecycle li { padding: 1rem 1rem 1.25rem 0; }
+.lifecycle li + li { padding-left: 1rem; border-left: 1px solid var(--rule); }
+.lifecycle h3 { margin: 0 0 .35rem; font-size: 1.0625rem; }
+.lifecycle .need { color: var(--muted); font-size: .875rem; margin: 0 0 .75rem; }
+.lifecycle ul { list-style: none; margin: 0; padding: 0; font-size: .9375rem; line-height: 1.7; }
+.lifecycle ul a { color: var(--ink); text-decoration-color: var(--rule-strong); }
+.names { columns: 3 16rem; column-gap: 2rem; margin: 1.5rem 0 0; padding: 0; list-style: none; font-size: .9375rem; }
+.names li { break-inside: avoid; padding: .5rem 0; border-bottom: 1px solid var(--rule); }
+.names code { font-size: .8125rem; color: var(--muted); }
+.names a { color: var(--ink); font-weight: 600; text-decoration-color: var(--rule-strong); }
+
+.profiles { padding-top: 88px; }
+.profiles h2 { font-size: 1.5rem; margin: 0 0 .5rem; }
+.profiles .preset-grid { max-width: 760px; margin-top: 1.25rem; }
+
+.not-listed { margin-top: 88px; padding: 2.25rem 2.5rem; background: var(--surface); border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md); }
+.not-listed h2 { margin: 0 0 .5rem; font-size: clamp(1.5rem, 3vw, 2rem); letter-spacing: -.02em; }
+.not-listed ol { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; margin: 1.5rem 0 1rem;
+  padding: 0; list-style: none; counter-reset: step; }
+.not-listed li { counter-increment: step; padding-top: .75rem; border-top: 2px solid var(--accent); }
+.not-listed li::before { content: counter(step); display: block; font: 600 1.5rem/1 var(--display); color: var(--ink); margin-bottom: .5rem; }
+.not-listed li p { margin: 0; color: var(--muted); font-size: .9375rem; }
+.not-listed li strong { display: block; color: var(--ink); margin-bottom: .25rem; }
+.not-listed .rule-line { margin: 0; color: var(--ink); }
+
+.skill-strip { padding-top: 88px; }
+.skill-strip .preset-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+@media (max-width: 960px) {
+  .pattern-section { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; padding: 48px 0; }
+  .pattern-head { position: static; }
+  .lifecycle { grid-template-columns: 1fr; }
+  .lifecycle li + li { padding-left: 0; border-left: 0; border-top: 1px solid var(--rule); }
+  .not-listed ol { grid-template-columns: 1fr; }
+  .skill-strip .preset-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+@media (max-width: 620px) {
+  .preset-grid, .skill-strip .preset-grid { grid-template-columns: 1fr; }
+  .not-listed { padding: 1.5rem 1.25rem; }
+}
+/* @@DARK */
 /* @@INLINE core/print.css @@ */
 </style>
 </head>
 <body>
-<a class="skip-link" href="#patterns">Skip to patterns</a>
+<a class="skip-link" href="#patterns">Skip to the patterns</a>
 <div class="shell">
-  <nav class="site-nav" aria-label="Site">
-    <a class="wordmark" href="index.html">document-design-system</a>
-    <ul>
-      <li><a href="inventory-report.html">Report</a></li><li><a href="capacity-deck.html">Deck</a></li><li><a href="gallery-light.html">Figures</a></li><li><a href="@@TYPES_HREF" aria-current="page">Types</a></li><li><a href="themes-light.html">Themes</a></li><li><a href="brand.html">Brand</a></li><li><a href="https://github.com/Avinava/document-design-system">GitHub</a></li>
-    </ul>
-  </nav>
-  <header class="gallery-hero">
-    <div><p class="eyebrow">Eleven reading patterns · thirty-four canonical types</p><h1>Different questions need different pages.</h1><p class="lead">A delivery plan should expose gates. An assurance review should put evidence beside risk. A live brief should make the next update impossible to miss. Choose the reading pattern first; choose the visual voice separately.</p></div>
-    <aside class="axis-note" aria-label="Pattern and theme distinction"><p><strong>Pattern</strong> changes structure and reading movement.</p><p><strong>Theme</strong> changes tokens, typography, and visual voice.</p><p>The same pattern can wear any compliant theme.</p></aside>
-  </header>
-  <nav class="pattern-jump" aria-label="Document patterns"><a href="#decision">Decision</a><a href="#record">Record</a><a href="#contract">Contract</a><a href="#procedure">Procedure</a><a href="#learning">Learning</a><a href="#system">System</a><a href="#incident">Incident</a><a href="#suite">Suite</a><a href="#plan">Plan</a><a href="#assurance">Assurance</a><a href="#brief">Brief</a></nav>
-  <section class="catalog-orientation" aria-labelledby="lifecycle-title">
-    <p class="eyebrow">Find by engagement stage</p><h2 id="lifecycle-title">One catalog across the delivery lifecycle</h2>
-    <p>Start with the reader's decision, not the familiar filename. These maps link to the canonical owner; aliases never create duplicate document types.</p>
-    <div class="lifecycle-map">
-      <section><span class="component-label">01</span><h3>Frame and agree</h3><p><a href="#type-discovery">Discovery</a>, <a href="#type-proposal">proposal</a>, <a href="#type-estimate">estimate</a>, <a href="#type-project-charter">charter</a>, <a href="#type-statement-of-work">statement of work</a>.</p></section>
-      <section><span class="component-label">02</span><h3>Define</h3><p><a href="#type-requirements">Requirements</a>, <a href="#type-design-doc">design</a>, <a href="#type-architecture">architecture</a>, <a href="#type-api-contract">interfaces</a>, <a href="#type-threat-model">threats</a>.</p></section>
-      <section><span class="component-label">03</span><h3>Plan and govern</h3><p><a href="#type-delivery-plan">Delivery</a>, <a href="#type-test-strategy">quality</a>, <a href="#type-risk-register">RAID</a>, <a href="#type-status-report">status</a>, <a href="#type-change-request">change</a>.</p></section>
-      <section><span class="component-label">04</span><h3>Verify and transition</h3><p><a href="#type-readiness-review">Readiness</a>, <a href="#type-test-report">test verdict</a>, <a href="#type-migration-plan">cutover</a>, <a href="#type-release-notes">release</a>, <a href="#type-handoff">handoff</a>.</p></section>
-      <section><span class="component-label">05</span><h3>Operate and improve</h3><p><a href="#type-service-docs">Service docs</a>, <a href="#type-support-model">support</a>, <a href="#type-runbook">runbook</a>, <a href="#type-incident-update">incident update</a>, <a href="#type-postmortem">postmortem</a>.</p></section>
-    </div>
-    <p class="eyebrow">Common names, canonical owners</p>
-    <div class="common-names"><p><strong>TDD / proposed HLD</strong> → <a href="#type-design-doc">design doc</a></p><p><strong>Current HLD</strong> → <a href="#type-architecture">architecture</a></p><p><strong>LLD / technical spec</strong> → <a href="#type-spec">spec</a></p><p><strong>PRD / BRD / SRS</strong> → <a href="#type-requirements">requirements</a></p><p><strong>API spec</strong> → machine source + <a href="#type-api-contract">API contract</a></p><p><strong>PRR / ORR</strong> → <a href="#type-readiness-review">readiness review</a></p><p><strong>Project plan</strong> → <a href="#type-delivery-plan">delivery plan</a></p><p><strong>Cutover</strong> → <a href="#type-migration-plan">migration plan</a></p><p><strong>RAID</strong> → <a href="#type-risk-register">risk register</a></p></div>
-  </section>
-  <main id="patterns"><!-- @@CARDS --></main>
-  <!-- @@PROFILES -->
-  <!-- @@VOICES -->
-  <!-- @@SKILLS -->
-  <footer>Markdown remains canonical. Designed HTML adds the selected pattern and theme, then prints from the same source facts.</footer>
+<!-- @@NAV -->
+
+<header class="patterns-hero">
+  <h1 class="site-title">Start from the reader's question</h1>
+  <p class="site-lead">A pattern is how a page reads: where the answer sits, what repeats, and what the reader does last. Find the question your reader is asking. The pattern follows, and so do its presets — @@TYPES_WORD of them across @@PATTERNS_WORD patterns. If none of the presets fits, compose in that pattern.</p>
+  <!-- @@CHOOSER -->
+</header>
+
+<main id="patterns">
+<!-- @@CARDS -->
+</main>
+
+<section class="catalog-maps" id="lifecycle" aria-labelledby="lifecycle-title">
+  <h2 id="lifecycle-title">The same catalog, by engagement stage</h2>
+  <p class="site-lead">Each stage lists the documents that usually own its questions. Choose the smallest set the engagement needs.</p>
+  <!-- @@LIFECYCLE -->
+</section>
+
+<section class="catalog-maps" id="common-names" aria-labelledby="names-title">
+  <h2 id="names-title">Familiar names, one owner each</h2>
+  <p class="site-lead">A filename someone already uses routes to the preset that owns the job. A familiar name never becomes a second type.</p>
+  <!-- @@NAMES -->
+</section>
+
+<!-- @@PROFILES -->
+
+<section class="not-listed" id="not-listed" aria-labelledby="not-listed-title">
+  <h2 id="not-listed-title">Not listed?</h2>
+  <p class="site-lead">Compose it. The writing skill does this when no preset fits, in three steps.</p>
+  <ol>
+    <li><strong>Match a type or a familiar name</strong><p>If a preset or one of its names fits, use it. Composition is the fallback, not a second catalog.</p></li>
+    <li><strong>Pick the pattern by the reader's question</strong><p>The question table above names the pattern. The pattern fixes the reading order.</p></li>
+    <li><strong>Compose from the pattern's modules</strong><p>Use only the <a href="@@MODULES_HREF">modules</a> the pattern allows, and borrow the nearest preset's section discipline and theme.</p></li>
+  </ol>
+  <p class="rule-line">A shape composed three times becomes a preset. That is the only way the catalog grows.</p>
+</section>
+
+<!-- @@SKILLS -->
+
+<footer class="site-foot">
+  <p>Markdown is the canonical form of every example. The designed HTML adds the pattern and the theme, and prints from the same facts.</p>
+</footer>
 </div>
 </body>
 </html>
