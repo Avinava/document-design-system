@@ -5,6 +5,17 @@ All notable changes to this project are documented here. Versions refer to the
 
 ## Unreleased
 
+### Fixed
+
+- Published showcase pages (figures, themes, brand, deck, report) had no way back
+  to the site; they now carry a "← Home" control, and the site build fails if a
+  published page lacks one.
+- The brand page's proposal screenshot pointed at a repository path that does
+  not exist on Pages and rendered as a broken image. The site build now rewrites
+  those paths and fails on any local reference that does not resolve.
+- On narrow screens the back control joins the page flow instead of covering the
+  first line.
+
 ## 0.4.0
 
 Every skill now installs on its own, which makes the repository installable with
