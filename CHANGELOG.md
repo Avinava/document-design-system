@@ -5,6 +5,10 @@ All notable changes to this project are documented here. Versions refer to the
 
 ## Unreleased
 
+## 0.4.1
+
+The published site gets navigation and image fixes.
+
 ### Fixed
 
 - Published showcase pages (figures, themes, brand, deck, report) had no way back
