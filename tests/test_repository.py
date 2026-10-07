@@ -1688,5 +1688,67 @@ class TestRenderCheck(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
+@unittest.skipUnless(
+    __import__("importlib.util").util.find_spec("PIL"),
+    "Pillow is not installed (uv pip install -r requirements-authoring.txt)",
+)
+class TestScreenshotNoise(unittest.TestCase):
+    """A reshoot keeps the committed image when only rendering noise differs."""
+
+    @staticmethod
+    def png(image) -> bytes:
+        out = io.BytesIO()
+        image.save(out, format="PNG")
+        return out.getvalue()
+
+    def setUp(self):
+        from PIL import Image
+
+        self.Image = Image
+        self.base = Image.new("RGB", (100, 100), (240, 240, 240))
+
+    def changed(self, pixels: int, delta: int) -> bytes:
+        image = self.base.copy()
+        for i in range(pixels):
+            x, y = i % 100, i // 100
+            r, g, b = image.getpixel((x, y))
+            image.putpixel((x, y), (r - delta, g, b))
+        return self.png(image)
+
+    def test_identical_images_are_the_same(self):
+        from shoot_examples import same_image
+
+        self.assertTrue(same_image(self.png(self.base), self.png(self.base)))
+
+    def test_small_channel_drift_everywhere_is_noise(self):
+        from shoot_examples import same_image
+
+        self.assertTrue(same_image(self.png(self.base), self.changed(10_000, 2)))
+
+    def test_a_few_strong_pixels_are_noise(self):
+        from shoot_examples import same_image
+
+        # 9 of 10,000 pixels is under the 0.1% budget.
+        self.assertTrue(same_image(self.png(self.base), self.changed(9, 200)))
+
+    def test_a_real_edit_is_a_change(self):
+        from shoot_examples import same_image
+
+        # 11 of 10,000 pixels is over it.
+        self.assertFalse(same_image(self.png(self.base), self.changed(11, 200)))
+
+    def test_tolerance_is_per_channel(self):
+        from shoot_examples import same_image
+
+        self.assertFalse(same_image(self.png(self.base), self.changed(500, 9)))
+        self.assertTrue(same_image(self.png(self.base), self.changed(500, 8)))
+
+    def test_a_different_size_is_a_change(self):
+        from shoot_examples import same_image
+
+        bigger = self.png(self.Image.new("RGB", (100, 101), (240, 240, 240)))
+        self.assertFalse(same_image(self.png(self.base), bigger))
+
+
 if __name__ == "__main__":
     unittest.main()

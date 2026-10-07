@@ -10,10 +10,16 @@ Serves the repository root over localhost rather than using file:// URLs — a f
 cannot load the Google Fonts stylesheet consistently, and the screenshots would
 show fallback metrics rather than what a reader sees. Serving the root also lets
 the type gallery resolve its ../docs/screenshots/thumbs/ previews.
+
+A capture that differs from the committed image only by rendering noise
+(same_image) keeps the committed bytes, so reshooting everything leaves an
+unchanged page's PNG untouched in git.
 """
 
 from __future__ import annotations
 
+import io
+import subprocess
 import sys
 from pathlib import Path
 
@@ -26,6 +32,15 @@ from pins import REPO_PYTHON_HINT  # noqa: E402
 EX = ROOT / "examples"
 OUT = ROOT / "docs" / "screenshots"
 PORT = 8931
+
+# Two captures of an unchanged page differ by anti-aliasing and sub-pixel text
+# placement: at most a couple of levels per channel, and in the worst case
+# seen a 1px shift of one chart label (under 0.08% of the slide's pixels). A
+# pixel counts as changed past TOLERANCE on any channel; a capture is noise
+# while under MAX_CHANGED of its pixels changed. Keep MAX_CHANGED small: a
+# real one-word copy edit on a full page is not much larger.
+TOLERANCE = 8
+MAX_CHANGED = 0.001
 
 # name -> (page, viewport, full_page)
 #
@@ -116,12 +131,72 @@ SLIDE_SHOTS = {
 }
 
 
+def same_image(a: bytes, b: bytes, *, tolerance: int = TOLERANCE, max_changed: float = MAX_CHANGED) -> bool:
+    """True when two PNGs differ by no more than rendering noise: equal size,
+    and under `max_changed` of the pixels move more than `tolerance` on any
+    channel."""
+    from PIL import Image, ImageChops
+
+    if a == b:
+        return True
+    with Image.open(io.BytesIO(a)) as left, Image.open(io.BytesIO(b)) as right:
+        if left.size != right.size:
+            return False
+        diff = ImageChops.difference(left.convert("RGBA"), right.convert("RGBA"))
+    changed = None
+    for band in diff.split():
+        over = band.point(lambda v: 255 if v > tolerance else 0)
+        changed = over if changed is None else ImageChops.lighter(changed, over)
+    width, height = diff.size
+    return changed.histogram()[255] < max_changed * width * height
+
+
+def baseline(rel: str) -> bytes | None:
+    """The committed image if git tracks it, else the file on disk, else None."""
+    shown = subprocess.run(
+        ["git", "show", f"HEAD:docs/screenshots/{rel}"], cwd=ROOT, capture_output=True
+    )
+    if shown.returncode == 0:
+        return shown.stdout
+    path = OUT / rel
+    return path.read_bytes() if path.is_file() else None
+
+
+def keep_or_write(rel: str, data: bytes) -> str:
+    """Write a capture unless it is noise against its baseline; return the state."""
+    base = baseline(rel)
+    if base is not None and same_image(base, data):
+        data, state = base, "unchanged"
+    else:
+        state = "new" if base is None else "updated"
+    target = OUT / rel
+    if not target.is_file() or target.read_bytes() != data:
+        target.write_bytes(data)
+    print(f"  {state:9} {target.relative_to(ROOT)}")
+    return state
+
+
+def thumbnail(data: bytes) -> bytes:
+    from PIL import Image, ImageOps
+
+    with Image.open(io.BytesIO(data)) as source:
+        thumb = ImageOps.fit(
+            source.convert("RGB"),
+            (640, 400),
+            method=Image.Resampling.LANCZOS,
+            centering=(0.5, 0.0),
+        )
+    out = io.BytesIO()
+    thumb.save(out, format="PNG", optimize=True)
+    return out.getvalue()
+
+
 def main() -> None:
     only = set(sys.argv[1:]) if len(sys.argv) > 1 else None
 
     try:
         from playwright.sync_api import sync_playwright
-        from PIL import Image, ImageOps
+        import PIL  # noqa: F401
     except ImportError:
         sys.exit(
             "playwright and Pillow are required.\n"
@@ -130,8 +205,19 @@ def main() -> None:
         )
 
     OUT.mkdir(parents=True, exist_ok=True)
-    thumbs = OUT / "thumbs"
-    thumbs.mkdir(exist_ok=True)
+    (OUT / "thumbs").mkdir(exist_ok=True)
+    states: dict[str, int] = {}
+
+    def save(name: str, data: bytes, thumb: bool) -> None:
+        state = keep_or_write(f"{name}.png", data)
+        states[state] = states.get(state, 0) + 1
+        if thumb:
+            state = keep_or_write(f"thumbs/{name}.png", thumbnail(data))
+            states[state] = states.get(state, 0) + 1
+
+    def needed(name: str) -> bool:
+        return not only or name in only
+
     httpd, base = serve(ROOT, PORT)
 
     try:
@@ -139,10 +225,10 @@ def main() -> None:
             browser = p.chromium.launch()
 
             for name, (page_file, (w, h), full) in SHOTS.items():
-                if only and name not in only:
+                if not needed(name):
                     continue
                 if page_file.startswith("../site/") and not (EX / page_file).resolve().is_file():
-                    print(f"  skipped {name}: run python scripts/build_site.py first")
+                    print(f"  skipped   {name}: run python scripts/build_site.py first")
                     continue
                 page = browser.new_page(viewport={"width": w, "height": h},
                                         device_scale_factor=1 if name in NATIVE else 2)
@@ -154,24 +240,11 @@ def main() -> None:
                 if name in SCROLL:
                     page.evaluate(f"window.scrollTo(0, {SCROLL[name]})")
                     page.wait_for_timeout(200)
-                target = OUT / f"{name}.png"
-                page.screenshot(path=str(target), full_page=full)
-                print(f"  {target.relative_to(ROOT)}")
-                if name in NO_THUMB:
-                    page.close()
-                    continue
-                with Image.open(target) as source:
-                    thumb = ImageOps.fit(
-                        source.convert("RGB"),
-                        (640, 400),
-                        method=Image.Resampling.LANCZOS,
-                        centering=(0.5, 0.0),
-                    )
-                    thumb.save(thumbs / target.name, optimize=True)
+                save(name, page.screenshot(full_page=full), name not in NO_THUMB)
                 page.close()
 
             for name, (page_file, index) in SLIDE_SHOTS.items():
-                if only and name not in only:
+                if not needed(name):
                     continue
                 page = browser.new_page(viewport={"width": 1280, "height": 760},
                                         device_scale_factor=2)
@@ -180,16 +253,15 @@ def main() -> None:
                 slide = page.locator("section.slide").nth(index)
                 slide.scroll_into_view_if_needed()
                 page.wait_for_timeout(200)
-                target = OUT / f"{name}.png"
-                slide.screenshot(path=str(target))
-                print(f"  {target.relative_to(ROOT)}")
+                save(name, slide.screenshot(), False)
                 page.close()
 
             browser.close()
     finally:
         httpd.shutdown()
 
-    print(f"\nwrote {len(SHOTS) + len(SLIDE_SHOTS)} screenshots to {OUT.relative_to(ROOT)}")
+    summary = ", ".join(f"{n} {state}" for state, n in sorted(states.items())) or "nothing"
+    print(f"\n{summary} in {OUT.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":
