@@ -153,6 +153,12 @@ TYPE_QUESTIONS = {
     "incident-update": "What is happening now, and when is the next update?",
 }
 
+# Display copy for composed examples (catalog.COMPOSED): the reader's question
+# and the nearest type the composition borrowed its section discipline from.
+COMPOSED_GALLERY = {
+    "platform-primer": ("Can I reuse what I know from batch loads here?", "explanation"),
+}
+
 SHOT_PREFIX = "../docs/screenshots/thumbs"
 
 # Theme variants shown on the local type gallery (and Pages types.html).
@@ -258,10 +264,12 @@ def _title(body: str) -> str:
     return re.sub(r"<[^>]+>", "", m.group(1)).strip()
 
 
-def _assemble_one_longform(out_slug: str, body_slug: str, theme: str, pattern: str, shell: str) -> None:
-    body_path = TYPES / f"{body_slug}.html"
+def _assemble_one_longform(
+    out_slug: str, body_slug: str, theme: str, pattern: str, shell: str, body_dir: Path = TYPES
+) -> None:
+    body_path = body_dir / f"{body_slug}.html"
     if not body_path.is_file():
-        sys.exit(f"missing type body: {body_path.relative_to(ROOT)}")
+        sys.exit(f"missing body: {body_path.relative_to(ROOT)}")
     body = body_path.read_text(encoding="utf-8")
 
     def inline_body_figure(match: re.Match[str]) -> str:
@@ -308,6 +316,10 @@ def assemble_longform() -> None:
         _assemble_one_longform(slug, slug, theme, pattern, shell)
     for out_slug, (body_slug, theme, pattern) in LONGFORM_VARIANTS.items():
         _assemble_one_longform(out_slug, body_slug, theme, pattern, shell)
+    # Composed documents use the same shell; the pattern comes from the
+    # composition, not from a type preset.
+    for slug, (theme, pattern) in catalog.COMPOSED.items():
+        _assemble_one_longform(slug, slug, theme, pattern, shell, ROOT / catalog.COMPOSED_DIR)
 
     assemble_brand(SHOT_PREFIX, EX / "brand.html")
     assemble_docs_gallery(SHOT_PREFIX)
@@ -394,6 +406,25 @@ def assemble_docs_gallery(
         + "\n    ".join(voice_cards)
         + "\n  </div>\n</section>"
     )
+    composed_cards = []
+    for slug, (theme, pattern) in catalog.COMPOSED.items():
+        question, nearest = COMPOSED_GALLERY[slug]
+        composed_cards.append(
+            f'<a class="card" id="composed-{slug}" href="{slug}.html">\n'
+            f'  <img src="{shot_prefix}/{slug}.png" alt="" width="640" height="400" loading="lazy" decoding="async">\n'
+            f'  <div class="pad"><span class="kind">{pattern} · custom</span><span class="theme">{theme}</span>'
+            f'<h3>{question}</h3><p class="composed-note">Nearest type: {nearest}</p></div>\n'
+            f'</a>'
+        )
+    composed_html = (
+        '<section class="group" id="composed">\n'
+        '  <h2>Composed from a pattern</h2>\n'
+        '  <p class="lead">When no type fits, pick the pattern by the reader\'s question and compose '
+        'from the modules it allows. A shape composed three times becomes a type.</p>\n'
+        '  <div class="cards">\n    '
+        + "\n    ".join(composed_cards)
+        + "\n  </div>\n</section>"
+    )
     profile_cards = []
     for name, href, shot, blurb in PROFILE_GALLERY:
         profile_cards.append(
@@ -437,6 +468,7 @@ def assemble_docs_gallery(
         filled = (
             raw.replace("<!-- @@VOICES -->", voices_html, 1)
             .replace("<!-- @@PROFILES -->", profiles_html, 1)
+            .replace("<!-- @@COMPOSED -->", composed_html, 1)
             .replace("<!-- @@SKILLS -->", skills_html, 1)
             .replace("<!-- @@CARDS -->", cards_html, 1)
             .replace("@@TYPES_HREF", types_href)
@@ -452,6 +484,7 @@ def assemble_docs_gallery(
         or "@@CARDS" in assembled
         or "@@SKILLS" in assembled
         or "@@VOICES" in assembled
+        or "@@COMPOSED" in assembled
         or "@@TYPES_HREF" in assembled
     ):
         sys.exit("unresolved marker in docs-gallery")

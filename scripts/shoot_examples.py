@@ -78,6 +78,8 @@ SHOTS = {
     "workshop-summary": ("workshop-summary.html", (1280, 980), False),
     "incident-update": ("incident-update.html", (1280, 980), False),
     "service-docs": ("service-docs.html", (1280, 980), False),
+    # Composed from the learning pattern rather than a type preset.
+    "platform-primer": ("platform-primer.html", (1280, 980), False),
     # Light/dark pairs, for the README <picture> elements that follow the
     # reader's GitHub theme.
     "gallery-light": ("gallery-light.html", (1280, 1430), True),

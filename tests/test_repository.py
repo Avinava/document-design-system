@@ -74,6 +74,36 @@ def skill_dirs() -> list[Path]:
     return sorted(p for p in SKILLS.iterdir() if p.is_dir())
 
 
+# Tokens that must agree between an example's Markdown and its HTML body.
+FACT_TOKEN = re.compile(
+    r"(?:\b(?:ADR|RFC|REQ|INC|NWI)-[A-Z0-9-]+\b|"
+    r"/v\d+/[a-z0-9_/{}/-]+|\b\d{4}-\d{2}-\d{2}\b|"
+    r"\b\d+(?:\.\d+)?(?:%|ms|s|m|h|×)\b)",
+    re.I,
+)
+
+
+def parity_problems(markdown: str, source: str) -> tuple[str, str, list[str]]:
+    """(Markdown title, HTML title, fact tokens present only in Markdown)."""
+    markdown_title = re.search(r"(?m)^# (.+)$", markdown).group(1).strip()
+    html_title = re.search(r"<h1>(.*?)</h1>", source, re.S).group(1)
+    html_title = html_lib.unescape(re.sub(r"<[^>]+>", "", html_title)).strip()
+    visible = html_lib.unescape(re.sub(r"<[^>]+>", " ", source))
+    missing = sorted({token for token in FACT_TOKEN.findall(markdown) if token not in visible})
+    return markdown_title, html_title, missing
+
+
+def front_matter(markdown: str) -> dict[str, str]:
+    """Flat `key: value` front matter of a composed example."""
+    m = re.match(r"---\n(.*?)\n---\n", markdown, re.S)
+    if not m:
+        return {}
+    return {
+        key.strip(): value.strip()
+        for key, _, value in (line.partition(":") for line in m.group(1).splitlines())
+    }
+
+
 class TestValidator(unittest.TestCase):
     def test_repository_validates(self):
         result = subprocess.run(
@@ -270,22 +300,12 @@ class TestWritingTypes(unittest.TestCase):
 
     def test_markdown_and_html_share_titles_and_fact_tokens(self):
         """The paired formats may compose differently, but not contradict facts."""
-        fact = re.compile(
-            r"(?:\b(?:ADR|RFC|REQ|INC|NWI)-[A-Z0-9-]+\b|"
-            r"/v\d+/[a-z0-9_/{}/-]+|\b\d{4}-\d{2}-\d{2}\b|"
-            r"\b\d+(?:\.\d+)?(?:%|ms|s|m|h|×)\b)",
-            re.I,
-        )
         for slug in catalog.TYPES:
             with self.subTest(slug=slug):
                 markdown = (ROOT / "examples" / f"{slug}.md").read_text(encoding="utf-8")
                 source = (ROOT / "templates" / "types" / f"{slug}.html").read_text(encoding="utf-8")
-                markdown_title = re.search(r"(?m)^# (.+)$", markdown).group(1).strip()
-                html_title = re.search(r"<h1>(.*?)</h1>", source, re.S).group(1)
-                html_title = html_lib.unescape(re.sub(r"<[^>]+>", "", html_title)).strip()
+                markdown_title, html_title, missing = parity_problems(markdown, source)
                 self.assertEqual(markdown_title, html_title)
-                visible = html_lib.unescape(re.sub(r"<[^>]+>", " ", source))
-                missing = sorted({token for token in fact.findall(markdown) if token not in visible})
                 self.assertEqual(missing, [], f"facts present only in Markdown: {missing}")
 
     def test_pages_site_is_homepage_plus_types(self):
@@ -1057,29 +1077,43 @@ class TestCatalog(unittest.TestCase):
         self.assertEqual(decision.types[0], "design-doc")
         self.assertTrue(decision.movement)
 
-    def test_modules_registry_is_empty_until_the_table_exists(self):
-        text = (ROOT / catalog.PATTERNS_MD).read_text(encoding="utf-8")
-        if "\n## Modules" not in text:
-            self.assertEqual(catalog.MODULES, {})
-
-    def test_modules_table_parses(self):
-        import shutil
+    def modules_from(self, table_rows: str):
+        """load_modules over the real document-patterns.md with its Modules table replaced."""
         import tempfile
 
+        text = (ROOT / catalog.PATTERNS_MD).read_text(encoding="utf-8")
+        text = re.sub(r"\n## Modules\n.*?(?=\n## )", "\n", text, flags=re.S)
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             target = root / catalog.PATTERNS_MD
             target.parent.mkdir(parents=True)
-            shutil.copy2(ROOT / catalog.PATTERNS_MD, target)
             target.write_text(
-                target.read_text(encoding="utf-8")
-                + "\n## Modules\n\n| Module | Class | Patterns allowed | Purpose |\n|---|---|---|---|\n"
-                "| ask band | `ask-band` | `decision`, `brief` | The decision asked for, first |\n",
+                text + "\n## Modules\n\n| Module | Class | Patterns allowed | Purpose |\n|---|---|---|---|\n"
+                + table_rows,
                 encoding="utf-8",
             )
-            modules = catalog.load_modules(root)
-        self.assertEqual(list(modules), ["ask-band"])
+            return catalog.load_modules(root)
+
+    def test_modules_table_parses(self):
+        modules = self.modules_from(
+            "| ask band | `ask-band` | `decision`, `brief` | The decision asked for, first |\n"
+            "| key point | `keypoint` | any | One sentence to carry |\n"
+        )
+        self.assertEqual(list(modules), ["ask-band", "keypoint"])
         self.assertEqual(modules["ask-band"].patterns, ("decision", "brief"))
+        self.assertEqual(modules["keypoint"].patterns, EXPECTED_PATTERN_NAMES)
+
+    def test_modules_table_rejects_malformed_rows(self):
+        cases = {
+            "registered twice": "| a | `x` | any | p |\n| b | `x` | any | p |\n",
+            "must be `code` names": "| a | `x` | decision | p |\n",
+            "module class must be `code`": "| a | x | any | p |\n",
+        }
+        for needle, rows in cases.items():
+            with self.subTest(needle=needle):
+                with self.assertRaises(catalog.CatalogError) as ctx:
+                    self.modules_from(rows)
+                self.assertIn(needle, str(ctx.exception))
 
     def test_cross_checks_fire(self):
         import dataclasses
@@ -1200,6 +1234,161 @@ class TestSkillSizeValidation(unittest.TestCase):
     def test_long_description_is_an_error(self):
         found = self.check("body", "Use when x. Do not use for y. " + "z" * 1024)
         self.assertTrue(any("description is" in e for e in found), found)
+
+
+class TestModuleRegistry(unittest.TestCase):
+    """The registry in core/document-patterns.md, the CSS and the bodies agree."""
+
+    NEW_MODULES = {
+        "ask-band": {"decision"},
+        "learning-goal": {"learning"},
+        "scope-strip": {"learning", "decision", "brief", "system"},
+        "crosswalk": {"learning", "decision", "contract", "system"},
+    }
+
+    def bodies(self) -> dict[str, tuple[str, set[str]]]:
+        return {
+            name: (pattern, catalog.body_classes(path.read_text(encoding="utf-8")))
+            for name, (pattern, path) in catalog.example_bodies(ROOT).items()
+        }
+
+    def problems(self, modules=None, css=None, bodies=None) -> list[str]:
+        return catalog.module_problems(
+            catalog.MODULES if modules is None else modules,
+            catalog.PATTERNS,
+            catalog.stylesheet_classes(ROOT) if css is None else css,
+            self.bodies() if bodies is None else bodies,
+        )
+
+    def test_registry_stylesheet_and_bodies_agree(self):
+        self.assertEqual(self.problems(), [])
+
+    def test_new_modules_are_registered_styled_and_used(self):
+        css = catalog.stylesheet_classes(ROOT)
+        bodies = self.bodies()
+        for css_class, patterns in self.NEW_MODULES.items():
+            with self.subTest(module=css_class):
+                self.assertIn(css_class, catalog.MODULES)
+                self.assertEqual(set(catalog.MODULES[css_class].patterns), patterns)
+                self.assertIn(css_class, css)
+                self.assertTrue(any(css_class in used for _, used in bodies.values()), f"{css_class} is unused")
+        self.assertNotIn("section-takeaway", css, "the section takeaway is the takeaway class, not a second one")
+
+    def test_decision_and_learning_bodies_use_their_new_modules(self):
+        for slug in ("design-doc", "proposal"):
+            with self.subTest(slug=slug):
+                self.assertIn('class="ask-band"', (ROOT / "templates" / "types" / f"{slug}.html").read_text())
+        for slug in ("explanation", "onboarding", "tutorial"):
+            with self.subTest(slug=slug):
+                self.assertIn('class="learning-goal"', (ROOT / "templates" / "types" / f"{slug}.html").read_text())
+
+    def test_new_modules_are_responsive_and_printable(self):
+        css = catalog.CSS_COMMENT.sub("", (ROOT / catalog.PATTERNS_CSS).read_text(encoding="utf-8"))
+        narrow = css[css.index("@media (max-width: 620px)") : css.index("@media print")]
+        printed = css[css.index("@media print") :]
+        for css_class in ("ask-band", "learning-goal", "scope-strip"):
+            with self.subTest(module=css_class):
+                self.assertIn(f".{css_class}", narrow)
+                self.assertIn(f".{css_class}", printed)
+        self.assertIn(".crosswalk table { min-width: 0; }", printed)
+
+    def test_crosswalk_never_encodes_fit_in_colour_alone(self):
+        for name, (_, path) in catalog.example_bodies(ROOT).items():
+            source = path.read_text(encoding="utf-8")
+            for fit, label in re.findall(r'data-fit="([a-z]+)">([^<]*)<', source):
+                with self.subTest(example=name, fit=fit):
+                    self.assertIn(fit, {"holds", "partial", "breaks"})
+                    self.assertEqual(label.strip().lower(), fit, "fit must be written as its word")
+
+    def test_checks_fire(self):
+        import dataclasses
+
+        modules = dict(catalog.MODULES)
+        bodies = self.bodies()
+        css = catalog.stylesheet_classes(ROOT)
+
+        narrowed = dict(modules)
+        narrowed["cause-chain"] = dataclasses.replace(modules["cause-chain"], patterns=("incident",))
+        self.assertTrue(any("explanation (learning) uses `cause-chain`" in p for p in self.problems(modules=narrowed)))
+
+        self.assertTrue(any("`ask-band` is registered but has no rule" in p for p in self.problems(css=css - {"ask-band"})))
+        self.assertTrue(any("styles `.mystery`" in p for p in self.problems(css=css | {"mystery"})))
+
+        stripped = {
+            name: (pattern, used - {"learning-goal"}) for name, (pattern, used) in bodies.items()
+        }
+        self.assertTrue(
+            any('no learning example uses its characteristic module "learning goal"' in p
+                for p in self.problems(bodies=stripped))
+        )
+
+
+class TestComposedExamples(unittest.TestCase):
+    """Composed documents declare what they are and stay inside their pattern."""
+
+    def test_at_least_one_composed_example_ships(self):
+        self.assertIn("platform-primer", catalog.COMPOSED)
+
+    def test_front_matter_declares_a_valid_composition(self):
+        for slug, (theme, pattern) in catalog.COMPOSED.items():
+            with self.subTest(slug=slug):
+                markdown = (ROOT / "examples" / f"{slug}.md").read_text(encoding="utf-8")
+                meta = front_matter(markdown)
+                self.assertEqual(meta.get("type"), "custom")
+                self.assertEqual(meta.get("pattern"), pattern)
+                self.assertIn(pattern, catalog.PATTERNS)
+                nearest = catalog.TYPES[meta["nearest-type"]]
+                self.assertEqual(nearest.pattern, pattern, "the nearest type must share the pattern")
+                self.assertEqual(nearest.default_theme, theme, "a composition takes the nearest type's theme")
+                self.assertNotIn(slug, catalog.TYPES, "a composed example must not shadow a type")
+
+    def test_declared_modules_are_allowed_and_match_the_html(self):
+        for slug, (_, pattern) in catalog.COMPOSED.items():
+            with self.subTest(slug=slug):
+                meta = front_matter((ROOT / "examples" / f"{slug}.md").read_text(encoding="utf-8"))
+                declared = {m.strip() for m in meta["modules"].strip("[]").split(",")}
+                for css_class in declared:
+                    self.assertIn(css_class, catalog.MODULES)
+                    self.assertIn(pattern, catalog.MODULES[css_class].patterns)
+                body = (ROOT / catalog.COMPOSED_DIR / f"{slug}.html").read_text(encoding="utf-8")
+                used = catalog.body_classes(body) & set(catalog.MODULES)
+                self.assertEqual(declared, used, "front matter modules and the HTML body disagree")
+
+    def test_markdown_and_html_share_title_and_facts(self):
+        for slug in catalog.COMPOSED:
+            with self.subTest(slug=slug):
+                markdown = (ROOT / "examples" / f"{slug}.md").read_text(encoding="utf-8")
+                source = (ROOT / catalog.COMPOSED_DIR / f"{slug}.html").read_text(encoding="utf-8")
+                markdown_title, html_title, missing = parity_problems(markdown, source)
+                self.assertEqual(markdown_title, html_title)
+                self.assertEqual(front_matter(markdown)["title"], markdown_title)
+                self.assertEqual(missing, [], f"facts present only in Markdown: {missing}")
+
+    def test_built_example_screenshot_and_gallery(self):
+        from build_examples import COMPOSED_GALLERY
+        from shoot_examples import SHOTS
+
+        self.assertEqual(set(COMPOSED_GALLERY), set(catalog.COMPOSED))
+        index = (ROOT / "examples" / "index.html").read_text(encoding="utf-8")
+        for slug, (theme, pattern) in catalog.COMPOSED.items():
+            with self.subTest(slug=slug):
+                built = (ROOT / "examples" / f"{slug}.html").read_text(encoding="utf-8")
+                self.assertIn(f'data-pattern="{pattern}"', built)
+                self.assertIn(f'data-theme="{theme}"', built)
+                self.assertNotIn("@FIG", built)
+                self.assertIn(slug, SHOTS)
+                self.assertTrue((ROOT / "docs" / "screenshots" / f"{slug}.png").is_file())
+                self.assertTrue((ROOT / "docs" / "screenshots" / "thumbs" / f"{slug}.png").is_file())
+                self.assertIn(f'href="{slug}.html"', index)
+        self.assertIn('id="composed"', index)
+
+    def test_compose_command_routes_to_composition(self):
+        body = (ROOT / "commands" / "compose.md").read_text(encoding="utf-8")
+        self.assertTrue(body.startswith("---\ndescription:"))
+        self.assertIn("Type slug: custom", body)
+        self.assertIn("references/composing.md", body)
+        self.assertIn("references/type-index.md", body)
+        self.assertIn("Markdown", body)
 
 
 if __name__ == "__main__":

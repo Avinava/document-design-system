@@ -151,6 +151,13 @@ def populate(dest: Path) -> None:
             sys.exit(f"missing {src.relative_to(ROOT)} — run build_examples.py first")
         write_page_copy(src, dest / f"{slug}.html", BACK_TO_TYPES)
 
+    # Composed examples sit beside the types they were composed instead of.
+    for slug in catalog.COMPOSED:
+        src = EX / f"{slug}.html"
+        if not src.is_file():
+            sys.exit(f"missing {src.relative_to(ROOT)} — run build_examples.py first")
+        write_page_copy(src, dest / f"{slug}.html", BACK_TO_TYPES)
+
     for name, back in HTML_KEEP.items():
         src = EX / name
         if src.is_file():
@@ -192,6 +199,16 @@ def check_built(dest: Path) -> None:
         doc = (dest / f"{slug}.html").read_text(encoding="utf-8")
         if 'class="site-back"' not in doc or 'href="assets/banner.svg"' not in doc:
             sys.exit(f"{slug}.html missing Pages navigation or favicon")
+        if not (dest / "screenshots" / "thumbs" / f"{slug}.png").is_file():
+            sys.exit(f"site missing thumbnail for {slug}")
+    if catalog.COMPOSED and 'id="composed"' not in gallery:
+        sys.exit("types.html missing the composed-from-a-pattern section")
+    for slug in catalog.COMPOSED:
+        if f'href="{slug}.html"' not in gallery:
+            sys.exit(f"types.html does not link composed example {slug}.html")
+        doc = (dest / f"{slug}.html").read_text(encoding="utf-8")
+        if f'class="site-back" href="{BACK_TO_TYPES[0]}"' not in doc:
+            sys.exit(f"{slug}.html has no way back to {BACK_TO_TYPES[0]}")
         if not (dest / "screenshots" / "thumbs" / f"{slug}.png").is_file():
             sys.exit(f"site missing thumbnail for {slug}")
     for pattern in catalog.PATTERNS:
