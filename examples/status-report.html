@@ -1786,7 +1786,62 @@ html[data-pattern="brief"] .section { margin-top: var(--space-6); }
 </style>
 </head>
 <body>
-<article class="doc"><header class="doc-hero"><p class="hero-dateline">Delivery status · Period ending 2026-08-26</p><h1>Delivery is Amber while decision and chaos ownership remain open</h1><p class="lede">The 2026-11-02 forecast remains achievable if the 2026-09-01 decisions and 2026-09-18 environment gate close.</p><div class="doc-meta" aria-label="Document metadata"><span><strong>Status:</strong> Amber</span><span><strong>Forecast:</strong> 2026-11-02</span></div></header><div class="brief-status"><div><span class="component-label">Overall</span><strong>Amber</strong><small>decision + environment dependency</small></div><div><span class="component-label">Forecast</span><strong>2026-11-02</strong><small>unchanged</small></div><div><span class="component-label">Baseline</span><strong>24</strong><small>engineer-weeks</small></div></div><div class="brief-grid"><section><h2>This period</h2><p>Discovery closed, RFC 014 reached proposal, requirements were identified, and the five-gate delivery baseline was drafted.</p></section><section><h2>Attention required</h2><ul><li>Platform director decides RFC 014 by 2026-09-01.</li><li>Platform confirms the chaos environment owner and 2026-09-18 gate.</li><li>Reliability decides RAID-02 by 2026-09-01.</li></ul></section><section><h2>Next period</h2><p>Mobilise Platform, baseline 24 engineer-weeks, confirm traceability, and accept or move staging. CR-003 stays outside scope.</p></section><aside class="next-checkpoint"><p class="component-label">Source boundary</p><p>The RAID register owns full exposure. This brief carries only material movement.</p></aside></div></article>
+<article class="doc"><header class="doc-hero"><p class="hero-dateline">Delivery status · Period ending 2026-08-26</p><h1>Delivery is Amber while decision and chaos ownership remain open</h1><p class="lede">The 2026-11-02 forecast remains achievable if the 2026-09-01 decisions and 2026-09-18 environment gate close.</p><div class="doc-meta" aria-label="Document metadata"><span><strong>Status:</strong> Amber</span><span><strong>Forecast:</strong> 2026-11-02</span></div></header><div class="brief-status"><div><span class="component-label">Overall</span><strong>Amber</strong><small>decision + environment dependency</small></div><div><span class="component-label">Forecast</span><strong>2026-11-02</strong><small>unchanged</small></div><div><span class="component-label">Baseline</span><strong>24</strong><small>engineer-weeks</small></div></div><div class="brief-grid"><section><h2>This period</h2><p>Discovery closed, RFC 014 reached proposal, requirements were identified, and the five-gate delivery baseline was drafted.</p></section><section><h2>Attention required</h2><ul><li>Platform director decides RFC 014 by 2026-09-01.</li><li>Platform confirms the chaos environment owner and 2026-09-18 gate.</li><li>Reliability decides RAID-02 by 2026-09-01.</li></ul></section><section><h2>Next period</h2><p>Mobilise Platform, baseline 24 engineer-weeks, confirm traceability, and accept or move staging. CR-003 stays outside scope.</p></section><aside class="next-checkpoint"><p class="component-label">Source boundary</p><p>The RAID register owns full exposure. This brief carries only material movement.</p></aside></div><figure class="figure"><div class="diagram-scroll"><svg role="img" aria-labelledby="sc-title sc-desc" viewBox="0 0 720 396" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+  <title id="sc-title">Weekly status cadence</title>
+  <desc id="sc-desc">A closed loop of four steps read clockwise: the status report carries material movement to the RAID review, Reliability's weekly review feeds the gate forecast, a missed criterion moves the release into a director decision, and the decision is reported in the next status. The accent marks the gate forecast, the step that can move the date.</desc>
+
+  <defs>
+    <marker id="sc-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerUnits="userSpaceOnUse"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <path class="edge" d="M424 80 Q560 80 560 176" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#sc-arrow)"/>
+  <path class="edge" d="M560 224 Q560 320 424 320" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#sc-arrow)"/>
+  <path class="edge" d="M296 320 Q160 320 160 224" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#sc-arrow)"/>
+  <path class="edge" d="M160 176 Q160 80 296 80" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#sc-arrow)"/>
+  <g class="edge-label">
+    <rect x="536" y="68" width="100" height="16" fill="var(--paper)"/>
+    <text x="586" y="80" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">material movement</text>
+  </g>
+  <g class="edge-label">
+    <rect x="544" y="332" width="84" height="16" fill="var(--paper)"/>
+    <text x="586" y="344" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">weekly review</text>
+  </g>
+  <g class="edge-label">
+    <rect x="96" y="332" width="84" height="16" fill="var(--paper)"/>
+    <text x="138" y="344" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">release moves</text>
+  </g>
+  <g class="edge-label">
+    <rect x="88" y="68" width="80" height="16" fill="var(--paper)"/>
+    <text x="128" y="80" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">reported next</text>
+  </g>
+  <g class="node">
+    <rect x="296" y="56" width="128" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="360" y="84" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Status report</text>
+  </g>
+  <g class="node">
+    <rect x="496" y="176" width="128" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="560" y="204" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">RAID review</text>
+  </g>
+  <g class="node node-focal">
+    <rect x="296" y="296" width="128" height="48" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="360" y="324" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Gate forecast</text>
+  </g>
+  <g class="node">
+    <rect x="96" y="176" width="128" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="160" y="196" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Director</text>
+    <text x="160" y="212" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">decision</text>
+  </g>
+  <g class="annotation">
+    <text x="360" y="188" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">WEEKLY CADENCE</text>
+    <text x="360" y="208" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--muted)">Each report reopens the loop.</text>
+  </g>
+  <g class="legend">
+    <text x="28" y="380" text-anchor="start" font-family="var(--sans)" font-size="11" fill="var(--muted)">Read clockwise from the top. The accent marks the step that can move the release date.</text>
+  </g>
+</svg></div><figcaption>How this report is made: each week carries only material movement round the same four steps.</figcaption></figure></article>
 
 </body>
 </html>

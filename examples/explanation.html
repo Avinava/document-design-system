@@ -1815,6 +1815,61 @@ html[data-pattern="brief"] .section { margin-top: var(--space-6); }
   <section class="section">
     <div class="section-head"><span class="section-num">03</span><h2>Backpressure travels upstream</h2><span class="reading-time">cause chain</span></div>
     <div class="cause-chain"><div><h3>Consumers slow</h3><p>Drain rate falls below arrival rate.</p></div><div><h3>The queue fills</h3><p>The buffer stops accepting within the gateway wait budget.</p></div><div><h3>Producers fail</h3><p>The gateway blocks or returns overload to every caller.</p></div></div>
+    <figure class="figure"><div class="diagram-scroll"><svg role="img" aria-labelledby="bp-title bp-desc" viewBox="0 0 720 396" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+  <title id="bp-title">Backpressure loop on the shared queue</title>
+  <desc id="bp-desc">A closed loop of four steps read clockwise: consumers slow, so the queue fills; a full queue makes the gateway block or return 503; blocked producers retry; and retries add load that slows consumers further. The retry edge is dashed because it only closes when callers retry without a bound. The accent marks the queue, the step RFC 014 splits.</desc>
+
+  <defs>
+    <marker id="bp-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerUnits="userSpaceOnUse"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <path class="edge" d="M424 80 Q560 80 560 176" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#bp-arrow)"/>
+  <path class="edge" d="M560 224 Q560 320 424 320" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#bp-arrow)"/>
+  <path class="edge" d="M296 320 Q160 320 160 224" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#bp-arrow)"/>
+  <path class="edge" d="M160 176 Q160 80 296 80" fill="none" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#bp-arrow)"/>
+  <g class="edge-label">
+    <rect x="548" y="68" width="76" height="16" fill="var(--paper)"/>
+    <text x="586" y="80" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">depth rises</text>
+  </g>
+  <g class="edge-label">
+    <rect x="532" y="332" width="108" height="16" fill="var(--paper)"/>
+    <text x="586" y="344" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">wait budget spent</text>
+  </g>
+  <g class="edge-label">
+    <rect x="96" y="332" width="80" height="16" fill="var(--paper)"/>
+    <text x="136" y="344" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">503 or block</text>
+  </g>
+  <g class="edge-label">
+    <rect x="76" y="68" width="104" height="16" fill="var(--paper)"/>
+    <text x="128" y="80" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">retries add load</text>
+  </g>
+  <g class="node">
+    <rect x="296" y="56" width="128" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="360" y="84" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Consumers slow</text>
+  </g>
+  <g class="node node-focal">
+    <rect x="496" y="176" width="128" height="48" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="560" y="204" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Queue fills</text>
+  </g>
+  <g class="node">
+    <rect x="296" y="296" width="128" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="360" y="324" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Gateway blocks</text>
+  </g>
+  <g class="node">
+    <rect x="96" y="176" width="128" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="160" y="204" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Producers retry</text>
+  </g>
+  <g class="annotation">
+    <text x="360" y="188" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">SHARED FATE</text>
+    <text x="360" y="208" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--muted)">One queue, one fate.</text>
+  </g>
+  <g class="legend">
+    <text x="28" y="380" text-anchor="start" font-family="var(--sans)" font-size="11" fill="var(--muted)">Read clockwise from the top. Dashed: only without a retry bound. The accent is the step RFC 014 splits.</text>
+  </g>
+</svg></div><figcaption>The chain closes into a loop when callers retry without a bound. Bounded retries with the same event ID keep it open.</figcaption></figure>
     <p>The July incident followed this exact chain. Scaling consumers increased drain rate and recovered the queue. It did not change the chain’s ability to recur.</p>
   </section>
 
