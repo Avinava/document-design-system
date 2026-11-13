@@ -103,7 +103,7 @@ Keep radii between 0 and 8px. Larger radii read as consumer-app chrome and under
 | `--eyebrow-tracking` | Letter-spacing of eyebrows and small labels, in `em` |
 | `--eyebrow-transform` | `uppercase` or `none` for eyebrows |
 
-`core/base.css` turns `--density` into `--space-1` to `--space-7`. Every theme declares all of these. `base.css` loads after the theme, and a default declared on `[data-theme]` there would overwrite the theme's own value.
+`core/base.css` turns `--density` into `--space-1` to `--space-7`, times `--pattern-density` when the document's pattern sets one (`core/document-patterns.css`; not a theme token). Every theme declares all of these. `base.css` loads after the theme, and a default declared on `[data-theme]` there would overwrite the theme's own value.
 
 ### Derived (optional but recommended)
 
