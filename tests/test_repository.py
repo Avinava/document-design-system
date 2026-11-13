@@ -57,20 +57,10 @@ SPOT_CHECK = {
     "status-report": ("executive-navy", "brief"),
 }
 
-# The class each pattern's examples must carry (one per pattern).
-CHARACTERISTIC_CLASS = {
-    "decision": "decision-rail",
-    "record": "decision-statement",
-    "contract": "contract-layout",
-    "procedure": "procedure-steps",
-    "learning": "takeaway",
-    "system": "system-map",
-    "incident": "impact-strip",
-    "suite": "document-map",
-    "plan": "milestone-rail",
-    "assurance": "assurance-verdict",
-    "brief": "brief-status",
-}
+def characteristic_classes(pattern: str) -> set[str]:
+    """The CSS classes of a pattern's characteristic modules, from the registry."""
+    by_name = {module.name: module.css_class for module in catalog.MODULES.values()}
+    return {by_name[name] for name in catalog.PATTERNS[pattern].modules}
 
 
 def skill_dirs() -> list[Path]:
@@ -291,11 +281,16 @@ class TestWritingTypes(unittest.TestCase):
                 self.assertIn(f'data-theme="{theme}"', generated)
 
     def test_every_pattern_uses_its_characteristic_module(self):
-        self.assertEqual(set(CHARACTERISTIC_CLASS), set(catalog.PATTERNS))
+        for pattern in catalog.PATTERNS:
+            self.assertTrue(characteristic_classes(pattern), f"{pattern} names no characteristic module")
         for slug, entry in catalog.TYPES.items():
             with self.subTest(slug=slug, pattern=entry.pattern):
                 body = (ROOT / "templates" / "types" / f"{slug}.html").read_text(encoding="utf-8")
-                self.assertIn(CHARACTERISTIC_CLASS[entry.pattern], body)
+                used = catalog.body_classes(body)
+                self.assertTrue(
+                    used & characteristic_classes(entry.pattern),
+                    f"{slug} uses none of the {entry.pattern} characteristic modules",
+                )
 
     def test_markdown_and_html_share_titles_and_fact_tokens(self):
         """The paired formats may compose differently, but not contradict facts."""
@@ -1326,6 +1321,7 @@ class TestModuleRegistry(unittest.TestCase):
             catalog.PATTERNS,
             catalog.stylesheet_classes(ROOT) if css is None else css,
             self.bodies() if bodies is None else bodies,
+            catalog.hero_parts(catalog.OPENINGS),
         )
 
     def test_registry_stylesheet_and_bodies_agree(self):
@@ -1389,6 +1385,132 @@ class TestModuleRegistry(unittest.TestCase):
             any('no learning example uses its characteristic module "learning goal"' in p
                 for p in self.problems(bodies=stripped))
         )
+
+
+class TestOpenings(unittest.TestCase):
+    """Each pattern owns a distinct opening, styled and used by every body."""
+
+    def bodies(self) -> dict[str, tuple[str, set[str]]]:
+        return {
+            name: (pattern, catalog.body_classes(path.read_text(encoding="utf-8")))
+            for name, (pattern, path) in catalog.example_bodies(ROOT).items()
+        }
+
+    def problems(self, openings=None, css=None, css_text=None, bodies=None) -> list[str]:
+        return catalog.opening_problems(
+            catalog.OPENINGS if openings is None else openings,
+            catalog.PATTERNS,
+            catalog.stylesheet_classes(ROOT) if css is None else css,
+            (ROOT / catalog.PATTERNS_CSS).read_text(encoding="utf-8") if css_text is None else css_text,
+            self.bodies() if bodies is None else bodies,
+        )
+
+    def openings_from(self, rows: str):
+        """load_openings over the real document-patterns.md with its Openings table replaced."""
+        import tempfile
+
+        text = (ROOT / catalog.PATTERNS_MD).read_text(encoding="utf-8")
+        text = re.sub(r"\n## Openings\n.*?(?=\n## )", "\n", text, flags=re.S)
+        with tempfile.TemporaryDirectory() as td:
+            target = Path(td) / catalog.PATTERNS_MD
+            target.parent.mkdir(parents=True)
+            target.write_text(
+                text + "\n## Openings\n\n| Pattern | Opening | Hero parts |\n|---|---|---|\n" + rows,
+                encoding="utf-8",
+            )
+            return catalog.load_openings(Path(td))
+
+    def test_every_pattern_has_an_opening_rule(self):
+        self.assertEqual(set(catalog.OPENINGS), set(catalog.PATTERNS))
+        self.assertEqual(len(catalog.PATTERNS), 11)
+        css = (ROOT / catalog.PATTERNS_CSS).read_text(encoding="utf-8")
+        for pattern in catalog.PATTERNS:
+            with self.subTest(pattern=pattern):
+                self.assertIn(f'html[data-pattern="{pattern}"] .doc-hero', css)
+
+    def test_openings_and_parts_are_unique(self):
+        names = [opening.name for opening in catalog.OPENINGS.values()]
+        parts = [part for opening in catalog.OPENINGS.values() for part in opening.parts]
+        self.assertEqual(len(names), len(set(names)))
+        self.assertEqual(len(parts), len(set(parts)))
+
+    def test_registry_stylesheet_and_bodies_agree(self):
+        self.assertEqual(self.problems(), [])
+
+    def test_every_body_uses_its_pattern_opening_parts(self):
+        for name, (pattern, used) in self.bodies().items():
+            with self.subTest(body=name, pattern=pattern):
+                self.assertTrue(set(catalog.OPENINGS[pattern].parts) <= used)
+
+    def test_openings_table_parses(self):
+        openings = self.openings_from(
+            "| `decision` | Split hero | `hero-aside` |\n| `record` | Seal | `hero-stamp`, `hero-seal` |\n"
+        )
+        self.assertEqual(list(openings), ["decision", "record"])
+        self.assertEqual(openings["record"].parts, ("hero-stamp", "hero-seal"))
+        self.assertEqual(openings["decision"].name, "Split hero")
+
+    def test_openings_table_rejects_malformed_rows(self):
+        cases = {
+            "has 2 cells": "| `decision` | Split hero |\n",
+            "pattern cell must be `code`": "| decision | Split hero | `hero-aside` |\n",
+            "has no name": "| `decision` |  | `hero-aside` |\n",
+            "must be `hero-<word>` names": "| `decision` | Split hero | aside |\n",
+            "got '`aside`'": "| `decision` | Split hero | `aside` |\n",
+            "has two openings": "| `decision` | A | `hero-a` |\n| `decision` | B | `hero-b` |\n",
+        }
+        for needle, rows in cases.items():
+            with self.subTest(needle=needle):
+                with self.assertRaises(catalog.CatalogError) as ctx:
+                    self.openings_from(rows)
+                self.assertIn(needle, str(ctx.exception))
+
+    def test_checks_fire(self):
+        import dataclasses
+
+        openings = dict(catalog.OPENINGS)
+        bodies = self.bodies()
+        css = catalog.stylesheet_classes(ROOT)
+
+        missing = {k: v for k, v in openings.items() if k != "brief"}
+        self.assertTrue(any("`brief` has no row" in p for p in self.problems(openings=missing)))
+
+        shared = dict(openings)
+        shared["record"] = dataclasses.replace(openings["record"], name=openings["decision"].name)
+        self.assertTrue(any("share the opening" in p for p in self.problems(openings=shared)))
+
+        clash = dict(openings)
+        clash["record"] = dataclasses.replace(openings["record"], parts=openings["decision"].parts)
+        self.assertTrue(any("opens both" in p for p in self.problems(openings=clash)))
+
+        self.assertTrue(any("has no rule" in p for p in self.problems(css=css - {"hero-stamp"})))
+        self.assertTrue(any("no opening registers" in p for p in self.problems(css=css | {"hero-ghost"})))
+        self.assertTrue(
+            any('has no `html[data-pattern="plan"] .doc-hero` rule' in p for p in self.problems(css_text=""))
+        )
+
+        stripped = {n: (p, u - set(openings[p].parts)) for n, (p, u) in bodies.items()}
+        self.assertTrue(any("does not use its opening part" in p for p in self.problems(bodies=stripped)))
+
+        borrowed = {n: (p, u | set(openings["incident"].parts)) for n, (p, u) in bodies.items()}
+        self.assertTrue(any("the opening of `incident`" in p for p in self.problems(bodies=borrowed)))
+
+    def test_openings_are_responsive_and_printable(self):
+        css = catalog.CSS_COMMENT.sub("", (ROOT / catalog.PATTERNS_CSS).read_text(encoding="utf-8"))
+        printed = css[css.index("@media print") :]
+        collapse = css[css.index("@media (max-width: 860px)") : css.index("@media (max-width: 620px)")]
+        self.assertIn("--hero-cols: minmax(0, 1fr)", collapse)
+        for part in sorted(catalog.hero_parts(catalog.OPENINGS) - {"hero-outcome", "hero-dateline"}):
+            with self.subTest(part=part):
+                self.assertIn(f".{part}", printed)
+
+    def test_pattern_css_reads_the_scale_not_literal_hero_sizes(self):
+        css = catalog.CSS_COMMENT.sub("", (ROOT / catalog.PATTERNS_CSS).read_text(encoding="utf-8"))
+        for match in re.finditer(r"([^{}]*\.(?:hero-[a-z]+|doc-hero h1)[^{}]*)\{([^{}]*)\}", css):
+            for decl in re.findall(r"font-size:\s*([^;]+);", match.group(2)):
+                with self.subTest(selector=match.group(1).strip(), size=decl):
+                    if "rem" in decl or "px" in decl:
+                        self.assertIn("var(--step-", decl)
 
 
 class TestComposedExamples(unittest.TestCase):

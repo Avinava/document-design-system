@@ -1,10 +1,5 @@
 <article class="doc">
-  <header class="doc-hero">
-    <p class="eyebrow">Design handoff · operator overview</p>
-    <h1>Show whether ingestion is healthy without requiring dashboard archaeology</h1>
-    <p class="lede">Build a read-only overview that names the current state, exposes queue lag and shed behavior, and routes operators to the existing runbook rather than inventing control UI.</p>
-    <div class="doc-meta" aria-label="Design handoff metadata"><span><strong>For:</strong> Platform UI</span><span><strong>File:</strong> operator-overview</span><span><strong>As of:</strong> 2026-08-18</span><span><strong>Owner:</strong> Platform</span></div>
-  </header>
+  <header class="doc-hero"><p class="eyebrow">Design handoff · operator overview</p><h1>Show whether ingestion is healthy without requiring dashboard archaeology</h1><p class="lede">Build a read-only overview that names the current state, exposes queue lag and shed behavior, and routes operators to the existing runbook rather than inventing control UI.</p><div class="doc-meta" aria-label="Design handoff metadata"><span><strong>For:</strong> Platform UI</span><span><strong>File:</strong> operator-overview</span><span><strong>As of:</strong> 2026-08-18</span><span><strong>Owner:</strong> Platform</span></div><figure class="figure hero-figure"><div class="system-map"><div class="state-grid"><div><p class="component-label">Global status</p><h3>Degraded: queue B unavailable</h3></div><div><p class="component-label">Queue A</p><h3>Healthy · 24s lag</h3></div><div><p class="component-label">Queue B</p><h3>Unavailable · 184 sheds</h3></div><div><p class="component-label">Next action</p><h3>Open queue-lag runbook</h3></div></div></div><figcaption>The first screen the operator sees. Anatomy follows below.</figcaption></figure></header>
 
   <section aria-labelledby="flow">
     <h2 id="flow">Primary user flow</h2>

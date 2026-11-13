@@ -1,10 +1,5 @@
 <article class="doc">
-  <header class="doc-hero">
-    <p class="eyebrow">Conceptual explanation</p>
-    <h1>Why ingestion fails as a whole even when only one component is full</h1>
-    <p class="lede">The important property is not queue size. It is the absence of an independent path: every producer and consumer shares the same place where work can wait.</p>
-    <div class="doc-meta" aria-label="Explanation metadata"><span><strong>Question:</strong> why does local backpressure become a platform halt?</span><span><strong>Scope:</strong> current architecture</span></div>
-  </header>
+  <header class="doc-hero"><p class="eyebrow">Conceptual explanation</p><h1>Why ingestion fails as a whole even when only one component is full</h1><div class="hero-outcome"><p class="component-label">The question</p><p class="lede">The important property is not queue size. It is the absence of an independent path: every producer and consumer shares the same place where work can wait.</p></div><div class="doc-meta" aria-label="Explanation metadata"><span><strong>Question:</strong> why does local backpressure become a platform halt?</span><span><strong>Scope:</strong> current architecture</span></div></header>
 
   <section class="learning-goal" aria-labelledby="goal">
     <div><p class="component-label">Learning goal</p><h2 id="goal">After reading, you can explain</h2></div>

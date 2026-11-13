@@ -141,7 +141,9 @@ body {
  *
  * Each type step is the previous one times --scale-ratio, and each space step
  * is a fixed fraction of a rem times --density. Components read these, never a
- * literal size, so a theme changes its pace by changing two numbers.
+ * literal size, so a theme changes its pace by changing two numbers. A pattern
+ * may set --pattern-density on the root; it multiplies the theme's --density
+ * (1 when absent), so a procedure reads tighter than a primer in any theme.
  *
  * On [data-theme] as well as :root, for the same reason as the derived
  * tokens above. The theme's own values are not defaulted here: this file
@@ -158,13 +160,13 @@ body {
   --step-6: calc(var(--step-5) * var(--scale-ratio));
   --step-7: calc(var(--step-6) * var(--scale-ratio));
 
-  --space-1: calc(0.25rem * var(--density));
-  --space-2: calc(0.5rem * var(--density));
-  --space-3: calc(0.75rem * var(--density));
-  --space-4: calc(1rem * var(--density));
-  --space-5: calc(1.5rem * var(--density));
-  --space-6: calc(2.5rem * var(--density));
-  --space-7: calc(3.5rem * var(--density));
+  --space-1: calc(0.25rem * var(--density) * var(--pattern-density, 1));
+  --space-2: calc(0.5rem * var(--density) * var(--pattern-density, 1));
+  --space-3: calc(0.75rem * var(--density) * var(--pattern-density, 1));
+  --space-4: calc(1rem * var(--density) * var(--pattern-density, 1));
+  --space-5: calc(1.5rem * var(--density) * var(--pattern-density, 1));
+  --space-6: calc(2.5rem * var(--density) * var(--pattern-density, 1));
+  --space-7: calc(3.5rem * var(--density) * var(--pattern-density, 1));
 }
 
 /* --- token aliases for embedded renderers ---------------------------

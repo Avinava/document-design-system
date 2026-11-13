@@ -1,15 +1,5 @@
 <article class="doc">
-  <header class="doc-hero">
-    <p class="eyebrow">Incident review · INC-2026-07-30</p>
-    <h1>One full queue stopped every ingestion producer</h1>
-    <p class="lede">For 1 hour 52 minutes, a single saturated queue turned local backpressure into a platform-wide halt. Consumer scaling restored service; it did not remove the failure mode.</p>
-    <div class="doc-meta" aria-label="Incident metadata">
-      <span><strong>Status:</strong> Final</span>
-      <span><strong>Window:</strong> 2026-07-30 14:12–16:04 UTC</span>
-      <span><strong>Owner:</strong> Platform</span>
-      <span><strong>Severity:</strong> SEV-1</span>
-    </div>
-  </header>
+  <header class="doc-hero"><div class="hero-band" role="group" aria-label="Severity and impact"><strong>SEV-1</strong><ul><li><b>1h 52m</b> producer disruption</li><li><b>118 min</b> peak warehouse lag</li><li><b>3</b> producer domains</li></ul></div><p class="eyebrow">Incident review · INC-2026-07-30</p><h1>One full queue stopped every ingestion producer</h1><p class="lede">For 1 hour 52 minutes, a single saturated queue turned local backpressure into a platform-wide halt. Consumer scaling restored service; it did not remove the failure mode.</p><div class="doc-meta" aria-label="Incident metadata"><span><strong>Status:</strong> Final</span><span><strong>Window:</strong> 2026-07-30 14:12–16:04 UTC</span><span><strong>Owner:</strong> Platform</span><span><strong>Severity:</strong> SEV-1</span></div></header>
 
   <section aria-labelledby="impact">
     <p class="component-label" id="impact">Impact at a glance</p>

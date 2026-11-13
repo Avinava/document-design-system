@@ -263,6 +263,8 @@ def check_modules(root: Path) -> None:
     Every registered class has CSS and every module class in the CSS is
     registered; each pattern's characteristic modules are used by at least one
     of its examples; and no body uses a module its pattern does not allow.
+    The Openings table is held to the same standard: one opening per pattern,
+    unique, styled, and used by every body of the pattern.
     """
     if not (root / catalog.PATTERNS_CSS).is_file() or not (root / catalog.PATTERNS_MD).is_file():
         return
@@ -279,8 +281,20 @@ def check_modules(root: Path) -> None:
         name: (pattern, catalog.body_classes(path.read_text(encoding="utf-8")))
         for name, (pattern, path) in catalog.example_bodies(root, types).items()
     }
-    for message in catalog.module_problems(modules, patterns, catalog.stylesheet_classes(root), bodies):
+    try:
+        openings = catalog.load_openings(root)
+    except catalog.CatalogError as exc:
+        error(catalog.PATTERNS_MD, str(exc))
+        openings = {}
+    css_classes = catalog.stylesheet_classes(root)
+    for message in catalog.module_problems(modules, patterns, css_classes, bodies, catalog.hero_parts(openings)):
         error(catalog.PATTERNS_MD, message)
+    if not openings:
+        error(catalog.PATTERNS_MD, "no '## Openings' table")
+    else:
+        css_text = (root / catalog.PATTERNS_CSS).read_text(encoding="utf-8")
+        for message in catalog.opening_problems(openings, patterns, css_classes, css_text, bodies):
+            error(catalog.PATTERNS_MD, message)
     for slug in catalog.COMPOSED:
         if not (root / catalog.COMPOSED_DIR / f"{slug}.html").is_file():
             error(catalog.COMPOSED_DIR / f"{slug}.html", f"missing body for composed example {slug}")

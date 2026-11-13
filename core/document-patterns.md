@@ -40,6 +40,34 @@ The invariant is that they support the same reading movement. Each
 characteristic module is named as it appears in the module registry below, and
 at least one example of the pattern uses it.
 
+## Openings
+
+A pattern owns its opening: the first screen is built for the reader movement,
+not shared by every document. Each opening is one or more hero parts placed
+inside `.doc-hero`, and each pattern's section in `core/document-patterns.css`
+gives `html[data-pattern="…"] .doc-hero` its grid. Every body of a pattern uses
+its pattern's parts, and no two patterns share an opening or a part.
+
+| Pattern | Opening | Hero parts |
+|---|---|---|
+| `decision` | Split hero with the facts a decider needs at the side | `hero-aside` |
+| `record` | Status stamp plus record number | `hero-stamp` |
+| `contract` | Index masthead | `hero-index` |
+| `procedure` | Precondition checklist cover | `hero-checklist` |
+| `learning` | Outcome first, with a generous measure | `hero-outcome` |
+| `system` | The map in the hero | `hero-figure` |
+| `incident` | Full-width severity band with impact numbers | `hero-band` |
+| `suite` | Service index | `hero-services` |
+| `plan` | Milestone-rail masthead | `hero-rail` |
+| `assurance` | Verdict stamp | `hero-verdict` |
+| `brief` | Dated compact masthead on a one-screen grid | `hero-dateline` |
+
+A pattern also sets its own pace in the same section of the stylesheet:
+`--pattern-density` (multiplies the theme's `--density`), `--doc-max`, the
+section gap and rule weight, the reading measure, and the section-number style.
+Hero parts are shell classes, listed here and in `scripts/catalog.py`; they
+are not modules and are not used outside `.doc-hero`.
+
 ## Selection
 
 Use a type when one fits; compose from a pattern when none does.
