@@ -58,6 +58,14 @@ HAND_DIAGRAMS = [
     "queue-split-change",
     "ingest-deployment",
     "workstream-dependencies",
+    "late-recovery-causes",
+    "response-journey",
+    "backpressure-loop",
+    "status-cadence",
+    "ingestion-evolution",
+    "event-lifecycle",
+    "operator-story-map",
+    "lag-recovery-states",
 ]
 
 # output -> (template, theme)
