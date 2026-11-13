@@ -69,6 +69,7 @@ A theme that changes only color is not a theme — `core/tokens.md` is explicit.
 - **Typography** — display, body, and mono families, with real fallbacks. Ask about licensing before planning to load a font.
 - **Corner radius** — read it off real UI, keep it in the 0–8px band.
 - **Border character** — hairline versus solid, and how strong dividers are.
+- **Voice**: how large and heavy headings run against body text (`--scale-ratio`, `--display-weight`, `--display-transform`), how tight the spacing is (`--density`), and how heavy the rules are. Read them off real headings and spacing, not off the colours.
 - **Temperature** — whether the neutrals lean warm or cool. This carries a surprising amount of brand identity and costs nothing.
 
 ## The report to show the user

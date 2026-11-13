@@ -20,6 +20,9 @@ fixture, a CI log, and a reviewer all point at the same rule:
     grid             rect geometry sits on the 4px grid
     node-overlap     node boxes do not overlap
     bounds           nothing falls outside the viewBox (text at 0.6em per char)
+    text-fit         a node's text fits inside its box (estimated width, 4px padding)
+    layout-budget    node and edge counts stay within the size preset's budget
+    contrast         text colour against its backing, resolved in every theme
     label-occluded   no node painted after an edge label covers its backing
     label-gap        an edge label sits at least 6px clear of its edge
     attach-spacing   attachment points on one node side are at least 12px apart
@@ -49,6 +52,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import audit_theme  # noqa: E402  (sibling script; owns the contrast maths and theme parsing)
+
 SVG_NS = "http://www.w3.org/2000/svg"
 
 RULES = (
@@ -64,6 +70,9 @@ RULES = (
     "grid",
     "node-overlap",
     "bounds",
+    "text-fit",
+    "layout-budget",
+    "contrast",
     "label-occluded",
     "label-gap",
     "attach-spacing",
@@ -91,6 +100,23 @@ ATTACH_TOLERANCE = 2
 MIN_LEGEND_FONT = 11
 MAX_CALLOUTS = 2
 BOUNDS_TOLERANCE = 0.5
+
+# Layout budget per size preset: (viewBox width, max nodes, max edges). The one
+# place these numbers live; skills/diagram-design/references/primitives.md
+# documents them. A figure over budget wants splitting, not squeezing.
+LAYOUT_BUDGETS = {
+    "print-portrait": (640, 10, 14),
+    "doc-inline": (720, 14, 20),
+    "print-landscape": (980, 18, 26),
+    "full-width": (1100, 24, 36),
+}
+TEXT_PADDING = 4
+SANS_FIT_EM = 0.55        # proportional faces average narrower than the 0.6em bounds estimate; mono keeps 0.6
+MIN_TEXT_CONTRAST = 4.5
+MIN_SOFT_CONTRAST = 3.0   # --soft is the advisory tertiary ink (see audit_theme.PAIRS)
+LARGE_TEXT_PX = 18
+DEFAULT_TEXT_FILL = "ink"
+DEFAULT_BACKING = "paper"
 
 COLOR_ATTRS = ("fill", "stroke", "stop-color", "flood-color", "lighting-color", "color")
 COLOR_KEYWORDS = {"none", "transparent", "currentcolor", "inherit"}
@@ -177,6 +203,65 @@ def _segment_hits_box(a, b, box: Box) -> bool:
         if t0 > t1:
             return False
     return True
+
+
+# ------------------------------------------------------------ theme colour
+
+_THEME_CACHE: dict[str, dict[str, str]] | None = None
+
+
+def theme_tokens() -> dict[str, dict[str, str]]:
+    """Per theme: token name (no dashes) -> CSS value, base.css defaults under the theme's own."""
+    global _THEME_CACHE
+    if _THEME_CACHE is None:
+        base_path = audit_theme.ROOT / "core" / "base.css"
+        base = audit_theme.declarations(base_path.read_text(encoding="utf-8")) if base_path.is_file() else {}
+        out: dict[str, dict[str, str]] = {}
+        for path in sorted(audit_theme.THEMES.glob("*.css")):
+            merged = {**base, **audit_theme.declarations(path.read_text(encoding="utf-8"))}
+            out[path.stem] = {k[2:]: v for k, v in merged.items()}
+        _THEME_CACHE = out
+    return _THEME_CACHE
+
+
+def var_token(value: str | None) -> str | None:
+    m = VAR_RE.search(value or "")
+    return m.group(1) if m else None
+
+
+RGBA_RE = re.compile(r"rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)(?:[\s,/]+([\d.]+%?))?\s*\)")
+HEX_RE = re.compile(r"#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})")
+ALIAS_RE = re.compile(r"var\(\s*--([a-z0-9-]+)\s*\)")
+
+
+def resolve_color(tokens: dict[str, str], name: str | None, depth: int = 0):
+    """A token as (r, g, b, a), following var() aliases; None for anything that is not a plain colour."""
+    if name is None or depth > 8 or name not in tokens:
+        return None
+    value = tokens[name].strip()
+    alias = ALIAS_RE.fullmatch(value)
+    if alias:
+        return resolve_color(tokens, alias.group(1), depth + 1)
+    if HEX_RE.fullmatch(value):
+        h = value.lstrip("#")
+        h = "".join(c * 2 for c in h) if len(h) == 3 else h
+        return (*(int(h[i : i + 2], 16) for i in (0, 2, 4)), 1.0)
+    m = RGBA_RE.fullmatch(value)
+    if m:
+        a = m.group(4)
+        alpha = 1.0 if a is None else (float(a[:-1]) / 100 if a.endswith("%") else float(a))
+        return (int(m.group(1)), int(m.group(2)), int(m.group(3)), alpha)
+    return None
+
+
+def flatten(fg, bg):
+    """Composite a possibly translucent colour over an opaque backing."""
+    a = fg[3]
+    return tuple(fg[i] * a + bg[i] * (1 - a) for i in range(3)) + (1.0,)
+
+
+def as_hex(c) -> str:
+    return "#" + "".join(f"{int(round(v)):02x}" for v in c[:3])
 
 
 # ------------------------------------------------------------------ parsing
@@ -642,6 +727,71 @@ class Checker:
         label = "".join(texts[0].itertext()).strip() if texts else ""
         return f'"{label}"' if label else "(unlabelled)"
 
+    # --- text fit, budget, contrast
+
+    def text_fit(self, items: list[Item]) -> None:
+        for g in self.root.iter():
+            if local(g.tag) != "g" or "node" not in classes(g):
+                continue
+            rect = next((it for it in items if it.kind == "rect" and it.el in list(g)), None)
+            if rect is None:
+                continue
+            box = rect.box
+            for it in items:
+                if it.kind != "text" or g not in it.groups or it.box is None:
+                    continue
+                label = "".join(it.el.itertext()).strip()
+                width = it.box.x1 - it.box.x0
+                if "mono" not in (prop(it.el, "font-family") or prop(g, "font-family") or ""):
+                    width *= SANS_FIT_EM / CHAR_EM
+                if width > (box.x1 - box.x0) - 2 * TEXT_PADDING:
+                    self.fail("text-fit", f'text "{label[:40]}" needs about {_fmt(width)}px; node {self.name(g)} '
+                              f"is {_fmt(box.x1 - box.x0)}px wide with {TEXT_PADDING}px padding; shorten, wrap or widen")
+                elif it.box.y0 < box.y0 or it.box.y1 > box.y1:
+                    self.fail("text-fit", f'text "{label[:40]}" runs outside node {self.name(g)} vertically')
+
+    def layout_budget(self, vb) -> None:
+        name = min(LAYOUT_BUDGETS, key=lambda k: abs(LAYOUT_BUDGETS[k][0] - vb[2]))
+        _, max_nodes, max_edges = LAYOUT_BUDGETS[name]
+        nodes = sum(1 for g in self.root.iter() if local(g.tag) == "g" and "node" in classes(g))
+        edges = sum(1 for e in self.root.iter() if local(e.tag) in {"path", "line"} and "edge" in classes(e))
+        if nodes > max_nodes:
+            self.fail("layout-budget", f"{nodes} nodes; the {name} preset allows {max_nodes}; split the figure")
+        if edges > max_edges:
+            self.fail("layout-budget", f"{edges} edges; the {name} preset allows {max_edges}; split the figure")
+
+    def contrast(self, items: list[Item]) -> None:
+        rects = [it for it in items if it.kind == "rect" and var_token(prop(it.el, "fill"))]
+        for theme, tokens in theme_tokens().items():
+            page = resolve_color(tokens, DEFAULT_BACKING)
+            if page is None:
+                continue
+            for it in items:
+                if it.kind != "text" or it.box is None:
+                    continue
+                fg_token = var_token(prop(it.el, "fill")) or DEFAULT_TEXT_FILL
+                cx, cy = (it.box.x0 + it.box.x1) / 2, (it.box.y0 + it.box.y1) / 2
+                backing = DEFAULT_BACKING
+                for r in rects:
+                    if r.box.x0 <= cx <= r.box.x1 and r.box.y0 <= cy <= r.box.y1:
+                        backing = var_token(prop(r.el, "fill"))
+                bg_raw, fg_raw = resolve_color(tokens, backing), resolve_color(tokens, fg_token)
+                if bg_raw is None or fg_raw is None:
+                    continue
+                bg = flatten(bg_raw, page)      # a translucent tint paints over the page
+                fg = flatten(fg_raw, bg)
+                ratio = audit_theme.contrast(as_hex(fg), as_hex(bg))
+                if it.font_size >= LARGE_TEXT_PX:
+                    need = 3.0
+                elif fg_token == "soft":
+                    need = MIN_SOFT_CONTRAST
+                else:
+                    need = MIN_TEXT_CONTRAST
+                if ratio < need:
+                    label = "".join(it.el.itertext()).strip()
+                    self.fail("contrast", f'text "{label[:40]}" ({fg_token} on {backing}) is {ratio:.1f}:1 in '
+                              f"theme {theme}; needs {need:g}:1")
+
     # --- emphasis
 
     def emphasis(self, items: list[Item]) -> None:
@@ -677,6 +827,10 @@ class Checker:
             self.geometry(vb, items)
         if self.full:
             self.emphasis(items)
+            self.text_fit(items)
+            if vb is not None:
+                self.layout_budget(vb)
+            self.contrast(items)
         return self.findings
 
 
@@ -752,7 +906,11 @@ def title_id(text: str) -> str | None:
 
 
 def default_inputs(root: Path) -> list[Path]:
-    paths = sorted((root / "examples").glob("*.svg")) + sorted((root / "examples").glob("*.html"))
+    paths = (
+        sorted((root / "examples").glob("*.svg"))
+        + sorted((root / "examples" / "diagrams").glob("*.svg"))
+        + sorted((root / "examples").glob("*.html"))
+    )
     template = root / "templates" / "diagram.svg"
     if template.is_file():
         paths.append(template)

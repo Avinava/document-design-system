@@ -1,0 +1,4 @@
+{"type": "excalidraw", "elements": [
+  {"id": "a", "type": "rectangle"},
+  {"id": "arrow", "type": "arrow", "startBinding": {"elementId": "a"}, "endBinding": null}
+]}

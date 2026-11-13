@@ -38,4 +38,17 @@
 
   --radius-sm: 2px;
   --radius-md: 4px;
+
+  --text-base: 1rem;
+  --scale-ratio: 1.14;
+  --display-weight: 600;
+  --display-tracking: 0;
+  --display-leading: 1.25;
+  --display-transform: none;
+
+  --density: 0.95;
+  --hero-rule-width: 4px;
+  --section-rule-width: 1px;
+  --eyebrow-tracking: 0.1em;
+  --eyebrow-transform: uppercase;
 }

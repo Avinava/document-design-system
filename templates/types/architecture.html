@@ -1,15 +1,9 @@
 <article class="doc">
-  <header class="doc-hero">
-    <p class="eyebrow">Current-state architecture · Northwind Ingestion</p>
-    <h1>One producer-facing gateway, one shared queue, one warehouse landing path</h1>
-    <p class="lede">This page describes production as it exists on 2026-08-18. Proposed dispatcher and split-queue components are shown only as a clearly marked future state.</p>
-    <div class="doc-meta" aria-label="Architecture metadata"><span><strong>As of:</strong> 2026-08-18</span><span><strong>Owner:</strong> Platform</span><span><strong>Scope:</strong> HTTP acceptance through warehouse write</span><span><strong>Change proposal:</strong> RFC 014</span></div>
-  </header>
+  <header class="doc-hero"><p class="eyebrow">Current-state architecture · Northwind Ingestion</p><h1>One producer-facing gateway, one shared queue, one warehouse landing path</h1><p class="lede">This page describes production as it exists on 2026-08-18. Proposed dispatcher and split-queue components are shown only as a clearly marked future state.</p><div class="doc-meta" aria-label="Architecture metadata"><span><strong>As of:</strong> 2026-08-18</span><span><strong>Owner:</strong> Platform</span><span><strong>Scope:</strong> HTTP acceptance through warehouse write</span><span><strong>Change proposal:</strong> RFC 014</span></div><figure class="figure hero-figure"><div class="diagram-scroll"><!-- @FIG platform-architecture --></div><figcaption>The dispatcher and two queues are proposed. Production still follows the single <code>ingest</code> queue path.</figcaption></figure></header>
 
   <section aria-labelledby="context">
     <h2 id="context">System context and boundary</h2>
     <p>Checkout, Catalog, and Inventory are first-party producers. The gateway authenticates and accepts their events. The warehouse and its readers are downstream. Batch imports are a separate path and outside this architecture page.</p>
-    <div class="system-map diagram-scroll"><!-- @FIG platform-architecture --><p class="evidence">The dispatcher and two queues are proposed. Production still follows the single <code>ingest</code> queue path.</p></div>
   </section>
 
   <div class="system-layout">

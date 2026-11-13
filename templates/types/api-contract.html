@@ -1,15 +1,5 @@
 <article class="doc">
-  <header class="doc-hero">
-    <p class="eyebrow">API companion · v1</p>
-    <h1>Events API: accept once, identify clearly, retry safely</h1>
-    <p class="lede">Use this page to understand producer behavior. The machine-readable source remains <code>openapi/events.yaml</code>; this companion explains the decisions callers most often get wrong.</p>
-    <div class="doc-meta" aria-label="API metadata">
-      <span><strong>Audience:</strong> producer teams</span>
-      <span><strong>Auth:</strong> mTLS + audience claim</span>
-      <span><strong>Version:</strong> v1</span>
-      <span><strong>Source:</strong> OpenAPI</span>
-    </div>
-  </header>
+  <header class="doc-hero"><p class="eyebrow">API companion · v1</p><h1>Events API: accept once, identify clearly, retry safely</h1><p class="lede">Use this page to understand producer behavior. The machine-readable source remains <code>openapi/events.yaml</code>; this companion explains the decisions callers most often get wrong.</p><dl class="hero-index" aria-label="API metadata"><div><dt>Audience</dt><dd>producer teams</dd></div><div><dt>Auth</dt><dd>mTLS + audience claim</dd></div><div><dt>Version</dt><dd>v1</dd></div><div><dt>Source</dt><dd>OpenAPI</dd></div></dl></header>
 
   <div class="contract-layout">
     <nav class="contract-index" aria-label="API sections"><p class="component-label">On this page</p><ol><li><a href="#operations">Operations</a></li><li><a href="#conventions">Conventions</a></li><li><a href="#examples">Examples</a></li><li><a href="#errors">Errors</a></li><li><a href="#drift">Known drift</a></li></ol></nav>
@@ -18,6 +8,7 @@
         <h2>Operations</h2>
         <div class="endpoint"><span class="http-method">POST</span><div><h3><code>/events</code></h3><p>Validate and accept one event. Returns <code>202</code> with the event ID and acceptance status.</p></div></div>
         <div class="endpoint"><span class="http-method">GET</span><div><h3><code>/events/{id}</code></h3><p>Look up one event by opaque ID. Returns <code>200</code> or <code>404</code>; this is not a list endpoint.</p></div></div>
+        <figure class="figure"><div class="diagram-scroll"><!-- @FIG event-lifecycle --></div><figcaption>One event across three calls: accept, repeat the same ID, look it up. A repeat never creates a second row.</figcaption></figure>
       </section>
 
       <section class="section" id="conventions">
@@ -47,11 +38,11 @@ X-Request-Id: req_7f4
 
       <section class="section" id="errors">
         <h2>Error catalog</h2>
-        <div class="table-scroll"><table><caption>Stable error codes</caption><thead><tr><th scope="col">Code</th><th scope="col">Meaning</th><th scope="col">Retry?</th><th scope="col">Caller action</th></tr></thead><tbody>
-          <tr><td><code>INGEST_SHED</code></td><td>Selected queue unavailable</td><td>Yes</td><td>Back off and resend the same ID</td></tr>
-          <tr><td><code>INVALID_EVENT</code></td><td>Envelope failed schema validation</td><td>No</td><td>Correct the payload</td></tr>
-          <tr><td><code>UNAUTHORIZED_PRODUCER</code></td><td>Identity or audience not accepted</td><td>No</td><td>Correct service identity or audience</td></tr>
-        </tbody></table></div>
+        <ul class="error-catalog" aria-label="Stable error codes">
+          <li><code>INGEST_SHED</code><b data-tone="positive">Retry</b><span><small>Meaning</small>Selected queue unavailable</span><span><small>Caller action</small>Back off and resend the same ID</span></li>
+          <li><code>INVALID_EVENT</code><b data-tone="critical">No retry</b><span><small>Meaning</small>Envelope failed schema validation</span><span><small>Caller action</small>Correct the payload</span></li>
+          <li><code>UNAUTHORIZED_PRODUCER</code><b data-tone="critical">No retry</b><span><small>Meaning</small>Identity or audience not accepted</span><span><small>Caller action</small>Correct service identity or audience</span></li>
+        </ul>
       </section>
 
       <section class="section" id="drift">

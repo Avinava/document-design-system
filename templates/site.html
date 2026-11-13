@@ -194,10 +194,10 @@
   <div>
     <h1 class="site-title">Documents that get a reader to a decision</h1>
     <p class="site-lead">Name the reader and the question they bring. The question picks the document's shape; the audience picks its voice; both sit on the same facts.</p>
-    <p class="site-lead">Six skills for documents, reports, diagrams, charts, decks and brand themes, on one set of design tokens. Writing lands as Markdown in your repository; designed HTML, when you ask for it, needs no JavaScript and prints.</p>
+    <p class="site-lead">Six skills for documents, reports, diagrams, charts, decks and brand themes, on one set of design tokens. Writing lands as Markdown in your repository; designed HTML, when you ask for it, needs no JavaScript, prints, and can use the full width of a wide screen.</p>
     <pre class="install"><code>/plugin marketplace add Avinava/document-design-system
 /plugin install document-design-system@document-design-system</code></pre>
-    <p class="install-note">Claude Code plugin. Each skill also installs on its own with <code>npx skills add Avinava/document-design-system</code>.</p>
+    <p class="install-note">Claude Code plugin. Each skill also installs on its own with <code>npx skills add Avinava/document-design-system</code>. New here? <a href="how-it-works.html">See how it works</a>.</p>
   </div>
   <aside class="asks" aria-labelledby="asks-title">
     <h2 id="asks-title">Then ask in plain words</h2>
@@ -258,7 +258,7 @@
   <div class="figure-grid">
     <!-- @@FIGURES -->
   </div>
-  <p class="inputs">Mermaid and draw.io files are inputs: their structure is imported and redrawn. SVG on tokens is the output. <a href="figures.html">Open every figure</a>.</p>
+  <p class="inputs">Mermaid, draw.io, Excalidraw and PlantUML files are inputs: their structure is imported and redrawn. SVG on tokens is the output. <a href="figures.html">Open every figure</a>.</p>
 </section>
 
 <section class="site-section" id="checks" aria-labelledby="checks-title">
@@ -274,7 +274,7 @@
     <thead><tr><th scope="col">Skill</th><th scope="col">Owns</th><th scope="col">Does not own</th></tr></thead>
     <tbody>
       <tr><td><a href="inventory-report.html">analytical-document-design</a></td><td>Evidence models, metric semantics, denominators, report architecture</td><td>Prose-first documents, slides, standalone charts</td></tr>
-      <tr><td><a href="figures.html">diagram-design</a></td><td>When a diagram earns its place; @@FORMS_WORD forms; Mermaid and draw.io structure imported and redrawn as token SVG; geometry checks</td><td>Quantitative charts, UI mockups, editable diagram files as output</td></tr>
+      <tr><td><a href="figures.html">diagram-design</a></td><td>When a diagram earns its place; @@FORMS_WORD forms; Mermaid, draw.io, Excalidraw and PlantUML structure imported and redrawn as token SVG; geometry, text-fit and contrast checks</td><td>Quantitative charts, UI mockups, editable diagram files as output</td></tr>
       <tr><td><a href="estimate.html">chart-design</a></td><td>Chart selection, axis honesty, token palettes, a waterfall that checks its totals</td><td>Narrative structure, dashboards as applications</td></tr>
       <tr><td><a href="capacity-deck.html">presentation-design</a></td><td>16:9 HTML slides, claim titles, one idea per slide, PDF</td><td>Documents meant to be read; editable slide files</td></tr>
       <tr><td><a href="types.html">writing-documents</a></td><td>@@TYPES_WORD_CAP presets across @@PATTERNS_WORD patterns, and composition when none fits; Markdown by default</td><td>Metric-led reports; casual edits to existing Markdown</td></tr>
@@ -284,11 +284,13 @@
 </section>
 
 <section class="site-section" id="new" aria-labelledby="new-title">
-  <h2 id="new-title">What's new in 0.5.0</h2>
+  <h2 id="new-title">What's new in @@VERSION</h2>
   <ul class="news">
-    <li><strong>Compose when no type fits</strong><p>Route by the reader's question to a pattern, then build from the modules that pattern allows. The <a href="platform-primer.html">platform primer</a> is the worked example.</p></li>
-    <li><strong>Figures you can check</strong><p>Change view, deployment map and dependency graph join the diagram forms; a waterfall bridge joins the charts. Geometry and rendered bounds are checked, and draw.io or Mermaid files import as structure.</p></li>
-    <li><strong>One catalog, pinned tools</strong><p>Types, patterns and modules are read from the type files and one module registry. The authoring toolchain is pinned to exact versions, and the attribution is corrected.</p></li>
+    <li><strong>Voices that sound different</strong><p>Themes now set type scale, density and ornament, not only colour. <code>serif-editorial</code> and <code>condensed-report</code> join the house themes, and no two themes may share a voice. <a href="themes.html">Compare them</a>.</p></li>
+    <li><strong>Each pattern opens its own way</strong><p>A runbook opens on a precondition checklist and a postmortem on a severity band. Every type body also has a module of its own, from @@MODULES_WORD registered, and a document can ask for the full width of a wide screen.</p></li>
+    <li><strong>More figures, drawn where they help</strong><p>Journey, story map, event model, fishbone, cycle, evolution map and pyramid join the diagram forms, and figures now sit in the documents whose reader needs them. <a href="figures.html">Open every figure</a>.</p></li>
+    <li><strong>Stricter figure checks and more importers</strong><p>Text must fit its box, each size has a node budget, and every text colour must hold contrast in every theme. Excalidraw and PlantUML files import beside draw.io and Mermaid, with a doctor and a per-theme exporter.</p></li>
+    <li><strong>A front door and design records</strong><p>A <a href="how-it-works.html">How it works</a> page explains the plugin in plain words, and the decisions behind the structure are written down in <code>docs/</code>.</p></li>
   </ul>
 </section>
 

@@ -11,6 +11,9 @@ same facts.
     index.html     claim and install, the core shown once, the story in four
                    acts by the reader's job (ACTS and STORY below), figures,
                    checks, skills, what's new, and the pinned toolchain
+    how-it-works.html  the plain-language front door: what you type, the seven
+                   steps of a request (one hand-drawn figure), the two choices
+                   on real documents, a glossary and the install block
     types.html     the Patterns page: reader's question -> pattern -> presets
     modules.html   one specimen per registered module
 
@@ -117,15 +120,15 @@ STORY = (
     Stop("understand", "discovery.html", "Platform, before funding the build", TYPE_QUESTIONS["discovery"],
          "decision", "Decision pattern",
          "It ends on a next move: go, stop or reframe RFC 014, with the one-queue-down test that decides.",
-         "field-notes", "thumbs/discovery.png", "2026-08-18", "Window closed", "examples/discovery.md"),
+         "serif-editorial", "thumbs/discovery.png", "2026-08-18", "Window closed", "examples/discovery.md"),
     Stop("decide", "design-doc.html", "the Platform director, with Reliability and the producer teams reviewing",
          TYPE_QUESTIONS["design-doc"], "decision", "Decision pattern",
          "The ask and its deadline come first, then options on the same criteria and a change view of one queue becoming two.",
-         "field-notes", "thumbs/design-doc.png", "2026-09-01", "Decide by", "examples/design-doc.md"),
+         "serif-editorial", "thumbs/design-doc.png", "2026-09-01", "Decide by", "examples/design-doc.md"),
     Stop("decide", "estimate.html", "the Platform director", TYPE_QUESTIONS["estimate"],
          "decision", "Decision pattern",
          "The number and its confidence lead; a waterfall adds up to 24 engineer-weeks and draws CR-003 without counting it.",
-         "executive-navy", "thumbs/estimate.png", "2026-08-26", "As of", "examples/estimate.md"),
+         "condensed-report", "thumbs/estimate.png", "2026-08-26", "As of", "examples/estimate.md"),
     Stop("decide", "capacity-deck.html", "the Platform director, in the room", "What are you asking me for, and by when?",
          None, "Deck",
          "The same decision in another medium: one claim per slide, and the options compared on the same criteria.",
@@ -133,15 +136,15 @@ STORY = (
     Stop("deliver", "delivery-plan.html", "Platform, Reliability and the producer teams", TYPE_QUESTIONS["delivery-plan"],
          "plan", "Plan pattern",
          "Baseline, workstreams, dependencies, then five gates; the critical path is the one accent in the dependency graph.",
-         "executive-navy", "thumbs/delivery-plan.png", "2026-08-31", "Baseline from", "examples/delivery-plan.md"),
+         "condensed-report", "thumbs/delivery-plan.png", "2026-08-31", "Baseline from", "examples/delivery-plan.md"),
     Stop("deliver", "status-report.html", "the Platform director, Platform and Reliability", TYPE_QUESTIONS["status-report"],
          "brief", "Brief pattern",
          "Amber first, then what moved, then the one action each reader owns before the next report.",
-         "executive-navy", "thumbs/status-report.png", "2026-08-26", "Period ending", "examples/status-report.md"),
+         "condensed-report", "thumbs/status-report.png", "2026-08-26", "Period ending", "examples/status-report.md"),
     Stop("deliver", "readiness-review.html", "Reliability, which approves the gate", TYPE_QUESTIONS["readiness-review"],
          "assurance", "Assurance pattern",
          "The verdict comes first with its evidence beside it: conditional go until chaos and rollback evidence close.",
-         "console-violet", "thumbs/readiness-review.png", "2026-10-28", "Review", "examples/readiness-review.md"),
+         "condensed-report", "thumbs/readiness-review.png", "2026-10-28", "Review", "examples/readiness-review.md"),
     Stop("deliver", "migration-plan.html", "Platform, running the cutover", TYPE_QUESTIONS["migration-plan"],
          "plan", "Plan pattern",
          "Rehearsal, sequence and gates, one partition at a time, with the original queue kept until hypercare closes.",
@@ -154,7 +157,7 @@ STORY = (
          COMPOSED_GALLERY["platform-primer"][1], "learning", "Learning pattern, composed",
          "No preset answers it. The question picks the learning pattern, and the page is composed from that "
          "pattern's modules: a scope strip, a learning goal, a crosswalk and takeaways.",
-         "field-notes", "thumbs/platform-primer.png"),
+         "serif-editorial", "thumbs/platform-primer.png"),
 )
 
 # Who each voice is for, in the examples' own theme rules (WORLD.md).
@@ -162,6 +165,8 @@ THEME_AUDIENCE = {
     "console-violet": "Engineers on the incident, the gate and the pager",
     "executive-navy": "Leadership deciding and funding",
     "field-notes": "Internal working documents",
+    "serif-editorial": "Reading and deciding: essays, records and explanations",
+    "condensed-report": "Scanning status, plans, estimates and registers",
     "editorial-coral": "Analysis for a wider review",
 }
 
@@ -191,13 +196,33 @@ ASKS = (
 # Inline figures on the homepage: (svg slug, form, reader question, [(page, label)]).
 FIGURES = (
     ("queue-split-change", "Change view", "What changes, and what stays the same?",
-     (("design-doc.html", "design doc"), ("migration-plan.html", "migration plan"))),
+     (("design-doc.html", "design doc"), ("migration-plan.html", "migration plan"),
+      ("release-notes.html", "release notes"))),
     ("ingest-deployment", "Deployment map", "Where does each part run?",
      (("architecture.html", "architecture guide"), ("runbook.html", "runbook"))),
     ("workstream-dependencies", "Dependency graph", "What blocks what, and which path sets the date?",
      (("delivery-plan.html", "delivery plan"),)),
     ("estimate-bridge", "Waterfall bridge", "How do the parts add up to the total?",
      (("estimate.html", "estimate"),)),
+)
+
+# One specimen per diagram form whose layout has no other home, drawn by hand
+# in examples/diagrams/: (slug, form, reader question, what the layout does).
+FORM_SPECIMENS = (
+    ("journey", "Journey", "What does a person do, feel and run into, stage by stage?",
+     "Stages run left to right; doing, pain and a feeling line sit in rows beneath. A service blueprint adds backstage rows."),
+    ("story-map", "Story map", "What is the thinnest slice that works end to end?",
+     "Activities across the top in order of use, stories stacked under each, releases as horizontal bands."),
+    ("event-model", "Event model", "What does the system record, and what reads it back?",
+     "Time runs left to right across screen, command, event and read-model lanes."),
+    ("fishbone", "Fishbone", "What could be causing this effect?",
+     "A spine points at the effect; cause families branch off as bones, candidate causes as ticks."),
+    ("cycle", "Cycle", "What reinforces what, round a closed loop?",
+     "Steps on a ring, read clockwise; a closed curve is the claim that the loop feeds itself."),
+    ("evolution-map", "Evolution map", "How visible is each part, and how far has it evolved?",
+     "Visibility runs top to bottom, evolution left to right from genesis to commodity."),
+    ("pyramid", "Pyramid", "How many of each, when the cost per item rises as you climb?",
+     "A layer stack whose widths are the quantity at each level, narrowest where each item costs most."),
 )
 
 
@@ -236,6 +261,7 @@ HTML_KEEP = {
     "proposal-coral.html": back_to_site_page("themes.html", "Themes"),
     "brand.html": back_to_site_page("themes.html", "Themes"),
     "mulesoft.html": ("types.html#profiles", "← Patterns", "Back to the compatibility profiles"),
+    "architecture-wide.html": back_to_pattern(catalog.TYPES["architecture"].pattern),
 }
 
 
@@ -351,9 +377,17 @@ def render_voice_rows() -> str:
     rows = []
     for theme, audience in THEME_AUDIENCE.items():
         stops = [s for s in STORY if s.theme == theme]
-        if not stops:
-            sys.exit(f"THEME_AUDIENCE names {theme}, which no story stop wears")
-        used = ", ".join(f'<a href="{s.page}">{esc(stop_title(s))}</a>' for s in stops)
+        links = [(s.page, stop_title(s)) for s in stops]
+        if not links:
+            # A voice the story's own documents do not wear: show its types.
+            links = [
+                (f"{slug}.html", t.title.lower())
+                for slug, t in sorted(catalog.TYPES.items())
+                if t.default_theme == theme
+            ][:3]
+        if not links:
+            sys.exit(f"THEME_AUDIENCE names {theme}, which no document wears")
+        used = ", ".join(f'<a href="{page}">{esc(title)}</a>' for page, title in links)
         rows.append(
             f'<li><span class="who">{esc(audience)}<span class="used">{used}</span></span>'
             f'<span class="maps" aria-hidden="true"></span><span class="to">{esc(theme)}</span></li>'
@@ -389,7 +423,8 @@ def render_asks() -> str:
 def render_figures() -> str:
     out = []
     for slug, form, question, used in FIGURES:
-        where = " and ".join(f'<a href="{page}">{esc(label)}</a>' for page, label in used)
+        links = [f'<a href="{page}">{esc(label)}</a>' for page, label in used]
+        where = ", ".join(links[:-1]) + " and " + links[-1] if len(links) > 1 else links[0]
         out.append(
             f'<figure>\n<div class="diagram-scroll">{figure(slug)}</div>\n'
             f"<figcaption><strong>{esc(form)}.</strong> {esc(question)} In the {where}.</figcaption>\n</figure>"
@@ -397,10 +432,25 @@ def render_figures() -> str:
     return "\n".join(out)
 
 
+def render_form_specimens() -> str:
+    out = []
+    for slug, form, question, layout in FORM_SPECIMENS:
+        svg = (EX / "diagrams" / f"{slug}.svg").read_text(encoding="utf-8").strip()
+        out.append(
+            f'<section class="form-spec" id="form-{slug}" aria-labelledby="form-{slug}-h">\n'
+            f'<h3 id="form-{slug}-h">{esc(form)}</h3>\n'
+            f'<p class="form-q">{esc(question)}</p>\n'
+            f'<div class="frame">{svg}</div>\n'
+            f'<p class="form-layout">{esc(layout)}</p>\n</section>'
+        )
+    return "\n".join(out)
+
+
 def diagram_forms() -> int:
-    """Diagram forms documented in the diagram skill: one `## ` section each."""
+    """Diagram forms documented in the diagram skill: one `## ` section each,
+    except the contents list and the closing note on what was folded in."""
     heads = re.findall(r"^## (.+)$", DIAGRAM_FAMILIES.read_text(encoding="utf-8"), re.M)
-    return len([h for h in heads if h.strip() != "Contents"])
+    return len([h for h in heads if h.strip() != "Contents" and not h.startswith("Folded in")])
 
 
 def render_ledger() -> str:
@@ -415,12 +465,12 @@ def render_ledger() -> str:
          "validate_repository.py"),
         (len(catalog.MODULES), "modules", "Each has CSS, the stylesheet styles nothing unregistered, and no body uses a module its pattern does not allow.",
          "validate_repository.py"),
-        (len(check_diagrams.RULES), "diagram rules", "Shell, colour by token, 4px grid, overlap, bounds, label clearance, one accent family.",
+        (len(check_diagrams.RULES), "diagram rules", "Shell, colour by token, 4px grid, overlap, bounds, text fit, node budget, contrast in every theme, label clearance, one accent family.",
          "check_diagrams.py"),
-        (themes, "themes audited", "Contrast for every text pair, one accent, hue separation from status colours, dark print.",
+        (themes, "themes audited", "Contrast for every text pair, one accent, hue separation from status colours, dark print, no two themes with the same voice.",
          "audit_theme.py --all"),
         (example_pages * widths * render_themes, "page renders",
-         f"{example_pages} pages at 1280px, 390px and print, under {site_parts.words(render_themes)} themes: "
+         f"{example_pages} pages at 1280px, 390px and print (and 1920px for full-width pages), under {site_parts.words(render_themes)} themes: "
          "no sideways scroll, no clipped figure text.",
          "check_render.py"),
     )
@@ -521,6 +571,8 @@ def home_marks(shot: str) -> dict[str, str]:
         "@@PATTERNS_WORD": site_parts.words(len(catalog.PATTERNS)),
         "@@OTHER_PATTERNS_WORD": site_parts.words(len(catalog.PATTERNS) - len(used)),
         "@@FORMS_WORD": site_parts.words(diagram_forms()),
+        "@@MODULES_WORD": site_parts.words(len(catalog.MODULES)),
+        "@@VERSION": json.loads(PLUGIN_JSON.read_text(encoding="utf-8"))["version"],
         "@@SHOT": shot,
         "@@REPO": REPO_URL,
     })
@@ -538,6 +590,198 @@ def home_shots() -> set[str]:
     for marker, value in home_marks(shot).items():
         raw = raw.replace(marker, value)
     return set(re.findall(rf'{shot}/([\w./-]+\.png)', raw))
+
+
+# --------------------------------------------------------------------------
+# how it works page
+# --------------------------------------------------------------------------
+
+WRITING_SKILL = ROOT / "skills" / "writing-documents" / "SKILL.md"
+REQUEST_FLOW = EX / "diagrams" / "request-flow.svg"
+
+# Four documents in four patterns, for the first axis: (type slug). The
+# pattern, the title and the opening are read from the catalog.
+PATTERN_SPECIMENS = ("adr", "postmortem", "runbook", "status-report")
+
+# One proposal body in three voices, for the second axis:
+# (page, label, theme, thumbnail). --check verifies each page wears its theme.
+THEME_SPECIMENS = (
+    ("proposal.html", "Board voice", "executive-navy", "thumbs/proposal.png"),
+    ("proposal-coral.html", "Analytical voice", "editorial-coral", "thumbs/proposal-coral.png"),
+    ("proposal-horizon.html", "Client brand", "horizon", "thumbs/proposal-horizon.png"),
+)
+
+
+def evidence_states() -> list[tuple[str, str]]:
+    """(state, treatment) rows from the writing-documents skill's evidence table."""
+    rows = []
+    for line in WRITING_SKILL.read_text(encoding="utf-8").splitlines():
+        m = re.match(r"\|\s*(Verified|Provided|Inferred|Unresolved|Recommended)\s*\|\s*([^|]+?)\s*\|", line)
+        if m:
+            rows.append((m.group(1), m.group(2)))
+    if len(rows) != 5:
+        sys.exit(f"{WRITING_SKILL.relative_to(ROOT)} lost its five-row evidence table")
+    return rows
+
+
+def render_evidence() -> str:
+    return "\n".join(
+        f'<li class="state-{state.lower()}"><strong>{esc(state)}</strong><span>{esc(treatment)}.</span></li>'
+        for state, treatment in evidence_states()
+    )
+
+
+def render_how_asks() -> str:
+    return "\n".join(
+        f'<li><a href="{page}"><q>{esc(text)}</q><span class="becomes">{esc(becomes)}</span></a></li>'
+        for text, page, becomes in ASKS
+    )
+
+
+def render_how_steps() -> str:
+    themes = len(list((ROOT / "core" / "themes").glob("*.css")))
+    steps = (
+        ("Your request", False,
+         "You name a document, a reader or a question, as a command or in plain words. Nothing else is needed: "
+         "no template to fill in and no vocabulary to learn.",
+         "", ("#type", "The two ways to ask")),
+        ("A type fits, or it is composed", False,
+         "If the request matches a type, or one of its familiar names such as HLD or PRD, that type is used. "
+         "If nothing fits, the plugin composes: it picks the pattern from the reader's question and borrows the "
+         "nearest type's section discipline. A one-off request never adds a type.",
+         "", ("types.html", "Find your question on the Patterns page")),
+        ("Pattern and opening", True,
+         "The pattern fixes the reading order: where the answer sits, what repeats and what the reader does last. "
+         "Each pattern also owns its opening, so the first screen suits the reader.",
+         "A runbook opens on a precondition checklist; a postmortem opens on a severity band with the impact numbers.",
+         ("#axis-pattern", "Four openings side by side")),
+        ("Modules", False,
+         "Reusable parts such as an ask band, a timeline or a checkpoint. A pattern may use only the modules its "
+         "entry in the registry allows, so a runbook cannot grow a decision rail.",
+         "", ("modules.html", f"All {site_parts.words(len(catalog.MODULES))} modules, each with a specimen")),
+        ("Theme and voice", False,
+         "Only for designed HTML or PDF. The audience picks a theme, which sets type, colour and density through "
+         "tokens. Changing the theme never moves a section.",
+         "", ("#axis-theme", "One proposal in three voices")),
+        ("Evidence states", False,
+         "Every claim a reader might not be able to check carries one of five states. A missing fact stays "
+         "unresolved; it is never filled in.",
+         "", ("#evidence", "The five states")),
+        ("Checks", False,
+         "The examples in this repository are built under checks that fail on a problem: "
+         f"{site_parts.words(len(check_diagrams.RULES))} geometry and markup rules on every figure, contrast "
+         f"for every text pair in each of {site_parts.words(themes)} themes, and every page rendered at 1280px, "
+         "390px and in print to catch clipping.",
+         "", ("index.html#checks", "The ledger of checks")),
+    )
+    out = []
+    for number, (title, key, body, sees, (href, label)) in enumerate(steps, 1):
+        seen = f'\n    <p class="sees"><strong>In the examples.</strong> {esc(sees)}</p>' if sees else ""
+        out.append(
+            f'<li class="step{" is-key" if key else ""}" id="step-{number}">\n'
+            f'  <span class="step-num" aria-hidden="true">{number}</span>\n'
+            f"  <div>\n"
+            f'    <h3><span class="sr-only">Step {number}: </span>{esc(title)}</h3>\n'
+            f"    <p>{esc(body)}</p>{seen}\n"
+            f'    <p class="more"><a href="{href}">{esc(label)}</a></p>\n'
+            f"  </div>\n</li>"
+        )
+    return "\n".join(out)
+
+
+def render_pattern_specimens(shot: str) -> str:
+    out = []
+    for slug in PATTERN_SPECIMENS:
+        t = catalog.TYPES[slug]
+        opening = catalog.OPENINGS[t.pattern].name
+        out.append(
+            f'<li><a href="{slug}.html"><img alt="" src="{shot}/thumbs/{slug}.png" width="640" height="400" '
+            f'loading="lazy" decoding="async">'
+            f'<span class="tag">{esc(t.pattern.capitalize())} pattern</span><strong>{esc(t.title)}</strong>'
+            f'<span class="opens">Opens with: {esc(opening[0].lower() + opening[1:])}.</span>'
+            f'<span class="with">{esc(t.default_theme)}</span></a></li>'
+        )
+    return "\n".join(out)
+
+
+def render_theme_specimens(shot: str) -> str:
+    return "\n".join(
+        f'<li><a href="{page}"><img alt="" src="{shot}/{image}" width="640" height="400" loading="lazy" '
+        f'decoding="async"><span class="tag">{esc(label)}</span><strong>{esc(theme)}</strong></a></li>'
+        for page, label, theme, image in THEME_SPECIMENS
+    )
+
+
+def render_glossary() -> str:
+    n = site_parts.words
+    entries = (
+        ("Pattern", "data-pattern",
+         f"The reading order of a document: where the answer sits, what repeats and what the reader does last. "
+         f"There are {n(len(catalog.PATTERNS))}, and each owns its opening.",
+         "types.html", "See the patterns"),
+        ("Preset", "also called a type",
+         f"A ready-made kind of document inside a pattern, such as a runbook or a decision record, with its own "
+         f"command and sections. There are {n(len(catalog.TYPES))}.",
+         "types.html#common-names", "See the presets and their common names"),
+        ("Module", "",
+         f"A reusable part of a page, such as an ask band, a timeline or a checkpoint. A pattern may use only the "
+         f"modules it allows. There are {n(len(catalog.MODULES))}.",
+         "modules.html", "See every module"),
+        ("Theme", "data-theme",
+         "A document's voice: type, colour and density, set through tokens and chosen by audience. "
+         "It never changes the order of the sections.",
+         "themes.html", "Compare the themes"),
+        ("Evidence state", "",
+         "A label on a claim that says how sure it is: verified, provided, inferred, unresolved or recommended.",
+         "#evidence", "See the five states"),
+        ("Compose", "",
+         "To build a document straight from a pattern when no preset fits. The question picks the pattern, and "
+         "only that pattern's modules are used.",
+         "platform-primer.html", "See a composed document"),
+    )
+    return "\n".join(
+        f'<div><dt>{esc(term)}{f" <code>{esc(hint)}</code>" if hint else ""}</dt>'
+        f'<dd>{esc(text)} <a href="{href}">{esc(label)}</a>.</dd></div>'
+        for term, hint, text, href, label in entries
+    )
+
+
+def how_marks(shot: str) -> dict[str, str]:
+    marks = common_marks(
+        "how-it-works.html",
+        "How it works — document-design-system",
+        "What the plugin is in plain words, what you type, the seven steps a request takes, and the two "
+        "choices that shape every document: pattern and theme.",
+    )
+    marks.update({
+        "<!-- @@FAVICON -->": site_parts.FAVICON_LINK,
+        "<!-- @@ASKS -->": render_how_asks(),
+        "<!-- @@FLOW -->": REQUEST_FLOW.read_text(encoding="utf-8").strip(),
+        "<!-- @@STEPS -->": render_how_steps(),
+        "<!-- @@EVIDENCE -->": render_evidence(),
+        "<!-- @@PATTERN_SPECS -->": render_pattern_specimens(shot),
+        "<!-- @@THEME_SPECS -->": render_theme_specimens(shot),
+        "<!-- @@GLOSSARY -->": render_glossary(),
+        "@@MORE_WORD": site_parts.words(len(catalog.TYPES) - 4),
+        "@@TYPES_WORD_CAP": site_parts.words(len(catalog.TYPES)).capitalize(),
+        "@@SKILLS_WORD": site_parts.words(len([p for p in (ROOT / "skills").iterdir() if p.is_dir()])),
+        "@@STOPS_WORD": site_parts.words(len(STORY)),
+        "@@REPO": REPO_URL,
+    })
+    return marks
+
+
+def assemble_how(dest: Path) -> None:
+    _assemble("site-how.html", how_marks("screenshots"), dest)
+
+
+def how_shots() -> set[str]:
+    """Screenshots the How it works page shows, relative to docs/screenshots/."""
+    shot = "@@SHOT"
+    raw = (ROOT / "templates" / "site-how.html").read_text(encoding="utf-8")
+    for marker, value in how_marks(shot).items():
+        raw = raw.replace(marker, value)
+    return set(re.findall(rf"{shot}/([\w./-]+\.png)", raw))
 
 
 # --------------------------------------------------------------------------
@@ -718,6 +962,8 @@ def assemble_figures(dest: Path) -> None:
         "<!-- @@FAVICON -->": site_parts.FAVICON_LINK,
         "/* @@GALLERY_CSS */": css,
         "<!-- @@GALLERY -->": grid,
+        "<!-- @@FORM_SPECIMENS -->": render_form_specimens(),
+        "@@SPECIMEN_WORD_CAP": site_parts.words(len(FORM_SPECIMENS)).capitalize(),
         "@@FORMS_WORD_CAP": site_parts.words(diagram_forms()).capitalize(),
         "@@RULES_WORD_CAP": site_parts.words(len(check_diagrams.RULES)).capitalize(),
         "@@REPO": REPO_URL,
@@ -783,6 +1029,7 @@ def populate(dest: Path) -> None:
             write_page_copy(src, dest / name, back)
 
     assemble_home("screenshots", dest / "index.html")
+    assemble_how(dest / "how-it-works.html")
     assemble_docs_gallery("screenshots/thumbs", dest / "types.html", site=True)
     assemble_modules(dest / "modules.html")
     assemble_figures(dest / "figures.html")
@@ -790,7 +1037,7 @@ def populate(dest: Path) -> None:
     (dest / ".nojekyll").write_text("", encoding="utf-8")
 
 
-SITE_PAGES = ("index.html", "types.html", "modules.html", "figures.html", "themes.html")
+SITE_PAGES = ("index.html", "how-it-works.html", "types.html", "modules.html", "figures.html", "themes.html")
 
 
 def check_built(dest: Path) -> None:
@@ -833,6 +1080,46 @@ def check_built(dest: Path) -> None:
             fail(f"{name} has no dark palette")
     if not (dest / site_parts.SOCIAL_IMAGE).is_file():
         fail(f"missing {site_parts.SOCIAL_IMAGE} — run shoot_examples.py social-preview")
+
+    # In-site links that name an anchor land on an id that exists.
+    for name, text in pages.items():
+        for target, anchor in re.findall(r'href="([\w-]+\.html)#([\w-]+)"', text):
+            if target in pages and f'id="{anchor}"' not in pages[target]:
+                fail(f"{name} links {target}#{anchor}, which has no such anchor")
+    # (modules.html quotes real module markup, whose own links are not ours to check.)
+    for anchor in re.findall(r'href="#([\w-]+)"', pages["how-it-works.html"]):
+        if f'id="{anchor}"' not in pages["how-it-works.html"]:
+            fail(f"how-it-works.html links #{anchor}, which has no such anchor")
+
+    # How it works: the flow figure, the seven steps, five evidence states,
+    # four patterns, three voices, six glossary terms and the install block.
+    how = pages["how-it-works.html"]
+    if '<title id="rf-title"' not in how:
+        fail("how-it-works.html does not inline the request flow figure")
+    if len(re.findall(r'<li class="step[ "]', how)) != 7:
+        fail("how-it-works.html does not walk through seven steps")
+    for state, _ in evidence_states():
+        if f'class="state-{state.lower()}"' not in how:
+            fail(f"how-it-works.html is missing the {state} evidence state")
+    if len(re.findall(r"<dt>", how)) != 6:
+        fail("how-it-works.html glossary does not have six terms")
+    if "/plugin marketplace add Avinava/document-design-system" not in how:
+        fail("how-it-works.html lost the install block")
+    for slug in PATTERN_SPECIMENS:
+        built = (dest / f"{slug}.html").read_text(encoding="utf-8")
+        if f'data-pattern="{catalog.TYPES[slug].pattern}"' not in built:
+            fail(f"how-it-works.html shows {slug} as the {catalog.TYPES[slug].pattern} pattern, which the page is not")
+        if f'href="{slug}.html"' not in how:
+            fail(f"how-it-works.html does not link {slug}.html")
+    for page, _, theme, image in THEME_SPECIMENS:
+        if f'data-theme="{theme}"' not in (dest / page).read_text(encoding="utf-8"):
+            fail(f"how-it-works.html says {page} wears {theme}, which the page does not")
+        if f"screenshots/{image}" not in how:
+            fail(f"how-it-works.html does not show {image}")
+    if "checklist" not in catalog.OPENINGS["procedure"].name.lower() or "severity" not in catalog.OPENINGS["incident"].name.lower():
+        fail("how-it-works.html step 3 describes the runbook and postmortem openings, which the table no longer says")
+    if re.search(r"Lavery|cathrynlavery", how):
+        fail("how-it-works.html names the upstream diagram project; the credit lives only in Built on and the licences")
 
     # Homepage: the story, the patterns, the composed examples, the version.
     if "/plugin marketplace add Avinava/document-design-system" not in home:

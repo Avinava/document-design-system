@@ -5,6 +5,55 @@ All notable changes to this project are documented here. Versions refer to the
 
 ## Unreleased
 
+## 0.6.0
+
+A redesign so that different documents look and read differently, not only in
+colour. The facts, the evidence states and the plugin's commands are unchanged.
+
+### Added
+
+- Two themes, `serif-editorial` (a reading voice) and `condensed-report` (a
+  scanning voice), and voice tokens in the theme contract: type scale, heading
+  weight and case, density, and rule and label ornament. Every theme now
+  declares 33 tokens, and `audit_theme.py --all` fails two themes that share a
+  voice.
+- One opening for each of the eleven patterns, such as a precondition checklist
+  for a runbook and a severity band for a postmortem, recorded in an Openings
+  table in `core/document-patterns.md` and checked against every body.
+- One module of its own for each of the 27 types that only reused generic ones
+  (for example the estimate's range bar, the risk register's exposure board and
+  the threat model's matrix), registered in `core/document-patterns.md`, and a
+  test that every type body uses at least one module no other type uses.
+- A full-width option for designed pages (`--width full`, `data-width="full"`),
+  with a wide architecture example and a 1920px render check.
+- Seven diagram forms: journey, story map, event model, fishbone, cycle,
+  value-chain evolution map and pyramid, each with a specimen in
+  `examples/diagrams/`, plus a reference mapping each reader's question to a
+  form. Twenty-two figures now sit in the example documents where a reader
+  needs them.
+- Diagram checks for text that does not fit its box, a figure over its node
+  budget, and text that falls below contrast in any theme (21 rules in all).
+- Excalidraw and PlantUML import beside draw.io and Mermaid, a
+  `diagram_doctor.py` readiness report, and `export_diagram.mjs` to bake one
+  theme into a standalone SVG or PNG.
+- A How it works page on the site, written for someone who has never used a
+  plugin, and a themes, figures and homepage refresh.
+- `docs/DESIGN.md` and five decision records in `docs/adr/`.
+- New thumbnails and screenshots showing visibly different documents.
+
+### Changed
+
+- Default themes are spread across six themes, so no theme is the default for
+  more than about 30% of the types.
+- Type bodies are rewritten around their own patterns instead of one shared
+  layout.
+- The README now opens with what the plugin is in plain words, example prompts,
+  a glossary and a thumbnail grid; the maintainer-facing check table moved to
+  `CONTRIBUTING.md`, which also says how to add a type, module, theme or
+  diagram form.
+- `AGENTS.md`, `core/README.md`, `examples/README.md`, the skills and the site
+  describe the current themes, forms, tooling and width option.
+
 ## 0.5.0
 
 Compose, don't enumerate. The writing skill now composes a document from a

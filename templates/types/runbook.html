@@ -1,15 +1,5 @@
 <article class="doc">
-  <header class="doc-hero">
-    <p class="eyebrow">Operational runbook · RB-INGEST-01</p>
-    <h1>Recover when ingestion queue lag keeps climbing</h1>
-    <p class="lede">Use this procedure after <code>ingest_lag_seconds</code> exceeds 120 for five minutes or producers report blocked or failed event acceptance.</p>
-    <div class="doc-meta" aria-label="Runbook metadata">
-      <span><strong>Owner:</strong> Platform</span>
-      <span><strong>Reviewed:</strong> 2026-08-18</span>
-      <span><strong>Maximum local change:</strong> +1 replica</span>
-      <span><strong>Escalate at:</strong> 15 minutes</span>
-    </div>
-  </header>
+  <header class="doc-hero"><p class="eyebrow">Operational runbook · RB-INGEST-01</p><h1>Recover when ingestion queue lag keeps climbing</h1><p class="lede">Use this procedure after <code>ingest_lag_seconds</code> exceeds 120 for five minutes or producers report blocked or failed event acceptance.</p><div class="doc-meta" aria-label="Runbook metadata"><span><strong>Owner:</strong> Platform</span><span><strong>Reviewed:</strong> 2026-08-18</span><span><strong>Maximum local change:</strong> +1 replica</span><span><strong>Escalate at:</strong> 15 minutes</span></div><div class="hero-checklist"><p class="component-label">Before you start</p><ul><li>Access to the <code>ingest</code> namespace and the Ingestion / lag dashboard</li><li>An incident note with page time, lag, queue depth, replica count, and request p99</li><li>The limit: +1 replica locally, escalate at 15 minutes</li></ul></div></header>
 
   <section aria-labelledby="before">
     <h2 id="before">Before changing anything</h2>
@@ -19,6 +9,7 @@
 
   <section class="section" aria-labelledby="steps">
     <div class="section-head"><span class="section-num">01</span><h2 id="steps">Recovery procedure</h2><span class="reading-time">target: 15 min</span></div>
+    <figure class="figure"><div class="diagram-scroll"><!-- @FIG lag-recovery-states --></div><figcaption>The procedure as states. Escalation is reachable from observing, and before any scaling if a consumer is crash-looping.</figcaption></figure>
     <ol class="procedure-steps">
       <li><h3>Name the failing boundary</h3><p>Open the lag dashboard and identify the queue whose lag is rising. On the current system this is <code>ingest</code>; after RFC 014 it is <code>ingest-a</code> or <code>ingest-b</code>.</p><p class="outcome"><strong>Success:</strong> the incident note names one queue, current lag slope, and affected producers.</p></li>
       <li><h3>Check consumer health before scaling</h3><p>Inspect ready replicas and restart count. If any consumer is crash-looping, do not scale around it; go directly to escalation.</p><pre><span class="lang">bash</span>kubectl -n ingest get deploy/ingest-consumer

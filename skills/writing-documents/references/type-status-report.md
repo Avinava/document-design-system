@@ -7,7 +7,7 @@ aliases: [weekly-status, project-status, steering-update]
 example: examples/status-report.html
 command: /document-design-system:status-report
 pattern: brief
-default-theme: executive-navy
+default-theme: condensed-report
 default-format: markdown
 path: docs/status/
 ```
@@ -23,4 +23,4 @@ health changed and what the reader must do.
 
 ## Output
 
-Markdown in `docs/status/`; pattern `brief`, theme `executive-navy`.
+Markdown in `docs/status/`; pattern `brief`, theme `condensed-report`.

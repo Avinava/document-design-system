@@ -7,7 +7,7 @@ aliases: [workshop-readout, meeting-summary, decision-workshop]
 example: examples/workshop-summary.html
 command: /document-design-system:workshop-summary
 pattern: brief
-default-theme: field-notes
+default-theme: serif-editorial
 default-format: markdown
 path: docs/workshops/
 ```
@@ -24,4 +24,4 @@ documents. Casual meeting-note edits do not need this type.
 
 ## Output
 
-Markdown in `docs/workshops/`; pattern `brief`, theme `field-notes`.
+Markdown in `docs/workshops/`; pattern `brief`, theme `serif-editorial`.

@@ -11,6 +11,9 @@
  *        --desc "Events enter through the gateway and land in the warehouse." \
  *        --size doc-inline --out diagram.svg
  *
+ * Add --system-fonts for an offline mode: text is measured and drawn in the
+ * operating system's own sans stack instead of the document's --sans token.
+ *
  * Requires (authoring time only, Node 22.22.2 or newer): `npm ci` inside the
  * repository, or `npm i beautiful-mermaid@1.1.3` where the skill is installed
  * on its own.
@@ -58,12 +61,20 @@ const THEME = {
   transparent: true,
 };
 
+/* --system-fonts: an offline mode. Layout is measured, and text is drawn, in a
+ * stack every operating system ships, so the SVG neither reaches for a web font
+ * nor depends on the page's --sans being loaded (an <img>, an email, a print
+ * export with no network). The default routes text through var(--sans). */
+const SYSTEM_FONTS = "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+const FLAGS = new Set(['system-fonts']);
+
 function parseArgs(argv) {
   const args = { size: 'doc-inline' };
   const rest = [];
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
-    if (a.startsWith('--')) args[a.slice(2)] = argv[++i];
+    if (a.startsWith('--') && FLAGS.has(a.slice(2))) args[a.slice(2)] = true;
+    else if (a.startsWith('--')) args[a.slice(2)] = argv[++i];
     else rest.push(a);
   }
   args._ = rest;
@@ -98,10 +109,10 @@ function namespaceIds(svg, slug) {
  * Remove the external font import and route text through our type tokens.
  * Without this the SVG reaches out to fonts.googleapis.com at render time.
  */
-function detachFonts(svg) {
+function detachFonts(svg, family = 'var(--sans)') {
   return svg
     .replace(/\s*@import\s+url\([^)]*\);?/g, '')
-    .replace(/font-family:\s*'[^']*'[^;}]*/g, 'font-family: var(--sans)');
+    .replace(/font-family:\s*[^;}]*/g, `font-family: ${family}`);
 }
 
 /**
@@ -158,7 +169,7 @@ async function main() {
   if (!input) {
     console.error(
       'usage: render_diagram.mjs <input.mmd> --title "…" --desc "…" ' +
-        '[--id slug] [--size doc-inline|full-width|print-portrait|print-landscape] [--out file.svg]'
+        '[--id slug] [--size doc-inline|full-width|print-portrait|print-landscape] [--system-fonts] [--out file.svg]'
     );
     process.exit(1);
   }
@@ -212,13 +223,13 @@ async function main() {
 
   let svg;
   try {
-    svg = renderMermaidSVG(source, THEME);
+    svg = renderMermaidSVG(source, args['system-fonts'] ? { ...THEME, font: SYSTEM_FONTS } : THEME);
   } catch (err) {
     console.error(`mermaid render failed for ${input}: ${err.message}`);
     process.exit(1);
   }
 
-  svg = detachFonts(svg);
+  svg = detachFonts(svg, args['system-fonts'] ? SYSTEM_FONTS : 'var(--sans)');
   svg = namespaceIds(svg, slug);
   svg = makeResponsive(svg, width);
   svg = addA11y(svg, slug, args.title, args.desc);

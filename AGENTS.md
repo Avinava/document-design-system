@@ -13,6 +13,18 @@ support that reader movement. Keep prose readable at 62–72 characters while
 allowing maps, tables, comparisons, timelines, and registers to use the wider
 shell.
 
+A third, smaller switch is width: `<html data-width="full">` (build flag
+`--width full`) lets the shell use the whole viewport. It is not a pattern or a
+theme and nothing may depend on it.
+
+Voice is part of the contract. `core/tokens.md` requires 33 tokens, including
+type scale, density and ornament; every theme declares all of them, and
+`audit_theme.py --all` fails two themes that share a voice. Each pattern owns
+one opening, in the Openings table of `core/document-patterns.md` (hero parts,
+not modules); a body uses its own pattern's. Every type body uses one module no
+other type uses. Why the structure is this way is in `docs/DESIGN.md` and the
+records in `docs/adr/`; a decision that changes it gets a new `adr-NNN.md`.
+
 Markdown in `examples/<slug>.md` is the canonical repository-friendly form.
 Designed HTML is generated from `templates/types/<slug>.html` (presets) or
 `templates/composed/<slug>.html` (composed examples); both forms must use the
@@ -90,6 +102,14 @@ python3 scripts/build_site.py --check
 ```
 
 A second `build_examples.py` run must leave `examples/` unchanged.
+`check_render.py` also renders pages that declare `data-width="full"` at 1920px.
+
+Diagram tooling (`scripts/`): `check_diagrams.py` runs 21 rules, including
+`text-fit`, `layout-budget` and `contrast` (`--rules` lists them);
+`import_diagram.py` reads draw.io, Mermaid, Excalidraw and PlantUML;
+`diagram_doctor.py` reports a missing renderer; `export_diagram.mjs` bakes one
+theme into a standalone SVG or PNG. A diagram form is added only when its
+layout is new (`ADR-005`), with a specimen in `examples/diagrams/`.
 
 ## Generated files
 

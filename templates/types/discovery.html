@@ -1,14 +1,5 @@
 <article class="doc">
-  <header class="doc-hero">
-    <p class="eyebrow">Discovery brief · DISC-012</p>
-    <h1>The queue is the failure boundary; faster detection alone will not fix it</h1>
-    <p class="lede">Incident evidence supports changing the architecture, while a one-queue-down test remains the fastest way to validate the proposed split before full build.</p>
-    <div class="doc-meta" aria-label="Discovery metadata">
-      <span><strong>Window:</strong> 2026-07-01–2026-08-18</span>
-      <span><strong>Decision enabled:</strong> go / stop / reframe RFC 014</span>
-      <span><strong>Owner:</strong> Platform</span>
-    </div>
-  </header>
+  <header class="doc-hero"><p class="eyebrow">Discovery brief · DISC-012</p><h1>The queue is the failure boundary; faster detection alone will not fix it</h1><p class="lede">Incident evidence supports changing the architecture, while a one-queue-down test remains the fastest way to validate the proposed split before full build.</p><aside class="hero-aside" aria-label="Discovery metadata"><p class="component-label">At a glance</p><dl><div><dt>Window</dt><dd>2026-07-01–2026-08-18</dd></div><div><dt>Decision enabled</dt><dd>go / stop / reframe RFC 014</dd></div><div><dt>Owner</dt><dd>Platform</dd></div></dl></aside></header>
 
   <div class="doc-grid">
     <div>
@@ -26,6 +17,7 @@
           <li>Consumer scaling restores service and has not prevented recurrence.</li>
           <li>Producers can retry, but the API does not expose a bounded shed signal today.</li>
         </ul>
+        <figure class="figure"><div class="diagram-scroll"><!-- @FIG ingestion-evolution --></div><figcaption>Where each part of the path sits today. The dispatcher is proposed and does not yet exist.</figcaption></figure>
       </section>
 
       <section class="section" aria-labelledby="opportunities">
@@ -47,18 +39,22 @@
           <li>Ordering is not guaranteed today and should not enter this change indirectly.</li>
         </ul>
       </section>
+
+      <section class="section" aria-labelledby="criteria">
+        <div class="section-head"><span class="section-num">04</span><h2 id="criteria">What would change the call</h2><span class="reading-time">criteria</span></div>
+        <div class="go-stop">
+          <div><b data-tone="positive">Go if</b><p>The healthy queue continues below 200 ms gateway p99 and retries remain deterministic.</p></div>
+          <div><b data-tone="warning">Reframe if</b><p>Consumer rebalance couples both queues or the gateway cannot bound its wait.</p></div>
+          <div><b data-tone="critical">Stop if</b><p>Isolation requires a producer or warehouse contract change.</p></div>
+        </div>
+      </section>
     </div>
 
     <aside class="decision-rail" aria-labelledby="recommendation">
       <p class="component-label">Recommendation</p>
       <h2 id="recommendation">Proceed to a bounded prototype</h2>
       <p>Build the dispatcher and two staging queues, then fail one queue deliberately.</p>
-      <h3>Go if</h3>
-      <p>The healthy queue continues below 200 ms gateway p99 and retries remain deterministic.</p>
-      <h3>Reframe if</h3>
-      <p>Consumer rebalance couples both queues or the gateway cannot bound its wait.</p>
-      <h3>Stop if</h3>
-      <p>Isolation requires a producer or warehouse contract change.</p>
+      <p>Criteria for go, reframe, and stop are set out under the constraints.</p>
     </aside>
   </div>
 </article>

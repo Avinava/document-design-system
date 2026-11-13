@@ -22,12 +22,14 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&family=Newsreader:wght@400;500;600;700&family=Source+Serif+4:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 /* @@INLINE core/themes/editorial-coral.css @@ */
 /* @@INLINE core/themes/executive-navy.css @@ */
 /* @@INLINE core/themes/field-notes.css @@ */
+/* @@INLINE core/themes/serif-editorial.css @@ */
+/* @@INLINE core/themes/condensed-report.css @@ */
 /* @@INLINE core/themes/console-violet.css @@ */
 /* @@INLINE core/themes/horizon.css @@ */
 /* @@INLINE core/base.css @@ */
@@ -105,7 +107,7 @@
 <div class="page">
   <p class="eyebrow">document-design-system</p>
   <h1>One contract, several voices</h1>
-  <p class="subtle">Identical markup in every panel. Only <code>data-theme</code> differs — surfaces, ink, accent, typography, border character, and the methodology treatment all follow from the token contract. <code>horizon</code> is a client brand, not a fifth house style.</p>
+  <p class="subtle">Identical markup in every panel. Only <code>data-theme</code> differs — surfaces, ink, accent, typography, border character, and the methodology treatment all follow from the token contract. <code>horizon</code> is a client brand, not a house style.</p>
 
   <!-- panels: begin -->
   <div class="themes">
@@ -157,6 +159,50 @@
     <section class="panel" data-theme="field-notes">
       <p class="name">field-notes</p>
       <h3>Research and audit</h3>
+      <div class="big">41%</div>
+      <div class="lbl">Held by the largest function</div>
+      <div class="den">of 1,842,110 included units</div>
+      <div class="frame">
+        <svg role="img" aria-label="74 percent of the limit consumed." viewBox="0 0 300 20" width="100%">
+          <rect x="0" y="4" width="300" height="12" rx="3" fill="var(--track-fill)"/>
+          <rect x="0" y="4" width="222" height="12" rx="3" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+        </svg>
+      </div>
+      <table>
+        <thead><tr><th scope="col">Function</th><th scope="col" class="num">Units</th></tr></thead>
+        <tbody>
+          <tr><td>Ingestion</td><td class="num">612,400</td></tr>
+          <tr><td>Transform</td><td class="num">388,910</td></tr>
+        </tbody>
+      </table>
+      <div class="method"><strong>Methodology</strong><br><span>Current snapshot, as of 2026-08-12.</span></div>
+    </section>
+
+    <section class="panel" data-theme="serif-editorial">
+      <p class="name">serif-editorial</p>
+      <h3>Essays and decisions</h3>
+      <div class="big">41%</div>
+      <div class="lbl">Held by the largest function</div>
+      <div class="den">of 1,842,110 included units</div>
+      <div class="frame">
+        <svg role="img" aria-label="74 percent of the limit consumed." viewBox="0 0 300 20" width="100%">
+          <rect x="0" y="4" width="300" height="12" rx="3" fill="var(--track-fill)"/>
+          <rect x="0" y="4" width="222" height="12" rx="3" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+        </svg>
+      </div>
+      <table>
+        <thead><tr><th scope="col">Function</th><th scope="col" class="num">Units</th></tr></thead>
+        <tbody>
+          <tr><td>Ingestion</td><td class="num">612,400</td></tr>
+          <tr><td>Transform</td><td class="num">388,910</td></tr>
+        </tbody>
+      </table>
+      <div class="method"><strong>Methodology</strong><br><span>Current snapshot, as of 2026-08-12.</span></div>
+    </section>
+
+    <section class="panel" data-theme="condensed-report">
+      <p class="name">condensed-report</p>
+      <h3>Reports and registers</h3>
       <div class="big">41%</div>
       <div class="lbl">Held by the largest function</div>
       <div class="den">of 1,842,110 included units</div>

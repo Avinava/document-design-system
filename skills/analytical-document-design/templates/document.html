@@ -39,6 +39,12 @@
   padding: 40px 32px 64px;
 }
 
+/* <html data-width="full"> uses the whole viewport, as in document-patterns.css. */
+html[data-width="full"] .report-shell {
+  max-width: none;
+  padding-inline: clamp(32px, 5vw, 96px);
+}
+
 .identity-bar {
   display: flex;
   justify-content: space-between;

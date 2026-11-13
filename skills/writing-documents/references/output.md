@@ -59,6 +59,24 @@ node "<skill-dir>/scripts/export_pdf.mjs" document.html --out document.pdf
 
 `<skill-dir>` is the folder that contains this skill's `SKILL.md`.
 
+### Width
+
+Each pattern sets its own reading column (860 to 1180px). When the user asks for
+a **full-width**, "wide", "edge to edge" or "use the whole screen" page, add
+`--width full`:
+
+```bash
+python3 "<skill-dir>/scripts/build_document.py" \
+  "<skill-dir>/templates/longform.html" \
+  --theme field-notes --width full --out document.html
+```
+
+This sets `data-width="full"` on the root. The shell then uses the whole
+viewport (with a side gutter of 32 to 96px), so maps, tables, timelines and
+comparisons get the room, while prose keeps its 62–72 character measure. Print
+and phones are unchanged. Width is independent of pattern and theme: do not
+change either to get it, and do not edit the CSS.
+
 ## HTML layout
 
 - Measure prose at 62–72 characters. `core/base.css` caps paragraphs; pattern

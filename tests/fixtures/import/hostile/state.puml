@@ -1,0 +1,5 @@
+@startuml
+state Idle
+state Busy
+Idle --> Busy
+@enduml

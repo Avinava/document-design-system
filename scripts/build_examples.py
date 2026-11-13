@@ -58,6 +58,14 @@ HAND_DIAGRAMS = [
     "queue-split-change",
     "ingest-deployment",
     "workstream-dependencies",
+    "late-recovery-causes",
+    "response-journey",
+    "backpressure-loop",
+    "status-cadence",
+    "ingestion-evolution",
+    "event-lifecycle",
+    "operator-story-map",
+    "lag-recovery-states",
 ]
 
 # output -> (template, theme)
@@ -85,7 +93,18 @@ LONGFORM_VARIANTS = {
     "proposal-coral": ("proposal", "editorial-coral", "decision"),
     # Backward-compatible specialized profile of the canonical service suite.
     "mulesoft": ("mulesoft", "field-notes", "suite"),
+    # Same body, same theme, same pattern: only the width differs. Proves a
+    # document can fill a wide screen without becoming a different document.
+    "architecture-wide": (
+        "architecture",
+        catalog.TYPES["architecture"].default_theme,
+        catalog.TYPES["architecture"].pattern,
+    ),
 }
+
+# Variants built with <html data-width="full">; everything else keeps the
+# pattern's reading width.
+FULL_WIDTH = {"architecture-wide"}
 
 FONTS = {
     "field-notes": (
@@ -103,6 +122,14 @@ FONTS = {
     "console-violet": (
         "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700"
         "&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    ),
+    "serif-editorial": (
+        "https://fonts.googleapis.com/css2?family=Newsreader:wght@400;500;600;700"
+        "&family=Source+Serif+4:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    ),
+    "condensed-report": (
+        "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700"
+        "&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
     ),
     "horizon": (
         "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700"
@@ -271,6 +298,7 @@ def _title(body: str) -> str:
 def _assemble_one_longform(
     out_slug: str, body_slug: str, theme: str, pattern: str, shell: str, body_dir: Path = TYPES
 ) -> None:
+    width = "full" if out_slug in FULL_WIDTH else "reading"
     body_path = body_dir / f"{body_slug}.html"
     if not body_path.is_file():
         sys.exit(f"missing body: {body_path.relative_to(ROOT)}")
@@ -300,7 +328,7 @@ def _assemble_one_longform(
         tmp.write(html)
         tmp_path = Path(tmp.name)
     try:
-        assembled = build(tmp_path, theme)
+        assembled = build(tmp_path, theme, width)
     finally:
         tmp_path.unlink(missing_ok=True)
     if "@@INLINE" in assembled or "@@BODY" in assembled or "@@TITLE" in assembled:

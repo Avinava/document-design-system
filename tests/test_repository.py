@@ -49,28 +49,18 @@ EXPECTED_PATTERN_NAMES = (
     "incident", "suite", "plan", "assurance", "brief",
 )
 SPOT_CHECK = {
-    "design-doc": ("field-notes", "decision"),
-    "adr": ("field-notes", "record"),
+    "design-doc": ("serif-editorial", "decision"),
+    "adr": ("serif-editorial", "record"),
     "api-contract": ("console-violet", "contract"),
     "runbook": ("console-violet", "procedure"),
     "postmortem": ("console-violet", "incident"),
-    "status-report": ("executive-navy", "brief"),
+    "status-report": ("condensed-report", "brief"),
 }
 
-# The class each pattern's examples must carry (one per pattern).
-CHARACTERISTIC_CLASS = {
-    "decision": "decision-rail",
-    "record": "decision-statement",
-    "contract": "contract-layout",
-    "procedure": "procedure-steps",
-    "learning": "takeaway",
-    "system": "system-map",
-    "incident": "impact-strip",
-    "suite": "document-map",
-    "plan": "milestone-rail",
-    "assurance": "assurance-verdict",
-    "brief": "brief-status",
-}
+def characteristic_classes(pattern: str) -> set[str]:
+    """The CSS classes of a pattern's characteristic modules, from the registry."""
+    by_name = {module.name: module.css_class for module in catalog.MODULES.values()}
+    return {by_name[name] for name in catalog.PATTERNS[pattern].modules}
 
 
 def skill_dirs() -> list[Path]:
@@ -248,12 +238,12 @@ class TestWritingTypes(unittest.TestCase):
                 self.assertIn("Markdown", body)
 
     def test_proposal_variants_share_a_body(self):
-        from build_examples import LONGFORM_VARIANTS
+        from build_examples import FULL_WIDTH, LONGFORM_VARIANTS
 
         self.assertIn("proposal-horizon", LONGFORM_VARIANTS)
         self.assertIn("proposal-coral", LONGFORM_VARIANTS)
         for out_slug, (body_slug, theme, _) in LONGFORM_VARIANTS.items():
-            if out_slug in COMPATIBILITY_PROFILES:
+            if out_slug in COMPATIBILITY_PROFILES or out_slug in FULL_WIDTH:
                 continue
             with self.subTest(out=out_slug):
                 self.assertEqual(body_slug, "proposal")
@@ -263,6 +253,37 @@ class TestWritingTypes(unittest.TestCase):
                 self.assertIn(f'data-theme="{theme}"', html)
                 self.assertIn('data-pattern="decision"', html)
                 self.assertIn("Two engineers for one quarter", html)
+
+    def test_full_width_is_a_root_attribute_and_changes_nothing_else(self):
+        from build_examples import FULL_WIDTH, LONGFORM_VARIANTS
+
+        self.assertTrue(FULL_WIDTH)
+        for out_slug in FULL_WIDTH:
+            body_slug = LONGFORM_VARIANTS[out_slug][0]
+            wide = (ROOT / "examples" / f"{out_slug}.html").read_text(encoding="utf-8")
+            narrow = (ROOT / "examples" / f"{body_slug}.html").read_text(encoding="utf-8")
+            with self.subTest(out=out_slug):
+                self.assertIn('<html data-width="full"', wide)
+                self.assertNotRegex(narrow, r"<html[^>]*data-width")
+                # Same document: only the root attribute differs.
+                self.assertEqual(wide.replace(' data-width="full"', "", 1), narrow)
+
+    def test_width_flag_builds_and_rejects_unknown_values(self):
+        from build_document import build
+
+        template = ROOT / "templates" / "longform.html"
+        full = build(template, "field-notes", "full")
+        self.assertEqual(len(re.findall(r'<html[^>]*data-width="full"', full)), 1)
+        self.assertNotRegex(build(template, "field-notes"), r"<html[^>]*data-width")
+        self.assertNotRegex(build(template, "field-notes", "reading"), r"<html[^>]*data-width")
+        with self.assertRaises(SystemExit):
+            build(template, "field-notes", "wide")
+
+    def test_full_width_css_follows_the_pattern_widths(self):
+        css = strip_comments((CORE / "document-patterns.css").read_text(encoding="utf-8"))
+        rule = css.index('html[data-width="full"] .doc')
+        for pattern in re.finditer(r'html\[data-pattern="[a-z]+"\] \.doc \{ --doc-max', css):
+            self.assertLess(pattern.start(), rule, "pattern widths must come before the full-width rule")
 
     def test_catalog_size_and_patterns_are_intended(self):
         self.assertEqual(len(catalog.TYPES), EXPECTED_TYPE_COUNT)
@@ -291,11 +312,16 @@ class TestWritingTypes(unittest.TestCase):
                 self.assertIn(f'data-theme="{theme}"', generated)
 
     def test_every_pattern_uses_its_characteristic_module(self):
-        self.assertEqual(set(CHARACTERISTIC_CLASS), set(catalog.PATTERNS))
+        for pattern in catalog.PATTERNS:
+            self.assertTrue(characteristic_classes(pattern), f"{pattern} names no characteristic module")
         for slug, entry in catalog.TYPES.items():
             with self.subTest(slug=slug, pattern=entry.pattern):
                 body = (ROOT / "templates" / "types" / f"{slug}.html").read_text(encoding="utf-8")
-                self.assertIn(CHARACTERISTIC_CLASS[entry.pattern], body)
+                used = catalog.body_classes(body)
+                self.assertTrue(
+                    used & characteristic_classes(entry.pattern),
+                    f"{slug} uses none of the {entry.pattern} characteristic modules",
+                )
 
     def test_markdown_and_html_share_titles_and_fact_tokens(self):
         """The paired formats may compose differently, but not contradict facts."""
@@ -455,6 +481,61 @@ class TestTokenContract(unittest.TestCase):
                     set(),
                     f"{theme.name} is missing required tokens",
                 )
+
+    def test_voice_tokens_are_in_the_contract_and_in_range(self):
+        required = self.required_tokens()
+        voice = {
+            "--text-base", "--scale-ratio", "--display-weight", "--display-tracking",
+            "--display-leading", "--display-transform", "--density",
+            "--hero-rule-width", "--section-rule-width",
+            "--eyebrow-tracking", "--eyebrow-transform",
+        }
+        self.assertEqual(voice - required, set())
+        for theme in sorted((CORE / "themes").glob("*.css")):
+            css = strip_comments(theme.read_text(encoding="utf-8"))
+            ratio = float(re.search(r"--scale-ratio:\s*([0-9.]+)", css).group(1))
+            density = float(re.search(r"--density:\s*([0-9.]+)", css).group(1))
+            with self.subTest(theme=theme.name):
+                self.assertTrue(1.1 <= ratio <= 1.5, f"--scale-ratio {ratio}")
+                self.assertTrue(0.8 <= density <= 1.25, f"--density {density}")
+
+    def test_every_theme_has_fonts_with_a_real_fallback(self):
+        from build_examples import FONTS
+
+        for theme in sorted((CORE / "themes").glob("*.css")):
+            if theme.stem == "brand-template":
+                continue
+            with self.subTest(theme=theme.stem):
+                self.assertIn(theme.stem, FONTS)
+                css = strip_comments(theme.read_text(encoding="utf-8"))
+                display = re.search(r"--display:\s*([^;]+);", css).group(1)
+                self.assertRegex(display.strip(), r"(serif|sans-serif)$")
+                if "serif" in display and "sans-serif" not in display:
+                    self.assertIn("Georgia", display)
+
+    def test_theme_voices_are_distinct(self):
+        import audit_theme
+
+        self.assertEqual(audit_theme.twin_voices(), [])
+
+    def test_no_theme_is_the_default_for_most_types(self):
+        names = [t.default_theme for t in catalog.TYPES.values()]
+        names += [theme for theme, _ in catalog.COMPOSED.values()]
+        for theme in sorted(set(names)):
+            with self.subTest(theme=theme):
+                self.assertLessEqual(names.count(theme) / len(names), 0.30)
+
+    def test_components_read_the_scale_not_literal_heading_sizes(self):
+        base = strip_comments((CORE / "base.css").read_text(encoding="utf-8"))
+        patterns = strip_comments((CORE / "document-patterns.css").read_text(encoding="utf-8"))
+        for heading in ("h1", "h2", "h3"):
+            m = re.search(rf"^{heading}\s*\{{\s*font-size:\s*([^;]+);", base, re.M)
+            with self.subTest(heading=heading):
+                self.assertIsNotNone(m)
+                self.assertIn("var(--step-", m.group(1))
+        hero = re.search(r"\.doc-hero h1\s*\{[^}]*font-size:\s*([^;]+);", patterns)
+        self.assertIsNotNone(hero)
+        self.assertIn("var(--step-", hero.group(1))
 
     def test_dark_themes_define_print_overrides(self):
         """A dark theme that skips print overrides prints white on white.
@@ -948,6 +1029,7 @@ class TestToolchainValidation(unittest.TestCase):
                 dest = tmp / "skills" / skill.name
                 shutil.copytree(skill / "references", dest / "references")
                 shutil.copy2(skill / "SKILL.md", dest / "SKILL.md")
+            shutil.copytree(ROOT / "docs", tmp / "docs", ignore=shutil.ignore_patterns("screenshots"))
             if mutate:
                 mutate(tmp)
             vr.errors.clear()
@@ -1007,6 +1089,16 @@ class TestToolchainValidation(unittest.TestCase):
             "is not pinned in package.json",
             self.edit("CONTRIBUTING.md", "## Tooling", "## Tooling\n\n`npm i left-pad@1.3.0`"),
         )
+
+    def test_scans_the_design_doc_and_adrs_for_stale_pins(self):
+        for rel in ("docs/DESIGN.md", "docs/adr/adr-001.md"):
+            with self.subTest(rel=rel):
+                self.assert_rejects(
+                    "disagrees with package.json",
+                    lambda tmp, rel=rel: (tmp / rel).write_text(
+                        (tmp / rel).read_text(encoding="utf-8") + "\nnpm i jsdom@29.0.0\n", encoding="utf-8"
+                    ),
+                )
 
     def test_rejects_an_unlisted_node_import(self):
         self.assert_rejects(
@@ -1207,7 +1299,7 @@ class TestWritingTypeValidation(unittest.TestCase):
         ref = f"{catalog.TYPE_DIR}/type-adr.md"
         found = "\n".join(self.run_check(self.edit(ref, "pattern: record", "pattern: memo")))
         self.assertIn('pattern "memo"', found)
-        found = "\n".join(self.run_check(self.edit(ref, "default-theme: field-notes", "default-theme: neon")))
+        found = "\n".join(self.run_check(self.edit(ref, "default-theme: serif-editorial", "default-theme: neon")))
         self.assertIn('default-theme "neon"', found)
 
     def test_rejects_malformed_aliases(self):
@@ -1286,6 +1378,7 @@ class TestModuleRegistry(unittest.TestCase):
             catalog.PATTERNS,
             catalog.stylesheet_classes(ROOT) if css is None else css,
             self.bodies() if bodies is None else bodies,
+            catalog.hero_parts(catalog.OPENINGS),
         )
 
     def test_registry_stylesheet_and_bodies_agree(self):
@@ -1309,6 +1402,49 @@ class TestModuleRegistry(unittest.TestCase):
         for slug in ("explanation", "onboarding", "tutorial"):
             with self.subTest(slug=slug):
                 self.assertIn('class="learning-goal"', (ROOT / "templates" / "types" / f"{slug}.html").read_text())
+
+    # A type whose reader is served by the shared modules alone may be listed
+    # here with the reason; none is, because every type has a unique module.
+    OWN_MODULE_EXEMPT: dict[str, str] = {}
+
+    def own_modules(self) -> dict[str, set[str]]:
+        """{type slug: registered modules no other type uses}. A compatibility
+        profile counts as its base type, and a composed example as a type of its
+        own, so it can take modules from a type but never give it one."""
+        owner = {name: catalog.PROFILE_BASE.get(name, name) for name in self.bodies()}
+        users: dict[str, set[str]] = {}
+        for name, (_, used) in self.bodies().items():
+            for css_class in used & set(catalog.MODULES):
+                users.setdefault(css_class, set()).add(owner[name])
+        own: dict[str, set[str]] = {slug: set() for slug in catalog.TYPES}
+        for css_class, types in users.items():
+            if len(types) == 1 and next(iter(types)) in own:
+                own[next(iter(types))].add(css_class)
+        return own
+
+    def test_every_type_body_has_a_module_of_its_own(self):
+        own = self.own_modules()
+        for slug in sorted(catalog.TYPES):
+            with self.subTest(type=slug):
+                if slug in self.OWN_MODULE_EXEMPT:
+                    self.assertTrue(self.OWN_MODULE_EXEMPT[slug].strip(), "an exemption needs a reason")
+                    continue
+                self.assertTrue(own[slug], f"{slug} uses only modules another type also uses")
+
+    def test_own_module_exemptions_are_current(self):
+        own = self.own_modules()
+        for slug in self.OWN_MODULE_EXEMPT:
+            with self.subTest(type=slug):
+                self.assertIn(slug, catalog.TYPES)
+                self.assertFalse(own[slug], f"{slug} now has its own module; remove the exemption")
+
+    def test_status_chips_write_the_word(self):
+        for name, (_, path) in catalog.example_bodies(ROOT).items():
+            source = path.read_text(encoding="utf-8")
+            for tone, label in re.findall(r'<b data-tone="([a-z]+)">([^<]*)<', source):
+                with self.subTest(example=name, tone=tone, label=label):
+                    self.assertIn(tone, {"positive", "warning", "critical", "accent", "neutral"})
+                    self.assertTrue(label.strip(), "a status chip must carry its word")
 
     def test_new_modules_are_responsive_and_printable(self):
         css = catalog.CSS_COMMENT.sub("", (ROOT / catalog.PATTERNS_CSS).read_text(encoding="utf-8"))
@@ -1349,6 +1485,132 @@ class TestModuleRegistry(unittest.TestCase):
             any('no learning example uses its characteristic module "learning goal"' in p
                 for p in self.problems(bodies=stripped))
         )
+
+
+class TestOpenings(unittest.TestCase):
+    """Each pattern owns a distinct opening, styled and used by every body."""
+
+    def bodies(self) -> dict[str, tuple[str, set[str]]]:
+        return {
+            name: (pattern, catalog.body_classes(path.read_text(encoding="utf-8")))
+            for name, (pattern, path) in catalog.example_bodies(ROOT).items()
+        }
+
+    def problems(self, openings=None, css=None, css_text=None, bodies=None) -> list[str]:
+        return catalog.opening_problems(
+            catalog.OPENINGS if openings is None else openings,
+            catalog.PATTERNS,
+            catalog.stylesheet_classes(ROOT) if css is None else css,
+            (ROOT / catalog.PATTERNS_CSS).read_text(encoding="utf-8") if css_text is None else css_text,
+            self.bodies() if bodies is None else bodies,
+        )
+
+    def openings_from(self, rows: str):
+        """load_openings over the real document-patterns.md with its Openings table replaced."""
+        import tempfile
+
+        text = (ROOT / catalog.PATTERNS_MD).read_text(encoding="utf-8")
+        text = re.sub(r"\n## Openings\n.*?(?=\n## )", "\n", text, flags=re.S)
+        with tempfile.TemporaryDirectory() as td:
+            target = Path(td) / catalog.PATTERNS_MD
+            target.parent.mkdir(parents=True)
+            target.write_text(
+                text + "\n## Openings\n\n| Pattern | Opening | Hero parts |\n|---|---|---|\n" + rows,
+                encoding="utf-8",
+            )
+            return catalog.load_openings(Path(td))
+
+    def test_every_pattern_has_an_opening_rule(self):
+        self.assertEqual(set(catalog.OPENINGS), set(catalog.PATTERNS))
+        self.assertEqual(len(catalog.PATTERNS), 11)
+        css = (ROOT / catalog.PATTERNS_CSS).read_text(encoding="utf-8")
+        for pattern in catalog.PATTERNS:
+            with self.subTest(pattern=pattern):
+                self.assertIn(f'html[data-pattern="{pattern}"] .doc-hero', css)
+
+    def test_openings_and_parts_are_unique(self):
+        names = [opening.name for opening in catalog.OPENINGS.values()]
+        parts = [part for opening in catalog.OPENINGS.values() for part in opening.parts]
+        self.assertEqual(len(names), len(set(names)))
+        self.assertEqual(len(parts), len(set(parts)))
+
+    def test_registry_stylesheet_and_bodies_agree(self):
+        self.assertEqual(self.problems(), [])
+
+    def test_every_body_uses_its_pattern_opening_parts(self):
+        for name, (pattern, used) in self.bodies().items():
+            with self.subTest(body=name, pattern=pattern):
+                self.assertTrue(set(catalog.OPENINGS[pattern].parts) <= used)
+
+    def test_openings_table_parses(self):
+        openings = self.openings_from(
+            "| `decision` | Split hero | `hero-aside` |\n| `record` | Seal | `hero-stamp`, `hero-seal` |\n"
+        )
+        self.assertEqual(list(openings), ["decision", "record"])
+        self.assertEqual(openings["record"].parts, ("hero-stamp", "hero-seal"))
+        self.assertEqual(openings["decision"].name, "Split hero")
+
+    def test_openings_table_rejects_malformed_rows(self):
+        cases = {
+            "has 2 cells": "| `decision` | Split hero |\n",
+            "pattern cell must be `code`": "| decision | Split hero | `hero-aside` |\n",
+            "has no name": "| `decision` |  | `hero-aside` |\n",
+            "must be `hero-<word>` names": "| `decision` | Split hero | aside |\n",
+            "got '`aside`'": "| `decision` | Split hero | `aside` |\n",
+            "has two openings": "| `decision` | A | `hero-a` |\n| `decision` | B | `hero-b` |\n",
+        }
+        for needle, rows in cases.items():
+            with self.subTest(needle=needle):
+                with self.assertRaises(catalog.CatalogError) as ctx:
+                    self.openings_from(rows)
+                self.assertIn(needle, str(ctx.exception))
+
+    def test_checks_fire(self):
+        import dataclasses
+
+        openings = dict(catalog.OPENINGS)
+        bodies = self.bodies()
+        css = catalog.stylesheet_classes(ROOT)
+
+        missing = {k: v for k, v in openings.items() if k != "brief"}
+        self.assertTrue(any("`brief` has no row" in p for p in self.problems(openings=missing)))
+
+        shared = dict(openings)
+        shared["record"] = dataclasses.replace(openings["record"], name=openings["decision"].name)
+        self.assertTrue(any("share the opening" in p for p in self.problems(openings=shared)))
+
+        clash = dict(openings)
+        clash["record"] = dataclasses.replace(openings["record"], parts=openings["decision"].parts)
+        self.assertTrue(any("opens both" in p for p in self.problems(openings=clash)))
+
+        self.assertTrue(any("has no rule" in p for p in self.problems(css=css - {"hero-stamp"})))
+        self.assertTrue(any("no opening registers" in p for p in self.problems(css=css | {"hero-ghost"})))
+        self.assertTrue(
+            any('has no `html[data-pattern="plan"] .doc-hero` rule' in p for p in self.problems(css_text=""))
+        )
+
+        stripped = {n: (p, u - set(openings[p].parts)) for n, (p, u) in bodies.items()}
+        self.assertTrue(any("does not use its opening part" in p for p in self.problems(bodies=stripped)))
+
+        borrowed = {n: (p, u | set(openings["incident"].parts)) for n, (p, u) in bodies.items()}
+        self.assertTrue(any("the opening of `incident`" in p for p in self.problems(bodies=borrowed)))
+
+    def test_openings_are_responsive_and_printable(self):
+        css = catalog.CSS_COMMENT.sub("", (ROOT / catalog.PATTERNS_CSS).read_text(encoding="utf-8"))
+        printed = css[css.index("@media print") :]
+        collapse = css[css.index("@media (max-width: 860px)") : css.index("@media (max-width: 620px)")]
+        self.assertIn("--hero-cols: minmax(0, 1fr)", collapse)
+        for part in sorted(catalog.hero_parts(catalog.OPENINGS) - {"hero-outcome", "hero-dateline"}):
+            with self.subTest(part=part):
+                self.assertIn(f".{part}", printed)
+
+    def test_pattern_css_reads_the_scale_not_literal_hero_sizes(self):
+        css = catalog.CSS_COMMENT.sub("", (ROOT / catalog.PATTERNS_CSS).read_text(encoding="utf-8"))
+        for match in re.finditer(r"([^{}]*\.(?:hero-[a-z]+|doc-hero h1)[^{}]*)\{([^{}]*)\}", css):
+            for decl in re.findall(r"font-size:\s*([^;]+);", match.group(2)):
+                with self.subTest(selector=match.group(1).strip(), size=decl):
+                    if "rem" in decl or "px" in decl:
+                        self.assertIn("var(--step-", decl)
 
 
 class TestComposedExamples(unittest.TestCase):
@@ -1444,6 +1706,29 @@ class TestDiagramChecks(unittest.TestCase):
             with self.subTest(rule=rule):
                 found = {f.rule for f in check_paths([bad / f"{rule}.svg"])}
                 self.assertEqual(found, {rule})
+
+    def test_layout_budget_is_one_table_and_the_docs_state_it(self):
+        from check_diagrams import LAYOUT_BUDGETS
+
+        primitives = (SKILLS / "diagram-design" / "references" / "primitives.md").read_text(encoding="utf-8")
+        for preset, (width, nodes, edges) in LAYOUT_BUDGETS.items():
+            with self.subTest(preset=preset):
+                self.assertIn(f"| `{preset}` | {width} | {nodes} | {edges} |", primitives)
+
+    def test_contrast_names_the_theme_that_fails(self):
+        from check_diagrams import check_paths
+
+        found = check_paths([FIXTURES / "diagrams" / "bad" / "contrast.svg"])
+        self.assertTrue(found)
+        self.assertTrue(all(f.rule == "contrast" and "theme " in f.message for f in found))
+
+    def test_contrast_resolves_translucent_tints_over_the_page(self):
+        from check_diagrams import flatten, resolve_color
+
+        tokens = {"paper": "#ffffff", "tint": "rgba(0, 0, 0, 0.5)", "alias": "var(--paper)"}
+        self.assertEqual(resolve_color(tokens, "alias"), (255, 255, 255, 1.0))
+        self.assertEqual(flatten(resolve_color(tokens, "tint"), (255, 255, 255, 1.0))[:3], (127.5, 127.5, 127.5))
+        self.assertIsNone(resolve_color({"x": "color-mix(in srgb, red 10%, transparent)"}, "x"))
 
     def test_repository_figures_are_clean(self):
         from check_diagrams import check_paths, default_inputs
@@ -1576,6 +1861,91 @@ class TestDiagramImport(unittest.TestCase):
             [("ingest-a", "consumer-a"), ("x", "y"), ("y", "z")],
         )
 
+    def test_excalidraw(self):
+        model = self.load("sample.excalidraw")
+        self.assertEqual(model["source"], "excalidraw")
+        self.assertEqual(
+            [(n["id"], n["label"], n["group"]) for n in model["nodes"]],
+            [("producer", "Producers", None), ("gateway", "Gateway POST /events", "f1"), ("queue", "Queue", "f1")],
+        )
+        self.assertEqual(
+            [(e["from"], e["to"], e["label"]) for e in model["edges"]],
+            [("producer", "gateway", ""), ("gateway", "queue", "enqueue")],
+        )
+        self.assertEqual(model["groups"], [{"id": "f1", "label": "Namespace ingest", "parent": None}])
+
+    def test_plantuml_sequence(self):
+        model = self.load("sample-sequence.puml")
+        self.assertEqual(model["source"], "plantuml")
+        self.assertEqual(
+            {n["id"]: n["label"] for n in model["nodes"]},
+            {"GW": "API Gateway", "Client": "Client", "Warehouse": "Warehouse", "Queue": "Queue"},
+        )
+        self.assertEqual(
+            [(e["from"], e["to"], e["label"]) for e in model["edges"]],
+            [("Client", "GW", "POST /events"), ("GW", "Queue", "enqueue event"), ("Queue", "GW", "ack"),
+             ("Queue", "GW", "nack"), ("Queue", "Warehouse", "consume")],
+        )
+
+    def test_plantuml_class_reads_direction_from_the_arrowhead(self):
+        model = self.load("sample-class.puml")
+        self.assertEqual(
+            {n["id"]: n["group"] for n in model["nodes"]},
+            {"Sink": "Ingest", "Gateway": "Ingest", "Queue": None, "Dispatcher": None},
+        )
+        self.assertEqual(
+            [(e["from"], e["to"], e["label"]) for e in model["edges"]],
+            [("Gateway", "Sink", ""), ("Gateway", "Queue", "owns"), ("Dispatcher", "Gateway", "routes to"),
+             ("Dispatcher", "Queue", "")],
+        )
+        self.assertEqual(model["groups"], [{"id": "Ingest", "label": "Ingest", "parent": None}])
+
+    def test_new_formats_carry_no_layout_or_links(self):
+        import json
+
+        for name in ("sample.excalidraw", "sample-sequence.puml", "sample-class.puml"):
+            with self.subTest(name=name):
+                text = json.dumps(self.load(name))
+                for key in ('"x"', '"y"', '"width"', '"strokeColor"', "example.invalid", "free-standing"):
+                    self.assertNotIn(key, text)
+
+    def test_plantuml_includes_are_dropped_not_followed(self):
+        model = self.load("hostile/include.puml")
+        self.assertEqual([n["id"] for n in model["nodes"]], ["A", "B"])
+        self.assertNotIn("example.invalid", str(model))
+
+    def test_plantuml_other_diagram_types_are_refused(self):
+        self.refused(self.IMPORT / "hostile" / "state.puml", "only sequence and class")
+
+    def test_plantuml_unclosed_body_is_refused(self):
+        self.refused(self.IMPORT / "hostile" / "unclosed-body.puml", "never closed")
+
+    def test_excalidraw_unbound_arrows_are_refused(self):
+        self.refused(self.IMPORT / "hostile" / "dangling-arrow.excalidraw", "not bound to a shape")
+
+    def test_excalidraw_arrow_to_a_missing_shape_is_refused(self):
+        self.refused(self.IMPORT / "hostile" / "missing-shape.excalidraw", "does not exist")
+
+    def test_excalidraw_duplicate_ids_are_refused(self):
+        self.refused(self.IMPORT / "hostile" / "duplicate-ids.excalidraw", "duplicate element id")
+
+    def test_excalidraw_json_bomb_is_refused(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "bomb.excalidraw"
+            path.write_text("[" * 200_000)
+            self.refused(path, "not valid JSON")
+
+    def test_excalidraw_huge_element_counts_are_refused(self):
+        import tempfile
+        from import_diagram import MAX_ELEMENTS
+
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "huge.excalidraw"
+            path.write_text('{"elements": [' + ",".join(f'{{"id": "e{i}"}}' for i in range(MAX_ELEMENTS + 1)) + "]}")
+            self.refused(path, f"more than {MAX_ELEMENTS} elements")
+
     def test_other_mermaid_types_point_at_the_renderer(self):
         self.refused(self.IMPORT / "sequence.mmd", "render_diagram.mjs")
 
@@ -1623,6 +1993,102 @@ class TestDiagramImport(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn("import_diagram:", result.stderr)
         self.assertEqual(result.stdout, "")
+
+
+class TestDiagramToolchain(unittest.TestCase):
+    """scripts/diagram_doctor.py, render_diagram.mjs --system-fonts, export_diagram.mjs."""
+
+    def test_doctor_reads_its_floor_and_pins_from_the_scripts_and_they_match_package_json(self):
+        import json
+        import pins
+        from diagram_doctor import read_scripts
+
+        floor, found = read_scripts()
+        package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
+        self.assertEqual(f">={floor}", package["engines"]["node"])
+        self.assertEqual(found, {k: pins.npm_pins(ROOT)[k] for k in ("beautiful-mermaid", "playwright")})
+
+    def test_doctor_reports_a_missing_package_with_the_install_line(self):
+        import shutil
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            lone = Path(tmp) / "diagram-design"
+            shutil.copytree(SKILLS / "diagram-design", lone)
+            result = subprocess.run([sys.executable, str(lone / "scripts" / "diagram_doctor.py")],
+                                    capture_output=True, text=True, cwd=tmp)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("FAIL  beautiful-mermaid is not installed", result.stdout)
+        self.assertIn("npm i beautiful-mermaid@", result.stdout)
+
+    def test_export_helper_is_vendored_with_the_canonical_hint(self):
+        import pins
+
+        for name in ("export_diagram.mjs", "diagram_doctor.py"):
+            self.assertTrue((SKILLS / "diagram-design" / "scripts" / name).is_file(), name)
+        text = (ROOT / "scripts" / "export_diagram.mjs").read_text(encoding="utf-8")
+        self.assertIn(pins.npm_hint("playwright"), text)
+
+    @unittest.skipUnless(
+        __import__("shutil").which("node") and (ROOT / "node_modules" / "beautiful-mermaid").is_dir(),
+        "run npm ci",
+    )
+    def test_system_fonts_mode_draws_in_the_os_stack(self):
+        import tempfile
+
+        def render(*extra: str) -> str:
+            with tempfile.TemporaryDirectory() as td:
+                out = Path(td) / "o.svg"
+                subprocess.run(
+                    ["node", str(ROOT / "scripts" / "render_diagram.mjs"), str(FIXTURES / "import" / "sample.mmd"),
+                     "--title", "t", "--desc", "d", "--out", str(out), *extra],
+                    capture_output=True, text=True, check=True,
+                )
+                return out.read_text(encoding="utf-8")
+
+        self.assertIn("font-family: var(--sans)", render())
+        offline = render("--system-fonts")
+        self.assertIn("system-ui", offline)
+        self.assertNotIn("var(--sans)", offline)
+        self.assertNotIn("@import", offline)
+
+
+class TestExportDiagram(unittest.TestCase):
+    @unittest.skipUnless(
+        __import__("shutil").which("node") and (ROOT / "node_modules" / "playwright").is_dir(),
+        "run npm ci",
+    )
+    def test_tokens_are_baked_to_literals_for_one_theme(self):
+        import tempfile
+        from diagram_doctor import chromium_path
+
+        path = chromium_path()
+        if not path or not Path(path).exists():
+            self.skipTest("chromium is not installed (npx playwright install chromium)")
+        with tempfile.TemporaryDirectory() as td:
+            out = Path(td) / "out.svg"
+            result = subprocess.run(
+                ["node", str(ROOT / "scripts" / "export_diagram.mjs"), str(ROOT / "examples" / "platform-architecture.svg"),
+                 "--theme", "executive-navy", "--out", str(out)],
+                capture_output=True, text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            svg = out.read_text(encoding="utf-8")
+        self.assertNotRegex(svg, r'(?:fill|stroke)="var\(')
+        self.assertRegex(svg, r'fill="rgb\(')
+
+    def test_unknown_theme_and_traversal_are_refused(self):
+        if not __import__("shutil").which("node"):
+            self.skipTest("node is not installed")
+        for theme in ("nope", "../core/base"):
+            with self.subTest(theme=theme):
+                result = subprocess.run(
+                    ["node", str(ROOT / "scripts" / "export_diagram.mjs"),
+                     str(ROOT / "examples" / "platform-architecture.svg"), "--theme", theme],
+                    capture_output=True, text=True,
+                )
+                self.assertEqual(result.returncode, 1)
+                self.assertIn("unknown theme", result.stderr)
 
 
 @unittest.skipUnless(__import__("shutil").which("node"), "node is not installed")
@@ -1732,6 +2198,57 @@ class TestSiteNavigation(unittest.TestCase):
                     html = (dest / href).read_text(encoding="utf-8")
                     self.assertIn('<nav class="site-nav"', html)
                     self.assertIn(f'href="{href}" aria-current="page"', html)
+
+
+class TestHowItWorksPage(unittest.TestCase):
+    """The plain-language page: seven steps, the evidence states read from the
+    skill, a figure that passes the diagram checks, and no colour of its own."""
+
+    @classmethod
+    def setUpClass(cls):
+        import build_site
+
+        cls.build_site = build_site
+        cls.tmp = tempfile.TemporaryDirectory()
+        cls.dest = Path(cls.tmp.name)
+        with contextlib.redirect_stdout(io.StringIO()):
+            build_site.populate(cls.dest)
+        cls.html = (cls.dest / "how-it-works.html").read_text(encoding="utf-8")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def test_in_the_navigation_and_the_site_pages(self):
+        import site_parts
+
+        self.assertIn(("How it works", "how-it-works.html"), site_parts.NAV)
+        self.assertIn("how-it-works.html", self.build_site.SITE_PAGES)
+
+    def test_walks_seven_steps_and_six_terms(self):
+        self.assertEqual(len(re.findall(r'<li class="step[ "]', self.html)), 7)
+        self.assertEqual(self.html.count("<dt>"), 6)
+
+    def test_evidence_states_come_from_the_skill(self):
+        states = [s for s, _ in self.build_site.evidence_states()]
+        self.assertEqual(states, ["Verified", "Provided", "Inferred", "Unresolved", "Recommended"])
+        for state in states:
+            self.assertIn(f'class="state-{state.lower()}"', self.html)
+
+    def test_request_flow_figure_passes_the_diagram_rules(self):
+        import check_diagrams
+
+        findings = check_diagrams.check_paths([self.build_site.REQUEST_FLOW])
+        self.assertEqual([str(f) for f in findings], [])
+
+    def test_every_screenshot_it_shows_exists(self):
+        for rel in self.build_site.how_shots():
+            self.assertTrue((self.build_site.SHOTS / rel).is_file(), rel)
+
+    def test_page_has_no_colour_literals_and_no_upstream_credit(self):
+        raw = (ROOT / "templates" / "site-how.html").read_text(encoding="utf-8")
+        self.assertNotRegex(raw, r"#[0-9a-fA-F]{3,8}\b")
+        self.assertNotRegex(self.html, r"Lavery|cathrynlavery")
 
 
 @unittest.skipUnless(

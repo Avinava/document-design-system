@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-"""Extract the structure of a draw.io or Mermaid diagram as neutral JSON.
+"""Extract the structure of a draw.io, Mermaid, Excalidraw or PlantUML diagram as neutral JSON.
 
     python3 scripts/import_diagram.py system.drawio            # plain or compressed
     python3 scripts/import_diagram.py flow.mmd                 # flowchart / graph
+    python3 scripts/import_diagram.py board.excalidraw         # shapes, bound arrows, frames
+    python3 scripts/import_diagram.py flow.puml                # sequence and class
     python3 scripts/import_diagram.py export.xml --format drawio --page 1
 
 Output, on stdout:
 
-    {"source": "drawio" | "mermaid",
+    {"source": "drawio" | "mermaid" | "excalidraw" | "plantuml",
      "nodes":  [{"id", "label", "group"}],
      "edges":  [{"from", "to", "label"}],
      "groups": [{"id", "label", "parent"}]}
@@ -413,14 +415,251 @@ def import_mermaid(text: str) -> dict:
     return finish("mermaid", nodes, edges, groups)
 
 
+# --------------------------------------------------------------- Excalidraw
+
+EXCALIDRAW_NODES = {"rectangle", "ellipse", "diamond", "embeddable", "image"}
+EXCALIDRAW_LINKS = {"arrow", "line"}
+
+
+def import_excalidraw(text: str) -> dict:
+    """Shapes become nodes, bound arrows become edges, frames become groups.
+
+    A label is the text element bound to its shape or arrow (`containerId`).
+    Free-standing text, freehand strokes, links, and styling are dropped.
+    """
+    try:
+        doc = json.loads(text)
+    except (json.JSONDecodeError, RecursionError):
+        raise DiagramImportError("not valid JSON (or nested too deeply to read)") from None
+    elements = doc.get("elements") if isinstance(doc, dict) else None
+    if not isinstance(elements, list):
+        raise DiagramImportError('not an Excalidraw scene: expected an object with an "elements" list')
+    if len(elements) > MAX_ELEMENTS:
+        raise DiagramImportError(f"more than {MAX_ELEMENTS} elements")
+
+    live: list[dict] = []
+    seen: set[str] = set()
+    for el in elements:
+        if not isinstance(el, dict) or not isinstance(el.get("id"), str) or not el["id"]:
+            raise DiagramImportError("an element has no string id")
+        if el["id"] in seen:
+            raise DiagramImportError(f"duplicate element id {el['id']!r}; ids must be unique to keep edges unambiguous")
+        seen.add(el["id"])
+        if not el.get("isDeleted"):
+            live.append(el)
+
+    by_id = {el["id"]: el for el in live}
+    bound_text: dict[str, list[str]] = {}
+    for el in live:
+        container = el.get("containerId")
+        if el.get("type") == "text" and isinstance(container, str) and container in by_id:
+            label = plain(el.get("text") if isinstance(el.get("text"), str) else "")
+            if label:
+                bound_text.setdefault(container, []).append(label)
+
+    def label_of(eid: str) -> str:
+        return " ".join(bound_text.get(eid, []))
+
+    groups: dict[str, dict] = {}
+    for el in live:
+        if el.get("type") == "frame":
+            name = el.get("name")
+            groups[el["id"]] = {"id": el["id"], "label": plain(name if isinstance(name, str) else ""), "parent": None}
+
+    def frame_of(el: dict) -> str | None:
+        frame = el.get("frameId")
+        return frame if frame in groups else None
+
+    nodes: dict[str, dict] = {}
+    for el in live:
+        if el.get("type") in EXCALIDRAW_NODES:
+            nodes[el["id"]] = {"id": el["id"], "label": label_of(el["id"]), "group": frame_of(el)}
+
+    edges: list[dict] = []
+    for el in live:
+        if el.get("type") not in EXCALIDRAW_LINKS:
+            continue
+        ends = []
+        for key in ("startBinding", "endBinding"):
+            binding = el.get(key)
+            ends.append(binding.get("elementId") if isinstance(binding, dict) else None)
+        if not all(isinstance(e, str) for e in ends):
+            if el["type"] == "line":
+                continue  # a plain line is decoration; only arrows carry meaning
+            raise DiagramImportError(
+                f"arrow {el['id']!r} is not bound to a shape at both ends; connect or delete it in the source"
+            )
+        edges.append({"from": ends[0], "to": ends[1], "label": label_of(el["id"])})
+    return finish("excalidraw", nodes, edges, groups)
+
+
+# ----------------------------------------------------------------- PlantUML
+
+PLANT_NAME = r'"[^"\n]+"|[A-Za-z_][\w.]*'
+PLANT_DECL = re.compile(
+    rf"^(?P<kind>participant|actor|boundary|control|entity|database|collections|queue|"
+    rf"abstract\s+class|abstract|class|interface|enum|annotation)\s+"
+    rf"(?P<name>{PLANT_NAME})(?:\s+as\s+(?P<alias>[\w.]+))?(?P<rest>.*)$"
+)
+PLANT_SEQ_KINDS = {"participant", "actor", "boundary", "control", "entity", "database", "collections", "queue"}
+PLANT_SEQ_MSG = re.compile(
+    rf"^(?P<a>{PLANT_NAME})\s*(?P<arrow><{{0,2}}[\\/ox]?-{{1,2}}(?:\[[^\]\n]*\])?-{{0,2}}[\\/ox]?>{{0,2}})\s*"
+    rf"(?P<b>{PLANT_NAME})\s*(?::\s*(?P<label>.*))?$"
+)
+PLANT_REL = re.compile(
+    rf"^(?P<a>{PLANT_NAME})\s*(?:\"[^\"\n]*\"\s*)?(?P<arrow>(?:<\|?|\*|o|\+|#|\^|\}})?(?:-+|\.+)"
+    rf"(?:\[[^\]\n]*\])?(?:-*|\.*)(?:\|>|>|\*|o|\+|#|\^)?)\s*(?:\"[^\"\n]*\"\s*)?"
+    rf"(?P<b>{PLANT_NAME})\s*(?::\s*(?P<label>.*))?$"
+)
+PLANT_IGNORED = re.compile(
+    r"^(?:(?:title|header|footer|skinparam|hide|show|autonumber|activate|deactivate|destroy|"
+    r"return|create|newpage|ref|set|scale)\b|left to right direction|top to bottom direction|"
+    r"==.*==|\.\.\..*|\|\|\||\|\|\d+\|\|)"
+)
+PLANT_BLOCK_OPEN = re.compile(r"^(?:alt|else|opt|loop|par|and|break|critical|group|box|partition)\b")
+PLANT_UNSUPPORTED = re.compile(
+    r"^(?:(?:state|usecase|component|node|cloud|frame|rectangle|artifact|storage|folder|"
+    r"start|stop|if|while|repeat|fork|object|map|json|yaml|salt|gantt|mindmap|wbs)\b|:.*;$)"
+)
+
+
+def _plant_name(raw: str) -> str:
+    raw = raw.strip()
+    return raw[1:-1] if raw.startswith('"') else raw
+
+
+def import_plantuml(text: str) -> dict:
+    """Sequence and class diagrams. Anything else is refused, not guessed at.
+
+    `!include`, `!pragma` and every other preprocessor line is dropped: nothing
+    named in a diagram is ever opened.
+    """
+    lines = []
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line or line.startswith("'") or line.startswith("/'"):
+            continue
+        lines.append(line)
+    if len(lines) > MAX_ELEMENTS:
+        raise DiagramImportError(f"more than {MAX_ELEMENTS} statements")
+    if lines and lines[0].lower().startswith("@start") and not lines[0].lower().startswith("@startuml"):
+        raise DiagramImportError(f"{lines[0].split()[0]} is not supported: only @startuml sequence and class diagrams")
+    lines = [ln for ln in lines if not ln.lower().startswith(("@startuml", "@enduml"))]
+
+    nodes: dict[str, dict] = {}
+    edges: list[dict] = []
+    groups: dict[str, dict] = {}
+    stack: list[tuple[str, str | None]] = []   # ("body" | "group" | "block", group id)
+    is_class = any(PLANT_DECL.match(ln) and PLANT_DECL.match(ln).group("kind") not in PLANT_SEQ_KINDS for ln in lines)
+    is_class = is_class or any(re.match(r"^(?:package|namespace)\b", ln) for ln in lines)
+
+    def current_group() -> str | None:
+        for kind, gid in reversed(stack):
+            if kind == "group":
+                return gid
+        return None
+
+    def touch(name: str, label: str | None = None, alias: str | None = None) -> str:
+        nid = alias or _plant_name(name)
+        if nid not in nodes:
+            nodes[nid] = {"id": nid, "label": plain(label if label is not None else _plant_name(name)),
+                          "group": current_group()}
+        elif label is not None:
+            nodes[nid]["label"] = plain(label)
+        return nid
+
+    in_note = False
+    for line in lines:
+        low = line.lower()
+        if in_note:
+            if re.match(r"^end\s*(?:note|legend)$", low) or low in {"endnote", "endlegend"}:
+                in_note = False
+            continue
+        if line.startswith("!"):
+            continue
+        if re.match(r"^(?:note|rnote|hnote)\b", low):
+            if ":" not in line:
+                in_note = True
+            continue
+        if re.match(r"^legend\b", low):
+            in_note = True
+            continue
+        if PLANT_IGNORED.match(line):
+            continue
+        if line == "}":
+            if not stack:
+                raise DiagramImportError("'}' without a matching '{'")
+            stack.pop()
+            continue
+        if stack and stack[-1][0] == "body":
+            continue                                    # class members are not structure
+        pkg = re.match(rf"^(?:package|namespace)\s+({PLANT_NAME})(?:\s+as\s+([\w.]+))?[^{{]*\{{$", line)
+        if pkg:
+            gid = pkg.group(2) or _plant_name(pkg.group(1))
+            if gid in groups or gid in nodes:
+                raise DiagramImportError(f"duplicate id {gid!r}")
+            groups[gid] = {"id": gid, "label": _plant_name(pkg.group(1)), "parent": current_group()}
+            stack.append(("group", gid))
+            if len(stack) > MAX_DEPTH:
+                raise DiagramImportError(f"nesting deeper than {MAX_DEPTH} levels")
+            continue
+        decl = PLANT_DECL.match(line)
+        if decl:
+            kind = decl.group("kind")
+            touch(decl.group("name"), alias=decl.group("alias"))
+            if kind not in PLANT_SEQ_KINDS and decl.group("rest").rstrip().endswith("{"):
+                stack.append(("body", None))
+            continue
+        if PLANT_UNSUPPORTED.match(line):
+            raise DiagramImportError(
+                f"unsupported PlantUML statement {line[:40]!r}: only sequence and class diagrams are imported"
+            )
+        if not is_class and (PLANT_BLOCK_OPEN.match(low) or low in {"end", "end box"}):
+            if low.startswith("end"):
+                if not stack:
+                    raise DiagramImportError("'end' without a matching block")
+                stack.pop()
+            elif not low.startswith(("else", "and")):
+                stack.append(("block", None))
+            continue
+        if is_class:
+            rel = PLANT_REL.match(line)
+            if rel:
+                arrow = rel.group("arrow")
+                a, b = touch(rel.group("a")), touch(rel.group("b"))
+                src, dst = (b, a) if arrow.startswith(("<|", "<")) else (a, b)
+                edges.append({"from": src, "to": dst, "label": plain(rel.group("label") or "")})
+                continue
+        else:
+            msg = PLANT_SEQ_MSG.match(line)
+            if msg and re.search(r"[<>]", msg.group("arrow")):
+                a, b = touch(msg.group("a")), touch(msg.group("b"))
+                src, dst = (b, a) if msg.group("arrow").startswith("<") else (a, b)
+                edges.append({"from": src, "to": dst, "label": plain((msg.group("label") or "").replace("\\n", " "))})
+                continue
+        raise DiagramImportError(f"cannot read PlantUML statement {line[:40]!r}")
+    if stack:
+        raise DiagramImportError(f"{stack[-1][0]} is never closed")
+    if not nodes:
+        raise DiagramImportError("no participants or classes found")
+    return finish("plantuml", nodes, edges, groups)
+
+
 # --------------------------------------------------------------------- main
+
+FORMATS = ("drawio", "mermaid", "excalidraw", "plantuml")
 
 
 def detect(path: Path, text: str) -> str:
-    if path.suffix.lower() in {".drawio", ".xml"} or text.lstrip().startswith("<"):
+    suffix = path.suffix.lower()
+    if suffix == ".excalidraw":
+        return "excalidraw"
+    if suffix in {".puml", ".plantuml", ".pu", ".wsd"} or text.lstrip().startswith("@startuml"):
+        return "plantuml"
+    if suffix in {".drawio", ".xml"} or text.lstrip().startswith("<"):
         return "drawio"
-    if path.suffix.lower() in {".mmd", ".mermaid"}:
-        return "mermaid"
+    if suffix == ".json" or text.lstrip().startswith("{"):
+        return "excalidraw"
     return "mermaid"
 
 
@@ -432,13 +671,17 @@ def import_file(path: Path, fmt: str | None = None, page: int = 0) -> dict:
     fmt = fmt or detect(path, text)
     if fmt == "drawio":
         return import_drawio(text, page)
+    if fmt == "excalidraw":
+        return import_excalidraw(text)
+    if fmt == "plantuml":
+        return import_plantuml(text)
     return import_mermaid(text)
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Extract diagram structure as neutral JSON (no coordinates).")
-    parser.add_argument("path", type=Path, help=".drawio / .xml or .mmd / .mermaid file")
-    parser.add_argument("--format", choices=("drawio", "mermaid"), help="override detection by extension")
+    parser.add_argument("path", type=Path, help=".drawio / .xml, .mmd / .mermaid, .excalidraw or .puml file")
+    parser.add_argument("--format", choices=FORMATS, help="override detection by extension")
     parser.add_argument("--page", type=int, default=0, help="draw.io page index (default 0)")
     args = parser.parse_args(argv)
     try:

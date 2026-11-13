@@ -31,13 +31,22 @@
   padding: 28px 0 0; border-top: 1px solid var(--rule-strong); }
 .how h2 { margin: 0 0 .4rem; font-size: 1.0625rem; letter-spacing: -.01em; }
 .how p { margin: 0; color: var(--muted); font-size: .9375rem; }
+.forms { margin: 64px 0 0; padding: 28px 0 0; border-top: 1px solid var(--rule-strong); }
+.forms > h2 { margin: 0 0 .4rem; font-size: 1.25rem; letter-spacing: -.01em; }
+.forms > p { margin: 0 0 24px; color: var(--muted); max-width: 64ch; }
+.form-spec { margin: 0 0 40px; }
+.form-spec h3 { margin: 0; font-size: 1.0625rem; }
+.form-spec .form-q { margin: .2rem 0 0; color: var(--ink); }
+.form-spec .frame { background: var(--surface-muted); border: 1px solid var(--rule);
+  border-radius: var(--radius-md); padding: 12px; margin-top: 12px; }
+.form-spec .form-layout { margin: .5rem 0 0; color: var(--muted); font-size: .9375rem; }
 .standalone { margin: 40px 0 0; color: var(--muted); font-size: .9375rem; }
 @media (max-width: 860px) { .how { grid-template-columns: minmax(0, 1fr); } }
 /* On a phone a figure scrolls inside its frame at a size its labels can be
    read at, rather than shrinking them to a few pixels. */
 @media (max-width: 640px) {
-  .gallery .frame { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .gallery .frame > svg[role="img"]:not([aria-label]) { min-width: 520px; }
+  .gallery .frame, .form-spec .frame { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .gallery .frame > svg[role="img"]:not([aria-label]), .form-spec .frame > svg { min-width: 600px; }
 }
 /* @@DARK */
 /* @@INLINE core/print.css @@ */
@@ -57,8 +66,14 @@
 <main id="figures">
 <!-- @@GALLERY -->
 
+<section class="forms" aria-labelledby="forms-h">
+  <h2 id="forms-h">Forms with a layout of their own</h2>
+  <p>@@SPECIMEN_WORD_CAP specimens, each hand-drawn on the primitives and checked like the rest. A form is listed only when its layout is new; the rules for each are in the diagram skill.</p>
+<!-- @@FORM_SPECIMENS -->
+</section>
+
 <section class="how" aria-label="How figures are made">
-  <div><h2>Drawn where position means something</h2><p>Architecture, change views, deployment maps and dependency graphs are hand-authored on a 4px grid with one accent, because their layout carries meaning.</p></div>
+  <div><h2>Drawn where position means something</h2><p>Architecture, change views, deployment maps, dependency graphs, journeys, story maps, event models, fishbones, cycles and evolution maps are hand-authored on a 4px grid with one accent, because their layout carries meaning.</p></div>
   <div><h2>Laid out where the protocol decides</h2><p>Sequence diagrams are prerendered from Mermaid; charts are computed with Plot. Both come out as SVG on tokens, never as images.</p></div>
   <div><h2>Checked, not eyeballed</h2><p>@@RULES_WORD_CAP geometry and markup rules run on every figure's coordinates, and every page is rendered at 1280px, 390px and print to catch clipping.</p></div>
 </section>
@@ -67,7 +82,7 @@
 </main>
 
 <footer class="site-foot">
-  <p>Mermaid and draw.io files are inputs: their structure is imported and redrawn on tokens. Rules and forms are in the <a href="@@REPO/blob/main/skills/diagram-design/SKILL.md">diagram</a> and <a href="@@REPO/blob/main/skills/chart-design/SKILL.md">chart</a> skills.</p>
+  <p>Mermaid, draw.io, Excalidraw and PlantUML files are inputs: their structure is imported and redrawn on tokens. Rules and forms are in the <a href="@@REPO/blob/main/skills/diagram-design/SKILL.md">diagram</a> and <a href="@@REPO/blob/main/skills/chart-design/SKILL.md">chart</a> skills.</p>
 </footer>
 </div>
 </body>

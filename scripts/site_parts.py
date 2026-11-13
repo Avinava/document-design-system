@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Pieces every GitHub Pages page shares: navigation, meta tags, dark mode.
 
-Imported by scripts/build_site.py (index, modules, figures, themes) and
+Imported by scripts/build_site.py (index, how it works, modules, figures, themes) and
 scripts/build_examples.py (the Patterns page, which is also built locally as
 examples/index.html). Standard library only. Repository-only.
 """
@@ -45,11 +45,15 @@ WORDMARK_TEXT = 'document<span class="hyphen">-</span>design<span class="hyphen"
 # light theme's type so the page does not change family under them.
 SITE_THEME = "executive-navy"
 DARK_THEME = "console-violet"
-DARK_KEEP = re.compile(r"^--(?:display|sans|mono|radius-[a-z]+)$")
+DARK_KEEP = re.compile(
+    r"^--(?:display(?:-[a-z]+)?|sans|mono|radius-[a-z]+|text-base|scale-ratio"
+    r"|density|hero-rule-width|section-rule-width|eyebrow-[a-z]+)$"
+)
 
 # (label, href). The order is the site's reading order.
 NAV = (
     ("Story", "index.html"),
+    ("How it works", "how-it-works.html"),
     ("Patterns", "types.html"),
     ("Modules", "modules.html"),
     ("Figures", "figures.html"),

@@ -56,6 +56,9 @@ MODES = {
     "print": (None, 1123, "print"),
 }
 
+# Added for pages that declare data-width="full" on the root element.
+WIDE_MODES = {"1920": (1920, 1080, "screen")}
+
 PAGE_WIDTH = r"""
 () => {
   const px = (v) => {
@@ -234,12 +237,16 @@ def check(
                 page.add_style_tag(content="\n".join(css.values()))
                 page.evaluate("document.fonts.ready")
                 original = page.evaluate("document.documentElement.getAttribute('data-theme')")
+                # A full-width page is also checked on a wide monitor, where
+                # the shell has the most room to stretch.
+                full = page.evaluate("document.documentElement.dataset.width === 'full'")
+                modes = {**MODES, **WIDE_MODES} if full else MODES
                 seen: set[str] = set()
                 for theme in css:
                     page.evaluate("(t) => document.documentElement.setAttribute('data-theme', t)", theme)
                     page.evaluate("document.fonts.ready")
                     for scheme in schemes or [None]:
-                        for mode, (w, h, media) in MODES.items():
+                        for mode, (w, h, media) in modes.items():
                             if w is None:
                                 w = page.evaluate(PAGE_WIDTH)
                             page.set_viewport_size({"width": w, "height": h})

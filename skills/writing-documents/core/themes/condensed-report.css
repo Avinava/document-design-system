@@ -1,0 +1,56 @@
+/* condensed-report — status reports, risk registers, plans, estimates, reviews.
+ *
+ * A working voice. A condensed face in uppercase headings, tight spacing,
+ * square corners, 3px rules, and a cool concrete paper under white tables so
+ * dense data stays easy to scan. One plum accent, clear of every other theme.
+ *
+ * Uppercase condensed headings are short by design. Keep titles to a line or
+ * two, and put the sentence in the lede.
+ *
+ * Fonts: Barlow Condensed (display), Barlow (body), IBM Plex Mono (mono).
+ */
+
+[data-theme="condensed-report"] {
+  --paper: #e8e7e3;
+  --surface: #ffffff;
+  --surface-muted: #dddcd7;
+
+  --ink: #1b1d20;
+  --muted: #464a50;
+  --soft: #575b61;
+
+  --rule: rgba(27, 29, 32, 0.18);
+  --rule-strong: rgba(27, 29, 32, 0.5);
+
+  --accent: #a02fa8;
+  --accent-tint: rgba(160, 47, 168, 0.10);
+  --accent-ink: #ffffff;
+
+  --positive: #2f7254;
+  --warning: #8f5c10;
+  --critical: #a13f45;
+
+  --method-bg: #1b1d20;
+  --method-ink: #f3f2ee;
+  --method-muted: #c9c8c3;
+
+  --display: 'Barlow Condensed', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+  --sans: 'Barlow', 'Helvetica Neue', Arial, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --radius-sm: 0;
+  --radius-md: 0;
+
+  --text-base: 1rem;
+  --scale-ratio: 1.25;
+  --display-weight: 700;
+  --display-tracking: 0.01em;
+  --display-leading: 1.05;
+  --display-transform: uppercase;
+
+  --density: 0.85;
+  --hero-rule-width: 3px;
+  --section-rule-width: 3px;
+  --eyebrow-tracking: 0.08em;
+  --eyebrow-transform: uppercase;
+}

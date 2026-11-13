@@ -1,15 +1,5 @@
 <article class="doc">
-  <header class="doc-hero">
-    <p class="eyebrow">Engineering handoff · Northwind Ingestion</p>
-    <h1>Take ownership without rediscovering the failure boundaries</h1>
-    <p class="lede">This handoff gives the incoming owner the current runtime path, safe controls, in-flight decisions, and the first week of proof.</p>
-    <div class="doc-meta" aria-label="Handoff metadata">
-      <span><strong>As of:</strong> 2026-08-18</span>
-      <span><strong>From:</strong> Platform</span>
-      <span><strong>To:</strong> incoming owner</span>
-      <span><strong>Scope:</strong> gateway through warehouse landing</span>
-    </div>
-  </header>
+  <header class="doc-hero"><p class="eyebrow">Engineering handoff · Northwind Ingestion</p><h1>Take ownership without rediscovering the failure boundaries</h1><p class="lede">This handoff gives the incoming owner the current runtime path, safe controls, in-flight decisions, and the first week of proof.</p><div class="doc-meta" aria-label="Handoff metadata"><span><strong>As of:</strong> 2026-08-18</span><span><strong>From:</strong> Platform</span><span><strong>To:</strong> incoming owner</span><span><strong>Scope:</strong> gateway through warehouse landing</span></div><div class="hero-checklist"><p class="component-label">Before you start</p><ul><li>The one-minute status below, read before you touch anything</li><li>The committed test path runs locally with no production credentials</li><li>A named owner for each failure boundary</li></ul></div></header>
 
   <section aria-labelledby="status">
     <h2 id="status">Current status in one minute</h2>
@@ -43,7 +33,7 @@
 
   <section class="section" aria-labelledby="week-one">
     <div class="section-head"><span class="section-num">04</span><h2 id="week-one">First-week checklist</h2><span class="reading-time">proof</span></div>
-    <ul><li>Run the local proof above.</li><li>Shadow one Platform on-call review and locate the escalation policy.</li><li>Read RFC 014, ADR 009, the API companion, and the latest postmortem in that order.</li><li>Reconcile the dashboard queue name with the deployment manifest.</li><li>Write down any access gap; do not place credentials in this document.</li></ul>
+    <ul class="check-list"><li>Run the local proof above.</li><li>Shadow one Platform on-call review and locate the escalation policy.</li><li>Read RFC 014, ADR 009, the API companion, and the latest postmortem in that order.</li><li>Reconcile the dashboard queue name with the deployment manifest.</li><li>Write down any access gap; do not place credentials in this document.</li></ul>
     <div class="takeaway"><p><strong>Handoff is complete when:</strong> the incoming owner can explain the current and proposed paths, run the local proof, identify the safe incident control, and name the two unresolved RFC decisions.</p></div>
   </section>
 </article>

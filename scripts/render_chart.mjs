@@ -295,6 +295,19 @@ function buildMarks(Plot, spec) {
 }
 
 /**
+ * Plot pins the y label 3px below the viewBox top, so a typeface with taller
+ * ascenders than the default (a serif display face) pokes out and is clipped.
+ * scripts/check_render.py measures exactly that. Move the label down 6px; the
+ * plot area gets a matching top margin so it still clears the first tick.
+ */
+function lowerYLabel(svg) {
+  return svg.replace(
+    /(aria-label="y-axis label"[^>]*transform="translate\()(-?[\d.]+),(-?[\d.]+)\)/,
+    (_, head, x, y) => `${head}${x},${Number(y) + 6})`,
+  );
+}
+
+/**
  * Strip Plot's hardcoded presentation and route it through the token system.
  */
 function detheme(svg) {
@@ -418,6 +431,7 @@ async function main() {
     height: size.height,
     marginLeft: spec.form === 'bars' ? 130 : 56,
     marginBottom: 44,
+    ...(spec.yLabel ? { marginTop: 28 } : {}),
     style: { background: 'transparent' },
     x: {
       label: spec.xLabel ?? null,
@@ -442,6 +456,7 @@ async function main() {
 
   let svg = chart.outerHTML ?? String(chart);
   svg = detheme(svg);
+  if (spec.yLabel) svg = lowerYLabel(svg);
   svg = makeResponsive(svg, size.width);
   svg = addA11y(svg, slug, spec.title, spec.desc);
 

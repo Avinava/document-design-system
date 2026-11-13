@@ -206,8 +206,11 @@ inventing another organization.
 
 ## Theme use
 
-Internal working documents use `field-notes` or `console-violet`. Leadership
-proposals use `executive-navy`. Test, teaching, and design artifacts may use
+Internal working documents use `field-notes` or `console-violet`. Documents
+that are read and decided on (decision records, explanations, discovery) use
+`serif-editorial`; documents that are scanned (status, plans, estimates,
+registers, readiness reviews) use `condensed-report`. Leadership proposals use
+`executive-navy`. Test, teaching, and design artifacts may use
 `editorial-coral`. The `horizon` theme is the worked brand variant. A theme
 changes voice; it never changes facts or document structure.
 

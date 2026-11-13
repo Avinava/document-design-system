@@ -1,10 +1,5 @@
 <article class="doc">
-  <header class="doc-hero">
-    <p class="eyebrow">How-to · producer recovery</p>
-    <h1>Replay a shed event without creating a duplicate</h1>
-    <p class="lede">Use the original event ID, confirm it did not already land, and retry only when the response marks the failure as retryable.</p>
-    <div class="doc-meta" aria-label="How-to metadata"><span><strong>Audience:</strong> producer engineers</span><span><strong>Time:</strong> 10 minutes</span><span><strong>Applies after:</strong> RFC 014 shed behavior ships</span></div>
-  </header>
+  <header class="doc-hero"><p class="eyebrow">How-to · producer recovery</p><h1>Replay a shed event without creating a duplicate</h1><p class="lede">Use the original event ID, confirm it did not already land, and retry only when the response marks the failure as retryable.</p><div class="doc-meta" aria-label="How-to metadata"><span><strong>Audience:</strong> producer engineers</span><span><strong>Time:</strong> 10 minutes</span><span><strong>Applies after:</strong> RFC 014 shed behavior ships</span></div><div class="hero-checklist"><p class="component-label">Before you start</p><ul><li>You are a producer engineer, not an operator</li><li>About 10 minutes</li><li>RFC 014 shed behavior has shipped</li></ul></div></header>
 
   <section aria-labelledby="before">
     <h2 id="before">Before you start</h2>
@@ -26,6 +21,6 @@
 
   <section class="section" aria-labelledby="done">
     <div class="section-head"><span class="section-num">02</span><h2 id="done">You are done when</h2><span class="reading-time">success</span></div>
-    <div class="takeaway"><p>The lookup returns exactly one event with <code>id=evt_02</code>, the replay response is recorded with its request ID, and the producer’s shed counter does not increase again for that attempt.</p></div>
+    <div class="result-check"><p class="component-label">Result check</p><ul><li>The lookup returns exactly one event with <code>id=evt_02</code>.</li><li>The replay response is recorded with its request ID.</li><li>The producer’s shed counter does not increase again for that attempt.</li></ul></div>
   </section>
 </article>

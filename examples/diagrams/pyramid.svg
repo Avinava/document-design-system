@@ -1,0 +1,45 @@
+<svg role="img" aria-labelledby="py-title py-desc" viewBox="0 0 720 364" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+  <title id="py-title">Pyramid of checks by cost</title>
+  <desc id="py-desc">Four layers stack like a pyramid, narrowest at the top: end to end, service, contract and unit. Width shows how many checks to keep at each level, with few at the slow and costly top and most at the fast bottom. The service layer is accented as the one the team is changing.</desc>
+
+  <defs>
+    <marker id="py-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerUnits="userSpaceOnUse"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <g class="node">
+    <rect x="236" y="60" width="128" height="56" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="300" y="92" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">End to end</text>
+  </g>
+  <g class="node node-focal">
+    <rect x="180" y="128" width="240" height="56" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="300" y="160" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Service</text>
+  </g>
+  <g class="node">
+    <rect x="124" y="196" width="352" height="56" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="300" y="228" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Contract</text>
+  </g>
+  <g class="node">
+    <rect x="68" y="264" width="464" height="56" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="300" y="296" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Unit</text>
+  </g>
+  <path class="edge" d="M40 312 V 60" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#py-arrow)"/>
+  <g class="annotation">
+    <text x="28" y="48" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">SLOWER, COSTLIER</text>
+  </g>
+  <g class="annotation">
+    <text x="548" y="84" font-family="var(--sans)" font-size="13" fill="var(--ink)">few</text>
+    <text x="548" y="152" font-family="var(--sans)" font-size="13" fill="var(--ink)">some</text>
+    <text x="548" y="220" font-family="var(--sans)" font-size="13" fill="var(--ink)">many</text>
+    <text x="548" y="288" font-family="var(--sans)" font-size="13" fill="var(--ink)">most</text>
+    <text x="548" y="102" font-family="var(--sans)" font-size="11" fill="var(--muted)">slowest, widest scope</text>
+    <text x="548" y="170" font-family="var(--sans)" font-size="11" fill="var(--muted)">real queue, fake edges</text>
+    <text x="548" y="238" font-family="var(--sans)" font-size="11" fill="var(--muted)">one boundary at a time</text>
+    <text x="548" y="306" font-family="var(--sans)" font-size="11" fill="var(--muted)">fast, narrow</text>
+  </g>
+  <g class="legend">
+    <text x="28" y="348" font-family="var(--sans)" font-size="11" fill="var(--muted)">Width is how many checks to keep at that level, not a measurement.</text>
+  </g>
+</svg>

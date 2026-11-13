@@ -89,6 +89,19 @@
 
   --radius-sm: 3px;
   --radius-md: 5px;
+
+  --text-base: 1rem;
+  --scale-ratio: 1.22;
+  --display-weight: 500;
+  --display-tracking: -0.02em;
+  --display-leading: 1.2;
+  --display-transform: none;
+
+  --density: 0.9;
+  --hero-rule-width: 1px;
+  --section-rule-width: 1px;
+  --eyebrow-tracking: 0.12em;
+  --eyebrow-transform: uppercase;
 }
 
 /* --- print ------------------------------------------------------------
@@ -149,7 +162,7 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--sans);
-  font-size: 16px;
+  font-size: var(--text-base);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
@@ -169,6 +182,38 @@ body {
 [data-theme] {
   --comparison-fill: color-mix(in srgb, var(--muted) 16%, transparent);
   --track-fill: color-mix(in srgb, var(--muted) 10%, transparent);
+}
+
+/* --- scale and spacing, derived from the voice tokens ----------------
+ *
+ * Each type step is the previous one times --scale-ratio, and each space step
+ * is a fixed fraction of a rem times --density. Components read these, never a
+ * literal size, so a theme changes its pace by changing two numbers. A pattern
+ * may set --pattern-density on the root; it multiplies the theme's --density
+ * (1 when absent), so a procedure reads tighter than a primer in any theme.
+ *
+ * On [data-theme] as well as :root, for the same reason as the derived
+ * tokens above. The theme's own values are not defaulted here: this file
+ * loads after the theme and an equal-specificity default would overwrite it. */
+:root,
+[data-theme] {
+  --step-0: var(--text-base);
+  --step--1: calc(var(--step-0) / var(--scale-ratio));
+  --step-1: calc(var(--step-0) * var(--scale-ratio));
+  --step-2: calc(var(--step-1) * var(--scale-ratio));
+  --step-3: calc(var(--step-2) * var(--scale-ratio));
+  --step-4: calc(var(--step-3) * var(--scale-ratio));
+  --step-5: calc(var(--step-4) * var(--scale-ratio));
+  --step-6: calc(var(--step-5) * var(--scale-ratio));
+  --step-7: calc(var(--step-6) * var(--scale-ratio));
+
+  --space-1: calc(0.25rem * var(--density) * var(--pattern-density, 1));
+  --space-2: calc(0.5rem * var(--density) * var(--pattern-density, 1));
+  --space-3: calc(0.75rem * var(--density) * var(--pattern-density, 1));
+  --space-4: calc(1rem * var(--density) * var(--pattern-density, 1));
+  --space-5: calc(1.5rem * var(--density) * var(--pattern-density, 1));
+  --space-6: calc(2.5rem * var(--density) * var(--pattern-density, 1));
+  --space-7: calc(3.5rem * var(--density) * var(--pattern-density, 1));
 }
 
 /* --- token aliases for embedded renderers ---------------------------
@@ -207,14 +252,15 @@ h1, h2, h3,
 .metric-value,
 .focal-value {
   font-family: var(--display);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.2;
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: var(--display-leading);
+  text-transform: var(--display-transform);
 }
 
-h1 { font-size: 2rem; margin: 0 0 0.5rem; }
-h2 { font-size: 1.375rem; margin: 2.5rem 0 0.75rem; }
-h3 { font-size: 1.0625rem; margin: 1.75rem 0 0.5rem; }
+h1 { font-size: var(--step-4); margin: 0 0 var(--space-2); }
+h2 { font-size: var(--step-2); margin: var(--space-6) 0 var(--space-3); }
+h3 { font-size: var(--step-1); margin: calc(1.75rem * var(--density)) 0 var(--space-2); }
 
 p { margin: 0 0 1rem; max-width: 68ch; }
 
@@ -234,8 +280,8 @@ code,
 
 .eyebrow {
   color: var(--soft);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  text-transform: var(--eyebrow-transform);
+  letter-spacing: var(--eyebrow-tracking);
 }
 
 .subtle { color: var(--muted); }
@@ -406,20 +452,30 @@ a { color: inherit; text-underline-offset: 2px; }
   --content-measure: 68ch;
   max-width: var(--doc-max);
   margin: 0 auto;
-  padding: 48px 32px 80px;
+  padding: calc(48px * var(--density)) 32px calc(80px * var(--density));
 }
 
+/* The opening. Every pattern owns one (see "Openings" in
+ * core/document-patterns.md); its grid and parts are in the pattern's section
+ * below. --hero-cols is the pattern's column template, collapsed to one column
+ * in the responsive block. */
 .doc-hero {
-  border-top: 3px solid var(--accent);
+  display: grid;
+  grid-template-columns: var(--hero-cols, minmax(0, 1fr));
+  column-gap: var(--space-6);
+  align-content: start;
+  border-top: var(--hero-rule-width) solid var(--accent);
   padding-top: 1.25rem;
-  margin-bottom: 2.5rem;
+  margin-bottom: var(--space-6);
 }
+
+.doc-hero > * { grid-column: 1; min-width: 0; }
 
 .doc-hero h1 {
   max-width: 24ch;
-  font-size: clamp(2rem, 4vw, 3.25rem);
-  letter-spacing: -0.03em;
-  margin-bottom: 0.75rem;
+  font-size: clamp(var(--step-4), 4vw, var(--step-7));
+  letter-spacing: calc(var(--display-tracking) - 0.02em);
+  margin-bottom: var(--space-3);
 }
 
 .doc-hero .lede {
@@ -447,9 +503,9 @@ a { color: inherit; text-underline-offset: 2px; }
 .status-banner strong { font-weight: 600; }
 
 .section {
-  border-top: 1px solid var(--rule-strong);
-  margin-top: 3.5rem;
-  padding-top: 1.5rem;
+  border-top: var(--section-rule-width) solid var(--rule-strong);
+  margin-top: var(--space-7);
+  padding-top: var(--space-5);
 }
 
 .section-head {
@@ -707,7 +763,33 @@ pre .lang {
 
 /* ------------------------------------------------------------- decision */
 
+/* pattern: decision. Split hero: the argument on the left, the facts a
+ * decider needs (status, date, owner) as a ledger at the side. */
+html[data-pattern="decision"] { --pattern-density: 1; }
 html[data-pattern="decision"] .doc { --doc-max: 1100px; }
+html[data-pattern="decision"] .doc-hero { --hero-cols: minmax(0, 1fr) minmax(220px, 300px); }
+
+.hero-aside {
+  align-self: start;
+  padding: 1rem 1.15rem;
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-top: 4px solid var(--accent);
+  border-radius: var(--radius-md);
+}
+
+.hero-aside dl { margin: 0.5rem 0 0; }
+
+.hero-aside dl > div {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.55rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.hero-aside dl > div:first-child { border-top: 0; }
+.hero-aside dt { color: var(--soft); font: 500 0.6875rem/1.4 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+.hero-aside dd { margin: 0; font-weight: 600; }
 
 .doc-grid {
   display: grid;
@@ -774,8 +856,41 @@ html[data-pattern="decision"] .doc { --doc-max: 1100px; }
 
 /* --------------------------------------------------------------- record */
 
+/* pattern: record. A narrow page that opens with a stamp: the status and the
+ * record number, set like a seal in the corner. Plain mono section numbers. */
+html[data-pattern="record"] { --pattern-density: 0.9; }
 html[data-pattern="record"] .doc { --doc-max: 860px; }
-html[data-pattern="record"] .doc-hero { margin-bottom: 1.75rem; }
+html[data-pattern="record"] .doc-hero { --hero-cols: minmax(0, 1fr) auto; margin-bottom: 1.75rem; }
+html[data-pattern="record"] .section { margin-top: var(--space-6); }
+html[data-pattern="record"] .section-num {
+  width: auto;
+  height: auto;
+  background: none;
+  color: var(--accent);
+  font: 600 0.8125rem/1 var(--mono);
+}
+
+.hero-stamp {
+  display: grid;
+  gap: 0.2rem;
+  align-self: start;
+  justify-items: center;
+  margin: 0;
+  padding: 0.6rem 1.1rem;
+  border: var(--hero-rule-width) double var(--accent);
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  text-align: center;
+  transform: rotate(-2deg);
+}
+
+.hero-stamp strong {
+  font: 700 var(--step-1)/1.1 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hero-stamp span { font: 500 var(--step--1)/1.3 var(--mono); letter-spacing: 0.08em; }
 
 .decision-statement {
   margin: 1.5rem 0 2.25rem;
@@ -799,7 +914,31 @@ html[data-pattern="record"] .doc-hero { margin-bottom: 1.75rem; }
 
 /* ------------------------------------------------------------- contract */
 
-html[data-pattern="contract"] .doc { --doc-max: 1160px; }
+/* pattern: contract. An index masthead: a double rule over the title and a
+ * ruled row of the facts a citation needs, like the front matter of a
+ * standard. Outlined section numbers; tight, so a rule is quick to find. */
+html[data-pattern="contract"] { --pattern-density: 0.9; }
+html[data-pattern="contract"] .doc { --doc-max: 1160px; --content-measure: 76ch; }
+html[data-pattern="contract"] .doc-hero { border-top-style: double; border-top-width: calc(var(--hero-rule-width) * 2); }
+html[data-pattern="contract"] .section { margin-top: var(--space-6); border-top-width: calc(var(--section-rule-width) * 2); }
+html[data-pattern="contract"] .section-num {
+  background: none;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 0;
+}
+
+.hero-index {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  margin: var(--space-4) 0 0;
+  border-block: 1px solid var(--rule-strong);
+}
+
+.hero-index > div { padding: 0.7rem 1rem 0.8rem 0; }
+.hero-index > div + div { padding-left: 1rem; border-left: 1px solid var(--rule); }
+.hero-index dt { color: var(--soft); font: 500 0.6875rem/1.4 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+.hero-index dd { margin: 0.2rem 0 0; font: 600 0.9375rem/1.35 var(--mono); overflow-wrap: anywhere; }
 
 .contract-layout {
   display: grid;
@@ -842,7 +981,36 @@ html[data-pattern="contract"] .doc { --doc-max: 1160px; }
 
 /* ------------------------------------------------------------ procedure */
 
+/* pattern: procedure. A precondition checklist beside the title: the reader
+ * confirms what must be true before the first step. Tight spacing. */
+html[data-pattern="procedure"] { --pattern-density: 0.85; }
 html[data-pattern="procedure"] .doc { --doc-max: 1000px; }
+html[data-pattern="procedure"] .doc-hero { --hero-cols: minmax(0, 1fr) minmax(240px, 320px); }
+html[data-pattern="procedure"] .section { margin-top: var(--space-6); }
+
+.hero-checklist {
+  align-self: start;
+  padding: 1rem 1.15rem 1.1rem;
+  background: var(--accent-tint);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius-md);
+}
+
+.hero-checklist .component-label { margin: 0 0 0.6rem; }
+.hero-checklist ul { display: grid; gap: 0.6rem; margin: 0; padding: 0; list-style: none; }
+.hero-checklist li { position: relative; padding-left: 1.65rem; font-size: var(--step-0); line-height: 1.45; }
+
+.hero-checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.2em;
+  width: 0.95rem;
+  height: 0.95rem;
+  border: 2px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+}
 
 .procedure-steps {
   list-style: none;
@@ -895,16 +1063,40 @@ html[data-pattern="procedure"] .doc { --doc-max: 1000px; }
 
 /* ------------------------------------------------------------- learning */
 
+/* pattern: learning. The outcome comes first and sets the pace: a large
+ * title, then the promise in a generous measure. The loosest density. */
+html[data-pattern="learning"] { --pattern-density: 1.15; }
+
 html[data-pattern="learning"] .doc {
   --doc-max: 960px;
+  --content-measure: 72ch;
   font-size: 1.0625rem;
   line-height: 1.65;
 }
 
+html[data-pattern="learning"] .doc-hero { border-top-width: calc(var(--hero-rule-width) * 2); padding-top: var(--space-5); }
+html[data-pattern="learning"] .doc-hero h1 { max-width: 20ch; font-size: clamp(var(--step-5), 5vw, var(--step-7)); }
+
 html[data-pattern="learning"] .section {
-  border-top-width: 2px;
-  margin-top: 4.5rem;
-  padding-top: 2rem;
+  border-top-width: calc(var(--section-rule-width) * 2);
+  margin-top: var(--space-7);
+  padding-top: var(--space-5);
+}
+
+.hero-outcome {
+  margin: var(--space-4) 0 var(--space-3);
+  padding-left: var(--space-4);
+  border-left: 4px solid var(--accent);
+}
+
+.hero-outcome .component-label { margin: 0 0 0.3rem; }
+.hero-outcome .lede { max-width: 66ch; margin: 0; font-size: var(--step-1); line-height: 1.5; color: var(--ink); }
+
+html[data-pattern="learning"] .doc-hero .doc-meta {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  color: var(--muted);
 }
 
 /* Learning goal: what the reader will be able to do at the end, stated
@@ -951,7 +1143,23 @@ html[data-pattern="learning"] .section {
 
 /* --------------------------------------------------------------- system */
 
+/* pattern: system. The map is in the hero: title and facts on top, the framed
+ * figure at full width beneath, before any prose. */
+html[data-pattern="system"] { --pattern-density: 1; }
 html[data-pattern="system"] .doc { --doc-max: 1180px; }
+html[data-pattern="system"] .doc-hero h1 { max-width: 30ch; }
+
+.hero-figure {
+  margin: var(--space-5) 0 0;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+}
+
+.hero-figure figcaption { margin-top: 0.6rem; }
+.hero-figure .system-map { margin: 0; padding: 0; background: none; border: 0; }
+.hero-figure .state-grid { margin: 0; grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
 .system-map {
   margin: 2rem 0;
@@ -977,7 +1185,33 @@ html[data-pattern="system"] .doc { --doc-max: 1180px; }
 
 /* ------------------------------------------------------------- incident */
 
+/* pattern: incident. Severity first: a full-width band above the title with
+ * the level and the headline impact numbers, ruled in the critical status. */
+html[data-pattern="incident"] { --pattern-density: 0.95; }
 html[data-pattern="incident"] .doc { --doc-max: 1080px; }
+html[data-pattern="incident"] .doc-hero { border-top: 0; padding-top: 0; }
+html[data-pattern="incident"] .section { border-top-width: calc(var(--section-rule-width) * 2); }
+
+.hero-band {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 2rem;
+  margin: 0 0 var(--space-5);
+  padding: 0.9rem 1.25rem;
+  background: var(--surface);
+  border-block: calc(var(--hero-rule-width) * 2) solid var(--critical);
+}
+
+.hero-band > strong {
+  color: var(--critical);
+  font: 700 var(--step-3)/1 var(--display);
+  letter-spacing: 0.04em;
+}
+
+.hero-band ul { display: flex; flex-wrap: wrap; gap: 0.4rem 2rem; margin: 0; padding: 0; list-style: none; }
+.hero-band li { color: var(--muted); font-size: var(--step--1); }
+.hero-band b { margin-right: 0.3rem; color: var(--ink); font: 700 var(--step-1)/1 var(--display); }
 
 .impact-strip {
   display: grid;
@@ -1041,13 +1275,73 @@ html[data-pattern="incident"] .doc { --doc-max: 1080px; }
 
 /* ---------------------------------------------------------------- suite */
 
+/* pattern: suite. A service index: the documents in the set are the first
+ * thing on the page, one tile each, before any orientation. */
+html[data-pattern="suite"] { --pattern-density: 1; }
 html[data-pattern="suite"] .doc { --doc-max: 1120px; }
+html[data-pattern="suite"] .doc-hero h1 { max-width: 28ch; }
+
+.hero-services {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1px;
+  margin: var(--space-5) 0 0;
+  background: var(--rule-strong);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.hero-services a {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+  padding: 0.8rem 0.9rem;
+  background: var(--surface);
+  text-decoration: none;
+}
+
+.hero-services span { color: var(--soft); font: 500 0.6875rem/1.4 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+.hero-services code { overflow-wrap: anywhere; font-size: var(--step--1); }
 .document-map { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .document-map a { text-decoration: none; }
 
 /* ----------------------------------------------------------------- plan */
 
+/* pattern: plan. A milestone-rail masthead: the dated baseline runs across
+ * the top as a rail with a stop for each gate. */
+html[data-pattern="plan"] { --pattern-density: 0.95; }
 html[data-pattern="plan"] .doc { --doc-max: 1160px; }
+html[data-pattern="plan"] .doc-hero { margin-bottom: var(--space-5); }
+html[data-pattern="plan"] .doc-hero h1 { max-width: 30ch; }
+html[data-pattern="plan"] .section { border-top-width: calc(var(--section-rule-width) * 2); }
+
+.hero-rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 0;
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 2px solid var(--rule-strong);
+}
+
+.hero-rail li { position: relative; display: grid; gap: 0.2rem; padding: 1rem 0.75rem 0 0; }
+
+.hero-rail li::before {
+  content: "";
+  position: absolute;
+  top: -0.4rem;
+  left: 0;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.hero-rail b { color: var(--accent); font: 600 0.8125rem/1.3 var(--mono); }
+.hero-rail span { color: var(--muted); font-size: var(--step--1); line-height: 1.35; }
 
 .plan-layout {
   display: grid;
@@ -1112,7 +1406,29 @@ html[data-pattern="plan"] .doc { --doc-max: 1160px; }
 
 /* ------------------------------------------------------------- assurance */
 
+/* pattern: assurance. A verdict stamp: the finding as a solid accent block
+ * under the title, before the evidence that earns it. */
+html[data-pattern="assurance"] { --pattern-density: 1; }
 html[data-pattern="assurance"] .doc { --doc-max: 1180px; }
+html[data-pattern="assurance"] .doc-hero { margin-bottom: var(--space-5); }
+html[data-pattern="assurance"] .doc-hero h1 { max-width: 30ch; }
+html[data-pattern="assurance"] .section { border-top-width: calc(var(--section-rule-width) * 2); }
+
+.hero-verdict {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1.25rem;
+  max-width: none;
+  margin: var(--space-4) 0 0;
+  padding: 0.9rem 1.25rem;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-radius: var(--radius-md);
+}
+
+.hero-verdict span { font: 500 0.75rem/1.3 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.hero-verdict strong { font: 700 var(--step-4)/1.1 var(--display); }
 
 .assurance-layout {
   display: grid;
@@ -1137,8 +1453,26 @@ html[data-pattern="assurance"] .doc { --doc-max: 1180px; }
 
 /* ---------------------------------------------------------------- brief */
 
+/* pattern: brief. A dated compact masthead: the dateline on a full rule, a
+ * short title beside its lede, the facts inline, all on the first screen. */
+html[data-pattern="brief"] { --pattern-density: 0.8; }
 html[data-pattern="brief"] .doc { --doc-max: 1060px; }
-html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
+html[data-pattern="brief"] .doc-hero { --hero-cols: minmax(0, 3fr) minmax(0, 2fr); padding-top: 0; margin-bottom: 1.5rem; }
+html[data-pattern="brief"] .doc-hero h1 { max-width: none; font-size: clamp(var(--step-2), 3vw, var(--step-4)); }
+html[data-pattern="brief"] .doc-hero .lede { align-self: end; font-size: var(--step-0); }
+html[data-pattern="brief"] .doc-hero .doc-meta { grid-column: 1 / -1; border-width: 1px 0 0; border-radius: 0; padding: 0.6rem 0 0; }
+html[data-pattern="brief"] .section { margin-top: var(--space-6); }
+
+.hero-dateline {
+  grid-column: 1 / -1;
+  max-width: none;
+  margin: 0 0 var(--space-3);
+  padding: 0.55rem 0;
+  border-block: var(--hero-rule-width) solid var(--accent);
+  font: 600 0.75rem/1.3 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
 
 .brief-status {
   display: grid;
@@ -1183,9 +1517,524 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
 
 .action-required h2 { margin: .35rem 0; }
 
+/* ------------------------------------------------------------ type modules */
+
+/* Each module below belongs to one type's reader. The pattern sections say how
+ * a family opens and flows; these say what that type's central object looks
+ * like once the reader reaches it, so two types in one family differ below the
+ * hero. Status is always a written word; colour only reinforces it. */
+
+b[data-tone] {
+  --tone: var(--muted);
+  display: inline-block;
+  padding: 0.1rem 0.55rem;
+  border: 1px solid var(--tone);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--tone) 14%, transparent);
+  color: var(--ink);
+  font: 600 0.75rem/1.5 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+b[data-tone="positive"] { --tone: var(--positive); }
+b[data-tone="warning"] { --tone: var(--warning); }
+b[data-tone="critical"] { --tone: var(--critical); }
+b[data-tone="accent"] { --tone: var(--accent); }
+
+/* Row ledgers: one bordered list, one row per item, a column template per
+ * module in --cols. Each module below sets only its columns and its accents. */
+:is(
+  .delta-ledger, .error-catalog, .config-keys, .conformance, .deliverable-ledger,
+  .priority-ladder, .component-spec, .freshness, .threat-matrix, .agreements,
+  .change-ledger, .roster, .term-list, .layer-stack
+) {
+  list-style: none;
+  margin: var(--space-5) 0;
+  padding: 0;
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+}
+
+:is(
+  .delta-ledger, .error-catalog, .config-keys, .conformance, .deliverable-ledger,
+  .priority-ladder, .component-spec, .freshness, .threat-matrix, .agreements,
+  .change-ledger, .roster, .term-list, .layer-stack
+) > li {
+  display: grid;
+  grid-template-columns: var(--cols);
+  gap: var(--space-2) var(--space-4);
+  align-items: baseline;
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--rule);
+}
+
+:is(
+  .delta-ledger, .error-catalog, .config-keys, .conformance, .deliverable-ledger,
+  .priority-ladder, .component-spec, .freshness, .threat-matrix, .agreements,
+  .change-ledger, .roster, .term-list, .layer-stack
+) > li:first-child { border-top: 0; }
+
+:is(
+  .delta-ledger, .error-catalog, .config-keys, .conformance, .deliverable-ledger,
+  .priority-ladder, .component-spec, .freshness, .threat-matrix, .agreements,
+  .change-ledger, .roster, .term-list, .layer-stack
+) small {
+  display: block;
+  color: var(--soft);
+  font: 500 0.6875rem/1.4 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.delta-ledger > li > b,
+.error-catalog > li > b,
+.config-keys > li > b,
+.conformance > li > b,
+.priority-ladder > li > b,
+.freshness > li > b,
+.agreements > li > b,
+.change-ledger > li > b { justify-self: start; }
+
+/* Estimate: where the expected value sits inside its range. --lo, --exp and
+ * --hi are set on the track in the document's own unit; --min and --max frame
+ * the scale. */
+.range-bar {
+  --min: 20;
+  --max: 30;
+  margin: var(--space-5) 0;
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+}
+
+.range-bar > div:first-of-type {
+  position: relative;
+  height: 0.65rem;
+  margin: var(--space-5) 0 var(--space-5);
+  background: var(--track-fill);
+  border-radius: 999px;
+}
+
+.range-bar > div:first-of-type::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  left: calc((var(--lo) - var(--min)) / (var(--max) - var(--min)) * 100%);
+  width: calc((var(--hi) - var(--lo)) / (var(--max) - var(--min)) * 100%);
+  background: var(--accent-tint);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+}
+
+.range-bar > div:first-of-type::after {
+  content: "";
+  position: absolute;
+  inset-block: -0.4rem;
+  left: calc((var(--exp) - var(--min)) / (var(--max) - var(--min)) * 100%);
+  width: 4px;
+  margin-left: -2px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+.range-bar dl {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.range-bar dt { color: var(--soft); font: 500 0.6875rem/1.4 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+.range-bar dd { margin: 0; font: 700 var(--step-2)/1.1 var(--display); }
+
+/* Change request: what the baseline says, what the request changes it to, and
+ * whether it adds, moves, holds or waits. */
+.delta-ledger { --cols: 7.5rem minmax(0, 1fr) minmax(0, 1fr) 5.5rem; }
+.delta-ledger > li > span:first-of-type { color: var(--muted); }
+.delta-ledger > li > span + span { font-weight: 600; }
+.delta-ledger > li > span + span::before { content: "\2192\00a0"; color: var(--accent); }
+
+/* Design doc: four phases in order, each a stop on one bar. */
+.rollout-strip {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+  margin: var(--space-5) 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rollout-strip li {
+  position: relative;
+  padding: var(--space-4) var(--space-3) var(--space-3);
+  border-top: 4px solid var(--accent);
+  background: var(--surface);
+  counter-increment: phase;
+}
+
+.rollout-strip li::before {
+  content: "Phase " counter(phase);
+  display: block;
+  margin-bottom: var(--space-2);
+  color: var(--accent);
+  font: 600 0.6875rem/1.3 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.rollout-strip { counter-reset: phase; }
+
+/* Discovery: the three outcomes the prototype can return, each with its test. */
+.go-stop {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-5) 0;
+}
+
+.go-stop > div {
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+}
+
+.go-stop p { margin: var(--space-3) 0 0; }
+
+/* Charter: who holds which part of the agreement. */
+.roster { --cols: minmax(0, 14rem) minmax(0, 1fr); }
+.roster > li > strong { color: var(--accent); }
+
+/* Proposal: what the ask costs, what it displaces and what it leaves behind. */
+.cost-ledger {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: var(--space-5) 0;
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+}
+
+.cost-ledger > div { padding: var(--space-4) var(--space-5); }
+.cost-ledger > div + div { border-left: 1px solid var(--rule); }
+.cost-ledger small { display: block; color: var(--soft); font: 500 0.6875rem/1.4 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+.cost-ledger strong { display: block; margin: var(--space-2) 0; color: var(--accent); font: 700 var(--step-3)/1.1 var(--display); }
+.cost-ledger span { color: var(--muted); }
+
+/* Spec: each requirement's level, its proof and its gate. */
+.conformance { --cols: 8rem 6.5rem minmax(0, 1.3fr) minmax(0, 1fr); }
+.conformance > li > code { color: var(--accent); font-weight: 600; }
+
+/* API contract: a stable code, whether the caller may retry, what to do. */
+.error-catalog { --cols: minmax(0, 13rem) 6rem minmax(0, 1fr) minmax(0, 1.2fr); }
+.error-catalog > li > code { color: var(--accent); font-weight: 600; overflow-wrap: anywhere; }
+
+/* Reference: a configuration key, whether it is required, what it means. */
+.config-keys { --cols: minmax(0, 14rem) 6.5rem minmax(0, 1fr) minmax(0, 9rem); }
+.config-keys > li > code:first-child { color: var(--accent); font-weight: 600; overflow-wrap: anywhere; }
+
+/* Requirements: the surfaces that do not change, as a fence of chips. */
+.unchanged-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.unchanged-list li {
+  padding: 0.3rem 0.8rem;
+  border: 1px dashed var(--rule-strong);
+  border-radius: 999px;
+  background: var(--surface);
+}
+
+.unchanged-list li::before { content: "="; margin-right: 0.5rem; color: var(--accent); font-family: var(--mono); font-weight: 700; }
+
+/* Statement of work: each deliverable by its acceptance gate date. */
+.deliverable-ledger { --cols: 8.5rem minmax(0, 1fr) minmax(0, 14rem); }
+.deliverable-ledger > li > time { color: var(--accent); font: 600 0.875rem/1.4 var(--mono); }
+.deliverable-ledger > li > strong { font-size: var(--step-1); }
+
+/* Support model: the priority ladder, most urgent first. */
+.priority-ladder { --cols: 4.5rem minmax(0, 1fr) minmax(0, 12rem); }
+.priority-ladder > li:nth-child(1) { border-left: 4px solid var(--critical); }
+.priority-ladder > li:nth-child(2) { border-left: 4px solid var(--warning); }
+.priority-ladder > li:nth-child(3) { border-left: 4px solid var(--rule-strong); }
+
+/* Handoff: the first-week list, each item a box to tick. */
+.check-list {
+  margin: var(--space-4) 0;
+  padding: 0;
+  list-style: none;
+  border-top: 2px solid var(--accent);
+}
+
+.check-list li {
+  position: relative;
+  padding: var(--space-3) 0 var(--space-3) 2.25rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.check-list li::before {
+  content: "";
+  position: absolute;
+  left: 0.25rem;
+  top: calc(var(--space-3) + 0.2rem);
+  width: 1.05rem;
+  height: 1.05rem;
+  border: 2px solid var(--accent);
+  border-radius: var(--radius-sm);
+}
+
+/* How-to: the observable result that proves the task is done. */
+.result-check {
+  margin: var(--space-5) 0;
+  padding: var(--space-4) var(--space-5);
+  background: var(--accent-tint);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+}
+
+.result-check ul { margin: var(--space-3) 0 0; padding: 0; list-style: none; }
+.result-check li { position: relative; padding: var(--space-2) 0 var(--space-2) 2rem; }
+
+.result-check li::before {
+  content: "\2713";
+  position: absolute;
+  left: 0;
+  top: var(--space-2);
+  display: grid;
+  place-items: center;
+  width: 1.3rem;
+  height: 1.3rem;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-radius: 50%;
+  font: 700 0.75rem/1 var(--mono);
+}
+
+/* Explanation: the words the argument leans on, defined once. */
+.term-list { --cols: minmax(0, 11rem) minmax(0, 1fr); }
+.term-list > li > strong { font: 600 var(--step-0)/1.3 var(--display); color: var(--accent); }
+
+/* Tutorial: the whole lesson as stops on a trail, each with its time. */
+.lesson-path {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  margin: var(--space-5) 0;
+  padding: 0;
+  list-style: none;
+  border-top: 2px dashed var(--rule-strong);
+}
+
+.lesson-path li { position: relative; display: grid; gap: 0.15rem; padding: var(--space-4) var(--space-2) 0 0; }
+
+.lesson-path li::before {
+  content: "";
+  position: absolute;
+  top: -0.45rem;
+  left: 0;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 3px solid var(--accent);
+}
+
+.lesson-path time { color: var(--accent); font: 600 0.8125rem/1.3 var(--mono); }
+.lesson-path span { color: var(--muted); font-size: var(--step--1); line-height: 1.35; }
+
+/* Design handoff: each component with what it is for and what stays out. */
+.component-spec { --cols: minmax(0, 9rem) minmax(0, 1fr) minmax(0, 1fr); }
+.component-spec > li > strong { color: var(--accent); }
+.component-spec > li > span + span { padding-left: var(--space-3); border-left: 3px solid var(--critical); }
+
+/* Service docs: how each kind of document earns its freshness. */
+.freshness { --cols: minmax(0, 13rem) 9.5rem minmax(0, 1fr); }
+
+/* Delivery plan: the dependencies that can move a gate. */
+.dependency-flags {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dependency-flags li {
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-left: 6px solid var(--warning);
+  border-radius: var(--radius-md);
+}
+
+.dependency-flags small { display: block; color: var(--soft); font: 500 0.6875rem/1.4 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+.dependency-flags strong { display: block; margin: 0.15rem 0 var(--space-2); }
+
+/* Migration plan: what must hold before the first gate opens. Sits on the
+ * plan-gates panel, so it takes its colour from the panel. */
+.preflight { margin: var(--space-3) 0 0; padding: 0; list-style: none; }
+
+.preflight li {
+  position: relative;
+  padding: var(--space-2) 0 var(--space-2) 1.9rem;
+  border-top: 1px solid currentcolor;
+  color: var(--method-muted);
+}
+
+.preflight li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: calc(var(--space-2) + 0.2rem);
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 2px solid currentcolor;
+  border-radius: var(--radius-sm);
+}
+
+/* Test strategy: the layers of evidence, each with what it proves. */
+.layer-stack { --cols: 8rem minmax(0, 1fr) minmax(0, 14rem); }
+.layer-stack > li > strong { color: var(--accent); }
+.layer-stack > li:nth-child(odd) { background: var(--surface-muted); }
+
+/* Status report: the scale this report reads on, with the current state marked. */
+.rag-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-5) 0;
+}
+
+.rag-strip > div {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  color: var(--muted);
+}
+
+.rag-strip > div[aria-current] {
+  background: var(--surface);
+  border: 2px solid var(--warning);
+  color: var(--ink);
+}
+
+.rag-strip p { margin: var(--space-2) 0 0; }
+.rag-strip small { margin-left: var(--space-2); color: var(--soft); font: 500 0.6875rem/1.4 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* Release notes: each change under the word that classifies it. */
+.change-ledger { --cols: 7rem minmax(0, 1fr); }
+
+/* Workshop summary: what the room settled and what it left open. */
+.agreements { --cols: 6rem minmax(0, 1fr); }
+
+/* Incident update: when it began, when this update was written, when the next
+ * is due, on one line. */
+.update-clock {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  margin: var(--space-5) 0;
+  padding: 0;
+  list-style: none;
+  border-top: 2px solid var(--rule-strong);
+}
+
+.update-clock li { position: relative; display: grid; gap: 0.15rem; padding: var(--space-4) var(--space-3) 0 0; }
+
+.update-clock li::before {
+  content: "";
+  position: absolute;
+  top: -0.45rem;
+  left: 0;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 3px solid var(--rule-strong);
+}
+
+.update-clock li[aria-current]::before { background: var(--critical); border-color: var(--critical); }
+.update-clock time { font: 700 var(--step-1)/1.2 var(--display); }
+.update-clock span { color: var(--muted); font: 500 0.6875rem/1.4 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* Risk register: the register's items grouped by exposure rating. */
+.exposure-board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-4) 0 var(--space-5);
+}
+
+.exposure-board > div {
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+}
+
+.exposure-board ul { margin: var(--space-3) 0 0; padding: 0; list-style: none; }
+.exposure-board li { padding: var(--space-2) 0; border-top: 1px solid var(--rule); }
+.exposure-board small { display: block; color: var(--soft); font: 500 0.6875rem/1.4 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* Threat model: threat, the control against it, what is still open. */
+.threat-matrix { --cols: 5rem minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); }
+.threat-matrix > li > code { color: var(--accent); font-weight: 600; }
+.threat-matrix > li > span:nth-of-type(n + 2) { padding-left: var(--space-3); border-left: 3px solid var(--accent); }
+
 /* ------------------------------------------------------------ responsive */
 
+/* ---------------------------------------------------------------- width */
+
+/* <html> lets the shell use the whole viewport, for maps,
+ * wide tables and side-by-side comparisons on a large screen. Prose keeps its
+ * own measure (--content-measure, and p in base.css), so lines stay readable
+ * while the modules around them spread out. It follows the pattern sections
+ * above so it wins at equal specificity, and applies only where the pattern
+ * widths can matter; the narrow-screen rules below already fill the viewport. */
+@media (min-width: 861px) {
+  html[data-width="full"] .doc {
+    --doc-max: none;
+    max-width: none;
+    padding-inline: clamp(32px, 5vw, 96px);
+  }
+
+  /* Figures are authored at 720 units with an inline max-width of 720px, so a
+   * wide page would leave them small in the corner of a large frame. Let them
+   * grow to 1100px, centred. !important is needed only to beat that inline
+   * style; the viewBox keeps the proportions. */
+  html[data-width="full"] .figure svg {
+    max-width: min(100%, 1100px) !important;
+    margin-inline: auto;
+  }
+}
+
+/* Hero placement for the two-column openings; narrower than this the hero is
+ * one column and reading order is source order. */
+@media (min-width: 861px) {
+  html[data-pattern="decision"] .hero-aside,
+  html[data-pattern="record"] .hero-stamp,
+  html[data-pattern="procedure"] .hero-checklist { grid-column: 2; grid-row: 1 / span 4; }
+  html[data-pattern="brief"] .doc-hero .lede { grid-column: 2; grid-row: 2; }
+}
+
 @media (max-width: 860px) {
+  html[data-pattern] .doc-hero { --hero-cols: minmax(0, 1fr); }
+  .hero-stamp { justify-self: start; margin-bottom: var(--space-3); }
+  .hero-rail { grid-auto-flow: row; grid-auto-columns: auto; border-top: 0; border-left: 2px solid var(--rule-strong); }
+  .hero-rail li { padding: 0 0 0.9rem 1.1rem; }
+  .hero-rail li::before { top: 0.2rem; left: -0.4rem; }
+  .hero-figure .state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .doc { padding: 32px 20px 56px; }
   .doc-grid,
   .contract-layout,
@@ -1207,7 +2056,11 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
 
 @media (max-width: 620px) {
   .doc { padding-inline: 16px; }
-  .doc-hero h1 { font-size: 2rem; }
+  .doc-hero h1 { font-size: var(--step-4); }
+  .hero-figure { padding: 0.75rem; }
+  .hero-figure .state-grid { grid-template-columns: 1fr; }
+  .hero-band > strong { font-size: var(--step-2); }
+  .hero-verdict strong { font-size: var(--step-3); }
   .doc-meta,
   .status-banner { display: grid; gap: 0.45rem; }
   .doc-meta span,
@@ -1233,11 +2086,45 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
   .learning-goal { grid-template-columns: 1fr; }
   .ask-band dl > div { grid-template-columns: 6.5rem minmax(0, 1fr); }
   .learning-goal { gap: 0.5rem; }
+  :is(
+    .delta-ledger, .error-catalog, .config-keys, .conformance, .deliverable-ledger,
+    .priority-ladder, .component-spec, .freshness, .threat-matrix, .agreements,
+    .change-ledger, .roster, .term-list, .layer-stack
+  ) > li { grid-template-columns: minmax(0, 1fr); }
+  .component-spec > li > span + span { padding: var(--space-2) 0 0; border-left: 0; border-top: 3px solid var(--critical); }
+  .threat-matrix > li > span:nth-of-type(n + 2) { padding-left: 0; border-left: 0; }
+  .delta-ledger > li > span + span::before { content: "\2193\00a0"; }
+  .range-bar { padding: var(--space-4); }
+  .range-bar dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rollout-strip { grid-auto-flow: row; grid-auto-columns: auto; }
+  .lesson-path,
+  .update-clock { grid-auto-flow: row; grid-auto-columns: auto; border-top: 0; border-left: 2px solid var(--rule-strong); }
+  .lesson-path li,
+  .update-clock li { padding: 0 0 var(--space-4) var(--space-5); }
+  .lesson-path li::before,
+  .update-clock li::before { top: 0.15rem; left: -0.5rem; }
+  .go-stop,
+  .cost-ledger,
+  .rag-strip,
+  .exposure-board { grid-template-columns: 1fr; }
+  .cost-ledger > div + div { border-left: 0; border-top: 1px solid var(--rule); }
+  .result-check { padding: var(--space-4); }
 }
 
 @media print {
   .doc { max-width: none; padding: 0; }
   .doc-hero { margin-bottom: 1.5rem; }
+  .hero-stamp { transform: none; }
+  .hero-verdict { background: none; color: var(--ink); border: 2px solid var(--accent); }
+  .hero-aside,
+  .hero-stamp,
+  .hero-index,
+  .hero-checklist,
+  .hero-figure,
+  .hero-band,
+  .hero-services,
+  .hero-rail,
+  .hero-verdict { break-inside: avoid; }
   .section { margin-top: 1.75rem; padding-top: 1rem; }
   .danger { margin: 0.75rem 0; padding: 0.75rem 1rem; }
   .section-head {
@@ -1288,6 +2175,24 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
   .ask-band { margin-bottom: 1.5rem; }
   .crosswalk table { min-width: 0; }
   .crosswalk tr { break-inside: avoid; }
+  :is(
+    .delta-ledger, .error-catalog, .config-keys, .conformance, .deliverable-ledger,
+    .priority-ladder, .component-spec, .freshness, .threat-matrix, .agreements,
+    .change-ledger, .roster, .term-list, .layer-stack
+  ) > li,
+  .range-bar,
+  .rollout-strip li,
+  .go-stop,
+  .cost-ledger,
+  .rag-strip,
+  .update-clock,
+  .lesson-path,
+  .exposure-board,
+  .dependency-flags li,
+  .result-check { break-inside: avoid; }
+  .range-bar,
+  .result-check { background: none; }
+  .preflight li { color: var(--ink); }
 }
 
 /* ---- inlined from core/print.css ---- */
@@ -1479,7 +2384,61 @@ html[data-pattern="brief"] .doc-hero { margin-bottom: 1.5rem; }
 </style>
 </head>
 <body>
-<article class="doc"><header class="doc-hero"><p class="eyebrow">Incident update · P1 · Investigating</p><h1>P1 ingestion delay affects Checkout, Catalog, and Inventory</h1><p class="lede">Started 2026-07-30 14:12 UTC; this update is 14:31 UTC and the next update is due 14:45 UTC.</p></header><div class="brief-status"><div><span class="component-label">Status</span><strong>Investigating</strong><small>cause not yet known</small></div><div><span class="component-label">Impact</span><strong>3 teams</strong><small><code>503</code> or blocking</small></div><div><span class="component-label">Next update</span><strong>14:45 UTC</strong><small>committed</small></div></div><section class="action-required"><p class="component-label">Producer action</p><h2>Retry with bounds and preserve event IDs</h2></section><div class="brief-grid"><section><h2>Mitigation underway</h2><p>Platform is adding one consumer replica and observing lag for three minutes. No queue will be deleted and replica count will not exceed six without Reliability.</p></section><section><h2>Escalation</h2><p>After 15 minutes without falling lag, or on any crash loop, Platform pages Reliability and stops replica changes.</p></section><aside class="next-checkpoint"><p>This live update states known impact and action. The later postmortem owns cause.</p></aside></div></article>
+<article class="doc"><header class="doc-hero"><p class="hero-dateline">Incident update · P1 · Investigating</p><h1>P1 ingestion delay affects Checkout, Catalog, and Inventory</h1><p class="lede">Started 2026-07-30 14:12 UTC; this update is 14:31 UTC and the next update is due 14:45 UTC.</p><div class="doc-meta" aria-label="Document metadata"><span><strong>Severity:</strong> P1</span><span><strong>State:</strong> Investigating</span></div></header><div class="brief-status"><div><span class="component-label">Status</span><strong>Investigating</strong><small>cause not yet known</small></div><div><span class="component-label">Impact</span><strong>3 teams</strong><small><code>503</code> or blocking</small></div><div><span class="component-label">Next update</span><strong>14:45 UTC</strong><small>committed</small></div></div><ol class="update-clock" aria-label="Update clock"><li><time>14:12 UTC</time><span>Started</span></li><li aria-current="step"><time>14:31 UTC</time><span>This update</span></li><li><time>14:45 UTC</time><span>Next update due</span></li></ol><section class="action-required"><p class="component-label">Producer action</p><h2>Retry with bounds and preserve event IDs</h2></section><figure class="figure"><div class="diagram-scroll"><svg role="img" aria-labelledby="bp-title bp-desc" viewBox="0 0 720 396" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+  <title id="bp-title">Backpressure loop on the shared queue</title>
+  <desc id="bp-desc">A closed loop of four steps read clockwise: consumers slow, so the queue fills; a full queue makes the gateway block or return 503; blocked producers retry; and retries add load that slows consumers further. The retry edge is dashed because it only closes when callers retry without a bound. The accent marks the queue, the step RFC 014 splits.</desc>
+
+  <defs>
+    <marker id="bp-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerUnits="userSpaceOnUse"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <path class="edge" d="M424 80 Q560 80 560 176" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#bp-arrow)"/>
+  <path class="edge" d="M560 224 Q560 320 424 320" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#bp-arrow)"/>
+  <path class="edge" d="M296 320 Q160 320 160 224" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#bp-arrow)"/>
+  <path class="edge" d="M160 176 Q160 80 296 80" fill="none" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#bp-arrow)"/>
+  <g class="edge-label">
+    <rect x="548" y="68" width="76" height="16" fill="var(--paper)"/>
+    <text x="586" y="80" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">depth rises</text>
+  </g>
+  <g class="edge-label">
+    <rect x="532" y="332" width="108" height="16" fill="var(--paper)"/>
+    <text x="586" y="344" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">wait budget spent</text>
+  </g>
+  <g class="edge-label">
+    <rect x="96" y="332" width="80" height="16" fill="var(--paper)"/>
+    <text x="136" y="344" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">503 or block</text>
+  </g>
+  <g class="edge-label">
+    <rect x="76" y="68" width="104" height="16" fill="var(--paper)"/>
+    <text x="128" y="80" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">retries add load</text>
+  </g>
+  <g class="node">
+    <rect x="296" y="56" width="128" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="360" y="84" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Consumers slow</text>
+  </g>
+  <g class="node node-focal">
+    <rect x="496" y="176" width="128" height="48" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="560" y="204" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Queue fills</text>
+  </g>
+  <g class="node">
+    <rect x="296" y="296" width="128" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="360" y="324" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Gateway blocks</text>
+  </g>
+  <g class="node">
+    <rect x="96" y="176" width="128" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="160" y="204" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Producers retry</text>
+  </g>
+  <g class="annotation">
+    <text x="360" y="188" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">SHARED FATE</text>
+    <text x="360" y="208" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--muted)">One queue, one fate.</text>
+  </g>
+  <g class="legend">
+    <text x="28" y="380" text-anchor="start" font-family="var(--sans)" font-size="11" fill="var(--muted)">Read clockwise from the top. Dashed: only without a retry bound. The accent is the step RFC 014 splits.</text>
+  </g>
+</svg></div><figcaption>Why producers retry with bounds: unbounded retries add load to a queue that is already full.</figcaption></figure><div class="brief-grid"><section><h2>Mitigation underway</h2><p>Platform is adding one consumer replica and observing lag for three minutes. No queue will be deleted and replica count will not exceed six without Reliability.</p></section><section><h2>Escalation</h2><p>After 15 minutes without falling lag, or on any crash loop, Platform pages Reliability and stops replica changes.</p></section><aside class="next-checkpoint"><p>This live update states known impact and action. The later postmortem owns cause.</p></aside></div></article>
 
 </body>
 </html>

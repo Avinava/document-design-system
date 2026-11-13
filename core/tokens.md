@@ -80,6 +80,33 @@ Three roles, not three fonts for their own sake. Mono is for technical metadata;
 
 Keep radii between 0 and 8px. Larger radii read as consumer-app chrome and undercut an analytical register.
 
+### Type scale
+
+| Token | Purpose |
+|---|---|
+| `--text-base` | Body size, as a length (`1rem`). Every step derives from it |
+| `--scale-ratio` | Unitless ratio between steps, 1.1 to 1.5. Small is quiet and dense, large is expressive |
+| `--display-weight` | Weight of titles and headings |
+| `--display-tracking` | Letter-spacing of headings, in `em` |
+| `--display-leading` | Line-height of headings, unitless |
+| `--display-transform` | `none`, `uppercase` or `lowercase` for headings |
+
+`core/base.css` turns these into `--step--1` to `--step-7` (each step is the previous one times `--scale-ratio`) and headings read the steps, never a literal size. A theme that wants a different voice changes the ratio, the weight and the face, not individual rules.
+
+### Density and ornament
+
+| Token | Purpose |
+|---|---|
+| `--density` | Unitless multiplier for spacing, 0.8 to 1.25. Below 1 is a working document, above 1 is a reading document |
+| `--hero-rule-width` | Rule above the opening, as a length (`3px`) |
+| `--section-rule-width` | Rule above each section, as a length (`1px`) |
+| `--eyebrow-tracking` | Letter-spacing of eyebrows and small labels, in `em` |
+| `--eyebrow-transform` | `uppercase` or `none` for eyebrows |
+
+`core/base.css` turns `--density` into `--space-1` to `--space-7`, times `--pattern-density` when the document's pattern sets one (`core/document-patterns.css`; not a theme token). Every theme declares all of these.
+
+No two themes may share a voice. `scripts/audit_theme.py --all` fails when two themes agree on face, ratio, density, display weight and display case, and `tests/test_repository.py` also fails any theme without a `FONTS` entry in `scripts/build_examples.py`, or any theme that is the `default-theme` of more than about 30% of the types. `base.css` loads after the theme, and a default declared on `[data-theme]` there would overwrite the theme's own value.
+
 ### Derived (optional but recommended)
 
 | Token | Purpose |
@@ -119,6 +146,8 @@ If the user names a theme, use it. Otherwise:
 - `editorial-coral` — general analytical reports, portfolio reviews. The default.
 - `executive-navy` — board, finance, governance, conservative corporate contexts.
 - `field-notes` — research, audit, workshop, operational-review documents.
+- `serif-editorial` — reading voice: essays, decision records, explanations, discovery. Newsreader and Source Serif 4, ratio 1.333, roomy, hairline rules. Fonts load from Google Fonts with Georgia as the fallback.
+- `condensed-report` — working voice: status reports, registers, plans, estimates, readiness reviews. Barlow Condensed uppercase headings, ratio 1.25, tight, 3px rules, square corners.
 - `console-violet` — **dark.** Engineering readouts, ops reviews, incident write-ups, service inventories; documents read on a screen rather than printed.
 - `horizon` — a client brand applied. Worked example from `brand-theme-design` (cool paper, Inter, one precise blue). Navy is the system's board voice; this is what a guide becomes.
 - `brand-template` — a documented slot to fill with your own brand. See `themes/brand-template.css`, and use the `brand-theme-design` skill to fill it from a brand guide, site, or screenshot.

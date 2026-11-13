@@ -59,6 +59,19 @@
 
   --radius-sm: 2px;
   --radius-md: 4px;
+
+  --text-base: 1rem;
+  --scale-ratio: 1.14;
+  --display-weight: 600;
+  --display-tracking: 0;
+  --display-leading: 1.25;
+  --display-transform: none;
+
+  --density: 0.95;
+  --hero-rule-width: 4px;
+  --section-rule-width: 1px;
+  --eyebrow-tracking: 0.1em;
+  --eyebrow-transform: uppercase;
 }
 /* ---- inlined from core/base.css ---- */
 /* base.css — component-to-token mapping.
@@ -86,7 +99,7 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--sans);
-  font-size: 16px;
+  font-size: var(--text-base);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
@@ -106,6 +119,38 @@ body {
 [data-theme] {
   --comparison-fill: color-mix(in srgb, var(--muted) 16%, transparent);
   --track-fill: color-mix(in srgb, var(--muted) 10%, transparent);
+}
+
+/* --- scale and spacing, derived from the voice tokens ----------------
+ *
+ * Each type step is the previous one times --scale-ratio, and each space step
+ * is a fixed fraction of a rem times --density. Components read these, never a
+ * literal size, so a theme changes its pace by changing two numbers. A pattern
+ * may set --pattern-density on the root; it multiplies the theme's --density
+ * (1 when absent), so a procedure reads tighter than a primer in any theme.
+ *
+ * On [data-theme] as well as :root, for the same reason as the derived
+ * tokens above. The theme's own values are not defaulted here: this file
+ * loads after the theme and an equal-specificity default would overwrite it. */
+:root,
+[data-theme] {
+  --step-0: var(--text-base);
+  --step--1: calc(var(--step-0) / var(--scale-ratio));
+  --step-1: calc(var(--step-0) * var(--scale-ratio));
+  --step-2: calc(var(--step-1) * var(--scale-ratio));
+  --step-3: calc(var(--step-2) * var(--scale-ratio));
+  --step-4: calc(var(--step-3) * var(--scale-ratio));
+  --step-5: calc(var(--step-4) * var(--scale-ratio));
+  --step-6: calc(var(--step-5) * var(--scale-ratio));
+  --step-7: calc(var(--step-6) * var(--scale-ratio));
+
+  --space-1: calc(0.25rem * var(--density) * var(--pattern-density, 1));
+  --space-2: calc(0.5rem * var(--density) * var(--pattern-density, 1));
+  --space-3: calc(0.75rem * var(--density) * var(--pattern-density, 1));
+  --space-4: calc(1rem * var(--density) * var(--pattern-density, 1));
+  --space-5: calc(1.5rem * var(--density) * var(--pattern-density, 1));
+  --space-6: calc(2.5rem * var(--density) * var(--pattern-density, 1));
+  --space-7: calc(3.5rem * var(--density) * var(--pattern-density, 1));
 }
 
 /* --- token aliases for embedded renderers ---------------------------
@@ -144,14 +189,15 @@ h1, h2, h3,
 .metric-value,
 .focal-value {
   font-family: var(--display);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.2;
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: var(--display-leading);
+  text-transform: var(--display-transform);
 }
 
-h1 { font-size: 2rem; margin: 0 0 0.5rem; }
-h2 { font-size: 1.375rem; margin: 2.5rem 0 0.75rem; }
-h3 { font-size: 1.0625rem; margin: 1.75rem 0 0.5rem; }
+h1 { font-size: var(--step-4); margin: 0 0 var(--space-2); }
+h2 { font-size: var(--step-2); margin: var(--space-6) 0 var(--space-3); }
+h3 { font-size: var(--step-1); margin: calc(1.75rem * var(--density)) 0 var(--space-2); }
 
 p { margin: 0 0 1rem; max-width: 68ch; }
 
@@ -171,8 +217,8 @@ code,
 
 .eyebrow {
   color: var(--soft);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  text-transform: var(--eyebrow-transform);
+  letter-spacing: var(--eyebrow-tracking);
 }
 
 .subtle { color: var(--muted); }
@@ -703,11 +749,11 @@ a { color: inherit; text-underline-offset: 2px; }
   <div class="preset-grid">
     <a class="preset" id="type-design-doc" href="design-doc.html">
   <img src="../docs/screenshots/thumbs/design-doc.png" alt="" width="640" height="400" loading="lazy" decoding="async">
-  <span class="pad"><span class="name">Design doc</span><span class="question">Should we do this, and is the approach sound?</span><span class="theme">Theme: field-notes</span></span>
+  <span class="pad"><span class="name">Design doc</span><span class="question">Should we do this, and is the approach sound?</span><span class="theme">Theme: serif-editorial</span></span>
 </a>
     <a class="preset" id="type-discovery" href="discovery.html">
   <img src="../docs/screenshots/thumbs/discovery.png" alt="" width="640" height="400" loading="lazy" decoding="async">
-  <span class="pad"><span class="name">Discovery brief</span><span class="question">What did we learn, and should we proceed?</span><span class="theme">Theme: field-notes</span></span>
+  <span class="pad"><span class="name">Discovery brief</span><span class="question">What did we learn, and should we proceed?</span><span class="theme">Theme: serif-editorial</span></span>
 </a>
     <a class="preset" id="type-proposal" href="proposal.html">
   <img src="../docs/screenshots/thumbs/proposal.png" alt="" width="640" height="400" loading="lazy" decoding="async">
@@ -719,7 +765,7 @@ a { color: inherit; text-underline-offset: 2px; }
 </a>
     <a class="preset" id="type-estimate" href="estimate.html">
   <img src="../docs/screenshots/thumbs/estimate.png" alt="" width="640" height="400" loading="lazy" decoding="async">
-  <span class="pad"><span class="name">Basis of estimate</span><span class="question">What will this take, and how confident are we?</span><span class="theme">Theme: executive-navy</span></span>
+  <span class="pad"><span class="name">Basis of estimate</span><span class="question">What will this take, and how confident are we?</span><span class="theme">Theme: condensed-report</span></span>
 </a>
     <a class="preset" id="type-change-request" href="change-request.html">
   <img src="../docs/screenshots/thumbs/change-request.png" alt="" width="640" height="400" loading="lazy" decoding="async">
@@ -738,7 +784,7 @@ a { color: inherit; text-underline-offset: 2px; }
   <div class="preset-grid">
     <a class="preset" id="type-adr" href="adr.html">
   <img src="../docs/screenshots/thumbs/adr.png" alt="" width="640" height="400" loading="lazy" decoding="async">
-  <span class="pad"><span class="name">Architecture decision record</span><span class="question">Why is it like this?</span><span class="theme">Theme: field-notes</span></span>
+  <span class="pad"><span class="name">Architecture decision record</span><span class="question">Why is it like this?</span><span class="theme">Theme: serif-editorial</span></span>
 </a>
   </div>
 </section>
@@ -811,7 +857,7 @@ a { color: inherit; text-underline-offset: 2px; }
   <div class="preset-grid">
     <a class="preset" id="type-explanation" href="explanation.html">
   <img src="../docs/screenshots/thumbs/explanation.png" alt="" width="640" height="400" loading="lazy" decoding="async">
-  <span class="pad"><span class="name">Explanation</span><span class="question">Why is it like this?</span><span class="theme">Theme: field-notes</span></span>
+  <span class="pad"><span class="name">Explanation</span><span class="question">Why is it like this?</span><span class="theme">Theme: serif-editorial</span></span>
 </a>
     <a class="preset" id="type-onboarding" href="onboarding.html">
   <img src="../docs/screenshots/thumbs/onboarding.png" alt="" width="640" height="400" loading="lazy" decoding="async">
@@ -823,7 +869,7 @@ a { color: inherit; text-underline-offset: 2px; }
 </a>
     <a class="preset composed" id="type-platform-primer" href="platform-primer.html">
   <img src="../docs/screenshots/thumbs/platform-primer.png" alt="" width="640" height="400" loading="lazy" decoding="async">
-  <span class="pad"><span class="name">Platform primer<span class="label">Composed</span></span><span class="question">Can I reuse what I know from batch loads here?</span><span class="theme">Theme: field-notes. Nearest preset: Explanation</span></span>
+  <span class="pad"><span class="name">Platform primer<span class="label">Composed</span></span><span class="question">Can I reuse what I know from batch loads here?</span><span class="theme">Theme: serif-editorial. Nearest preset: Explanation</span></span>
 </a>
   </div>
 </section>
@@ -887,7 +933,7 @@ a { color: inherit; text-underline-offset: 2px; }
   <div class="preset-grid">
     <a class="preset" id="type-delivery-plan" href="delivery-plan.html">
   <img src="../docs/screenshots/thumbs/delivery-plan.png" alt="" width="640" height="400" loading="lazy" decoding="async">
-  <span class="pad"><span class="name">Delivery plan</span><span class="question">How will the agreed outcome be delivered and governed?</span><span class="theme">Theme: executive-navy</span></span>
+  <span class="pad"><span class="name">Delivery plan</span><span class="question">How will the agreed outcome be delivered and governed?</span><span class="theme">Theme: condensed-report</span></span>
 </a>
     <a class="preset" id="type-migration-plan" href="migration-plan.html">
   <img src="../docs/screenshots/thumbs/migration-plan.png" alt="" width="640" height="400" loading="lazy" decoding="async">
@@ -918,11 +964,11 @@ a { color: inherit; text-underline-offset: 2px; }
 </a>
     <a class="preset" id="type-readiness-review" href="readiness-review.html">
   <img src="../docs/screenshots/thumbs/readiness-review.png" alt="" width="640" height="400" loading="lazy" decoding="async">
-  <span class="pad"><span class="name">Production readiness review</span><span class="question">Is this change ready for production?</span><span class="theme">Theme: console-violet</span></span>
+  <span class="pad"><span class="name">Production readiness review</span><span class="question">Is this change ready for production?</span><span class="theme">Theme: condensed-report</span></span>
 </a>
     <a class="preset" id="type-risk-register" href="risk-register.html">
   <img src="../docs/screenshots/thumbs/risk-register.png" alt="" width="640" height="400" loading="lazy" decoding="async">
-  <span class="pad"><span class="name">Risk and RAID register</span><span class="question">Where is delivery exposed, and who owns it?</span><span class="theme">Theme: executive-navy</span></span>
+  <span class="pad"><span class="name">Risk and RAID register</span><span class="question">Where is delivery exposed, and who owns it?</span><span class="theme">Theme: condensed-report</span></span>
 </a>
   </div>
 </section>
@@ -937,7 +983,7 @@ a { color: inherit; text-underline-offset: 2px; }
   <div class="preset-grid">
     <a class="preset" id="type-status-report" href="status-report.html">
   <img src="../docs/screenshots/thumbs/status-report.png" alt="" width="640" height="400" loading="lazy" decoding="async">
-  <span class="pad"><span class="name">Delivery status report</span><span class="question">Where are we now, and what needs attention?</span><span class="theme">Theme: executive-navy</span></span>
+  <span class="pad"><span class="name">Delivery status report</span><span class="question">Where are we now, and what needs attention?</span><span class="theme">Theme: condensed-report</span></span>
 </a>
     <a class="preset" id="type-release-notes" href="release-notes.html">
   <img src="../docs/screenshots/thumbs/release-notes.png" alt="" width="640" height="400" loading="lazy" decoding="async">
@@ -945,7 +991,7 @@ a { color: inherit; text-underline-offset: 2px; }
 </a>
     <a class="preset" id="type-workshop-summary" href="workshop-summary.html">
   <img src="../docs/screenshots/thumbs/workshop-summary.png" alt="" width="640" height="400" loading="lazy" decoding="async">
-  <span class="pad"><span class="name">Workshop summary</span><span class="question">What did the workshop establish and leave open?</span><span class="theme">Theme: field-notes</span></span>
+  <span class="pad"><span class="name">Workshop summary</span><span class="question">What did the workshop establish and leave open?</span><span class="theme">Theme: serif-editorial</span></span>
 </a>
     <a class="preset" id="type-incident-update" href="incident-update.html">
   <img src="../docs/screenshots/thumbs/incident-update.png" alt="" width="640" height="400" loading="lazy" decoding="async">

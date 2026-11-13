@@ -1,14 +1,5 @@
 <article class="doc">
-  <header class="doc-hero">
-    <p class="eyebrow">Investment proposal</p>
-    <h1>Two engineers for one quarter to remove the shared ingestion failure</h1>
-    <p class="lede">Approve RFC 014 now so the next queue failure degrades throughput instead of stopping Checkout, Catalog, and Inventory together.</p>
-    <div class="doc-meta" aria-label="Proposal metadata">
-      <span><strong>Asked of:</strong> Platform director</span>
-      <span><strong>Decision by:</strong> 2026-09-01</span>
-      <span><strong>Author:</strong> Platform</span>
-    </div>
-  </header>
+  <header class="doc-hero"><p class="eyebrow">Investment proposal</p><h1>Two engineers for one quarter to remove the shared ingestion failure</h1><p class="lede">Approve RFC 014 now so the next queue failure degrades throughput instead of stopping Checkout, Catalog, and Inventory together.</p><aside class="hero-aside" aria-label="Proposal metadata"><p class="component-label">At a glance</p><dl><div><dt>Asked of</dt><dd>Platform director</dd></div><div><dt>Decision by</dt><dd>2026-09-01</dd></div><div><dt>Author</dt><dd>Platform</dd></div></dl></aside></header>
 
   <section class="ask-band" aria-labelledby="the-ask">
     <p class="component-label">The ask</p>
@@ -39,11 +30,12 @@
           <li>Dashboards, alerting, runbooks, and a one-queue-down chaos test.</li>
           <li>A reversible production cutover with the original queue retained through observation.</li>
         </ul>
+        <figure class="figure"><div class="diagram-scroll"><!-- @FIG ingestion-evolution --></div><figcaption>What the quarter adds: one new component at genesis, the dispatcher, on a path of custom and product parts.</figcaption></figure>
       </section>
 
       <section class="section" aria-labelledby="cost">
         <div class="section-head"><span class="section-num">02</span><h2 id="cost">Cost and opportunity cost</h2><span class="reading-time">12 weeks</span></div>
-        <p>Two engineers for twelve weeks, plus Reliability review during the game day and cutover. The catalog backfill slips one quarter. Ongoing cost is one additional queue, consumer group, and dashboard lane.</p>
+        <div class="cost-ledger"><div><small>Delivery</small><strong>2 engineers</strong><span>for twelve weeks, plus Reliability review during the game day and cutover.</span></div><div><small>Displaces</small><strong>1 quarter</strong><span>The catalog backfill slips one quarter.</span></div><div><small>Ongoing</small><strong>+1 lane</strong><span>One additional queue, consumer group, and dashboard lane.</span></div></div>
       </section>
 
       <section class="section" aria-labelledby="alternatives">

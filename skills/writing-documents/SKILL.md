@@ -96,6 +96,8 @@ When format is `html` or `pdf`, `references/output.md` applies in full. Short ve
 - Keep prose at 62–72 characters. Let maps, tables, timelines, comparisons, and registers use the wider shell when the pattern calls for them.
 - Diagrams from `diagram-design`; charts from `chart-design`.
 - Print via `core/print.css`. Inspect the PDF; do not claim print support from `@media print` alone.
+- Each pattern owns its opening (the Openings table in `core/document-patterns.md`); use the body's own, never another pattern's.
+- A request for a full-width, edge-to-edge page adds `--width full` (`references/output.md`); it never changes pattern or theme.
 - No JavaScript required to read the file.
 
 ### Pattern before theme

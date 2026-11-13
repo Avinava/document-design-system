@@ -1,0 +1,84 @@
+<svg role="img" aria-labelledby="rf-title rf-desc" viewBox="0 0 1100 372" width="100%" style="max-width:1100px" xmlns="http://www.w3.org/2000/svg">
+  <title id="rf-title">How a request becomes a document</title>
+  <desc id="rf-desc">A request splits two ways: it matches a type and uses that preset, or no type fits and the plugin composes from a pattern. Both routes meet at the pattern and its opening, the choice the reader's question makes and the only accented step. The flow then continues to modules, then to theme and voice for HTML or PDF, then to checks, and ends as a document in the repository. Underneath the pattern, modules and theme, evidence states mark every claim as verified, provided, inferred, unresolved or recommended.</desc>
+
+  <defs>
+    <marker id="rf-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerUnits="userSpaceOnUse"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="rf-arrow-focal" viewBox="0 0 8 8" refX="7" refY="4" markerUnits="userSpaceOnUse"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/>
+    </marker>
+  </defs>
+
+  <!-- step numbers match the numbered list under the figure -->
+  <g class="annotation">
+    <text x="24" y="96" font-family="var(--mono)" font-size="11" fill="var(--soft)">1</text>
+    <text x="200" y="52" font-family="var(--mono)" font-size="11" fill="var(--soft)">2</text>
+    <text x="200" y="140" font-family="var(--mono)" font-size="11" fill="var(--soft)">2</text>
+    <text x="400" y="96" font-family="var(--mono)" font-size="11" fill="var(--soft)">3</text>
+    <text x="592" y="96" font-family="var(--mono)" font-size="11" fill="var(--soft)">4</text>
+    <text x="776" y="96" font-family="var(--mono)" font-size="11" fill="var(--soft)">5</text>
+    <text x="960" y="96" font-family="var(--mono)" font-size="11" fill="var(--soft)">7</text>
+    <text x="400" y="236" font-family="var(--mono)" font-size="11" fill="var(--soft)">6</text>
+    <text x="1076" y="188" text-anchor="end" font-family="var(--sans)" font-size="11" fill="var(--muted)">a document in your repository</text>
+  </g>
+
+  <!-- edges: request to the two routes, and both into the pattern -->
+  <path class="edge" d="M152 120 H 168 Q 176 120 176 112 V 96 Q 176 88 184 88 H 200" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#rf-arrow)"/>
+  <path class="edge" d="M152 144 H 168 Q 176 144 176 152 V 168 Q 176 176 184 176 H 200" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#rf-arrow)"/>
+  <path class="edge" d="M352 88 H 368 Q 376 88 376 96 V 112 Q 376 120 384 120 H 400" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#rf-arrow-focal)"/>
+  <path class="edge" d="M352 176 H 368 Q 376 176 376 168 V 152 Q 376 144 384 144 H 400" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#rf-arrow-focal)"/>
+
+  <!-- edges: the straight run -->
+  <path class="edge" d="M552 132 H 592" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#rf-arrow)"/>
+  <path class="edge" d="M736 132 H 776" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#rf-arrow)"/>
+  <path class="edge" d="M920 132 H 960" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#rf-arrow)"/>
+
+  <g class="node">
+    <rect x="24" y="104" width="128" height="56" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="88" y="128" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Your request</text>
+    <text x="88" y="146" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">in plain words</text>
+  </g>
+  <g class="node">
+    <rect x="200" y="60" width="152" height="56" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="276" y="84" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">A type fits</text>
+    <text x="276" y="102" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">use that preset</text>
+  </g>
+  <g class="node">
+    <rect x="200" y="148" width="152" height="56" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="276" y="172" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">No type fits</text>
+    <text x="276" y="190" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">compose from a pattern</text>
+  </g>
+  <g class="node node-focal">
+    <rect x="400" y="104" width="152" height="56" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="476" y="128" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Pattern, opening</text>
+    <text x="476" y="146" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">the reader's question</text>
+  </g>
+  <g class="node">
+    <rect x="592" y="104" width="144" height="56" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="664" y="128" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Modules</text>
+    <text x="664" y="146" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">only those it allows</text>
+  </g>
+  <g class="node">
+    <rect x="776" y="104" width="144" height="56" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="848" y="128" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Theme, voice</text>
+    <text x="848" y="146" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">HTML or PDF only</text>
+  </g>
+  <g class="node">
+    <rect x="960" y="104" width="116" height="56" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="1018" y="128" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Checks</text>
+    <text x="1018" y="146" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">fail the build</text>
+  </g>
+  <g class="node">
+    <rect x="400" y="244" width="520" height="56" rx="6" fill="var(--surface-muted)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="660" y="268" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Evidence states label every claim</text>
+    <text x="660" y="286" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">verified · provided · inferred · unresolved · recommended</text>
+  </g>
+
+  <g class="legend">
+    <text x="24" y="352" font-family="var(--sans)" font-size="11" fill="var(--muted)">Read left to right. The accent marks the one choice the reader's question makes; every other step follows from it.</text>
+  </g>
+</svg>

@@ -1,26 +1,17 @@
 <article class="doc">
-  <header class="doc-hero">
-    <p class="eyebrow">Runtime reference · gateway</p>
-    <h1>Gateway configuration and process behavior</h1>
-    <p class="lede">Lookup facts only: required keys, defaults, health paths, exit codes, and the commands that prove the service is configured correctly.</p>
-    <div class="doc-meta" aria-label="Reference metadata">
-      <span><strong>Applies to:</strong> gateway v1</span>
-      <span><strong>Reviewed:</strong> 2026-08-18</span>
-      <span><strong>Source:</strong> deployment manifest + CI</span>
-    </div>
-  </header>
+  <header class="doc-hero"><p class="eyebrow">Runtime reference · gateway</p><h1>Gateway configuration and process behavior</h1><p class="lede">Lookup facts only: required keys, defaults, health paths, exit codes, and the commands that prove the service is configured correctly.</p><dl class="hero-index" aria-label="Reference metadata"><div><dt>Applies to</dt><dd>gateway v1</dd></div><div><dt>Reviewed</dt><dd>2026-08-18</dd></div><div><dt>Source</dt><dd>deployment manifest + CI</dd></div></dl></header>
 
   <div class="contract-layout">
     <nav class="contract-index" aria-label="Reference sections"><p class="component-label">Lookup</p><ol><li><a href="#configuration">Configuration</a></li><li><a href="#endpoints">Process endpoints</a></li><li><a href="#exit-codes">Exit codes</a></li><li><a href="#validation">Validation</a></li></ol></nav>
     <div>
       <section id="configuration">
         <h2>Configuration keys</h2>
-        <div class="table-scroll"><table><caption>Gateway environment</caption><thead><tr><th scope="col">Key</th><th scope="col">Required</th><th scope="col">Default</th><th scope="col">Meaning</th></tr></thead><tbody>
-          <tr><td><code>INGEST_QUEUE_URI</code></td><td>Yes</td><td>—</td><td>Current queue endpoint; dispatcher URI after RFC 014</td></tr>
-          <tr><td><code>INGEST_GATEWAY_ADDR</code></td><td>No</td><td><code>127.0.0.1:8443</code></td><td>Bind address</td></tr>
-          <tr><td><code>INGEST_SHED_MS</code></td><td>No</td><td><code>200</code></td><td>Maximum proposed dispatcher wait</td></tr>
-          <tr><td><code>INGEST_LOG_LEVEL</code></td><td>No</td><td><code>info</code></td><td><code>debug</code>, <code>info</code>, <code>warn</code>, or <code>error</code></td></tr>
-        </tbody></table></div>
+        <ul class="config-keys" aria-label="Gateway environment">
+          <li><code>INGEST_QUEUE_URI</code><b data-tone="critical">Required</b><span>Current queue endpoint; dispatcher URI after RFC 014</span><span><small>Default</small>none</span></li>
+          <li><code>INGEST_GATEWAY_ADDR</code><b data-tone="neutral">Optional</b><span>Bind address</span><span><small>Default</small><code>127.0.0.1:8443</code></span></li>
+          <li><code>INGEST_SHED_MS</code><b data-tone="neutral">Optional</b><span>Maximum proposed dispatcher wait</span><span><small>Default</small><code>200</code></span></li>
+          <li><code>INGEST_LOG_LEVEL</code><b data-tone="neutral">Optional</b><span><code>debug</code>, <code>info</code>, <code>warn</code>, or <code>error</code></span><span><small>Default</small><code>info</code></span></li>
+        </ul>
       </section>
 
       <section class="section" id="endpoints">

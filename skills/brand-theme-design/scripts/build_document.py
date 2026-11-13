@@ -29,7 +29,10 @@ def resolve(raw: str, theme: str) -> Path:
     return REPO_ROOT / raw.replace("${THEME}", theme)
 
 
-def build(template: Path, theme: str) -> str:
+WIDTHS = ("reading", "full")
+
+
+def build(template: Path, theme: str, width: str = "reading") -> str:
     html = template.read_text(encoding="utf-8")
     missing: list[str] = []
 
@@ -52,6 +55,14 @@ def build(template: Path, theme: str) -> str:
     # broken — it renders, just with the wrong palette.
     out = re.sub(r'(<html[^>]*\sdata-theme=")[^"]*(")', rf"\g<1>{theme}\g<2>", out, count=1)
 
+    # Width is a second root attribute: absent means the reading width each
+    # pattern sets, "full" lets the shell use the viewport.
+    if width not in WIDTHS:
+        sys.exit(f'unknown width "{width}". Available: {", ".join(WIDTHS)}.')
+    out = re.sub(r'(<html\b[^>]*?)\sdata-width="[^"]*"', r"\g<1>", out, count=1)
+    if width == "full":
+        out = re.sub(r"<html\b", '<html data-width="full"', out, count=1)
+
     return out
 
 
@@ -59,6 +70,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("template", type=Path)
     parser.add_argument("--theme", default="editorial-coral")
+    parser.add_argument(
+        "--width",
+        choices=WIDTHS,
+        default="reading",
+        help="reading: the pattern's own column (default); full: use the whole viewport",
+    )
     parser.add_argument("--out", type=Path)
     args = parser.parse_args()
 
@@ -72,11 +89,14 @@ def main() -> None:
     if not args.template.is_file():
         sys.exit(f"template not found: {args.template}")
 
-    result = build(args.template, args.theme)
+    result = build(args.template, args.theme, args.width)
 
     if args.out:
         args.out.write_text(result, encoding="utf-8")
-        print(f"wrote {args.out} ({len(result):,} bytes, theme: {args.theme})", file=sys.stderr)
+        print(
+            f"wrote {args.out} ({len(result):,} bytes, theme: {args.theme}, width: {args.width})",
+            file=sys.stderr,
+        )
     else:
         sys.stdout.write(result)
 

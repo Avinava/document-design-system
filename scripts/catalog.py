@@ -8,7 +8,8 @@ The catalog has exactly three sources:
 - each `skills/writing-documents/references/type-<slug>.md` declares one type in
   its fenced `yaml` block;
 - `core/document-patterns.md` declares the reading patterns in its families
-  table and the module registry in its "Modules" table;
+  table, each pattern's opening in its "Openings" table and the module registry
+  in its "Modules" table;
 - `skills/writing-documents/references/type-index.md` routes the reader's
   question to a pattern in its "Start from the reader's question" table, and
   `consultancy-lifecycle.md` beside it groups the types by engagement stage.
@@ -18,7 +19,7 @@ reads the catalog from here instead of keeping its own copy. Adding or changing
 a type means editing its type file; nothing else repeats the slug-to-pattern
 mapping.
 
-The module-level `TYPES`, `PATTERNS`, `MODULES`, `QUESTIONS` and `LIFECYCLE`
+The module-level `TYPES`, `PATTERNS`, `MODULES`, `OPENINGS`, `QUESTIONS` and `LIFECYCLE`
 load lazily on first access from this repository. Tools that check another
 tree (the validator runs against a path) call the matching `load_*(root)`.
 
@@ -58,7 +59,7 @@ PROFILE_BASE = {"mulesoft": "service-docs"}
 # {slug: (theme, pattern)}. The body lives in templates/composed/<slug>.html and
 # the Markdown in examples/<slug>.md declares `type: custom`.
 COMPOSED: dict[str, tuple[str, str]] = {
-    "platform-primer": ("field-notes", "learning"),
+    "platform-primer": ("serif-editorial", "learning"),
 }
 COMPOSED_DIR = Path("templates/composed")
 TYPE_BODY_DIR = Path("templates/types")
@@ -123,6 +124,13 @@ class Pattern:
     movement: str
     modules: tuple[str, ...]  # characteristic modules, as named in prose
     types: tuple[str, ...]  # type slugs, in table order
+
+
+@dataclass(frozen=True)
+class Opening:
+    pattern: str
+    name: str
+    parts: tuple[str, ...]  # hero part classes, used inside .doc-hero
 
 
 @dataclass(frozen=True)
@@ -319,6 +327,51 @@ def load_modules(root: Path = ROOT) -> dict[str, Module]:
     return modules
 
 
+OPENINGS_HEADER = ["Pattern", "Opening", "Hero parts"]
+
+# Hero parts are classes named hero-<word>; the Openings table is their registry.
+HERO_PART = re.compile(r"hero-[a-z]+")
+
+
+def load_openings(root: Path = ROOT) -> dict[str, Opening]:
+    """{pattern: Opening} from the strict `## Openings` table.
+
+    The header is exactly `| Pattern | Opening | Hero parts |`; the pattern and
+    every part are `code`. Returns {} while core/document-patterns.md has no
+    Openings section.
+    """
+    source = root / PATTERNS_MD
+    rows = _section_table(source.read_text(encoding="utf-8"), "Openings")
+    if rows is None:
+        return {}
+    if rows[0] != OPENINGS_HEADER:
+        raise CatalogError(f"{PATTERNS_MD}: Openings table header must be {OPENINGS_HEADER}, got {rows[0]}")
+    openings: dict[str, Opening] = {}
+    for row in rows[1:]:
+        if len(row) != len(OPENINGS_HEADER):
+            raise CatalogError(f"{PATTERNS_MD}: Openings row has {len(row)} cells: {row}")
+        pattern = CODE.fullmatch(row[0])
+        if not pattern:
+            raise CatalogError(f"{PATTERNS_MD}: Openings pattern cell must be `code`, got {row[0]!r}")
+        if pattern.group(1) in openings:
+            raise CatalogError(f"{PATTERNS_MD}: pattern `{pattern.group(1)}` has two openings")
+        if not row[1]:
+            raise CatalogError(f"{PATTERNS_MD}: the `{pattern.group(1)}` opening has no name")
+        parts = tuple(CODE.findall(row[2]))
+        leftover = CODE.sub("", row[2]).replace(",", "").strip()
+        if not parts or leftover or not all(HERO_PART.fullmatch(part) for part in parts):
+            raise CatalogError(
+                f"{PATTERNS_MD}: hero parts for `{pattern.group(1)}` must be `hero-<word>` names, got {row[2]!r}"
+            )
+        openings[pattern.group(1)] = Opening(pattern.group(1), row[1], parts)
+    return openings
+
+
+def hero_parts(openings: dict[str, Opening]) -> frozenset[str]:
+    """Every hero part class the Openings table registers."""
+    return frozenset(part for opening in openings.values() for part in opening.parts)
+
+
 QUESTIONS_HEADER = ["The reader asks", "Pattern", "Presets in that pattern"]
 
 
@@ -424,10 +477,12 @@ def module_problems(
     patterns: dict[str, Pattern],
     css_classes: set[str],
     bodies: dict[str, tuple[str, set[str]]],
+    hero: frozenset[str] = frozenset(),
 ) -> list[str]:
     """Disagreements between the registry, the stylesheet, the families table and the bodies.
 
-    `bodies` is {example name: (pattern, classes used)}.
+    `bodies` is {example name: (pattern, classes used)}; `hero` is the hero
+    parts the Openings table registers, which the stylesheet may style.
     """
     found: list[str] = []
     for css_class, module in modules.items():
@@ -436,9 +491,9 @@ def module_problems(
         for pattern in module.patterns:
             if pattern not in patterns:
                 found.append(f'module `{css_class}` allows unknown pattern "{pattern}"')
-    for css_class in sorted(css_classes - set(modules) - SHELL_CLASSES - set(MODULE_PARTS)):
+    for css_class in sorted(css_classes - set(modules) - SHELL_CLASSES - set(MODULE_PARTS) - hero):
         found.append(
-            f"{PATTERNS_CSS} styles `.{css_class}`, which is not a registered module, shell class or part"
+            f"{PATTERNS_CSS} styles `.{css_class}`, which is not a registered module, shell class, part or hero part"
         )
     for part, owner in MODULE_PARTS.items():
         if owner not in modules:
@@ -464,6 +519,56 @@ def module_problems(
                     f"{body} ({pattern}) uses `{css_class}`, which the registry allows only for "
                     f"{', '.join(modules[css_class].patterns)}"
                 )
+    return found
+
+
+def opening_problems(
+    openings: dict[str, Opening],
+    patterns: dict[str, Pattern],
+    css_classes: set[str],
+    css_text: str,
+    bodies: dict[str, tuple[str, set[str]]],
+) -> list[str]:
+    """Disagreements between the Openings table, the stylesheet and the bodies.
+
+    Every pattern has one opening, openings and their parts are unique, each
+    part is styled, each pattern's section styles its `.doc-hero` grid, every
+    body uses all of its pattern's parts and none of another pattern's, and
+    the stylesheet styles no hero part the table does not register.
+    """
+    found: list[str] = []
+    for name in patterns:
+        if name not in openings:
+            found.append(f"pattern `{name}` has no row in the Openings table")
+    for name in openings:
+        if name not in patterns:
+            found.append(f"the Openings table names unknown pattern `{name}`")
+    names: dict[str, str] = {}
+    owner: dict[str, str] = {}
+    for name, opening in openings.items():
+        if opening.name in names:
+            found.append(f"patterns `{names[opening.name]}` and `{name}` share the opening {opening.name!r}")
+        names.setdefault(opening.name, name)
+        for part in opening.parts:
+            if part in owner:
+                found.append(f"hero part `{part}` opens both `{owner[part]}` and `{name}`")
+            owner.setdefault(part, name)
+            if part not in css_classes:
+                found.append(f"hero part `{part}` ({name}) has no rule in {PATTERNS_CSS}")
+        if f'html[data-pattern="{name}"] .doc-hero' not in css_text:
+            found.append(f'{PATTERNS_CSS} has no `html[data-pattern="{name}"] .doc-hero` rule')
+    for part in sorted(c for c in css_classes if HERO_PART.fullmatch(c) and c not in owner):
+        found.append(f"{PATTERNS_CSS} styles `.{part}`, which no opening registers")
+    for body, (pattern, used) in sorted(bodies.items()):
+        opening = openings.get(pattern)
+        if opening is None:
+            continue
+        for part in opening.parts:
+            if part not in used:
+                found.append(f"{body} ({pattern}) does not use its opening part `{part}`")
+        for part in sorted(used & set(owner)):
+            if owner[part] != pattern:
+                found.append(f"{body} ({pattern}) uses `{part}`, the opening of `{owner[part]}`")
     return found
 
 
@@ -516,6 +621,7 @@ _LOADERS = {
     "TYPES": load_types,
     "PATTERNS": load_patterns,
     "MODULES": load_modules,
+    "OPENINGS": load_openings,
     "QUESTIONS": load_questions,
     "LIFECYCLE": load_lifecycle,
 }
@@ -524,7 +630,7 @@ _CACHE: dict[str, object] = {}
 
 def __getattr__(name: str) -> object:
     """TYPES: {slug: Type}; PATTERNS: {name: Pattern}; MODULES: {class: Module};
-    QUESTIONS: [Question]; LIFECYCLE: [Stage].
+    OPENINGS: {pattern: Opening}; QUESTIONS: [Question]; LIFECYCLE: [Stage].
 
     Loaded from this repository on first access, so importing the module for
     its parsers never fails on a malformed file.

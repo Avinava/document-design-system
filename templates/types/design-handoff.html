@@ -1,14 +1,10 @@
 <article class="doc">
-  <header class="doc-hero">
-    <p class="eyebrow">Design handoff · operator overview</p>
-    <h1>Show whether ingestion is healthy without requiring dashboard archaeology</h1>
-    <p class="lede">Build a read-only overview that names the current state, exposes queue lag and shed behavior, and routes operators to the existing runbook rather than inventing control UI.</p>
-    <div class="doc-meta" aria-label="Design handoff metadata"><span><strong>For:</strong> Platform UI</span><span><strong>File:</strong> operator-overview</span><span><strong>As of:</strong> 2026-08-18</span><span><strong>Owner:</strong> Platform</span></div>
-  </header>
+  <header class="doc-hero"><p class="eyebrow">Design handoff · operator overview</p><h1>Show whether ingestion is healthy without requiring dashboard archaeology</h1><p class="lede">Build a read-only overview that names the current state, exposes queue lag and shed behavior, and routes operators to the existing runbook rather than inventing control UI.</p><div class="doc-meta" aria-label="Design handoff metadata"><span><strong>For:</strong> Platform UI</span><span><strong>File:</strong> operator-overview</span><span><strong>As of:</strong> 2026-08-18</span><span><strong>Owner:</strong> Platform</span></div><figure class="figure hero-figure"><div class="system-map"><div class="state-grid"><div><p class="component-label">Global status</p><h3>Degraded: queue B unavailable</h3></div><div><p class="component-label">Queue A</p><h3>Healthy · 24s lag</h3></div><div><p class="component-label">Queue B</p><h3>Unavailable · 184 sheds</h3></div><div><p class="component-label">Next action</p><h3>Open queue-lag runbook</h3></div></div></div><figcaption>The first screen the operator sees. Anatomy follows below.</figcaption></figure></header>
 
   <section aria-labelledby="flow">
     <h2 id="flow">Primary user flow</h2>
     <ol><li>Open the overview from the on-call page.</li><li>Read the global written status and last refresh time.</li><li>Identify the queue with rising lag or shed count.</li><li>Open the existing runbook; do not operate the service from this page.</li></ol>
+    <figure class="figure"><div class="diagram-scroll"><!-- @FIG operator-story-map --></div><figcaption>The flow as a story map. Release v2.0.0 is the whole path; CR-003 adds history later.</figcaption></figure>
   </section>
 
   <section class="section" aria-labelledby="anatomy">
@@ -37,12 +33,12 @@
 
   <section class="section" aria-labelledby="components">
     <div class="section-head"><span class="section-num">03</span><h2 id="components">Components and interaction</h2><span class="reading-time">system-first</span></div>
-    <div class="table-scroll"><table><caption>Component contract</caption><thead><tr><th scope="col">Component</th><th scope="col">Use</th><th scope="col">Do not add</th></tr></thead><tbody>
-      <tr><td>Status banner</td><td>Global written state, environment, refresh time</td><td>Color-only state</td></tr>
-      <tr><td>Queue card</td><td>Lag, depth, shed, last event, written trend</td><td>Custom charts or hidden hover facts</td></tr>
-      <tr><td>Runbook link</td><td>Primary recovery action</td><td>Inline operational controls</td></tr>
-      <tr><td>Incident link</td><td>Visible only when an active incident exists</td><td>Automatic incident creation</td></tr>
-    </tbody></table></div>
+    <ul class="component-spec" aria-label="Component contract">
+      <li><strong>Status banner</strong><span><small>Use</small>Global written state, environment, refresh time</span><span><small>Do not add</small>Color-only state</span></li>
+      <li><strong>Queue card</strong><span><small>Use</small>Lag, depth, shed, last event, written trend</span><span><small>Do not add</small>Custom charts or hidden hover facts</span></li>
+      <li><strong>Runbook link</strong><span><small>Use</small>Primary recovery action</span><span><small>Do not add</small>Inline operational controls</span></li>
+      <li><strong>Incident link</strong><span><small>Use</small>Visible only when an active incident exists</span><span><small>Do not add</small>Automatic incident creation</span></li>
+    </ul>
     <p>Refresh every 15 seconds. Preserve keyboard focus across refresh. The tab order follows global status, queue cards, runbook, then incident link.</p>
   </section>
 

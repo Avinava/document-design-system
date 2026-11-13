@@ -4,9 +4,9 @@ Committed outputs. They serve three jobs at once: CI fixtures, the screenshots i
 
 Every example belongs to one fictional engagement, Northwind Ingestion and its RFC 014; the facts are in [`WORLD.md`](WORLD.md). The GitHub Pages homepage walks that engagement in four acts by the reader's job: understand, decide, deliver, run and hand on.
 
-The local Patterns page is [`index.html`](index.html): the reader's-question table first, then the eleven patterns, each with its characteristic modules, its presets and any composed example, followed by the lifecycle map, familiar names, the compatibility profile, and the six-skill strip. GitHub Pages publishes the same page at `/types.html`, beside the story homepage and a modules page with a specimen of every registered module.
+The local Patterns page is [`index.html`](index.html): the reader's-question table first, then the eleven patterns, each with its characteristic modules, its presets and any composed example, followed by the lifecycle map, familiar names, the compatibility profile, and the six-skill strip. GitHub Pages publishes the same page at `/types.html`, beside the story homepage, a How it works page, a modules page with a specimen of every registered module, a figures page and a themes page.
 
-All of them rebuild from source — nothing here is hand-maintained.
+All of them rebuild from source; nothing here is hand-maintained.
 
 ```bash
 npm ci   # Node 22.22.2 or newer; see .nvmrc
@@ -19,32 +19,30 @@ python3 scripts/build_examples.py
 |---|---|---|
 | `inventory-report.html` | analytical-document-design | editorial-coral |
 | `design-doc.html` (and 33 other canonical slugs) | writing-documents | see table below |
-| `platform-primer.html` | writing-documents, composed in the `learning` pattern (`type: custom`) | field-notes |
+| `platform-primer.html` | writing-documents, composed in the `learning` pattern (`type: custom`) | serif-editorial |
 | `capacity-deck.html` | presentation-design | executive-navy |
 | `gallery-light.html` / `gallery-dark.html` | diagram-design + chart-design | editorial-coral / console-violet |
-| `themes-light.html` / `themes-dark.html` | the token contract itself | four house styles + horizon |
-| `proposal-horizon.html` / `proposal-coral.html` | writing-documents (same body as proposal) | horizon / editorial-coral |
+| `themes-light.html` / `themes-dark.html` | the token contract itself | six house themes + horizon |
+| `proposal.html` / `proposal-coral.html` / `proposal-horizon.html` | writing-documents (one body, three themes) | executive-navy / editorial-coral / horizon |
+| `architecture-wide.html` | writing-documents (the `architecture` body built with `--width full`) | field-notes |
 | `brand.html` | brand-theme-design exhibit | editorial-coral |
 
-The `-light` / `-dark` pairs exist so the README can swap them with the reader's GitHub theme via `<picture>`. Both halves of each pair inline the **same** SVG figures — only the root `data-theme` differs, so the pair is also a direct demonstration that nothing needs re-rendering.
+The `-light` / `-dark` pairs exist so the README can swap them with the reader's GitHub theme via `<picture>`. Both halves of each pair inline the **same** SVG figures; only the root `data-theme` differs, so the pair is also a direct demonstration that nothing needs re-rendering.
 
 ### writing-documents types
 
-Bodies live in `templates/types/<slug>.html`. The shared world is [`WORLD.md`](WORLD.md). Rebuild with `python3 scripts/build_examples.py`. Each slug also has a Markdown twin `examples/<slug>.md`.
+Bodies live in `templates/types/<slug>.html`. The shared world is [`WORLD.md`](WORLD.md). Rebuild with `python3 scripts/build_examples.py`. Each slug also has a Markdown twin `examples/<slug>.md`. Each pattern opens differently (the Openings table in [`../core/document-patterns.md`](../core/document-patterns.md)), and each type body uses one module no other type uses.
 
-| Pattern | Files | Default themes |
-|---|---|---|
-| decision | `design-doc`, `discovery`, `proposal`, `project-charter`, `estimate`, `change-request` | field-notes (`design-doc`, `discovery`); executive-navy (the rest) |
-| record | `adr` | field-notes |
-| contract | `spec`, `api-contract`, `reference`, `requirements`, `statement-of-work`, `support-model` | field-notes; console-violet (`api-contract`, `reference`); executive-navy (`statement-of-work`) |
-| procedure | `handoff`, `how-to`, `runbook` | field-notes, editorial-coral, console-violet |
-| learning | `explanation`, `onboarding`, `tutorial` | field-notes, editorial-coral |
-| system | `architecture`, `design-handoff` | field-notes, editorial-coral |
-| incident | `postmortem` | console-violet |
-| suite | `service-docs` | field-notes |
-| plan | `delivery-plan`, `migration-plan`, `test-strategy` | executive-navy, console-violet, editorial-coral |
-| assurance | `test-report`, `threat-model`, `readiness-review`, `risk-register` | editorial-coral, console-violet, console-violet, executive-navy |
-| brief | `status-report`, `release-notes`, `workshop-summary`, `incident-update` | executive-navy, editorial-coral, field-notes, console-violet |
+The default theme of each type is set only in its `type-<slug>.md` block and is spread across six themes on purpose ([ADR-004](../docs/adr/adr-004.md)):
+
+| Theme | Default for |
+|---|---|
+| `serif-editorial` | `adr`, `design-doc`, `discovery`, `explanation`, `workshop-summary` |
+| `condensed-report` | `delivery-plan`, `estimate`, `readiness-review`, `risk-register`, `status-report` |
+| `field-notes` | `architecture`, `handoff`, `onboarding`, `requirements`, `service-docs`, `spec`, `support-model` |
+| `editorial-coral` | `design-handoff`, `how-to`, `release-notes`, `test-report`, `test-strategy`, `tutorial` |
+| `executive-navy` | `change-request`, `project-charter`, `proposal`, `statement-of-work` |
+| `console-violet` | `api-contract`, `incident-update`, `migration-plan`, `postmortem`, `reference`, `runbook`, `threat-model` |
 
 `mulesoft` remains a compatibility profile of canonical `service-docs`; it is
 not a second type.
@@ -57,10 +55,12 @@ lives in `templates/composed/<slug>.html` and may use only modules the registry
 allows for that pattern. `platform-primer` is the worked example: a primer for
 engineers joining Platform from batch work, nearest type `explanation`.
 
-Pattern and theme are independent root attributes. See
+Pattern, theme and width are independent root attributes. See
 [`../core/document-patterns.md`](../core/document-patterns.md) for the contract.
 
 ## Figures
+
+Twenty-two figures are placed across the type and composed bodies, drawn in the form the reader's question needs. Specimens of the newer diagram forms are in `diagrams/`.
 
 | File | Form | Produced by |
 |---|---|---|
@@ -68,13 +68,21 @@ Pattern and theme are independent root attributes. See
 | `queue-split-change.svg` | Change view | Hand-authored |
 | `ingest-deployment.svg` | Deployment map | Hand-authored |
 | `workstream-dependencies.svg` | Dependency graph | Hand-authored |
-| `ingestion-path.svg` | Sequence diagram | `render_diagram.mjs` (Mermaid → SVG) |
+| `late-recovery-causes.svg` | Fishbone | Hand-authored |
+| `response-journey.svg` | Journey | Hand-authored |
+| `backpressure-loop.svg` | Cycle | Hand-authored |
+| `status-cadence.svg` | Cycle | Hand-authored |
+| `ingestion-evolution.svg` | Evolution map | Hand-authored |
+| `event-lifecycle.svg` | Event model | Hand-authored |
+| `operator-story-map.svg` | Story map | Hand-authored |
+| `lag-recovery-states.svg` | State machine | Hand-authored |
+| `ingestion-path.svg` | Sequence diagram | `render_diagram.mjs` (Mermaid to SVG) |
 | `footprint-by-function.svg` | Ranked bars | `render_chart.mjs` |
 | `cohorts-by-year.svg` | Columns | `render_chart.mjs` |
 | `latency-p99.svg` | Line | `render_chart.mjs` |
 | `estimate-bridge.svg` | Waterfall bridge | `render_chart.mjs` |
 
-Sources live in `specs/` — a `.mmd` for the rendered diagram, a JSON spec per chart. Hand-authored figures are their own source and pass `scripts/check_diagrams.py`.
+Sources live in `specs/`: a `.mmd` for the rendered diagram, a JSON spec per chart. Hand-authored figures are their own source and pass `scripts/check_diagrams.py`.
 
 ## The thing worth checking
 
@@ -84,7 +92,7 @@ Open any document and change one attribute:
 <html lang="en" data-theme="editorial-coral">   →   data-theme="executive-navy"
 ```
 
-The page, the chart's focal bar, and the diagram's arrowheads all retheme together. Nothing re-renders and no JavaScript runs — the SVGs resolve their colors from the document's tokens at view time.
+The page, the chart's focal bar, and the diagram's arrowheads all retheme together. Nothing re-renders and no JavaScript runs: the SVGs resolve their colors from the document's tokens at view time.
 
 That is the whole architecture in one edit, and it is why figures are prerendered to SVG *strings* at authoring time while colors stay as live CSS custom properties.
 
@@ -92,7 +100,7 @@ One caveat: `data-theme` only switches between themes whose tokens are actually 
 
 ## Adding a theme
 
-Use the `brand-theme-design` skill — it extracts from a brand guide, site, or screenshot, maps to the semantic roles, and runs `scripts/audit_theme.py` over the result. Doing it by hand means copying `core/themes/brand-template.css` and filling in every TODO.
+Use the `brand-theme-design` skill: it extracts from a brand guide, site, or screenshot, maps to the semantic roles, and runs `scripts/audit_theme.py` over the result. Doing it by hand means copying `core/themes/brand-template.css` and filling in every TODO.
 
 ## Print
 
@@ -101,4 +109,4 @@ node scripts/export_pdf.mjs examples/inventory-report.html --out report.pdf
 node scripts/export_pdf.mjs examples/capacity-deck.html --out deck.pdf --preset deck
 ```
 
-The report is 3 pages of A4; the deck is 14 slides on 14 pages (title, agenda, statements, dividers, table, metrics, chart, diagrams, comparison, closing). Open the PDF and look at it — page count alone proves nothing, since a drop in pages can mean clipped overflow rather than better layout.
+The report is 3 pages of A4; the deck is 14 slides on 14 pages (title, agenda, statements, dividers, table, metrics, chart, diagrams, comparison, closing). Open the PDF and look at it: page count alone proves nothing, since a drop in pages can mean clipped overflow rather than better layout.

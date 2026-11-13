@@ -1,0 +1,67 @@
+<svg role="img" aria-labelledby="jr-title jr-desc" viewBox="0 0 720 364" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+  <title id="jr-title">Developer journey from first look to renewal</title>
+  <desc id="jr-desc">Four stages run left to right: find, sign up, first event, renew. Under each stage sit what the developer does, the pain, and a feeling line. The line is lowest at sign up, where unclear key scopes cause a drop, and the first-event stage is the one the team is working on.</desc>
+
+  <defs>
+    <marker id="jr-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerUnits="userSpaceOnUse"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <g class="annotation">
+    <text x="28" y="80" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">STAGE</text>
+    <text x="28" y="128" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">DOES</text>
+    <text x="28" y="180" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">PAIN</text>
+    <text x="28" y="228" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">FEELS</text>
+  </g>
+  <path class="edge" d="M232 76 H 264" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#jr-arrow)"/>
+  <path class="edge" d="M376 76 H 408" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#jr-arrow)"/>
+  <path class="edge" d="M520 76 H 552" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#jr-arrow)"/>
+  <g class="node">
+    <rect x="120" y="56" width="112" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="176" y="80" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Find</text>
+  </g>
+  <g class="node">
+    <rect x="264" y="56" width="112" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="320" y="80" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Sign up</text>
+  </g>
+  <g class="node node-focal">
+    <rect x="408" y="56" width="112" height="40" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="464" y="80" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">First event</text>
+  </g>
+  <g class="node">
+    <rect x="552" y="56" width="112" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="608" y="80" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Renew</text>
+  </g>
+  <g class="annotation">
+    <text x="176" y="128" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">Reads docs</text>
+    <text x="176" y="144" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">Asks a peer</text>
+    <text x="176" y="180" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">no pricing page</text>
+    <text x="320" y="128" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">Creates a key</text>
+    <text x="320" y="144" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">Copies snippet</text>
+    <text x="320" y="180" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">unclear scopes</text>
+    <text x="464" y="128" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">Sends a test</text>
+    <text x="464" y="144" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">Waits for data</text>
+    <text x="464" y="180" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">no feedback</text>
+    <text x="608" y="128" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">Reviews usage</text>
+    <text x="608" y="144" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">Asks finance</text>
+    <text x="608" y="180" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">surprise bill</text>
+    <path d="M120 260 H 664" stroke="var(--rule)" stroke-width="1" stroke-dasharray="1 3"/>
+    <text x="644" y="276" text-anchor="end" font-family="var(--sans)" font-size="11" fill="var(--soft)">neutral</text>
+  </g>
+  <path class="edge" d="M176 244 L 320 288 L 464 228 L 608 212" fill="none" stroke="var(--muted)" stroke-width="1"/>
+  <g class="annotation">
+    <circle cx="176" cy="244" r="4" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <circle cx="320" cy="288" r="4" fill="var(--accent)" stroke="var(--accent)" stroke-width="1"/>
+    <circle cx="464" cy="228" r="4" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <circle cx="608" cy="212" r="4" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+  </g>
+  <g class="callout">
+    <path d="M328 292 C 344 304, 356 312, 372 312" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="380" y="316" font-family="var(--sans)" font-size="12" font-style="italic" fill="var(--ink)">drop: scopes are unclear</text>
+  </g>
+  <g class="legend">
+    <text x="28" y="348" font-family="var(--sans)" font-size="11" fill="var(--muted)">Higher is better. Feeling is ordinal, from interviews, and is not measured.</text>
+  </g>
+</svg>

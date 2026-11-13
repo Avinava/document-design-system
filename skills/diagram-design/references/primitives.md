@@ -8,6 +8,7 @@ All values are on a 4px grid. Off-grid geometry is the most reliable visual tell
 
 - [Markup contract](#markup-contract)
 - [Canvas and grid](#canvas-and-grid)
+- [Layout budgets](#layout-budgets)
 - [Nodes](#nodes)
 - [Edges](#edges)
 - [Labels](#labels)
@@ -49,6 +50,32 @@ Height follows content. Never fix a height that crops.
 - Outer padding: **24px** minimum on all sides. Content touching the viewBox edge clips in print.
 - Node gap: **32px** minimum horizontally, **24px** vertically. Tighter than this and grouping stops reading.
 - Target density around **4/10**. If the frame looks full, remove something rather than shrinking everything.
+
+## Layout budgets
+
+A canvas holds only so much before it stops reading. Budget the diagram against its size preset before drawing; over budget means cut or split, not shrink. Limits are for one diagram and apply to the nodes, edges and text the reader must take in, not to guides such as ticks or dividers.
+
+| Budget | `doc-inline` 720 | `print-portrait` 640 | `full-width` 1100 | `print-landscape` 980 |
+|---|---|---|---|---|
+| Nodes (checked) | 14 | 10 | 24 | 18 |
+| Edges (checked) | 20 | 14 | 36 | 26 |
+| Columns of nodes (default 112 wide, 32 gap) | 4 | 3 | 7 | 6 |
+| Characters per node line at 13px | 16 | 16 | 24 | 20 |
+| Lines per node label | 2 | 2 | 3 | 3 |
+| Boundary nesting | 2 | 2 | 2 | 2 |
+| Callouts | 2 | 1 | 2 | 2 |
+| Legend rows | 2 | 2 | 3 | 3 |
+| Text rows in a ledger | 8 | 6 | 12 | 10 |
+
+How to read it:
+
+- A node line is about `(width - 16) / 7.8` characters at 13px; an 11px mono identifier fits about `(width - 16) / 6.6`. Widen the node in multiples of 8 before shrinking the type, and never below 11px.
+- Columns are what is left after the 24px outer padding: `(viewBox - 48 + 32) / (node width + 32)`, rounded down. Row-label gutters (journey, event model) use one column's width.
+- Edges beyond the budget usually mean two diagrams. Edges that cross are charged double.
+- Stacked shapes that read as one object (a pyramid, a layer stack) sit 12px apart and count as one node for the gap rule, not for the node budget.
+- A diagram at its budget is at density 7 or more. Aim for about half.
+
+Node and edge counts are enforced by `scripts/check_diagrams.py` from the table under [Checking the rules](#checking-the-rules); the other rows are drawing guidance. The specimens in `examples/diagrams/` sit inside these budgets at `doc-inline`.
 
 ## Nodes
 
@@ -209,6 +236,20 @@ When one is genuinely needed (repeated encodings across several diagrams):
 
 **Dependency graph.** One column per date, node pitch 140 at `doc-inline` (112 + 28); rows 88 apart (64 + 24). Edges bend once each way with `r=6` quarter-arcs in the column gap. Inputs converging on one gate fan along its side at least 12px apart; the worked example spaces three of them 20px apart, centred on the node.
 
+**Journey.** Row-label gutter 96 wide at the left; stage columns 112 wide on a 144 pitch. Rows: stage nodes (40 high), two lines of "does" at 16 apart, a pain line in `var(--mono)` 11px, then a feeling band about 80 high with a dotted neutral baseline. Points are `r=4` circles; the lowest is the accent.
+
+**Story map.** Four activity nodes on a 172 pitch (140 wide), then one dashed boundary per release, 88 high, cards 40 high 16px inside it. Release bands are 16px apart.
+
+**Event model.** Lanes 88 high, divided by 1px `var(--rule)` lines, with a label gutter of 112. Slice columns 128 wide on a 184 pitch, so the 56px gap carries a routed edge. An edge that goes up a lane uses the gap, never a node column.
+
+**Fishbone.** Spine at mid height; bones lean 56px over about 118px and end on the spine. Category nodes 112 × 32 at the bone ends; cause ticks 16 long with labels 4px beyond, right-aligned. Bone-to-bone pitch 160 at `doc-inline`.
+
+**Cycle.** Four nodes at the compass points of a ring; each connecting edge is one quadratic curve ending on a node edge. Edge labels sit outside the ring, 6px or more from the curve.
+
+**Evolution map.** Four equal evolution bands with dotted dividers and uppercase labels along the bottom; visibility rows 80 apart. A "moving" arrow is a dashed 76px run with its label above it.
+
+**Pyramid.** Widths step by 112 (128, 240, 352, 464), 56 high, 12 apart, on one centre axis; a climbing axis arrow sits 28px left of the widest layer.
+
 ## The SVG shell
 
 ```html
@@ -239,4 +280,17 @@ python3 scripts/check_diagrams.py figure.svg        # or a page: every titled in
 python3 scripts/check_diagrams.py --rules           # list the rule IDs
 ```
 
-It checks the shell, `var()`-only colour, the markup contract, the 4px grid on rects, node overlap, the `viewBox` bounds (text estimated at 0.6em per character), edge-label occlusion and its 6px gap, the 12px attachment fan, the 11px legend floor, one emphasis family, and at most two callouts. Output of `scripts/render_diagram.mjs` is marked `data-renderer` and gets only the shell and bounds rules, because the renderer owns its layout.
+It checks the shell, `var()`-only colour, the markup contract, the 4px grid on rects, node overlap, the `viewBox` bounds (text estimated at 0.6em per character), edge-label occlusion and its 6px gap, the 12px attachment fan, the 11px legend floor, one emphasis family, and at most two callouts. Three more rules read the same coordinates:
+
+- `text-fit`: a node's text, at an estimated width (0.55em per character for sans, 0.6em for mono), fits its box with 4px padding each side. Shorten the label, wrap it onto a second `<text>` line, or widen the box.
+- `contrast`: each text fill is resolved against the `var()` tokens of every theme in `core/themes` and held to 4.5:1 on its backing (3:1 at 18px and above, and for `--soft`, the advisory tertiary ink), using the same maths as `scripts/audit_theme.py`. A failure names the theme.
+- `layout-budget`: node and edge counts per size preset. The numbers live in one constant, `LAYOUT_BUDGETS` in `scripts/check_diagrams.py`; the preset is the one whose width is nearest the `viewBox`. A figure over budget wants splitting into two, not squeezing.
+
+| Preset | viewBox width | Max nodes | Max edges |
+|---|---|---|---|
+| `print-portrait` | 640 | 10 | 14 |
+| `doc-inline` | 720 | 14 | 20 |
+| `print-landscape` | 980 | 18 | 26 |
+| `full-width` | 1100 | 24 | 36 |
+
+Output of `scripts/render_diagram.mjs` is marked `data-renderer` and gets only the shell and bounds rules, because the renderer owns its layout.

@@ -65,6 +65,25 @@
    * Keep between 0 and 8px. */
   --radius-sm: 3px;
   --radius-md: 5px;
+
+  /* --- Voice ----------------------------------------------------------
+   * Type scale, density and ornament. The defaults reproduce the house
+   * voice; change them to give the brand its own pace.
+   *   --scale-ratio    1.1 to 1.5. Small is quiet, large is expressive.
+   *   --density        0.8 to 1.25. Spacing multiplier.
+   *   --display-*      weight, tracking, leading and case of headings. */
+  --text-base: 1rem;
+  --scale-ratio: 1.18;
+  --display-weight: 600;
+  --display-tracking: -0.01em;
+  --display-leading: 1.2;
+  --display-transform: none;
+
+  --density: 1;
+  --hero-rule-width: 3px;
+  --section-rule-width: 1px;
+  --eyebrow-tracking: 0.06em;
+  --eyebrow-transform: uppercase;
 }
 
 /* Before shipping a brand theme —
