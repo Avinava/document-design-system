@@ -603,6 +603,7 @@ def script_and_skill_files(root: Path) -> list[Path]:
 def pinned_mention_files(root: Path) -> list[Path]:
     """Every file whose version mentions must agree with the pins."""
     docs = [root / name for name in ("README.md", "CONTRIBUTING.md", LICENSES, "examples/README.md", "AGENTS.md")]
+    docs += [root / "docs" / "DESIGN.md"] + sorted((root / "docs" / "adr").glob("*.md"))
     return script_and_skill_files(root) + [p for p in docs if p.is_file()]
 
 
