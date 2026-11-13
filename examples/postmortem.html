@@ -1892,11 +1892,155 @@ html[data-pattern="brief"] .section { margin-top: var(--space-6); }
       <div><p class="component-label">Amplifier</p><h3>One queue held every producer</h3><p>Healthy producers had no independent path or bounded shed behavior.</p></div>
       <div><p class="component-label">Outcome</p><h3>Backpressure reached the gateway</h3><p>Requests blocked until clients saw timeouts and <code>503</code> responses.</p></div>
     </div>
+    <figure class="figure"><div class="diagram-scroll"><svg role="img" aria-labelledby="lr-title lr-desc" viewBox="0 0 720 380" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+  <title id="lr-title">Fishbone of the 2026-07-30 ingestion halt</title>
+  <desc id="lr-desc">A horizontal spine points at the effect, every producer stopped. Six cause families branch off it: trigger, topology and gateway above, mitigation, alerting and producers below. Each family lists two causes from the incident review. The topology bone is drawn in the accent: one shared queue with no failover is the root cause.</desc>
+
+  <defs>
+    <marker id="lr-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerUnits="userSpaceOnUse"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <path class="edge" d="M40 190 H 584" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#lr-arrow)"/>
+  <g class="node node-focal">
+    <rect x="584" y="160" width="112" height="60" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="640" y="186" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">All producers</text>
+    <text x="640" y="202" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">stopped</text>
+  </g>
+  <path class="edge" d="M188 72 L 244 190" fill="none" stroke="var(--muted)" stroke-width="1"/>
+  <path class="edge" d="M348 72 L 404 190" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+  <path class="edge" d="M508 72 L 564 190" fill="none" stroke="var(--muted)" stroke-width="1"/>
+  <path class="edge" d="M188 308 L 244 190" fill="none" stroke="var(--muted)" stroke-width="1"/>
+  <path class="edge" d="M348 308 L 404 190" fill="none" stroke="var(--muted)" stroke-width="1"/>
+  <path class="edge" d="M508 308 L 564 190" fill="none" stroke="var(--muted)" stroke-width="1"/>
+  <path class="edge" d="M207.0 112 H 191.0" fill="none" stroke="var(--muted)" stroke-width="1"/>
+  <path class="edge" d="M226.0 152 H 210.0" fill="none" stroke="var(--muted)" stroke-width="1"/>
+  <path class="edge" d="M367.0 112 H 351.0" fill="none" stroke="var(--muted)" stroke-width="1"/>
+  <path class="edge" d="M386.0 152 H 370.0" fill="none" stroke="var(--muted)" stroke-width="1"/>
+  <path class="edge" d="M527.0 112 H 511.0" fill="none" stroke="var(--muted)" stroke-width="1"/>
+  <path class="edge" d="M546.0 152 H 530.0" fill="none" stroke="var(--muted)" stroke-width="1"/>
+  <path class="edge" d="M207.0 268 H 191.0" fill="none" stroke="var(--muted)" stroke-width="1"/>
+  <path class="edge" d="M226.0 228 H 210.0" fill="none" stroke="var(--muted)" stroke-width="1"/>
+  <path class="edge" d="M367.0 268 H 351.0" fill="none" stroke="var(--muted)" stroke-width="1"/>
+  <path class="edge" d="M386.0 228 H 370.0" fill="none" stroke="var(--muted)" stroke-width="1"/>
+  <path class="edge" d="M527.0 268 H 511.0" fill="none" stroke="var(--muted)" stroke-width="1"/>
+  <path class="edge" d="M546.0 228 H 530.0" fill="none" stroke="var(--muted)" stroke-width="1"/>
+  <g class="annotation">
+    <text x="190.0" y="116" text-anchor="end" font-family="var(--sans)" font-size="12" fill="var(--ink)">Checkout burst</text>
+    <text x="209.0" y="156" text-anchor="end" font-family="var(--sans)" font-size="12" fill="var(--ink)">consumer recycling</text>
+    <text x="350.0" y="116" text-anchor="end" font-family="var(--sans)" font-size="12" fill="var(--ink)">one shared queue</text>
+    <text x="369.0" y="156" text-anchor="end" font-family="var(--sans)" font-size="12" fill="var(--ink)">no failover</text>
+    <text x="510.0" y="116" text-anchor="end" font-family="var(--sans)" font-size="12" fill="var(--ink)">waits on the queue</text>
+    <text x="529.0" y="156" text-anchor="end" font-family="var(--sans)" font-size="12" fill="var(--ink)">timeouts from 15:40</text>
+    <text x="190.0" y="272" text-anchor="end" font-family="var(--sans)" font-size="12" fill="var(--ink)">one replica added</text>
+    <text x="209.0" y="232" text-anchor="end" font-family="var(--sans)" font-size="12" fill="var(--ink)">lag flat, then up</text>
+    <text x="350.0" y="272" text-anchor="end" font-family="var(--sans)" font-size="12" fill="var(--ink)">5 min over 120 s</text>
+    <text x="369.0" y="232" text-anchor="end" font-family="var(--sans)" font-size="12" fill="var(--ink)">no blast radius</text>
+    <text x="510.0" y="272" text-anchor="end" font-family="var(--sans)" font-size="12" fill="var(--ink)">no bounded shed</text>
+    <text x="529.0" y="232" text-anchor="end" font-family="var(--sans)" font-size="12" fill="var(--ink)">503 or blocked</text>
+  </g>
+  <g class="node">
+    <rect x="132" y="40" width="112" height="32" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="188" y="60" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Trigger</text>
+  </g>
+  <g class="node">
+    <rect x="292" y="40" width="112" height="32" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="348" y="60" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Topology</text>
+  </g>
+  <g class="node">
+    <rect x="452" y="40" width="112" height="32" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="508" y="60" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Gateway</text>
+  </g>
+  <g class="node">
+    <rect x="132" y="308" width="112" height="32" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="188" y="328" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Mitigation</text>
+  </g>
+  <g class="node">
+    <rect x="292" y="308" width="112" height="32" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="348" y="328" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Alerting</text>
+  </g>
+  <g class="node">
+    <rect x="452" y="308" width="112" height="32" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="508" y="328" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Producers</text>
+  </g>
+  <g class="legend">
+    <text x="28" y="364" text-anchor="start" font-family="var(--sans)" font-size="11" fill="var(--muted)">Each bone is a cause family; each tick a cause from the review. Accent: the root cause.</text>
+  </g>
+</svg></div><figcaption>Six cause families from the review. The accent is the root cause: one queue, no failure boundary.</figcaption></figure>
     <div class="keypoint"><p><strong>Root cause:</strong> ingestion had one queue and no failure boundary. Scaling consumers changed recovery time, not the architecture that allowed one queue to stop all producers.</p></div>
   </section>
 
   <section class="section" aria-labelledby="response">
     <div class="section-head"><span class="section-num">03</span><h2 id="response">Response review</h2><span class="reading-time">people + process</span></div>
+    <figure class="figure"><div class="diagram-scroll"><svg role="img" aria-labelledby="rj-title rj-desc" viewBox="0 0 720 364" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+  <title id="rj-title">On-call journey through the 2026-07-30 halt</title>
+  <desc id="rj-desc">Four stages run left to right: detect at 14:12, scope at 14:18, mitigate at 14:31, recover at 16:04. Under each sit what the on-call does, the pain, and a feeling line. The line is lowest at mitigate, where lag flattened and then climbed again, and the accent marks that stage as the one the response review turns on.</desc>
+
+  <defs>
+    <marker id="rj-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerUnits="userSpaceOnUse"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <g class="annotation">
+    <text x="28" y="80" text-anchor="start" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">STAGE</text>
+    <text x="28" y="128" text-anchor="start" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">DOES</text>
+    <text x="28" y="180" text-anchor="start" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">PAIN</text>
+    <text x="28" y="228" text-anchor="start" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">FEELS</text>
+  </g>
+  <path class="edge" d="M232 76 H 264" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#rj-arrow)"/>
+  <path class="edge" d="M376 76 H 408" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#rj-arrow)"/>
+  <path class="edge" d="M520 76 H 552" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#rj-arrow)"/>
+  <g class="node">
+    <rect x="120" y="56" width="112" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="176" y="80" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">14:12 Detect</text>
+  </g>
+  <g class="node">
+    <rect x="264" y="56" width="112" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="320" y="80" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">14:18 Scope</text>
+  </g>
+  <g class="node node-focal">
+    <rect x="408" y="56" width="112" height="40" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="464" y="80" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">14:31 Mitigate</text>
+  </g>
+  <g class="node">
+    <rect x="552" y="56" width="112" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="608" y="80" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">16:04 Recover</text>
+  </g>
+  <g class="annotation">
+    <text x="176" y="128" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">Lag over 120 s</text>
+    <text x="176" y="144" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">On-call paged</text>
+    <text x="176" y="180" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">no blast radius</text>
+    <text x="320" y="128" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">Opens lag board</text>
+    <text x="320" y="144" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">Checks consumers</text>
+    <text x="320" y="180" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">depth outruns drain</text>
+    <text x="464" y="128" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">Adds one replica</text>
+    <text x="464" y="144" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">Watches lag</text>
+    <text x="464" y="180" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">flat, then climbing</text>
+    <text x="608" y="128" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">Second scale-up</text>
+    <text x="608" y="144" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">Queue drains</text>
+    <text x="608" y="180" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">hard fails from 15:40</text>
+    <path d="M120 260 H 664" stroke="var(--rule)" stroke-width="1" stroke-dasharray="1 3"/>
+    <text x="644" y="276" text-anchor="end" font-family="var(--sans)" font-size="11" fill="var(--soft)">neutral</text>
+  </g>
+  <path class="edge" d="M176 244 L 320 268 L 464 288 L 608 212" fill="none" stroke="var(--muted)" stroke-width="1"/>
+  <g class="annotation">
+    <circle cx="176" cy="244" r="4" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <circle cx="320" cy="268" r="4" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <circle cx="464" cy="288" r="4" fill="var(--accent)" stroke="var(--accent)" stroke-width="1"/>
+    <circle cx="608" cy="212" r="4" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+  </g>
+  <g class="callout">
+    <path d="M472 292 C 488 304, 500 312, 516 312" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="524" y="316" text-anchor="start" font-family="var(--sans)" font-size="12" fill="var(--ink)" font-style="italic">drop: lag climbs again</text>
+  </g>
+  <g class="legend">
+    <text x="28" y="348" text-anchor="start" font-family="var(--sans)" font-size="11" fill="var(--muted)">Higher is better. Feeling is inferred from the timeline, not measured. Times are UTC.</text>
+  </g>
+</svg></div><figcaption>The on-call's response in four stages. The feeling line is lowest at 14:31, where the documented control stopped working.</figcaption></figure>
     <div class="comparison-grid">
       <div><p class="component-label">Worked</p><h3>The runbook found the right control</h3><p>The on-call opened the lag dashboard immediately and the documented scale command was safe to repeat.</p></div>
       <div><p class="component-label">Failed</p><h3>The alert described lag, not blast radius</h3><p>The first page did not say every producer shared the queue, delaying escalation until hard failures began.</p></div>

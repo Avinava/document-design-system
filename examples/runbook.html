@@ -1957,6 +1957,63 @@ html[data-pattern="brief"] .section { margin-top: var(--space-6); }
 
   <section class="section" aria-labelledby="steps">
     <div class="section-head"><span class="section-num">01</span><h2 id="steps">Recovery procedure</h2><span class="reading-time">target: 15 min</span></div>
+    <figure class="figure"><div class="diagram-scroll"><svg role="img" aria-labelledby="ls-title ls-desc" viewBox="0 0 720 316" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+  <title id="ls-title">States of a lag recovery</title>
+  <desc id="ls-desc">Lag rising over 120 seconds for five minutes leads to one added replica, then three minutes of observing. If lag falls for ten minutes the recovery is verified. If lag rises, a consumer crash-loops or fifteen minutes pass, the on-call escalates and stops local changes. A crash loop found before scaling goes straight to escalation. The accent marks escalation.</desc>
+
+  <defs>
+    <marker id="ls-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerUnits="userSpaceOnUse"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <path class="edge" d="M144 96 H 192" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#ls-arrow)"/>
+  <path class="edge" d="M312 96 H 360" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#ls-arrow)"/>
+  <path class="edge" d="M480 96 H 568" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#ls-arrow)"/>
+  <path class="edge" d="M420 120 V 216" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#ls-arrow)"/>
+  <path class="edge" d="M84 120 V 232 Q84 240 92 240 H 348" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#ls-arrow)"/>
+  <g class="edge-label">
+    <rect x="492" y="72" width="64" height="16" fill="var(--paper)"/>
+    <text x="524" y="84" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">lag falls</text>
+  </g>
+  <g class="edge-label">
+    <rect x="432" y="156" width="148" height="16" fill="var(--paper)"/>
+    <text x="506" y="168" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">lag rises or crash loop</text>
+  </g>
+  <g class="edge-label">
+    <rect x="124" y="216" width="160" height="16" fill="var(--paper)"/>
+    <text x="204" y="228" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">crash loop before scaling</text>
+  </g>
+  <g class="node">
+    <rect x="24" y="72" width="120" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="84" y="92" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Lag rising</text>
+    <text x="84" y="108" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">120 s for 5 min</text>
+  </g>
+  <g class="node">
+    <rect x="192" y="72" width="120" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="252" y="92" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Replica +1</text>
+    <text x="252" y="108" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">max six</text>
+  </g>
+  <g class="node">
+    <rect x="360" y="72" width="120" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="420" y="92" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Observe</text>
+    <text x="420" y="108" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">3 min</text>
+  </g>
+  <g class="node">
+    <rect x="568" y="72" width="128" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="632" y="92" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Verified</text>
+    <text x="632" y="108" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">lag falls 10 min</text>
+  </g>
+  <g class="node node-focal">
+    <rect x="348" y="216" width="144" height="48" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="420" y="236" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Escalated</text>
+    <text x="420" y="252" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">stop local changes</text>
+  </g>
+  <g class="legend">
+    <text x="28" y="300" text-anchor="start" font-family="var(--sans)" font-size="11" fill="var(--muted)">Flat lag means two more minutes of observing. Escalate at 15 minutes in every case.</text>
+  </g>
+</svg></div><figcaption>The procedure as states. Escalation is reachable from observing, and before any scaling if a consumer is crash-looping.</figcaption></figure>
     <ol class="procedure-steps">
       <li><h3>Name the failing boundary</h3><p>Open the lag dashboard and identify the queue whose lag is rising. On the current system this is <code>ingest</code>; after RFC 014 it is <code>ingest-a</code> or <code>ingest-b</code>.</p><p class="outcome"><strong>Success:</strong> the incident note names one queue, current lag slope, and affected producers.</p></li>
       <li><h3>Check consumer health before scaling</h3><p>Inspect ready replicas and restart count. If any consumer is crash-looping, do not scale around it; go directly to escalation.</p><pre><span class="lang">bash</span>kubectl -n ingest get deploy/ingest-consumer

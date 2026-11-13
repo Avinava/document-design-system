@@ -8,6 +8,7 @@
         <h2>Operations</h2>
         <div class="endpoint"><span class="http-method">POST</span><div><h3><code>/events</code></h3><p>Validate and accept one event. Returns <code>202</code> with the event ID and acceptance status.</p></div></div>
         <div class="endpoint"><span class="http-method">GET</span><div><h3><code>/events/{id}</code></h3><p>Look up one event by opaque ID. Returns <code>200</code> or <code>404</code>; this is not a list endpoint.</p></div></div>
+        <figure class="figure"><div class="diagram-scroll"><!-- @FIG event-lifecycle --></div><figcaption>One event across three calls: accept, repeat the same ID, look it up. A repeat never creates a second row.</figcaption></figure>
       </section>
 
       <section class="section" id="conventions">

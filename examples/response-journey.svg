@@ -1,0 +1,67 @@
+<svg role="img" aria-labelledby="rj-title rj-desc" viewBox="0 0 720 364" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+  <title id="rj-title">On-call journey through the 2026-07-30 halt</title>
+  <desc id="rj-desc">Four stages run left to right: detect at 14:12, scope at 14:18, mitigate at 14:31, recover at 16:04. Under each sit what the on-call does, the pain, and a feeling line. The line is lowest at mitigate, where lag flattened and then climbed again, and the accent marks that stage as the one the response review turns on.</desc>
+
+  <defs>
+    <marker id="rj-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerUnits="userSpaceOnUse"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <g class="annotation">
+    <text x="28" y="80" text-anchor="start" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">STAGE</text>
+    <text x="28" y="128" text-anchor="start" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">DOES</text>
+    <text x="28" y="180" text-anchor="start" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">PAIN</text>
+    <text x="28" y="228" text-anchor="start" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">FEELS</text>
+  </g>
+  <path class="edge" d="M232 76 H 264" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#rj-arrow)"/>
+  <path class="edge" d="M376 76 H 408" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#rj-arrow)"/>
+  <path class="edge" d="M520 76 H 552" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#rj-arrow)"/>
+  <g class="node">
+    <rect x="120" y="56" width="112" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="176" y="80" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">14:12 Detect</text>
+  </g>
+  <g class="node">
+    <rect x="264" y="56" width="112" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="320" y="80" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">14:18 Scope</text>
+  </g>
+  <g class="node node-focal">
+    <rect x="408" y="56" width="112" height="40" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="464" y="80" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">14:31 Mitigate</text>
+  </g>
+  <g class="node">
+    <rect x="552" y="56" width="112" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="608" y="80" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">16:04 Recover</text>
+  </g>
+  <g class="annotation">
+    <text x="176" y="128" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">Lag over 120 s</text>
+    <text x="176" y="144" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">On-call paged</text>
+    <text x="176" y="180" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">no blast radius</text>
+    <text x="320" y="128" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">Opens lag board</text>
+    <text x="320" y="144" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">Checks consumers</text>
+    <text x="320" y="180" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">depth outruns drain</text>
+    <text x="464" y="128" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">Adds one replica</text>
+    <text x="464" y="144" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">Watches lag</text>
+    <text x="464" y="180" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">flat, then climbing</text>
+    <text x="608" y="128" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">Second scale-up</text>
+    <text x="608" y="144" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--ink)">Queue drains</text>
+    <text x="608" y="180" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">hard fails from 15:40</text>
+    <path d="M120 260 H 664" stroke="var(--rule)" stroke-width="1" stroke-dasharray="1 3"/>
+    <text x="644" y="276" text-anchor="end" font-family="var(--sans)" font-size="11" fill="var(--soft)">neutral</text>
+  </g>
+  <path class="edge" d="M176 244 L 320 268 L 464 288 L 608 212" fill="none" stroke="var(--muted)" stroke-width="1"/>
+  <g class="annotation">
+    <circle cx="176" cy="244" r="4" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <circle cx="320" cy="268" r="4" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <circle cx="464" cy="288" r="4" fill="var(--accent)" stroke="var(--accent)" stroke-width="1"/>
+    <circle cx="608" cy="212" r="4" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+  </g>
+  <g class="callout">
+    <path d="M472 292 C 488 304, 500 312, 516 312" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="524" y="316" text-anchor="start" font-family="var(--sans)" font-size="12" fill="var(--ink)" font-style="italic">drop: lag climbs again</text>
+  </g>
+  <g class="legend">
+    <text x="28" y="348" text-anchor="start" font-family="var(--sans)" font-size="11" fill="var(--muted)">Higher is better. Feeling is inferred from the timeline, not measured. Times are UTC.</text>
+  </g>
+</svg>

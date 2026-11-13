@@ -193,7 +193,8 @@ ASKS = (
 # Inline figures on the homepage: (svg slug, form, reader question, [(page, label)]).
 FIGURES = (
     ("queue-split-change", "Change view", "What changes, and what stays the same?",
-     (("design-doc.html", "design doc"), ("migration-plan.html", "migration plan"))),
+     (("design-doc.html", "design doc"), ("migration-plan.html", "migration plan"),
+      ("release-notes.html", "release notes"))),
     ("ingest-deployment", "Deployment map", "Where does each part run?",
      (("architecture.html", "architecture guide"), ("runbook.html", "runbook"))),
     ("workstream-dependencies", "Dependency graph", "What blocks what, and which path sets the date?",
@@ -419,7 +420,8 @@ def render_asks() -> str:
 def render_figures() -> str:
     out = []
     for slug, form, question, used in FIGURES:
-        where = " and ".join(f'<a href="{page}">{esc(label)}</a>' for page, label in used)
+        links = [f'<a href="{page}">{esc(label)}</a>' for page, label in used]
+        where = ", ".join(links[:-1]) + " and " + links[-1] if len(links) > 1 else links[0]
         out.append(
             f'<figure>\n<div class="diagram-scroll">{figure(slug)}</div>\n'
             f"<figcaption><strong>{esc(form)}.</strong> {esc(question)} In the {where}.</figcaption>\n</figure>"

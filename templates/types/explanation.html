@@ -27,6 +27,7 @@
   <section class="section">
     <div class="section-head"><span class="section-num">03</span><h2>Backpressure travels upstream</h2><span class="reading-time">cause chain</span></div>
     <div class="cause-chain"><div><h3>Consumers slow</h3><p>Drain rate falls below arrival rate.</p></div><div><h3>The queue fills</h3><p>The buffer stops accepting within the gateway wait budget.</p></div><div><h3>Producers fail</h3><p>The gateway blocks or returns overload to every caller.</p></div></div>
+    <figure class="figure"><div class="diagram-scroll"><!-- @FIG backpressure-loop --></div><figcaption>The chain closes into a loop when callers retry without a bound. Bounded retries with the same event ID keep it open.</figcaption></figure>
     <p>The July incident followed this exact chain. Scaling consumers increased drain rate and recovered the queue. It did not change the chain’s ability to recur.</p>
   </section>
 

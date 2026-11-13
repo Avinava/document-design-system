@@ -34,6 +34,7 @@
     <div class="section-head"><span class="section-num">04</span><h2>Repeat the identity and inspect the result</h2><span class="reading-time">4 min</span></div>
     <p>Run the same request again without changing <code>evt_learn</code>. The service may return the original acceptance or an idempotent acknowledgement, but it must not create a second warehouse row.</p>
     <p>This is the most important lesson in the tutorial: request retries preserve event identity.</p>
+    <figure class="figure"><div class="diagram-scroll"><!-- @FIG event-lifecycle --></div><figcaption>What you just did, as a model: send, repeat the same ID, look it up.</figcaption></figure>
   </section>
 
   <section class="section">
