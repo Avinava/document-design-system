@@ -7,7 +7,7 @@ aliases: [raid-log, risk-log, issue-log, dependency-log]
 example: examples/risk-register.html
 command: /document-design-system:risk-register
 pattern: assurance
-default-theme: executive-navy
+default-theme: condensed-report
 default-format: markdown
 path: docs/risk-register.md
 ```

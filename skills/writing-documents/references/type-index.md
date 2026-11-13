@@ -30,13 +30,13 @@ that pattern with `composing.md` rather than forcing the nearest preset.
 
 | Slug | Pattern | Default theme | Conventional path |
 |---|---|---|---|
-| `design-doc` | decision | field-notes | `docs/design/` |
-| `discovery` | decision | field-notes | `docs/discovery.md` |
+| `design-doc` | decision | serif-editorial | `docs/design/` |
+| `discovery` | decision | serif-editorial | `docs/discovery.md` |
 | `proposal` | decision | executive-navy | `docs/proposals/` |
 | `project-charter` | decision | executive-navy | `docs/project-charter.md` |
-| `estimate` | decision | executive-navy | `docs/estimates/` |
+| `estimate` | decision | condensed-report | `docs/estimates/` |
 | `change-request` | decision | executive-navy | `docs/changes/` |
-| `adr` | record | field-notes | `docs/adr/adr-NNN.md` |
+| `adr` | record | serif-editorial | `docs/adr/adr-NNN.md` |
 | `spec` | contract | field-notes | `docs/spec/` |
 | `api-contract` | contract | console-violet | `docs/api.md` |
 | `reference` | contract | console-violet | `docs/reference/` |
@@ -46,23 +46,23 @@ that pattern with `composing.md` rather than forcing the nearest preset.
 | `handoff` | procedure | field-notes | `docs/handoff.md` |
 | `how-to` | procedure | editorial-coral | `docs/how-to/` |
 | `runbook` | procedure | console-violet | `docs/runbooks/` |
-| `explanation` | learning | field-notes | `docs/explanation/` |
+| `explanation` | learning | serif-editorial | `docs/explanation/` |
 | `onboarding` | learning | field-notes | `docs/onboarding.md` |
 | `tutorial` | learning | editorial-coral | `docs/tutorials/` |
 | `architecture` | system | field-notes | `docs/architecture.md` |
 | `design-handoff` | system | editorial-coral | `docs/design-handoff.md` |
 | `postmortem` | incident | console-violet | `docs/postmortems/` |
 | `service-docs` | suite | field-notes | `docs/` |
-| `delivery-plan` | plan | executive-navy | `docs/delivery-plan.md` |
+| `delivery-plan` | plan | condensed-report | `docs/delivery-plan.md` |
 | `migration-plan` | plan | console-violet | `docs/migration-plan.md` |
 | `test-strategy` | plan | editorial-coral | `docs/test-strategy.md` |
 | `test-report` | assurance | editorial-coral | `docs/test-reports/` |
 | `threat-model` | assurance | console-violet | `docs/security/threat-model.md` |
-| `readiness-review` | assurance | console-violet | `docs/readiness/` |
-| `risk-register` | assurance | executive-navy | `docs/risk-register.md` |
-| `status-report` | brief | executive-navy | `docs/status/` |
+| `readiness-review` | assurance | condensed-report | `docs/readiness/` |
+| `risk-register` | assurance | condensed-report | `docs/risk-register.md` |
+| `status-report` | brief | condensed-report | `docs/status/` |
 | `release-notes` | brief | editorial-coral | `docs/releases/` |
-| `workshop-summary` | brief | field-notes | `docs/workshops/` |
+| `workshop-summary` | brief | serif-editorial | `docs/workshops/` |
 | `incident-update` | brief | console-violet | `docs/incidents/updates/` |
 
 Every canonical command is `/document-design-system:<slug>`.

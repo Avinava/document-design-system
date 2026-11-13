@@ -7,7 +7,7 @@ aliases: [concept, why]
 example: examples/explanation.html
 command: /document-design-system:explanation
 pattern: learning
-default-theme: field-notes
+default-theme: serif-editorial
 default-format: markdown
 path: docs/explanation/
 ```
@@ -35,4 +35,4 @@ A tutorial stuffed with theory. A design-doc arguing for a change. Reference mat
 
 ## Output
 
-Markdown in `docs/explanation/`. Theme `field-notes` if HTML is asked for.
+Markdown in `docs/explanation/`. Theme `serif-editorial` if HTML is asked for.

@@ -49,12 +49,12 @@ EXPECTED_PATTERN_NAMES = (
     "incident", "suite", "plan", "assurance", "brief",
 )
 SPOT_CHECK = {
-    "design-doc": ("field-notes", "decision"),
-    "adr": ("field-notes", "record"),
+    "design-doc": ("serif-editorial", "decision"),
+    "adr": ("serif-editorial", "record"),
     "api-contract": ("console-violet", "contract"),
     "runbook": ("console-violet", "procedure"),
     "postmortem": ("console-violet", "incident"),
-    "status-report": ("executive-navy", "brief"),
+    "status-report": ("condensed-report", "brief"),
 }
 
 def characteristic_classes(pattern: str) -> set[str]:
@@ -467,6 +467,32 @@ class TestTokenContract(unittest.TestCase):
             with self.subTest(theme=theme.name):
                 self.assertTrue(1.1 <= ratio <= 1.5, f"--scale-ratio {ratio}")
                 self.assertTrue(0.8 <= density <= 1.25, f"--density {density}")
+
+    def test_every_theme_has_fonts_with_a_real_fallback(self):
+        from build_examples import FONTS
+
+        for theme in sorted((CORE / "themes").glob("*.css")):
+            if theme.stem == "brand-template":
+                continue
+            with self.subTest(theme=theme.stem):
+                self.assertIn(theme.stem, FONTS)
+                css = strip_comments(theme.read_text(encoding="utf-8"))
+                display = re.search(r"--display:\s*([^;]+);", css).group(1)
+                self.assertRegex(display.strip(), r"(serif|sans-serif)$")
+                if "serif" in display and "sans-serif" not in display:
+                    self.assertIn("Georgia", display)
+
+    def test_theme_voices_are_distinct(self):
+        import audit_theme
+
+        self.assertEqual(audit_theme.twin_voices(), [])
+
+    def test_no_theme_is_the_default_for_most_types(self):
+        names = [t.default_theme for t in catalog.TYPES.values()]
+        names += [theme for theme, _ in catalog.COMPOSED.values()]
+        for theme in sorted(set(names)):
+            with self.subTest(theme=theme):
+                self.assertLessEqual(names.count(theme) / len(names), 0.30)
 
     def test_components_read_the_scale_not_literal_heading_sizes(self):
         base = strip_comments((CORE / "base.css").read_text(encoding="utf-8"))
@@ -1242,7 +1268,7 @@ class TestWritingTypeValidation(unittest.TestCase):
         ref = f"{catalog.TYPE_DIR}/type-adr.md"
         found = "\n".join(self.run_check(self.edit(ref, "pattern: record", "pattern: memo")))
         self.assertIn('pattern "memo"', found)
-        found = "\n".join(self.run_check(self.edit(ref, "default-theme: field-notes", "default-theme: neon")))
+        found = "\n".join(self.run_check(self.edit(ref, "default-theme: serif-editorial", "default-theme: neon")))
         self.assertIn('default-theme "neon"', found)
 
     def test_rejects_malformed_aliases(self):

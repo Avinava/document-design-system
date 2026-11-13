@@ -1,0 +1,56 @@
+/* serif-editorial — essays, decision records, explanations, discovery write-ups.
+ *
+ * A reading voice. A serif face at a large scale ratio, generous spacing,
+ * hairline rules and wide-tracked small eyebrows, on sage-tinted newsprint.
+ * One moss accent, well clear of the status greens and ambers.
+ *
+ * Do not add a second display face. Newsreader carries every heading, and
+ * Source Serif 4 carries body, tables and names.
+ *
+ * Fonts: Newsreader (display), Source Serif 4 (body), IBM Plex Mono (mono).
+ */
+
+[data-theme="serif-editorial"] {
+  --paper: #f7f5ec;
+  --surface: #fffffa;
+  --surface-muted: #ece9db;
+
+  --ink: #25271d;
+  --muted: #53584a;
+  --soft: #646858;
+
+  --rule: rgba(37, 39, 29, 0.14);
+  --rule-strong: rgba(37, 39, 29, 0.34);
+
+  --accent: #5f7020;
+  --accent-tint: rgba(95, 112, 32, 0.11);
+  --accent-ink: #ffffff;
+
+  --positive: #2f7254;
+  --warning: #96631a;
+  --critical: #a13f45;
+
+  --method-bg: #25271d;
+  --method-ink: #f7f5ec;
+  --method-muted: #cfd2c0;
+
+  --display: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --sans: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --radius-sm: 0;
+  --radius-md: 2px;
+
+  --text-base: 1.0625rem;
+  --scale-ratio: 1.333;
+  --display-weight: 500;
+  --display-tracking: -0.015em;
+  --display-leading: 1.15;
+  --display-transform: none;
+
+  --density: 1.1;
+  --hero-rule-width: 1px;
+  --section-rule-width: 1px;
+  --eyebrow-tracking: 0.16em;
+  --eyebrow-transform: uppercase;
+}

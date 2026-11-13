@@ -7,7 +7,7 @@ aliases: [rfc, tdd, technical-design, erd]
 example: examples/design-doc.html
 command: /document-design-system:design-doc
 pattern: decision
-default-theme: field-notes
+default-theme: serif-editorial
 default-format: markdown
 path: docs/design/
 ```
@@ -53,4 +53,4 @@ Existing ADRs, related design docs, incident history that motivates the problem,
 
 ## Output
 
-Markdown in `docs/design/` (or the team's RFC folder). HTML when the user asked for a designed or printable copy. Theme `field-notes`.
+Markdown in `docs/design/` (or the team's RFC folder). HTML when the user asked for a designed or printable copy. Theme `serif-editorial`.

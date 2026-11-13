@@ -322,10 +322,9 @@ def main() -> int:
             print(line)
 
     if args.all:
-        # A warning until the voices are differentiated, then an error.
         for a, b in twin_voices():
-            warnings += 1
-            print(f"\n  warn  {a} and {b} share a voice (face, ratio, density, weight, case)")
+            errors += 1
+            print(f"\n  FAIL  {a} and {b} share a voice (face, ratio, density, weight, case)")
 
     print(f"\n  {len(targets)} theme(s) · {errors} error(s) · {warnings} warning(s)")
     return 1 if errors else 0

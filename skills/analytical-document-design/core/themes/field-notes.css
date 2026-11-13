@@ -40,15 +40,15 @@
   --radius-md: 2px;
 
   --text-base: 1rem;
-  --scale-ratio: 1.18;
-  --display-weight: 600;
-  --display-tracking: -0.01em;
+  --scale-ratio: 1.2;
+  --display-weight: 700;
+  --display-tracking: 0;
   --display-leading: 1.2;
   --display-transform: none;
 
-  --density: 1;
-  --hero-rule-width: 3px;
-  --section-rule-width: 1px;
-  --eyebrow-tracking: 0.06em;
-  --eyebrow-transform: uppercase;
+  --density: 1.15;
+  --hero-rule-width: 2px;
+  --section-rule-width: 2px;
+  --eyebrow-tracking: 0.02em;
+  --eyebrow-transform: none;
 }

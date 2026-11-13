@@ -22,7 +22,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&family=Newsreader:wght@400;500;600;700&family=Source+Serif+4:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 /* ---- inlined from core/themes/editorial-coral.css ---- */
@@ -36,7 +36,7 @@
 
 :root,
 [data-theme="editorial-coral"] {
-  --paper: #f5f5f5;
+  --paper: #f8f4ef;
   --surface: #ffffff;
   --surface-muted: #eeeeef;
 
@@ -73,16 +73,16 @@
   --radius-md: 6px;
 
   --text-base: 1rem;
-  --scale-ratio: 1.18;
-  --display-weight: 600;
-  --display-tracking: -0.01em;
-  --display-leading: 1.2;
+  --scale-ratio: 1.25;
+  --display-weight: 800;
+  --display-tracking: -0.03em;
+  --display-leading: 1.1;
   --display-transform: none;
 
-  --density: 1;
+  --density: 1.05;
   --hero-rule-width: 3px;
   --section-rule-width: 1px;
-  --eyebrow-tracking: 0.06em;
+  --eyebrow-tracking: 0.08em;
   --eyebrow-transform: uppercase;
 }
 /* ---- inlined from core/themes/executive-navy.css ---- */
@@ -128,16 +128,16 @@
   --radius-md: 4px;
 
   --text-base: 1rem;
-  --scale-ratio: 1.18;
+  --scale-ratio: 1.14;
   --display-weight: 600;
-  --display-tracking: -0.01em;
-  --display-leading: 1.2;
+  --display-tracking: 0;
+  --display-leading: 1.25;
   --display-transform: none;
 
-  --density: 1;
-  --hero-rule-width: 3px;
+  --density: 0.95;
+  --hero-rule-width: 4px;
   --section-rule-width: 1px;
-  --eyebrow-tracking: 0.06em;
+  --eyebrow-tracking: 0.1em;
   --eyebrow-transform: uppercase;
 }
 /* ---- inlined from core/themes/field-notes.css ---- */
@@ -183,16 +183,130 @@
   --radius-md: 2px;
 
   --text-base: 1rem;
-  --scale-ratio: 1.18;
-  --display-weight: 600;
-  --display-tracking: -0.01em;
+  --scale-ratio: 1.2;
+  --display-weight: 700;
+  --display-tracking: 0;
   --display-leading: 1.2;
   --display-transform: none;
 
-  --density: 1;
-  --hero-rule-width: 3px;
+  --density: 1.15;
+  --hero-rule-width: 2px;
+  --section-rule-width: 2px;
+  --eyebrow-tracking: 0.02em;
+  --eyebrow-transform: none;
+}
+/* ---- inlined from core/themes/serif-editorial.css ---- */
+/* serif-editorial — essays, decision records, explanations, discovery write-ups.
+ *
+ * A reading voice. A serif face at a large scale ratio, generous spacing,
+ * hairline rules and wide-tracked small eyebrows, on sage-tinted newsprint.
+ * One moss accent, well clear of the status greens and ambers.
+ *
+ * Do not add a second display face. Newsreader carries every heading, and
+ * Source Serif 4 carries body, tables and names.
+ *
+ * Fonts: Newsreader (display), Source Serif 4 (body), IBM Plex Mono (mono).
+ */
+
+[data-theme="serif-editorial"] {
+  --paper: #f7f5ec;
+  --surface: #fffffa;
+  --surface-muted: #ece9db;
+
+  --ink: #25271d;
+  --muted: #53584a;
+  --soft: #646858;
+
+  --rule: rgba(37, 39, 29, 0.14);
+  --rule-strong: rgba(37, 39, 29, 0.34);
+
+  --accent: #5f7020;
+  --accent-tint: rgba(95, 112, 32, 0.11);
+  --accent-ink: #ffffff;
+
+  --positive: #2f7254;
+  --warning: #96631a;
+  --critical: #a13f45;
+
+  --method-bg: #25271d;
+  --method-ink: #f7f5ec;
+  --method-muted: #cfd2c0;
+
+  --display: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --sans: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --radius-sm: 0;
+  --radius-md: 2px;
+
+  --text-base: 1.0625rem;
+  --scale-ratio: 1.333;
+  --display-weight: 500;
+  --display-tracking: -0.015em;
+  --display-leading: 1.15;
+  --display-transform: none;
+
+  --density: 1.1;
+  --hero-rule-width: 1px;
   --section-rule-width: 1px;
-  --eyebrow-tracking: 0.06em;
+  --eyebrow-tracking: 0.16em;
+  --eyebrow-transform: uppercase;
+}
+/* ---- inlined from core/themes/condensed-report.css ---- */
+/* condensed-report — status reports, risk registers, plans, estimates, reviews.
+ *
+ * A working voice. A condensed face in uppercase headings, tight spacing,
+ * square corners, 3px rules, and a cool concrete paper under white tables so
+ * dense data stays easy to scan. One plum accent, clear of every other theme.
+ *
+ * Uppercase condensed headings are short by design. Keep titles to a line or
+ * two, and put the sentence in the lede.
+ *
+ * Fonts: Barlow Condensed (display), Barlow (body), IBM Plex Mono (mono).
+ */
+
+[data-theme="condensed-report"] {
+  --paper: #e8e7e3;
+  --surface: #ffffff;
+  --surface-muted: #dddcd7;
+
+  --ink: #1b1d20;
+  --muted: #464a50;
+  --soft: #575b61;
+
+  --rule: rgba(27, 29, 32, 0.18);
+  --rule-strong: rgba(27, 29, 32, 0.5);
+
+  --accent: #a02fa8;
+  --accent-tint: rgba(160, 47, 168, 0.10);
+  --accent-ink: #ffffff;
+
+  --positive: #2f7254;
+  --warning: #8f5c10;
+  --critical: #a13f45;
+
+  --method-bg: #1b1d20;
+  --method-ink: #f3f2ee;
+  --method-muted: #c9c8c3;
+
+  --display: 'Barlow Condensed', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+  --sans: 'Barlow', 'Helvetica Neue', Arial, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --radius-sm: 0;
+  --radius-md: 0;
+
+  --text-base: 1rem;
+  --scale-ratio: 1.25;
+  --display-weight: 700;
+  --display-tracking: 0.01em;
+  --display-leading: 1.05;
+  --display-transform: uppercase;
+
+  --density: 0.85;
+  --hero-rule-width: 3px;
+  --section-rule-width: 3px;
+  --eyebrow-tracking: 0.08em;
   --eyebrow-transform: uppercase;
 }
 /* ---- inlined from core/themes/console-violet.css ---- */
@@ -264,16 +378,16 @@
   --radius-md: 5px;
 
   --text-base: 1rem;
-  --scale-ratio: 1.18;
-  --display-weight: 600;
-  --display-tracking: -0.01em;
+  --scale-ratio: 1.22;
+  --display-weight: 500;
+  --display-tracking: -0.02em;
   --display-leading: 1.2;
   --display-transform: none;
 
-  --density: 1;
-  --hero-rule-width: 3px;
+  --density: 0.9;
+  --hero-rule-width: 1px;
   --section-rule-width: 1px;
-  --eyebrow-tracking: 0.06em;
+  --eyebrow-tracking: 0.12em;
   --eyebrow-transform: uppercase;
 }
 
@@ -360,16 +474,16 @@
   --radius-md: 6px;
 
   --text-base: 1rem;
-  --scale-ratio: 1.18;
-  --display-weight: 600;
-  --display-tracking: -0.01em;
-  --display-leading: 1.2;
+  --scale-ratio: 1.3;
+  --display-weight: 700;
+  --display-tracking: -0.035em;
+  --display-leading: 1.1;
   --display-transform: none;
 
-  --density: 1;
-  --hero-rule-width: 3px;
+  --density: 1.2;
+  --hero-rule-width: 6px;
   --section-rule-width: 1px;
-  --eyebrow-tracking: 0.06em;
+  --eyebrow-tracking: 0.04em;
   --eyebrow-transform: uppercase;
 }
 /* ---- inlined from core/base.css ---- */
@@ -929,7 +1043,7 @@ a { color: inherit; text-underline-offset: 2px; }
 <div class="page">
   <p class="eyebrow">document-design-system</p>
   <h1>One contract, several voices</h1>
-  <p class="subtle">Identical markup in every panel. Only <code>data-theme</code> differs — surfaces, ink, accent, typography, border character, and the methodology treatment all follow from the token contract. <code>horizon</code> is a client brand, not a fifth house style.</p>
+  <p class="subtle">Identical markup in every panel. Only <code>data-theme</code> differs — surfaces, ink, accent, typography, border character, and the methodology treatment all follow from the token contract. <code>horizon</code> is a client brand, not a house style.</p>
 
   <!-- panels: begin -->
   <div class="themes">
@@ -981,6 +1095,50 @@ a { color: inherit; text-underline-offset: 2px; }
     <section class="panel" data-theme="field-notes">
       <p class="name">field-notes</p>
       <h3>Research and audit</h3>
+      <div class="big">41%</div>
+      <div class="lbl">Held by the largest function</div>
+      <div class="den">of 1,842,110 included units</div>
+      <div class="frame">
+        <svg role="img" aria-label="74 percent of the limit consumed." viewBox="0 0 300 20" width="100%">
+          <rect x="0" y="4" width="300" height="12" rx="3" fill="var(--track-fill)"/>
+          <rect x="0" y="4" width="222" height="12" rx="3" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+        </svg>
+      </div>
+      <table>
+        <thead><tr><th scope="col">Function</th><th scope="col" class="num">Units</th></tr></thead>
+        <tbody>
+          <tr><td>Ingestion</td><td class="num">612,400</td></tr>
+          <tr><td>Transform</td><td class="num">388,910</td></tr>
+        </tbody>
+      </table>
+      <div class="method"><strong>Methodology</strong><br><span>Current snapshot, as of 2026-08-12.</span></div>
+    </section>
+
+    <section class="panel" data-theme="serif-editorial">
+      <p class="name">serif-editorial</p>
+      <h3>Essays and decisions</h3>
+      <div class="big">41%</div>
+      <div class="lbl">Held by the largest function</div>
+      <div class="den">of 1,842,110 included units</div>
+      <div class="frame">
+        <svg role="img" aria-label="74 percent of the limit consumed." viewBox="0 0 300 20" width="100%">
+          <rect x="0" y="4" width="300" height="12" rx="3" fill="var(--track-fill)"/>
+          <rect x="0" y="4" width="222" height="12" rx="3" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+        </svg>
+      </div>
+      <table>
+        <thead><tr><th scope="col">Function</th><th scope="col" class="num">Units</th></tr></thead>
+        <tbody>
+          <tr><td>Ingestion</td><td class="num">612,400</td></tr>
+          <tr><td>Transform</td><td class="num">388,910</td></tr>
+        </tbody>
+      </table>
+      <div class="method"><strong>Methodology</strong><br><span>Current snapshot, as of 2026-08-12.</span></div>
+    </section>
+
+    <section class="panel" data-theme="condensed-report">
+      <p class="name">condensed-report</p>
+      <h3>Reports and registers</h3>
       <div class="big">41%</div>
       <div class="lbl">Held by the largest function</div>
       <div class="den">of 1,842,110 included units</div>

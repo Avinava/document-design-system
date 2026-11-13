@@ -48,15 +48,15 @@
   --radius-md: 6px;
 
   --text-base: 1rem;
-  --scale-ratio: 1.18;
-  --display-weight: 600;
-  --display-tracking: -0.01em;
-  --display-leading: 1.2;
+  --scale-ratio: 1.3;
+  --display-weight: 700;
+  --display-tracking: -0.035em;
+  --display-leading: 1.1;
   --display-transform: none;
 
-  --density: 1;
-  --hero-rule-width: 3px;
+  --density: 1.2;
+  --hero-rule-width: 6px;
   --section-rule-width: 1px;
-  --eyebrow-tracking: 0.06em;
+  --eyebrow-tracking: 0.04em;
   --eyebrow-transform: uppercase;
 }

@@ -11,7 +11,7 @@
   Type files own section order and semantic components. This shell owns the
   theme, document-pattern contract, responsive behavior, and print.
 -->
-<html lang="en" data-theme="field-notes" data-pattern="decision">
+<html lang="en" data-theme="serif-editorial" data-pattern="decision">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -19,62 +19,64 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@400;500;600;700&family=Source+Serif+4:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
-/* ---- inlined from core/themes/field-notes.css ---- */
-/* field-notes — research findings, audits, operational workshops.
+/* ---- inlined from core/themes/serif-editorial.css ---- */
+/* serif-editorial — essays, decision records, explanations, discovery write-ups.
  *
- * Tactile but still professional. Warm paper, near-zero radii, a plum accent.
+ * A reading voice. A serif face at a large scale ratio, generous spacing,
+ * hairline rules and wide-tracked small eyebrows, on sage-tinted newsprint.
+ * One moss accent, well clear of the status greens and ambers.
  *
- * This theme may use a very subtle paper texture, but only when requested.
- * Texture must disappear in print and must never reduce contrast.
+ * Do not add a second display face. Newsreader carries every heading, and
+ * Source Serif 4 carries body, tables and names.
  *
- * Fonts: Source Sans 3 (display + sans), Source Code Pro (mono).
+ * Fonts: Newsreader (display), Source Serif 4 (body), IBM Plex Mono (mono).
  */
 
-[data-theme="field-notes"] {
-  --paper: #f4f0e7;
-  --surface: #fffdf7;
-  --surface-muted: #ebe5d8;
+[data-theme="serif-editorial"] {
+  --paper: #f7f5ec;
+  --surface: #fffffa;
+  --surface-muted: #ece9db;
 
-  --ink: #28312d;
-  --muted: #59665f;
-  --soft: #65716a;
+  --ink: #25271d;
+  --muted: #53584a;
+  --soft: #646858;
 
-  --rule: rgba(40, 49, 45, 0.14);
-  --rule-strong: rgba(40, 49, 45, 0.34);
+  --rule: rgba(37, 39, 29, 0.14);
+  --rule-strong: rgba(37, 39, 29, 0.34);
 
-  --accent: #864b72;
-  --accent-tint: rgba(134, 75, 114, 0.10);
+  --accent: #5f7020;
+  --accent-tint: rgba(95, 112, 32, 0.11);
   --accent-ink: #ffffff;
 
-  --positive: #46725a;
-  --warning: #9a681d;
-  --critical: #9b4343;
+  --positive: #2f7254;
+  --warning: #96631a;
+  --critical: #a13f45;
 
-  --method-bg: #28312d;
-  --method-ink: #f4f0e7;
-  --method-muted: #c7cec8;
+  --method-bg: #25271d;
+  --method-ink: #f7f5ec;
+  --method-muted: #cfd2c0;
 
-  --display: 'Source Sans 3', 'Manrope', system-ui, sans-serif;
-  --sans: 'Source Sans 3', 'Geist', system-ui, sans-serif;
-  --mono: 'Source Code Pro', 'Geist Mono', ui-monospace, monospace;
+  --display: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --sans: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
 
   --radius-sm: 0;
   --radius-md: 2px;
 
-  --text-base: 1rem;
-  --scale-ratio: 1.18;
-  --display-weight: 600;
-  --display-tracking: -0.01em;
-  --display-leading: 1.2;
+  --text-base: 1.0625rem;
+  --scale-ratio: 1.333;
+  --display-weight: 500;
+  --display-tracking: -0.015em;
+  --display-leading: 1.15;
   --display-transform: none;
 
-  --density: 1;
-  --hero-rule-width: 3px;
+  --density: 1.1;
+  --hero-rule-width: 1px;
   --section-rule-width: 1px;
-  --eyebrow-tracking: 0.06em;
+  --eyebrow-tracking: 0.16em;
   --eyebrow-transform: uppercase;
 }
 /* ---- inlined from core/base.css ---- */

@@ -11,7 +11,7 @@
   Type files own section order and semantic components. This shell owns the
   theme, document-pattern contract, responsive behavior, and print.
 -->
-<html lang="en" data-theme="executive-navy" data-pattern="brief">
+<html lang="en" data-theme="condensed-report" data-pattern="brief">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -19,62 +19,64 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
-/* ---- inlined from core/themes/executive-navy.css ---- */
-/* executive-navy — formal governance, financial, board, and leadership reporting.
+/* ---- inlined from core/themes/condensed-report.css ---- */
+/* condensed-report — status reports, risk registers, plans, estimates, reviews.
  *
- * Lower-expression and higher-contrast than the default. Tighter radii read as
- * more institutional.
+ * A working voice. A condensed face in uppercase headings, tight spacing,
+ * square corners, 3px rules, and a cool concrete paper under white tables so
+ * dense data stays easy to scan. One plum accent, clear of every other theme.
  *
- * Do not add gold as a second decorative accent. Warning amber stays status-only.
+ * Uppercase condensed headings are short by design. Keep titles to a line or
+ * two, and put the sentence in the lede.
  *
- * Fonts: Manrope (display), Inter (sans), IBM Plex Mono (mono).
+ * Fonts: Barlow Condensed (display), Barlow (body), IBM Plex Mono (mono).
  */
 
-[data-theme="executive-navy"] {
-  --paper: #f3f6f8;
+[data-theme="condensed-report"] {
+  --paper: #e8e7e3;
   --surface: #ffffff;
-  --surface-muted: #e9eef2;
+  --surface-muted: #dddcd7;
 
-  --ink: #13293d;
-  --muted: #486174;
-  --soft: #5f7382;
+  --ink: #1b1d20;
+  --muted: #464a50;
+  --soft: #575b61;
 
-  --rule: rgba(19, 41, 61, 0.13);
-  --rule-strong: rgba(19, 41, 61, 0.34);
+  --rule: rgba(27, 29, 32, 0.18);
+  --rule-strong: rgba(27, 29, 32, 0.5);
 
-  --accent: #1f6f8b;
-  --accent-tint: rgba(31, 111, 139, 0.10);
+  --accent: #a02fa8;
+  --accent-tint: rgba(160, 47, 168, 0.10);
   --accent-ink: #ffffff;
 
   --positive: #2f7254;
-  --warning: #996319;
+  --warning: #8f5c10;
   --critical: #a13f45;
 
-  --method-bg: #13293d;
-  --method-ink: #f5f8fa;
-  --method-muted: #c3ced6;
+  --method-bg: #1b1d20;
+  --method-ink: #f3f2ee;
+  --method-muted: #c9c8c3;
 
-  --display: 'Manrope', system-ui, sans-serif;
-  --sans: 'Inter', 'Geist', system-ui, sans-serif;
-  --mono: 'IBM Plex Mono', 'Geist Mono', ui-monospace, monospace;
+  --display: 'Barlow Condensed', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+  --sans: 'Barlow', 'Helvetica Neue', Arial, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
 
-  --radius-sm: 2px;
-  --radius-md: 4px;
+  --radius-sm: 0;
+  --radius-md: 0;
 
   --text-base: 1rem;
-  --scale-ratio: 1.18;
-  --display-weight: 600;
-  --display-tracking: -0.01em;
-  --display-leading: 1.2;
-  --display-transform: none;
+  --scale-ratio: 1.25;
+  --display-weight: 700;
+  --display-tracking: 0.01em;
+  --display-leading: 1.05;
+  --display-transform: uppercase;
 
-  --density: 1;
+  --density: 0.85;
   --hero-rule-width: 3px;
-  --section-rule-width: 1px;
-  --eyebrow-tracking: 0.06em;
+  --section-rule-width: 3px;
+  --eyebrow-tracking: 0.08em;
   --eyebrow-transform: uppercase;
 }
 /* ---- inlined from core/base.css ---- */
