@@ -1,0 +1,17 @@
+@startuml
+package "Ingest" {
+  interface Sink {
+    +write(event)
+  }
+  class Gateway {
+    -queue : Queue
+    +post(event)
+  }
+}
+abstract class Queue
+class Dispatcher extends Queue
+Sink <|.. Gateway
+Gateway "1" *-- "many" Queue : owns
+Dispatcher --> Gateway : routes to
+Queue <|-- Dispatcher
+@enduml

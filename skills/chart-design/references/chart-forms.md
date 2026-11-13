@@ -13,6 +13,7 @@ Per-form construction rules. Each entry covers what the form is for, how to buil
 - [Scatter](#scatter)
 - [Small multiples](#small-multiples)
 - [Histogram and box plot](#histogram-and-box-plot)
+- [Where diagrams end and charts begin](#where-diagrams-end-and-charts-begin)
 - [Forms to avoid](#forms-to-avoid)
 
 ---
@@ -149,12 +150,34 @@ Often the right answer when a single chart has too many series.
 
 ---
 
+## Where diagrams end and charts begin
+
+The test is what the position on the page means.
+
+- **A chart** maps data to position or length on a scale. Move a mark and the value it reports changes. Rows come from a CSV, and the figure can be rebuilt from them.
+- **A diagram** maps structure to arrangement. Position says "inside," "next to," or "before"; it carries no measured value. The source is a model of parts and connections, not a table.
+
+Some forms sit near the line:
+
+| Form | Verdict | Why |
+|---|---|---|
+| Quadrant | Diagram | The two axes are judgements, not measurements, and the points carry no scale. Build it under `diagram-design` (see the quadrant entry in its `references/diagram-families.md`). If the axes are real measured quantities, it is a scatter: stay here. |
+| Timeline | Diagram when it orders events; chart when the x-axis is a true time scale with values on it | Dated milestones are structure. A series sampled over time is a line. |
+| Dependency graph, architecture, layer stack | Diagram | Nothing is measured. |
+| Waterfall bridge | Chart | Each step has a length that adds up to the total. |
+| Heat map, matrix of counts | Chart | The cell colour or number is the data. |
+
+When a figure needs both (a deployment map with a latency number on every link), draw the diagram and put the numbers in labels. Do not size nodes or edges by value, which turns a diagram into a chart that nobody can read as one.
+
+---
+
 ## Forms to avoid
 
 | Form | Why | Instead |
 |---|---|---|
 | Pie with more than three slices | Angle is the hardest encoding to judge | Ranked horizontal bars |
 | Donut with a number in the middle | The ring adds nothing to the number | The number, or a limit ledger |
+| Gauge or speedometer dial | An arc and a needle spend the page on one value and cannot show the limit or what remains | The number, or a limit ledger |
 | Dual-axis chart | The crossover point is set by the author's scaling, so it proves nothing | Two aligned charts, or index both to a base period |
 | 3D anything | Perspective distorts the encoding | The 2D form |
 | Radar / spider | Area depends on axis order, which is arbitrary | Grouped bars or small multiples |

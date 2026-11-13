@@ -1,0 +1,20 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "elements": [
+    {"id": "f1", "type": "frame", "name": "Namespace ingest", "x": 0, "y": 0, "width": 500, "height": 200},
+    {"id": "producer", "type": "rectangle", "x": 10, "y": 300, "width": 120, "height": 60, "strokeColor": "#ff0000", "link": "https://example.invalid/never"},
+    {"id": "producer-t", "type": "text", "containerId": "producer", "text": "Producers", "x": 20, "y": 310},
+    {"id": "gateway", "type": "rectangle", "frameId": "f1", "x": 40, "y": 40, "width": 120, "height": 60},
+    {"id": "gateway-t", "type": "text", "containerId": "gateway", "text": "Gateway\nPOST /events", "x": 50, "y": 50},
+    {"id": "queue", "type": "ellipse", "frameId": "f1", "x": 240, "y": 40, "width": 120, "height": 60},
+    {"id": "queue-t", "type": "text", "containerId": "queue", "text": "Queue", "x": 250, "y": 50},
+    {"id": "a1", "type": "arrow", "startBinding": {"elementId": "producer", "focus": 0, "gap": 4}, "endBinding": {"elementId": "gateway", "focus": 0, "gap": 4}, "points": [[0, 0], [10, 10]]},
+    {"id": "a2", "type": "arrow", "startBinding": {"elementId": "gateway", "focus": 0, "gap": 4}, "endBinding": {"elementId": "queue", "focus": 0, "gap": 4}, "points": [[0, 0], [90, 0]]},
+    {"id": "a2-t", "type": "text", "containerId": "a2", "text": "enqueue", "x": 170, "y": 60},
+    {"id": "note", "type": "text", "text": "free-standing note, dropped", "x": 0, "y": 500},
+    {"id": "gone", "type": "rectangle", "isDeleted": true, "x": 0, "y": 0, "width": 10, "height": 10},
+    {"id": "scribble", "type": "freedraw", "points": [[0, 0], [3, 4]]}
+  ],
+  "appState": {"viewBackgroundColor": "#ffffff"}
+}

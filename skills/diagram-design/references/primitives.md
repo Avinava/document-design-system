@@ -239,4 +239,17 @@ python3 scripts/check_diagrams.py figure.svg        # or a page: every titled in
 python3 scripts/check_diagrams.py --rules           # list the rule IDs
 ```
 
-It checks the shell, `var()`-only colour, the markup contract, the 4px grid on rects, node overlap, the `viewBox` bounds (text estimated at 0.6em per character), edge-label occlusion and its 6px gap, the 12px attachment fan, the 11px legend floor, one emphasis family, and at most two callouts. Output of `scripts/render_diagram.mjs` is marked `data-renderer` and gets only the shell and bounds rules, because the renderer owns its layout.
+It checks the shell, `var()`-only colour, the markup contract, the 4px grid on rects, node overlap, the `viewBox` bounds (text estimated at 0.6em per character), edge-label occlusion and its 6px gap, the 12px attachment fan, the 11px legend floor, one emphasis family, and at most two callouts. Three more rules read the same coordinates:
+
+- `text-fit`: a node's text, at an estimated width (0.55em per character for sans, 0.6em for mono), fits its box with 4px padding each side. Shorten the label, wrap it onto a second `<text>` line, or widen the box.
+- `contrast`: each text fill is resolved against the `var()` tokens of every theme in `core/themes` and held to 4.5:1 on its backing (3:1 at 18px and above, and for `--soft`, the advisory tertiary ink), using the same maths as `scripts/audit_theme.py`. A failure names the theme.
+- `layout-budget`: node and edge counts per size preset. The numbers live in one constant, `LAYOUT_BUDGETS` in `scripts/check_diagrams.py`; the preset is the one whose width is nearest the `viewBox`. A figure over budget wants splitting into two, not squeezing.
+
+| Preset | viewBox width | Max nodes | Max edges |
+|---|---|---|---|
+| `print-portrait` | 640 | 10 | 14 |
+| `doc-inline` | 720 | 14 | 20 |
+| `print-landscape` | 980 | 18 | 26 |
+| `full-width` | 1100 | 24 | 36 |
+
+Output of `scripts/render_diagram.mjs` is marked `data-renderer` and gets only the shell and bounds rules, because the renderer owns its layout.

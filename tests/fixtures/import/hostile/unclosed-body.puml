@@ -1,0 +1,4 @@
+@startuml
+class Gateway {
+  +post(event)
+@enduml

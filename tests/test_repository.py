@@ -1485,6 +1485,29 @@ class TestDiagramChecks(unittest.TestCase):
                 found = {f.rule for f in check_paths([bad / f"{rule}.svg"])}
                 self.assertEqual(found, {rule})
 
+    def test_layout_budget_is_one_table_and_the_docs_state_it(self):
+        from check_diagrams import LAYOUT_BUDGETS
+
+        primitives = (SKILLS / "diagram-design" / "references" / "primitives.md").read_text(encoding="utf-8")
+        for preset, (width, nodes, edges) in LAYOUT_BUDGETS.items():
+            with self.subTest(preset=preset):
+                self.assertIn(f"| `{preset}` | {width} | {nodes} | {edges} |", primitives)
+
+    def test_contrast_names_the_theme_that_fails(self):
+        from check_diagrams import check_paths
+
+        found = check_paths([FIXTURES / "diagrams" / "bad" / "contrast.svg"])
+        self.assertTrue(found)
+        self.assertTrue(all(f.rule == "contrast" and "theme " in f.message for f in found))
+
+    def test_contrast_resolves_translucent_tints_over_the_page(self):
+        from check_diagrams import flatten, resolve_color
+
+        tokens = {"paper": "#ffffff", "tint": "rgba(0, 0, 0, 0.5)", "alias": "var(--paper)"}
+        self.assertEqual(resolve_color(tokens, "alias"), (255, 255, 255, 1.0))
+        self.assertEqual(flatten(resolve_color(tokens, "tint"), (255, 255, 255, 1.0))[:3], (127.5, 127.5, 127.5))
+        self.assertIsNone(resolve_color({"x": "color-mix(in srgb, red 10%, transparent)"}, "x"))
+
     def test_repository_figures_are_clean(self):
         from check_diagrams import check_paths, default_inputs
 
@@ -1616,6 +1639,91 @@ class TestDiagramImport(unittest.TestCase):
             [("ingest-a", "consumer-a"), ("x", "y"), ("y", "z")],
         )
 
+    def test_excalidraw(self):
+        model = self.load("sample.excalidraw")
+        self.assertEqual(model["source"], "excalidraw")
+        self.assertEqual(
+            [(n["id"], n["label"], n["group"]) for n in model["nodes"]],
+            [("producer", "Producers", None), ("gateway", "Gateway POST /events", "f1"), ("queue", "Queue", "f1")],
+        )
+        self.assertEqual(
+            [(e["from"], e["to"], e["label"]) for e in model["edges"]],
+            [("producer", "gateway", ""), ("gateway", "queue", "enqueue")],
+        )
+        self.assertEqual(model["groups"], [{"id": "f1", "label": "Namespace ingest", "parent": None}])
+
+    def test_plantuml_sequence(self):
+        model = self.load("sample-sequence.puml")
+        self.assertEqual(model["source"], "plantuml")
+        self.assertEqual(
+            {n["id"]: n["label"] for n in model["nodes"]},
+            {"GW": "API Gateway", "Client": "Client", "Warehouse": "Warehouse", "Queue": "Queue"},
+        )
+        self.assertEqual(
+            [(e["from"], e["to"], e["label"]) for e in model["edges"]],
+            [("Client", "GW", "POST /events"), ("GW", "Queue", "enqueue event"), ("Queue", "GW", "ack"),
+             ("Queue", "GW", "nack"), ("Queue", "Warehouse", "consume")],
+        )
+
+    def test_plantuml_class_reads_direction_from_the_arrowhead(self):
+        model = self.load("sample-class.puml")
+        self.assertEqual(
+            {n["id"]: n["group"] for n in model["nodes"]},
+            {"Sink": "Ingest", "Gateway": "Ingest", "Queue": None, "Dispatcher": None},
+        )
+        self.assertEqual(
+            [(e["from"], e["to"], e["label"]) for e in model["edges"]],
+            [("Gateway", "Sink", ""), ("Gateway", "Queue", "owns"), ("Dispatcher", "Gateway", "routes to"),
+             ("Dispatcher", "Queue", "")],
+        )
+        self.assertEqual(model["groups"], [{"id": "Ingest", "label": "Ingest", "parent": None}])
+
+    def test_new_formats_carry_no_layout_or_links(self):
+        import json
+
+        for name in ("sample.excalidraw", "sample-sequence.puml", "sample-class.puml"):
+            with self.subTest(name=name):
+                text = json.dumps(self.load(name))
+                for key in ('"x"', '"y"', '"width"', '"strokeColor"', "example.invalid", "free-standing"):
+                    self.assertNotIn(key, text)
+
+    def test_plantuml_includes_are_dropped_not_followed(self):
+        model = self.load("hostile/include.puml")
+        self.assertEqual([n["id"] for n in model["nodes"]], ["A", "B"])
+        self.assertNotIn("example.invalid", str(model))
+
+    def test_plantuml_other_diagram_types_are_refused(self):
+        self.refused(self.IMPORT / "hostile" / "state.puml", "only sequence and class")
+
+    def test_plantuml_unclosed_body_is_refused(self):
+        self.refused(self.IMPORT / "hostile" / "unclosed-body.puml", "never closed")
+
+    def test_excalidraw_unbound_arrows_are_refused(self):
+        self.refused(self.IMPORT / "hostile" / "dangling-arrow.excalidraw", "not bound to a shape")
+
+    def test_excalidraw_arrow_to_a_missing_shape_is_refused(self):
+        self.refused(self.IMPORT / "hostile" / "missing-shape.excalidraw", "does not exist")
+
+    def test_excalidraw_duplicate_ids_are_refused(self):
+        self.refused(self.IMPORT / "hostile" / "duplicate-ids.excalidraw", "duplicate element id")
+
+    def test_excalidraw_json_bomb_is_refused(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "bomb.excalidraw"
+            path.write_text("[" * 200_000)
+            self.refused(path, "not valid JSON")
+
+    def test_excalidraw_huge_element_counts_are_refused(self):
+        import tempfile
+        from import_diagram import MAX_ELEMENTS
+
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "huge.excalidraw"
+            path.write_text('{"elements": [' + ",".join(f'{{"id": "e{i}"}}' for i in range(MAX_ELEMENTS + 1)) + "]}")
+            self.refused(path, f"more than {MAX_ELEMENTS} elements")
+
     def test_other_mermaid_types_point_at_the_renderer(self):
         self.refused(self.IMPORT / "sequence.mmd", "render_diagram.mjs")
 
@@ -1663,6 +1771,102 @@ class TestDiagramImport(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn("import_diagram:", result.stderr)
         self.assertEqual(result.stdout, "")
+
+
+class TestDiagramToolchain(unittest.TestCase):
+    """scripts/diagram_doctor.py, render_diagram.mjs --system-fonts, export_diagram.mjs."""
+
+    def test_doctor_reads_its_floor_and_pins_from_the_scripts_and_they_match_package_json(self):
+        import json
+        import pins
+        from diagram_doctor import read_scripts
+
+        floor, found = read_scripts()
+        package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
+        self.assertEqual(f">={floor}", package["engines"]["node"])
+        self.assertEqual(found, {k: pins.npm_pins(ROOT)[k] for k in ("beautiful-mermaid", "playwright")})
+
+    def test_doctor_reports_a_missing_package_with_the_install_line(self):
+        import shutil
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            lone = Path(tmp) / "diagram-design"
+            shutil.copytree(SKILLS / "diagram-design", lone)
+            result = subprocess.run([sys.executable, str(lone / "scripts" / "diagram_doctor.py")],
+                                    capture_output=True, text=True, cwd=tmp)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("FAIL  beautiful-mermaid is not installed", result.stdout)
+        self.assertIn("npm i beautiful-mermaid@", result.stdout)
+
+    def test_export_helper_is_vendored_with_the_canonical_hint(self):
+        import pins
+
+        for name in ("export_diagram.mjs", "diagram_doctor.py"):
+            self.assertTrue((SKILLS / "diagram-design" / "scripts" / name).is_file(), name)
+        text = (ROOT / "scripts" / "export_diagram.mjs").read_text(encoding="utf-8")
+        self.assertIn(pins.npm_hint("playwright"), text)
+
+    @unittest.skipUnless(
+        __import__("shutil").which("node") and (ROOT / "node_modules" / "beautiful-mermaid").is_dir(),
+        "run npm ci",
+    )
+    def test_system_fonts_mode_draws_in_the_os_stack(self):
+        import tempfile
+
+        def render(*extra: str) -> str:
+            with tempfile.TemporaryDirectory() as td:
+                out = Path(td) / "o.svg"
+                subprocess.run(
+                    ["node", str(ROOT / "scripts" / "render_diagram.mjs"), str(FIXTURES / "import" / "sample.mmd"),
+                     "--title", "t", "--desc", "d", "--out", str(out), *extra],
+                    capture_output=True, text=True, check=True,
+                )
+                return out.read_text(encoding="utf-8")
+
+        self.assertIn("font-family: var(--sans)", render())
+        offline = render("--system-fonts")
+        self.assertIn("system-ui", offline)
+        self.assertNotIn("var(--sans)", offline)
+        self.assertNotIn("@import", offline)
+
+
+class TestExportDiagram(unittest.TestCase):
+    @unittest.skipUnless(
+        __import__("shutil").which("node") and (ROOT / "node_modules" / "playwright").is_dir(),
+        "run npm ci",
+    )
+    def test_tokens_are_baked_to_literals_for_one_theme(self):
+        import tempfile
+        from diagram_doctor import chromium_path
+
+        path = chromium_path()
+        if not path or not Path(path).exists():
+            self.skipTest("chromium is not installed (npx playwright install chromium)")
+        with tempfile.TemporaryDirectory() as td:
+            out = Path(td) / "out.svg"
+            result = subprocess.run(
+                ["node", str(ROOT / "scripts" / "export_diagram.mjs"), str(ROOT / "examples" / "platform-architecture.svg"),
+                 "--theme", "executive-navy", "--out", str(out)],
+                capture_output=True, text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            svg = out.read_text(encoding="utf-8")
+        self.assertNotRegex(svg, r'(?:fill|stroke)="var\(')
+        self.assertRegex(svg, r'fill="rgb\(')
+
+    def test_unknown_theme_and_traversal_are_refused(self):
+        if not __import__("shutil").which("node"):
+            self.skipTest("node is not installed")
+        for theme in ("nope", "../core/base"):
+            with self.subTest(theme=theme):
+                result = subprocess.run(
+                    ["node", str(ROOT / "scripts" / "export_diagram.mjs"),
+                     str(ROOT / "examples" / "platform-architecture.svg"), "--theme", theme],
+                    capture_output=True, text=True,
+                )
+                self.assertEqual(result.returncode, 1)
+                self.assertIn("unknown theme", result.stderr)
 
 
 @unittest.skipUnless(__import__("shutil").which("node"), "node is not installed")

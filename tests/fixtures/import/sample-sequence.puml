@@ -1,0 +1,18 @@
+@startuml
+' Northwind ingestion, request path
+title Ingest request
+skinparam monochrome true
+participant "API Gateway" as GW
+actor Client
+database Warehouse
+Client -> GW : POST /events
+activate GW
+GW -> Queue : enqueue\nevent
+alt accepted
+  Queue --> GW : ack
+else rejected
+  Queue --> GW : nack
+end
+note right of GW : never part of the structure
+Warehouse <- Queue : consume
+@enduml
