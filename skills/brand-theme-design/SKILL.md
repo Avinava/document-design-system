@@ -59,7 +59,7 @@ Add the theme as a panel in `templates/themes.html`, build, and show them the re
 python3 scripts/build_document.py templates/themes.html --theme <brand> --out /tmp/themes.html
 ```
 
-Seeing it next to `editorial-coral`, `executive-navy`, `field-notes`, and `console-violet` answers "does this look like a member of the system" faster than any description.
+Seeing it next to the house themes (`editorial-coral`, `executive-navy`, `field-notes`, `serif-editorial`, `condensed-report`, `console-violet`) answers "does this look like a member of the system" faster than any description.
 
 Then print one real document with it, per `references/verification.md`. If the theme is dark, the print step is not optional — see below.
 
@@ -77,7 +77,7 @@ Check which situation you are in before writing. If unsure, ask.
 Everything in `core/tokens.md` applies. The ones a brand most often pushes against:
 
 - **One accent.** A brand with six colors still gets one. This is the rule most likely to be argued with, and the one that most determines whether documents read clearly.
-- **All 22 tokens defined.** A partially themed document looks like a bug.
+- **All 33 tokens defined**: colour, type, geometry, and the voice tokens (type scale, density, ornament). A partially themed document looks like a bug, and `audit_theme.py --all` fails a theme whose voice matches another's.
 - **Status colors are semantic**, not a palette to fill with brand secondaries.
 - **A dark brand needs its own `@media print` block.** `core/print.css` flattens surfaces to white but deliberately leaves the ink ramp alone, so a dark theme without this prints near-white on white. `console-violet` is the worked example.
 - **Font fallbacks are mandatory.** Brand fonts are frequently licensed for web use, unavailable, or both.

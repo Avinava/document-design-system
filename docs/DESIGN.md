@@ -20,10 +20,10 @@ Every document declares both on the root element:
 Changing the theme must not change the information architecture. Changing the
 pattern must not invent facts or alter the evidence state. There are eleven
 patterns (`decision`, `record`, `contract`, `procedure`, `learning`, `system`,
-`incident`, `suite`, `plan`, `assurance`, `brief`) and six theme files in
+`incident`, `suite`, `plan`, `assurance`, `brief`) and eight theme files in
 `core/themes/`, one of which, `brand-template`, is a slot to fill rather than a
-finished theme. The `proposal-horizon` and `proposal-coral` examples render one
-body under two themes to prove the axes are independent.
+finished theme. The `proposal`, `proposal-coral` and `proposal-horizon`
+examples render one body under three themes to prove the axes are independent.
 
 A pattern constrains reading movement; it is not a page template. Prose stays at
 62 to 72 characters while maps, tables, timelines and registers may use the
@@ -61,38 +61,45 @@ The validator rejects a theme missing a required token and rejects colour
 literals outside `core/themes/`. Dark themes must restore their ink ramp in a
 `@media print` block.
 
-Today the contract covers colour, three font stacks and two radii. Heading sizes
-and the hero are fixed in CSS (`core/base.css` sets `h1` to 2rem, `h2` to
-1.375rem and `h3` to 1.0625rem; `.doc-hero h1` uses a `clamp()` in
-`core/document-patterns.css`). [ADR-002](adr/adr-002.md) records the decision to
-move type scale, density and ornament into the contract.
+The contract also carries voice, so two themes differ in scale, weight, density
+and ornament and not only in paint ([ADR-002](adr/adr-002.md)). Thirty-three
+tokens are required in all:
 
-## The opening registry (planned)
+- Type scale: `--text-base`, `--scale-ratio`, `--display-weight`,
+  `--display-tracking`, `--display-leading`, `--display-transform`
+- Density and ornament: `--density`, `--hero-rule-width`,
+  `--section-rule-width`, `--eyebrow-tracking`, `--eyebrow-transform`
 
-Today every body opens with the same `.doc-hero` shell class: a 3px accent rule,
-a mono eyebrow, an h1, a lede and a bordered `.doc-meta`. [ADR-003](adr/adr-003.md)
-decides that a pattern owns its opening. The plan is an `## Openings` table in
-`core/document-patterns.md`, beside the module registry, with one row per
-pattern:
+`core/base.css` derives the heading steps and the spacing steps from these and
+declares no fallbacks. `scripts/audit_theme.py --all` fails when two themes
+share a voice, and a test fails when one theme is the default for too many
+types ([ADR-004](adr/adr-004.md)).
 
-| Pattern | Opening |
-|---|---|
-| `decision` | Split hero with the ask band at the side |
-| `record` | Status stamp plus ADR number |
-| `contract` | Index masthead |
-| `procedure` | Precondition checklist cover |
-| `learning` | Outcome-first, with generous measure |
-| `system` | Map in the hero |
-| `incident` | Full-width severity band with impact numbers |
-| `suite` | Service index |
-| `plan` | Milestone-rail masthead |
-| `assurance` | Verdict stamp |
-| `brief` | Dated compact masthead, one-screen grid |
+## The openings registry
 
-`scripts/catalog.py` would parse the table the way it parses the module
-registry, and a check would confirm every body uses its own pattern's opening
-and that no two openings are the same. Until that lands, this section describes
-intent, not behaviour.
+A pattern owns its opening ([ADR-003](adr/adr-003.md)). The `## Openings` table
+in `core/document-patterns.md`, beside the module registry, has one row per
+pattern: its opening and the hero parts (`hero-aside`, `hero-stamp`,
+`hero-index`, `hero-checklist`, `hero-outcome`, `hero-figure`, `hero-band`,
+`hero-services`, `hero-rail`, `hero-verdict`, `hero-dateline`) placed inside
+`.doc-hero`. A runbook opens on a precondition checklist; a postmortem opens on
+a severity band with the impact numbers.
+
+`scripts/catalog.py` parses the table the way it parses the module registry.
+The validator fails when a body does not use its own pattern's parts or when two
+patterns share an opening. Hero parts are shell classes, not modules.
+
+## Figures and diagram tooling
+
+Figures are SVG drawn on tokens and placed where a reader's question needs
+them (`<!-- @FIG -->` markers in the type bodies, hand-drawn sources in
+`examples/`). The diagram skill documents twenty-one forms; a form is added only
+when its layout is new, and exploded and axonometric views are declined
+([ADR-005](adr/adr-005.md)). `scripts/check_diagrams.py` runs twenty-one rules,
+including `text-fit`, `layout-budget` and `contrast`. `import_diagram.py` reads
+draw.io, Mermaid, Excalidraw and PlantUML structure, `diagram_doctor.py` reports
+a missing renderer, and `export_diagram.mjs` bakes one theme into a standalone
+SVG or PNG.
 
 ## How the catalog is derived
 

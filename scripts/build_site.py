@@ -465,12 +465,12 @@ def render_ledger() -> str:
          "validate_repository.py"),
         (len(catalog.MODULES), "modules", "Each has CSS, the stylesheet styles nothing unregistered, and no body uses a module its pattern does not allow.",
          "validate_repository.py"),
-        (len(check_diagrams.RULES), "diagram rules", "Shell, colour by token, 4px grid, overlap, bounds, label clearance, one accent family.",
+        (len(check_diagrams.RULES), "diagram rules", "Shell, colour by token, 4px grid, overlap, bounds, text fit, node budget, contrast in every theme, label clearance, one accent family.",
          "check_diagrams.py"),
-        (themes, "themes audited", "Contrast for every text pair, one accent, hue separation from status colours, dark print.",
+        (themes, "themes audited", "Contrast for every text pair, one accent, hue separation from status colours, dark print, no two themes with the same voice.",
          "audit_theme.py --all"),
         (example_pages * widths * render_themes, "page renders",
-         f"{example_pages} pages at 1280px, 390px and print, under {site_parts.words(render_themes)} themes: "
+         f"{example_pages} pages at 1280px, 390px and print (and 1920px for full-width pages), under {site_parts.words(render_themes)} themes: "
          "no sideways scroll, no clipped figure text.",
          "check_render.py"),
     )
@@ -571,6 +571,8 @@ def home_marks(shot: str) -> dict[str, str]:
         "@@PATTERNS_WORD": site_parts.words(len(catalog.PATTERNS)),
         "@@OTHER_PATTERNS_WORD": site_parts.words(len(catalog.PATTERNS) - len(used)),
         "@@FORMS_WORD": site_parts.words(diagram_forms()),
+        "@@MODULES_WORD": site_parts.words(len(catalog.MODULES)),
+        "@@VERSION": json.loads(PLUGIN_JSON.read_text(encoding="utf-8"))["version"],
         "@@SHOT": shot,
         "@@REPO": REPO_URL,
     })
@@ -1164,7 +1166,7 @@ def check_built(dest: Path) -> None:
         if not title or f'<title id="{title.group(1)}"' not in home:
             fail(f"homepage does not inline figure {slug}")
     version = json.loads(PLUGIN_JSON.read_text(encoding="utf-8"))["version"]
-    shown = re.search(r"What's new in ([0-9][0-9.]*)", home)
+    shown = re.search(r"What's new since ([0-9][0-9.]*)", home)
     if not shown or shown.group(1) != version:
         fail(f"homepage describes {shown.group(1) if shown else 'no version'}; plugin.json is {version}")
     for skill in sorted(p.name for p in (ROOT / "skills").iterdir() if p.is_dir()):
