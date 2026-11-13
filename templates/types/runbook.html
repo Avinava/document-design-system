@@ -1,15 +1,5 @@
 <article class="doc">
-  <header class="doc-hero">
-    <p class="eyebrow">Operational runbook · RB-INGEST-01</p>
-    <h1>Recover when ingestion queue lag keeps climbing</h1>
-    <p class="lede">Use this procedure after <code>ingest_lag_seconds</code> exceeds 120 for five minutes or producers report blocked or failed event acceptance.</p>
-    <div class="doc-meta" aria-label="Runbook metadata">
-      <span><strong>Owner:</strong> Platform</span>
-      <span><strong>Reviewed:</strong> 2026-08-18</span>
-      <span><strong>Maximum local change:</strong> +1 replica</span>
-      <span><strong>Escalate at:</strong> 15 minutes</span>
-    </div>
-  </header>
+  <header class="doc-hero"><p class="eyebrow">Operational runbook · RB-INGEST-01</p><h1>Recover when ingestion queue lag keeps climbing</h1><p class="lede">Use this procedure after <code>ingest_lag_seconds</code> exceeds 120 for five minutes or producers report blocked or failed event acceptance.</p><div class="doc-meta" aria-label="Runbook metadata"><span><strong>Owner:</strong> Platform</span><span><strong>Reviewed:</strong> 2026-08-18</span><span><strong>Maximum local change:</strong> +1 replica</span><span><strong>Escalate at:</strong> 15 minutes</span></div><div class="hero-checklist"><p class="component-label">Before you start</p><ul><li>Access to the <code>ingest</code> namespace and the Ingestion / lag dashboard</li><li>An incident note with page time, lag, queue depth, replica count, and request p99</li><li>The limit: +1 replica locally, escalate at 15 minutes</li></ul></div></header>
 
   <section aria-labelledby="before">
     <h2 id="before">Before changing anything</h2>
