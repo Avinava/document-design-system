@@ -141,6 +141,7 @@ def referenced_shots() -> set[str]:
     for page in sorted(EX.glob("*.html")):
         found |= set(SHOT_REF.findall(page.read_text(encoding="utf-8")))
     found |= build_site.home_shots()
+    found |= build_site.how_shots()
     found.add(site_parts.SOCIAL_IMAGE.removeprefix("screenshots/"))
     return found
 
