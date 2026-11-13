@@ -1,6 +1,6 @@
 ---
 name: diagram-design
-description: Design editorial-quality diagrams as self-contained inline SVG — architecture diagrams, flows, sequences, state machines, data models, timelines, layer stacks, quadrants, comparisons, system maps, change views, deployment maps, and dependency graphs. Use when explaining how a system is arranged, how a process moves, how components depend on each other, or how options compare; when a Mermaid or draw.io diagram needs to be converted into a document's design system; or when an existing diagram looks auto-generated and needs editorial judgment. Do not use for quantitative charts of measured data (use chart-design), for the surrounding report structure (use analytical-document-design), for UI mockups or wireframes, or for producing editable .drawio files.
+description: Design editorial-quality diagrams as self-contained inline SVG — architecture diagrams, flows, sequences, state machines, data models, timelines, layer stacks, quadrants, comparisons, system maps, change views, deployment maps, dependency graphs, journeys, story maps, event models, fishbones, cycles, and evolution maps. Use when explaining how a system is arranged, how a process moves, how components depend on each other, or how options compare; when a Mermaid or draw.io diagram needs to be converted into a document's design system; or when an existing diagram looks auto-generated and needs editorial judgment. Do not use for quantitative charts of measured data (use chart-design), for the surrounding report structure (use analytical-document-design), for UI mockups or wireframes, or for producing editable .drawio files.
 ---
 
 # Diagram Design
@@ -40,6 +40,14 @@ Match the form to the relationship being shown, not to the data you happen to ha
 | What a change adds, removes, and leaves alone | Change view |
 | Where each part runs: cluster, namespace, replicas | Deployment map |
 | What must finish before what, and which chain sets the date | Dependency graph |
+| What a person does, feels and runs into, stage by stage | Journey (service blueprint is a variant) |
+| The thinnest slice that works end to end | Story map |
+| What the system records and what reads it back | Event model |
+| Which families of cause could produce one effect | Fishbone |
+| What reinforces what, round a loop | Cycle / flywheel |
+| How visible and how evolved each part is | Value-chain evolution map |
+
+Org chart is a tree, UML class and database schema are a data model, steps are a flow, and a pyramid is a layer stack; kanban and traceability are document modules, not figures. Exploded and axonometric views are declined. `references/semantic-patterns.md` says what each visual device claims and maps a reader's question to a form.
 
 If the answer is "several of these," the diagram is doing too much. Split it. Two clear diagrams beat one complete one — a reader who has to decode a diagram has already lost the time the diagram was meant to save.
 
@@ -100,7 +108,7 @@ So: accept Mermaid as a source, convert it to a themed SVG, ship the SVG.
 | Source | Path |
 |---|---|
 | Sequence, state, class, ER, flowchart where auto-layout is honest | `scripts/render_diagram.mjs` — renders via `beautiful-mermaid` into an SVG whose colors are `var(--…)` references, so it inherits the document's theme with zero JavaScript |
-| Architecture, quadrant, layer stack, timeline, comparison — anything where **position carries meaning** | Hand-author from `templates/diagram.svg`. Auto-layout does not know that "closer" means "coupled," so it will destroy the point of the diagram |
+| Architecture, quadrant, layer stack, timeline, comparison, journey, story map, event model, fishbone, cycle, evolution map — anything where **position carries meaning** | Hand-author from `templates/diagram.svg`. Auto-layout does not know that "closer" means "coupled," so it will destroy the point of the diagram |
 | Existing `.drawio` or Mermaid flowchart | `scripts/import_diagram.py` extracts nodes, edges, and groups as JSON with no coordinates; redraw that structure under the rules above — never embed the original |
 
 The rule underneath: **auto-layout is acceptable when the arrangement is arbitrary, and unacceptable when the arrangement is the message.**
@@ -145,7 +153,8 @@ python3 "<skill-dir>/scripts/import_diagram.py" old.drawio     # structure only,
 ## Reference files
 
 - `references/diagram-families.md` — per-form construction rules and failure modes.
-- `references/primitives.md` — node, edge, label, callout, and grid specifications.
+- `references/semantic-patterns.md` — what each visual device claims, and reader question to form.
+- `references/primitives.md` — node, edge, label, callout, and grid specifications, and layout budgets per size preset.
 - `references/mermaid-bridge.md` — the Mermaid renderer, theme bridging, coverage limits.
 - `references/importing.md` — draw.io and Mermaid import: the neutral model, the safety caps, and redrawing.
 

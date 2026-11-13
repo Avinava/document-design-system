@@ -200,6 +200,25 @@ FIGURES = (
      (("estimate.html", "estimate"),)),
 )
 
+# One specimen per diagram form whose layout has no other home, drawn by hand
+# in examples/diagrams/: (slug, form, reader question, what the layout does).
+FORM_SPECIMENS = (
+    ("journey", "Journey", "What does a person do, feel and run into, stage by stage?",
+     "Stages run left to right; doing, pain and a feeling line sit in rows beneath. A service blueprint adds backstage rows."),
+    ("story-map", "Story map", "What is the thinnest slice that works end to end?",
+     "Activities across the top in order of use, stories stacked under each, releases as horizontal bands."),
+    ("event-model", "Event model", "What does the system record, and what reads it back?",
+     "Time runs left to right across screen, command, event and read-model lanes."),
+    ("fishbone", "Fishbone", "What could be causing this effect?",
+     "A spine points at the effect; cause families branch off as bones, candidate causes as ticks."),
+    ("cycle", "Cycle", "What reinforces what, round a closed loop?",
+     "Steps on a ring, read clockwise; a closed curve is the claim that the loop feeds itself."),
+    ("evolution-map", "Evolution map", "How visible is each part, and how far has it evolved?",
+     "Visibility runs top to bottom, evolution left to right from genesis to commodity."),
+    ("pyramid", "Pyramid", "How many of each, when the cost per item rises as you climb?",
+     "A layer stack whose widths are the quantity at each level, narrowest where each item costs most."),
+)
+
 
 # --------------------------------------------------------------------------
 # back links
@@ -397,10 +416,25 @@ def render_figures() -> str:
     return "\n".join(out)
 
 
+def render_form_specimens() -> str:
+    out = []
+    for slug, form, question, layout in FORM_SPECIMENS:
+        svg = (EX / "diagrams" / f"{slug}.svg").read_text(encoding="utf-8").strip()
+        out.append(
+            f'<section class="form-spec" id="form-{slug}" aria-labelledby="form-{slug}-h">\n'
+            f'<h3 id="form-{slug}-h">{esc(form)}</h3>\n'
+            f'<p class="form-q">{esc(question)}</p>\n'
+            f'<div class="frame">{svg}</div>\n'
+            f'<p class="form-layout">{esc(layout)}</p>\n</section>'
+        )
+    return "\n".join(out)
+
+
 def diagram_forms() -> int:
-    """Diagram forms documented in the diagram skill: one `## ` section each."""
+    """Diagram forms documented in the diagram skill: one `## ` section each,
+    except the contents list and the closing note on what was folded in."""
     heads = re.findall(r"^## (.+)$", DIAGRAM_FAMILIES.read_text(encoding="utf-8"), re.M)
-    return len([h for h in heads if h.strip() != "Contents"])
+    return len([h for h in heads if h.strip() != "Contents" and not h.startswith("Folded in")])
 
 
 def render_ledger() -> str:
@@ -718,6 +752,8 @@ def assemble_figures(dest: Path) -> None:
         "<!-- @@FAVICON -->": site_parts.FAVICON_LINK,
         "/* @@GALLERY_CSS */": css,
         "<!-- @@GALLERY -->": grid,
+        "<!-- @@FORM_SPECIMENS -->": render_form_specimens(),
+        "@@SPECIMEN_WORD_CAP": site_parts.words(len(FORM_SPECIMENS)).capitalize(),
         "@@FORMS_WORD_CAP": site_parts.words(diagram_forms()).capitalize(),
         "@@RULES_WORD_CAP": site_parts.words(len(check_diagrams.RULES)).capitalize(),
         "@@REPO": REPO_URL,
