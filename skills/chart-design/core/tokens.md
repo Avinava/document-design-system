@@ -80,6 +80,31 @@ Three roles, not three fonts for their own sake. Mono is for technical metadata;
 
 Keep radii between 0 and 8px. Larger radii read as consumer-app chrome and undercut an analytical register.
 
+### Type scale
+
+| Token | Purpose |
+|---|---|
+| `--text-base` | Body size, as a length (`1rem`). Every step derives from it |
+| `--scale-ratio` | Unitless ratio between steps, 1.1 to 1.5. Small is quiet and dense, large is expressive |
+| `--display-weight` | Weight of titles and headings |
+| `--display-tracking` | Letter-spacing of headings, in `em` |
+| `--display-leading` | Line-height of headings, unitless |
+| `--display-transform` | `none`, `uppercase` or `lowercase` for headings |
+
+`core/base.css` turns these into `--step--1` to `--step-7` (each step is the previous one times `--scale-ratio`) and headings read the steps, never a literal size. A theme that wants a different voice changes the ratio, the weight and the face, not individual rules.
+
+### Density and ornament
+
+| Token | Purpose |
+|---|---|
+| `--density` | Unitless multiplier for spacing, 0.8 to 1.25. Below 1 is a working document, above 1 is a reading document |
+| `--hero-rule-width` | Rule above the opening, as a length (`3px`) |
+| `--section-rule-width` | Rule above each section, as a length (`1px`) |
+| `--eyebrow-tracking` | Letter-spacing of eyebrows and small labels, in `em` |
+| `--eyebrow-transform` | `uppercase` or `none` for eyebrows |
+
+`core/base.css` turns `--density` into `--space-1` to `--space-7`. Every theme declares all of these. `base.css` loads after the theme, and a default declared on `[data-theme]` there would overwrite the theme's own value.
+
 ### Derived (optional but recommended)
 
 | Token | Purpose |

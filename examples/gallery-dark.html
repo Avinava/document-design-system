@@ -88,6 +88,19 @@
 
   --radius-sm: 3px;
   --radius-md: 5px;
+
+  --text-base: 1rem;
+  --scale-ratio: 1.18;
+  --display-weight: 600;
+  --display-tracking: -0.01em;
+  --display-leading: 1.2;
+  --display-transform: none;
+
+  --density: 1;
+  --hero-rule-width: 3px;
+  --section-rule-width: 1px;
+  --eyebrow-tracking: 0.06em;
+  --eyebrow-transform: uppercase;
 }
 
 /* --- print ------------------------------------------------------------
@@ -148,7 +161,7 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--sans);
-  font-size: 16px;
+  font-size: var(--text-base);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
@@ -168,6 +181,36 @@ body {
 [data-theme] {
   --comparison-fill: color-mix(in srgb, var(--muted) 16%, transparent);
   --track-fill: color-mix(in srgb, var(--muted) 10%, transparent);
+}
+
+/* --- scale and spacing, derived from the voice tokens ----------------
+ *
+ * Each type step is the previous one times --scale-ratio, and each space step
+ * is a fixed fraction of a rem times --density. Components read these, never a
+ * literal size, so a theme changes its pace by changing two numbers.
+ *
+ * On [data-theme] as well as :root, for the same reason as the derived
+ * tokens above. The theme's own values are not defaulted here: this file
+ * loads after the theme and an equal-specificity default would overwrite it. */
+:root,
+[data-theme] {
+  --step-0: var(--text-base);
+  --step--1: calc(var(--step-0) / var(--scale-ratio));
+  --step-1: calc(var(--step-0) * var(--scale-ratio));
+  --step-2: calc(var(--step-1) * var(--scale-ratio));
+  --step-3: calc(var(--step-2) * var(--scale-ratio));
+  --step-4: calc(var(--step-3) * var(--scale-ratio));
+  --step-5: calc(var(--step-4) * var(--scale-ratio));
+  --step-6: calc(var(--step-5) * var(--scale-ratio));
+  --step-7: calc(var(--step-6) * var(--scale-ratio));
+
+  --space-1: calc(0.25rem * var(--density));
+  --space-2: calc(0.5rem * var(--density));
+  --space-3: calc(0.75rem * var(--density));
+  --space-4: calc(1rem * var(--density));
+  --space-5: calc(1.5rem * var(--density));
+  --space-6: calc(2.5rem * var(--density));
+  --space-7: calc(3.5rem * var(--density));
 }
 
 /* --- token aliases for embedded renderers ---------------------------
@@ -206,14 +249,15 @@ h1, h2, h3,
 .metric-value,
 .focal-value {
   font-family: var(--display);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.2;
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: var(--display-leading);
+  text-transform: var(--display-transform);
 }
 
-h1 { font-size: 2rem; margin: 0 0 0.5rem; }
-h2 { font-size: 1.375rem; margin: 2.5rem 0 0.75rem; }
-h3 { font-size: 1.0625rem; margin: 1.75rem 0 0.5rem; }
+h1 { font-size: var(--step-4); margin: 0 0 var(--space-2); }
+h2 { font-size: var(--step-2); margin: var(--space-6) 0 var(--space-3); }
+h3 { font-size: var(--step-1); margin: calc(1.75rem * var(--density)) 0 var(--space-2); }
 
 p { margin: 0 0 1rem; max-width: 68ch; }
 
@@ -233,8 +277,8 @@ code,
 
 .eyebrow {
   color: var(--soft);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  text-transform: var(--eyebrow-transform);
+  letter-spacing: var(--eyebrow-tracking);
 }
 
 .subtle { color: var(--muted); }

@@ -45,7 +45,10 @@ WORDMARK_TEXT = 'document<span class="hyphen">-</span>design<span class="hyphen"
 # light theme's type so the page does not change family under them.
 SITE_THEME = "executive-navy"
 DARK_THEME = "console-violet"
-DARK_KEEP = re.compile(r"^--(?:display|sans|mono|radius-[a-z]+)$")
+DARK_KEEP = re.compile(
+    r"^--(?:display(?:-[a-z]+)?|sans|mono|radius-[a-z]+|text-base|scale-ratio"
+    r"|density|hero-rule-width|section-rule-width|eyebrow-[a-z]+)$"
+)
 
 # (label, href). The order is the site's reading order.
 NAV = (

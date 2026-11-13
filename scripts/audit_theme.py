@@ -225,7 +225,59 @@ def audit(path: Path, other_accents: dict[str, str]) -> Report:
                 else:
                     r.ok(f"print {token} = {contrast(m.group(0), '#ffffff'):.2f} on white paper")
 
+    # 6. voice tokens stay in their documented ranges
+    for name, lo, hi in VOICE_RANGES:
+        raw = tok.get(name, "").strip()
+        try:
+            value = float(raw)
+        except ValueError:
+            continue  # missing is reported by the completeness check
+        if lo <= value <= hi:
+            r.ok(f"{name} = {value:g}")
+        else:
+            r.fail(f"{name} = {value:g} is outside {lo:g} to {hi:g}")
+
     return r
+
+
+# (token, minimum, maximum). The ranges are in core/tokens.md. Outside them a
+# theme stops being a voice and becomes a layout bug: a ratio above 1.5 makes
+# h1 overflow a phone, a density below 0.8 collapses section rhythm.
+VOICE_RANGES = (
+    ("--scale-ratio", 1.1, 1.5),
+    ("--density", 0.8, 1.25),
+)
+
+# Tokens whose combination fingerprints how a theme reads. Two themes that
+# agree on all of them differ only in hue, which is the sameness the voice
+# tokens exist to remove.
+FINGERPRINT = (
+    "--display",
+    "--scale-ratio",
+    "--density",
+    "--display-weight",
+    "--display-transform",
+)
+
+
+def voice_fingerprint(path: Path) -> tuple[str, ...]:
+    tok = declarations(path.read_text(encoding="utf-8"))
+    return tuple(tok.get(name, "").strip() for name in FINGERPRINT)
+
+
+def twin_voices() -> list[tuple[str, str]]:
+    """Pairs of themes that share one voice fingerprint."""
+    seen: dict[tuple[str, ...], str] = {}
+    twins = []
+    for t in sorted(THEMES.glob("*.css")):
+        if t.stem == "brand-template":
+            continue  # a slot to fill, not a voice
+        fp = voice_fingerprint(t)
+        if fp in seen:
+            twins.append((seen[fp], t.stem))
+        else:
+            seen[fp] = t.stem
+    return twins
 
 
 def collect_accents() -> dict[str, str]:
@@ -268,6 +320,12 @@ def main() -> int:
             if args.quiet and line.strip().startswith("ok"):
                 continue
             print(line)
+
+    if args.all:
+        # A warning until the voices are differentiated, then an error.
+        for a, b in twin_voices():
+            warnings += 1
+            print(f"\n  warn  {a} and {b} share a voice (face, ratio, density, weight, case)")
 
     print(f"\n  {len(targets)} theme(s) · {errors} error(s) · {warnings} warning(s)")
     return 1 if errors else 0

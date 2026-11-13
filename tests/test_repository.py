@@ -456,6 +456,35 @@ class TestTokenContract(unittest.TestCase):
                     f"{theme.name} is missing required tokens",
                 )
 
+    def test_voice_tokens_are_in_the_contract_and_in_range(self):
+        required = self.required_tokens()
+        voice = {
+            "--text-base", "--scale-ratio", "--display-weight", "--display-tracking",
+            "--display-leading", "--display-transform", "--density",
+            "--hero-rule-width", "--section-rule-width",
+            "--eyebrow-tracking", "--eyebrow-transform",
+        }
+        self.assertEqual(voice - required, set())
+        for theme in sorted((CORE / "themes").glob("*.css")):
+            css = strip_comments(theme.read_text(encoding="utf-8"))
+            ratio = float(re.search(r"--scale-ratio:\s*([0-9.]+)", css).group(1))
+            density = float(re.search(r"--density:\s*([0-9.]+)", css).group(1))
+            with self.subTest(theme=theme.name):
+                self.assertTrue(1.1 <= ratio <= 1.5, f"--scale-ratio {ratio}")
+                self.assertTrue(0.8 <= density <= 1.25, f"--density {density}")
+
+    def test_components_read_the_scale_not_literal_heading_sizes(self):
+        base = strip_comments((CORE / "base.css").read_text(encoding="utf-8"))
+        patterns = strip_comments((CORE / "document-patterns.css").read_text(encoding="utf-8"))
+        for heading in ("h1", "h2", "h3"):
+            m = re.search(rf"^{heading}\s*\{{\s*font-size:\s*([^;]+);", base, re.M)
+            with self.subTest(heading=heading):
+                self.assertIsNotNone(m)
+                self.assertIn("var(--step-", m.group(1))
+        hero = re.search(r"\.doc-hero h1\s*\{[^}]*font-size:\s*([^;]+);", patterns)
+        self.assertIsNotNone(hero)
+        self.assertIn("var(--step-", hero.group(1))
+
     def test_dark_themes_define_print_overrides(self):
         """A dark theme that skips print overrides prints white on white.
 
