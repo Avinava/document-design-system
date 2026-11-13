@@ -34,6 +34,7 @@
   <section class="section">
     <div class="section-head"><span class="section-num">04</span><h2>Degradation is a defined leftover</h2><span class="reading-time">implication</span></div>
     <p>“Degrade gracefully” is useful only when the remaining behavior is explicit. Under RFC 014, a failed queue leaves the other partition accepting events, bounds the gateway wait, records a shed outcome, and tells producers to retry the same event ID.</p>
+    <ul class="term-list" aria-label="Terms used here"><li><strong>Shared fate</strong><span>Shared infrastructure with no independent failure or recovery boundary.</span></li><li><strong>Backpressure</strong><span>Drain rate falls below arrival rate, the buffer fills, and the wait moves upstream to the gateway.</span></li><li><strong>Failure boundary</strong><span>A place where one part can fail or recover while the rest keeps accepting events.</span></li><li><strong>Shed outcome</strong><span>A recorded, bounded refusal; the producer retries the same event ID.</span></li></ul>
     <div class="takeaway"><p>The proposal is valuable because it defines what continues, what stops, and how callers recover. That is a failure boundary; “more resilience” on its own is not.</p></div>
   </section>
 </article>

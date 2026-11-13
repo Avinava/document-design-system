@@ -1403,6 +1403,49 @@ class TestModuleRegistry(unittest.TestCase):
             with self.subTest(slug=slug):
                 self.assertIn('class="learning-goal"', (ROOT / "templates" / "types" / f"{slug}.html").read_text())
 
+    # A type whose reader is served by the shared modules alone may be listed
+    # here with the reason; none is, because every type has a unique module.
+    OWN_MODULE_EXEMPT: dict[str, str] = {}
+
+    def own_modules(self) -> dict[str, set[str]]:
+        """{type slug: registered modules no other type uses}. A compatibility
+        profile counts as its base type, and a composed example as a type of its
+        own, so it can take modules from a type but never give it one."""
+        owner = {name: catalog.PROFILE_BASE.get(name, name) for name in self.bodies()}
+        users: dict[str, set[str]] = {}
+        for name, (_, used) in self.bodies().items():
+            for css_class in used & set(catalog.MODULES):
+                users.setdefault(css_class, set()).add(owner[name])
+        own: dict[str, set[str]] = {slug: set() for slug in catalog.TYPES}
+        for css_class, types in users.items():
+            if len(types) == 1 and next(iter(types)) in own:
+                own[next(iter(types))].add(css_class)
+        return own
+
+    def test_every_type_body_has_a_module_of_its_own(self):
+        own = self.own_modules()
+        for slug in sorted(catalog.TYPES):
+            with self.subTest(type=slug):
+                if slug in self.OWN_MODULE_EXEMPT:
+                    self.assertTrue(self.OWN_MODULE_EXEMPT[slug].strip(), "an exemption needs a reason")
+                    continue
+                self.assertTrue(own[slug], f"{slug} uses only modules another type also uses")
+
+    def test_own_module_exemptions_are_current(self):
+        own = self.own_modules()
+        for slug in self.OWN_MODULE_EXEMPT:
+            with self.subTest(type=slug):
+                self.assertIn(slug, catalog.TYPES)
+                self.assertFalse(own[slug], f"{slug} now has its own module; remove the exemption")
+
+    def test_status_chips_write_the_word(self):
+        for name, (_, path) in catalog.example_bodies(ROOT).items():
+            source = path.read_text(encoding="utf-8")
+            for tone, label in re.findall(r'<b data-tone="([a-z]+)">([^<]*)<', source):
+                with self.subTest(example=name, tone=tone, label=label):
+                    self.assertIn(tone, {"positive", "warning", "critical", "accent", "neutral"})
+                    self.assertTrue(label.strip(), "a status chip must carry its word")
+
     def test_new_modules_are_responsive_and_printable(self):
         css = catalog.CSS_COMMENT.sub("", (ROOT / catalog.PATTERNS_CSS).read_text(encoding="utf-8"))
         narrow = css[css.index("@media (max-width: 620px)") : css.index("@media print")]

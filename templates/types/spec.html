@@ -48,13 +48,13 @@ result = INGEST_SHED</pre><figcaption>The healthy A path remains available; this
 
       <section class="section" id="compliance">
         <h2>Compliance matrix</h2>
-        <div class="table-scroll"><table><caption>Required proof</caption><thead><tr><th scope="col">Requirement</th><th scope="col">Evidence</th><th scope="col">Gate</th></tr></thead><tbody>
-          <tr><td>REQ-001–002</td><td>Fixed-vector unit test across 10,000 IDs and retries</td><td>All assignments stable</td></tr>
-          <tr><td>REQ-003</td><td>Selected queue unavailable during load test</td><td>p99 gateway wait below 200 ms</td></tr>
-          <tr><td>REQ-004</td><td>Code review and storage inventory</td><td>No body access or dispatcher store</td></tr>
-          <tr><td>REQ-005</td><td>Dashboard and trace fixture</td><td>Every outcome correlated</td></tr>
-          <tr><td>REQ-006</td><td>One-queue-down chaos test</td><td>Healthy path continues accepting</td></tr>
-        </tbody></table></div>
+        <ul class="conformance" aria-label="Required proof">
+          <li><code>REQ-001–002</code><b data-tone="accent">MUST</b><span><small>Evidence</small>Fixed-vector unit test across 10,000 IDs and retries</span><span><small>Gate</small>All assignments stable</span></li>
+          <li><code>REQ-003</code><b data-tone="critical">MUST NOT</b><span><small>Evidence</small>Selected queue unavailable during load test</span><span><small>Gate</small>p99 gateway wait below 200 ms</span></li>
+          <li><code>REQ-004</code><b data-tone="critical">MUST NOT</b><span><small>Evidence</small>Code review and storage inventory</span><span><small>Gate</small>No body access or dispatcher store</span></li>
+          <li><code>REQ-005</code><b data-tone="accent">MUST</b><span><small>Evidence</small>Dashboard and trace fixture</span><span><small>Gate</small>Every outcome correlated</span></li>
+          <li><code>REQ-006</code><b data-tone="critical">MUST NOT</b><span><small>Evidence</small>One-queue-down chaos test</span><span><small>Gate</small>Healthy path continues accepting</span></li>
+        </ul>
       </section>
     </div>
   </div>

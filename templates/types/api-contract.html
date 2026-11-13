@@ -38,11 +38,11 @@ X-Request-Id: req_7f4
 
       <section class="section" id="errors">
         <h2>Error catalog</h2>
-        <div class="table-scroll"><table><caption>Stable error codes</caption><thead><tr><th scope="col">Code</th><th scope="col">Meaning</th><th scope="col">Retry?</th><th scope="col">Caller action</th></tr></thead><tbody>
-          <tr><td><code>INGEST_SHED</code></td><td>Selected queue unavailable</td><td>Yes</td><td>Back off and resend the same ID</td></tr>
-          <tr><td><code>INVALID_EVENT</code></td><td>Envelope failed schema validation</td><td>No</td><td>Correct the payload</td></tr>
-          <tr><td><code>UNAUTHORIZED_PRODUCER</code></td><td>Identity or audience not accepted</td><td>No</td><td>Correct service identity or audience</td></tr>
-        </tbody></table></div>
+        <ul class="error-catalog" aria-label="Stable error codes">
+          <li><code>INGEST_SHED</code><b data-tone="positive">Retry</b><span><small>Meaning</small>Selected queue unavailable</span><span><small>Caller action</small>Back off and resend the same ID</span></li>
+          <li><code>INVALID_EVENT</code><b data-tone="critical">No retry</b><span><small>Meaning</small>Envelope failed schema validation</span><span><small>Caller action</small>Correct the payload</span></li>
+          <li><code>UNAUTHORIZED_PRODUCER</code><b data-tone="critical">No retry</b><span><small>Meaning</small>Identity or audience not accepted</span><span><small>Caller action</small>Correct service identity or audience</span></li>
+        </ul>
       </section>
 
       <section class="section" id="drift">

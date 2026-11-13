@@ -1517,6 +1517,481 @@ html[data-pattern="brief"] .section { margin-top: var(--space-6); }
 
 .action-required h2 { margin: .35rem 0; }
 
+/* ------------------------------------------------------------ type modules */
+
+/* Each module below belongs to one type's reader. The pattern sections say how
+ * a family opens and flows; these say what that type's central object looks
+ * like once the reader reaches it, so two types in one family differ below the
+ * hero. Status is always a written word; colour only reinforces it. */
+
+b[data-tone] {
+  --tone: var(--muted);
+  display: inline-block;
+  padding: 0.1rem 0.55rem;
+  border: 1px solid var(--tone);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--tone) 14%, transparent);
+  color: var(--ink);
+  font: 600 0.75rem/1.5 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+b[data-tone="positive"] { --tone: var(--positive); }
+b[data-tone="warning"] { --tone: var(--warning); }
+b[data-tone="critical"] { --tone: var(--critical); }
+b[data-tone="accent"] { --tone: var(--accent); }
+
+/* Row ledgers: one bordered list, one row per item, a column template per
+ * module in --cols. Each module below sets only its columns and its accents. */
+:is(
+  .delta-ledger, .error-catalog, .config-keys, .conformance, .deliverable-ledger,
+  .priority-ladder, .component-spec, .freshness, .threat-matrix, .agreements,
+  .change-ledger, .roster, .term-list, .layer-stack
+) {
+  list-style: none;
+  margin: var(--space-5) 0;
+  padding: 0;
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+}
+
+:is(
+  .delta-ledger, .error-catalog, .config-keys, .conformance, .deliverable-ledger,
+  .priority-ladder, .component-spec, .freshness, .threat-matrix, .agreements,
+  .change-ledger, .roster, .term-list, .layer-stack
+) > li {
+  display: grid;
+  grid-template-columns: var(--cols);
+  gap: var(--space-2) var(--space-4);
+  align-items: baseline;
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--rule);
+}
+
+:is(
+  .delta-ledger, .error-catalog, .config-keys, .conformance, .deliverable-ledger,
+  .priority-ladder, .component-spec, .freshness, .threat-matrix, .agreements,
+  .change-ledger, .roster, .term-list, .layer-stack
+) > li:first-child { border-top: 0; }
+
+:is(
+  .delta-ledger, .error-catalog, .config-keys, .conformance, .deliverable-ledger,
+  .priority-ladder, .component-spec, .freshness, .threat-matrix, .agreements,
+  .change-ledger, .roster, .term-list, .layer-stack
+) small {
+  display: block;
+  color: var(--soft);
+  font: 500 0.6875rem/1.4 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.delta-ledger > li > b,
+.error-catalog > li > b,
+.config-keys > li > b,
+.conformance > li > b,
+.priority-ladder > li > b,
+.freshness > li > b,
+.agreements > li > b,
+.change-ledger > li > b { justify-self: start; }
+
+/* Estimate: where the expected value sits inside its range. --lo, --exp and
+ * --hi are set on the track in the document's own unit; --min and --max frame
+ * the scale. */
+.range-bar {
+  --min: 20;
+  --max: 30;
+  margin: var(--space-5) 0;
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+}
+
+.range-bar > div:first-of-type {
+  position: relative;
+  height: 0.65rem;
+  margin: var(--space-5) 0 var(--space-5);
+  background: var(--track-fill);
+  border-radius: 999px;
+}
+
+.range-bar > div:first-of-type::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  left: calc((var(--lo) - var(--min)) / (var(--max) - var(--min)) * 100%);
+  width: calc((var(--hi) - var(--lo)) / (var(--max) - var(--min)) * 100%);
+  background: var(--accent-tint);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+}
+
+.range-bar > div:first-of-type::after {
+  content: "";
+  position: absolute;
+  inset-block: -0.4rem;
+  left: calc((var(--exp) - var(--min)) / (var(--max) - var(--min)) * 100%);
+  width: 4px;
+  margin-left: -2px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+.range-bar dl {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.range-bar dt { color: var(--soft); font: 500 0.6875rem/1.4 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+.range-bar dd { margin: 0; font: 700 var(--step-2)/1.1 var(--display); }
+
+/* Change request: what the baseline says, what the request changes it to, and
+ * whether it adds, moves, holds or waits. */
+.delta-ledger { --cols: 7.5rem minmax(0, 1fr) minmax(0, 1fr) 5.5rem; }
+.delta-ledger > li > span:first-of-type { color: var(--muted); }
+.delta-ledger > li > span + span { font-weight: 600; }
+.delta-ledger > li > span + span::before { content: "\2192\00a0"; color: var(--accent); }
+
+/* Design doc: four phases in order, each a stop on one bar. */
+.rollout-strip {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+  margin: var(--space-5) 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rollout-strip li {
+  position: relative;
+  padding: var(--space-4) var(--space-3) var(--space-3);
+  border-top: 4px solid var(--accent);
+  background: var(--surface);
+  counter-increment: phase;
+}
+
+.rollout-strip li::before {
+  content: "Phase " counter(phase);
+  display: block;
+  margin-bottom: var(--space-2);
+  color: var(--accent);
+  font: 600 0.6875rem/1.3 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.rollout-strip { counter-reset: phase; }
+
+/* Discovery: the three outcomes the prototype can return, each with its test. */
+.go-stop {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-5) 0;
+}
+
+.go-stop > div {
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+}
+
+.go-stop p { margin: var(--space-3) 0 0; }
+
+/* Charter: who holds which part of the agreement. */
+.roster { --cols: minmax(0, 14rem) minmax(0, 1fr); }
+.roster > li > strong { color: var(--accent); }
+
+/* Proposal: what the ask costs, what it displaces and what it leaves behind. */
+.cost-ledger {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: var(--space-5) 0;
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+}
+
+.cost-ledger > div { padding: var(--space-4) var(--space-5); }
+.cost-ledger > div + div { border-left: 1px solid var(--rule); }
+.cost-ledger small { display: block; color: var(--soft); font: 500 0.6875rem/1.4 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+.cost-ledger strong { display: block; margin: var(--space-2) 0; color: var(--accent); font: 700 var(--step-3)/1.1 var(--display); }
+.cost-ledger span { color: var(--muted); }
+
+/* Spec: each requirement's level, its proof and its gate. */
+.conformance { --cols: 8rem 6.5rem minmax(0, 1.3fr) minmax(0, 1fr); }
+.conformance > li > code { color: var(--accent); font-weight: 600; }
+
+/* API contract: a stable code, whether the caller may retry, what to do. */
+.error-catalog { --cols: minmax(0, 13rem) 6rem minmax(0, 1fr) minmax(0, 1.2fr); }
+.error-catalog > li > code { color: var(--accent); font-weight: 600; overflow-wrap: anywhere; }
+
+/* Reference: a configuration key, whether it is required, what it means. */
+.config-keys { --cols: minmax(0, 14rem) 6.5rem minmax(0, 1fr) minmax(0, 9rem); }
+.config-keys > li > code:first-child { color: var(--accent); font-weight: 600; overflow-wrap: anywhere; }
+
+/* Requirements: the surfaces that do not change, as a fence of chips. */
+.unchanged-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.unchanged-list li {
+  padding: 0.3rem 0.8rem;
+  border: 1px dashed var(--rule-strong);
+  border-radius: 999px;
+  background: var(--surface);
+}
+
+.unchanged-list li::before { content: "="; margin-right: 0.5rem; color: var(--accent); font-family: var(--mono); font-weight: 700; }
+
+/* Statement of work: each deliverable by its acceptance gate date. */
+.deliverable-ledger { --cols: 8.5rem minmax(0, 1fr) minmax(0, 14rem); }
+.deliverable-ledger > li > time { color: var(--accent); font: 600 0.875rem/1.4 var(--mono); }
+.deliverable-ledger > li > strong { font-size: var(--step-1); }
+
+/* Support model: the priority ladder, most urgent first. */
+.priority-ladder { --cols: 4.5rem minmax(0, 1fr) minmax(0, 12rem); }
+.priority-ladder > li:nth-child(1) { border-left: 4px solid var(--critical); }
+.priority-ladder > li:nth-child(2) { border-left: 4px solid var(--warning); }
+.priority-ladder > li:nth-child(3) { border-left: 4px solid var(--rule-strong); }
+
+/* Handoff: the first-week list, each item a box to tick. */
+.check-list {
+  margin: var(--space-4) 0;
+  padding: 0;
+  list-style: none;
+  border-top: 2px solid var(--accent);
+}
+
+.check-list li {
+  position: relative;
+  padding: var(--space-3) 0 var(--space-3) 2.25rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.check-list li::before {
+  content: "";
+  position: absolute;
+  left: 0.25rem;
+  top: calc(var(--space-3) + 0.2rem);
+  width: 1.05rem;
+  height: 1.05rem;
+  border: 2px solid var(--accent);
+  border-radius: var(--radius-sm);
+}
+
+/* How-to: the observable result that proves the task is done. */
+.result-check {
+  margin: var(--space-5) 0;
+  padding: var(--space-4) var(--space-5);
+  background: var(--accent-tint);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+}
+
+.result-check ul { margin: var(--space-3) 0 0; padding: 0; list-style: none; }
+.result-check li { position: relative; padding: var(--space-2) 0 var(--space-2) 2rem; }
+
+.result-check li::before {
+  content: "\2713";
+  position: absolute;
+  left: 0;
+  top: var(--space-2);
+  display: grid;
+  place-items: center;
+  width: 1.3rem;
+  height: 1.3rem;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-radius: 50%;
+  font: 700 0.75rem/1 var(--mono);
+}
+
+/* Explanation: the words the argument leans on, defined once. */
+.term-list { --cols: minmax(0, 11rem) minmax(0, 1fr); }
+.term-list > li > strong { font: 600 var(--step-0)/1.3 var(--display); color: var(--accent); }
+
+/* Tutorial: the whole lesson as stops on a trail, each with its time. */
+.lesson-path {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  margin: var(--space-5) 0;
+  padding: 0;
+  list-style: none;
+  border-top: 2px dashed var(--rule-strong);
+}
+
+.lesson-path li { position: relative; display: grid; gap: 0.15rem; padding: var(--space-4) var(--space-2) 0 0; }
+
+.lesson-path li::before {
+  content: "";
+  position: absolute;
+  top: -0.45rem;
+  left: 0;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 3px solid var(--accent);
+}
+
+.lesson-path time { color: var(--accent); font: 600 0.8125rem/1.3 var(--mono); }
+.lesson-path span { color: var(--muted); font-size: var(--step--1); line-height: 1.35; }
+
+/* Design handoff: each component with what it is for and what stays out. */
+.component-spec { --cols: minmax(0, 9rem) minmax(0, 1fr) minmax(0, 1fr); }
+.component-spec > li > strong { color: var(--accent); }
+.component-spec > li > span + span { padding-left: var(--space-3); border-left: 3px solid var(--critical); }
+
+/* Service docs: how each kind of document earns its freshness. */
+.freshness { --cols: minmax(0, 13rem) 9.5rem minmax(0, 1fr); }
+
+/* Delivery plan: the dependencies that can move a gate. */
+.dependency-flags {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dependency-flags li {
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-left: 6px solid var(--warning);
+  border-radius: var(--radius-md);
+}
+
+.dependency-flags small { display: block; color: var(--soft); font: 500 0.6875rem/1.4 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+.dependency-flags strong { display: block; margin: 0.15rem 0 var(--space-2); }
+
+/* Migration plan: what must hold before the first gate opens. Sits on the
+ * plan-gates panel, so it takes its colour from the panel. */
+.preflight { margin: var(--space-3) 0 0; padding: 0; list-style: none; }
+
+.preflight li {
+  position: relative;
+  padding: var(--space-2) 0 var(--space-2) 1.9rem;
+  border-top: 1px solid currentcolor;
+  color: var(--method-muted);
+}
+
+.preflight li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: calc(var(--space-2) + 0.2rem);
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 2px solid currentcolor;
+  border-radius: var(--radius-sm);
+}
+
+/* Test strategy: the layers of evidence, each with what it proves. */
+.layer-stack { --cols: 8rem minmax(0, 1fr) minmax(0, 14rem); }
+.layer-stack > li > strong { color: var(--accent); }
+.layer-stack > li:nth-child(odd) { background: var(--surface-muted); }
+
+/* Status report: the scale this report reads on, with the current state marked. */
+.rag-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-5) 0;
+}
+
+.rag-strip > div {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  color: var(--muted);
+}
+
+.rag-strip > div[aria-current] {
+  background: var(--surface);
+  border: 2px solid var(--warning);
+  color: var(--ink);
+}
+
+.rag-strip p { margin: var(--space-2) 0 0; }
+.rag-strip small { margin-left: var(--space-2); color: var(--soft); font: 500 0.6875rem/1.4 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* Release notes: each change under the word that classifies it. */
+.change-ledger { --cols: 7rem minmax(0, 1fr); }
+
+/* Workshop summary: what the room settled and what it left open. */
+.agreements { --cols: 6rem minmax(0, 1fr); }
+
+/* Incident update: when it began, when this update was written, when the next
+ * is due, on one line. */
+.update-clock {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  margin: var(--space-5) 0;
+  padding: 0;
+  list-style: none;
+  border-top: 2px solid var(--rule-strong);
+}
+
+.update-clock li { position: relative; display: grid; gap: 0.15rem; padding: var(--space-4) var(--space-3) 0 0; }
+
+.update-clock li::before {
+  content: "";
+  position: absolute;
+  top: -0.45rem;
+  left: 0;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 3px solid var(--rule-strong);
+}
+
+.update-clock li[aria-current]::before { background: var(--critical); border-color: var(--critical); }
+.update-clock time { font: 700 var(--step-1)/1.2 var(--display); }
+.update-clock span { color: var(--muted); font: 500 0.6875rem/1.4 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* Risk register: the register's items grouped by exposure rating. */
+.exposure-board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-4) 0 var(--space-5);
+}
+
+.exposure-board > div {
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+}
+
+.exposure-board ul { margin: var(--space-3) 0 0; padding: 0; list-style: none; }
+.exposure-board li { padding: var(--space-2) 0; border-top: 1px solid var(--rule); }
+.exposure-board small { display: block; color: var(--soft); font: 500 0.6875rem/1.4 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* Threat model: threat, the control against it, what is still open. */
+.threat-matrix { --cols: 5rem minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); }
+.threat-matrix > li > code { color: var(--accent); font-weight: 600; }
+.threat-matrix > li > span:nth-of-type(n + 2) { padding-left: var(--space-3); border-left: 3px solid var(--accent); }
+
 /* ------------------------------------------------------------ responsive */
 
 /* ---------------------------------------------------------------- width */
@@ -1611,6 +2086,29 @@ html[data-pattern="brief"] .section { margin-top: var(--space-6); }
   .learning-goal { grid-template-columns: 1fr; }
   .ask-band dl > div { grid-template-columns: 6.5rem minmax(0, 1fr); }
   .learning-goal { gap: 0.5rem; }
+  :is(
+    .delta-ledger, .error-catalog, .config-keys, .conformance, .deliverable-ledger,
+    .priority-ladder, .component-spec, .freshness, .threat-matrix, .agreements,
+    .change-ledger, .roster, .term-list, .layer-stack
+  ) > li { grid-template-columns: minmax(0, 1fr); }
+  .component-spec > li > span + span { padding: var(--space-2) 0 0; border-left: 0; border-top: 3px solid var(--critical); }
+  .threat-matrix > li > span:nth-of-type(n + 2) { padding-left: 0; border-left: 0; }
+  .delta-ledger > li > span + span::before { content: "\2193\00a0"; }
+  .range-bar { padding: var(--space-4); }
+  .range-bar dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rollout-strip { grid-auto-flow: row; grid-auto-columns: auto; }
+  .lesson-path,
+  .update-clock { grid-auto-flow: row; grid-auto-columns: auto; border-top: 0; border-left: 2px solid var(--rule-strong); }
+  .lesson-path li,
+  .update-clock li { padding: 0 0 var(--space-4) var(--space-5); }
+  .lesson-path li::before,
+  .update-clock li::before { top: 0.15rem; left: -0.5rem; }
+  .go-stop,
+  .cost-ledger,
+  .rag-strip,
+  .exposure-board { grid-template-columns: 1fr; }
+  .cost-ledger > div + div { border-left: 0; border-top: 1px solid var(--rule); }
+  .result-check { padding: var(--space-4); }
 }
 
 @media print {
@@ -1677,6 +2175,24 @@ html[data-pattern="brief"] .section { margin-top: var(--space-6); }
   .ask-band { margin-bottom: 1.5rem; }
   .crosswalk table { min-width: 0; }
   .crosswalk tr { break-inside: avoid; }
+  :is(
+    .delta-ledger, .error-catalog, .config-keys, .conformance, .deliverable-ledger,
+    .priority-ladder, .component-spec, .freshness, .threat-matrix, .agreements,
+    .change-ledger, .roster, .term-list, .layer-stack
+  ) > li,
+  .range-bar,
+  .rollout-strip li,
+  .go-stop,
+  .cost-ledger,
+  .rag-strip,
+  .update-clock,
+  .lesson-path,
+  .exposure-board,
+  .dependency-flags li,
+  .result-check { break-inside: avoid; }
+  .range-bar,
+  .result-check { background: none; }
+  .preflight li { color: var(--ink); }
 }
 
 /* ---- inlined from core/print.css ---- */
@@ -1868,7 +2384,7 @@ html[data-pattern="brief"] .section { margin-top: var(--space-6); }
 </style>
 </head>
 <body>
-<article class="doc"><header class="doc-hero"><p class="hero-dateline">Incident update · P1 · Investigating</p><h1>P1 ingestion delay affects Checkout, Catalog, and Inventory</h1><p class="lede">Started 2026-07-30 14:12 UTC; this update is 14:31 UTC and the next update is due 14:45 UTC.</p><div class="doc-meta" aria-label="Document metadata"><span><strong>Severity:</strong> P1</span><span><strong>State:</strong> Investigating</span></div></header><div class="brief-status"><div><span class="component-label">Status</span><strong>Investigating</strong><small>cause not yet known</small></div><div><span class="component-label">Impact</span><strong>3 teams</strong><small><code>503</code> or blocking</small></div><div><span class="component-label">Next update</span><strong>14:45 UTC</strong><small>committed</small></div></div><section class="action-required"><p class="component-label">Producer action</p><h2>Retry with bounds and preserve event IDs</h2></section><figure class="figure"><div class="diagram-scroll"><svg role="img" aria-labelledby="bp-title bp-desc" viewBox="0 0 720 396" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+<article class="doc"><header class="doc-hero"><p class="hero-dateline">Incident update · P1 · Investigating</p><h1>P1 ingestion delay affects Checkout, Catalog, and Inventory</h1><p class="lede">Started 2026-07-30 14:12 UTC; this update is 14:31 UTC and the next update is due 14:45 UTC.</p><div class="doc-meta" aria-label="Document metadata"><span><strong>Severity:</strong> P1</span><span><strong>State:</strong> Investigating</span></div></header><div class="brief-status"><div><span class="component-label">Status</span><strong>Investigating</strong><small>cause not yet known</small></div><div><span class="component-label">Impact</span><strong>3 teams</strong><small><code>503</code> or blocking</small></div><div><span class="component-label">Next update</span><strong>14:45 UTC</strong><small>committed</small></div></div><ol class="update-clock" aria-label="Update clock"><li><time>14:12 UTC</time><span>Started</span></li><li aria-current="step"><time>14:31 UTC</time><span>This update</span></li><li><time>14:45 UTC</time><span>Next update due</span></li></ol><section class="action-required"><p class="component-label">Producer action</p><h2>Retry with bounds and preserve event IDs</h2></section><figure class="figure"><div class="diagram-scroll"><svg role="img" aria-labelledby="bp-title bp-desc" viewBox="0 0 720 396" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
   <title id="bp-title">Backpressure loop on the shared queue</title>
   <desc id="bp-desc">A closed loop of four steps read clockwise: consumers slow, so the queue fills; a full queue makes the gateway block or return 503; blocked producers retry; and retries add load that slows consumers further. The retry edge is dashed because it only closes when callers retry without a bound. The accent marks the queue, the step RFC 014 splits.</desc>
 

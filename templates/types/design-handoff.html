@@ -33,12 +33,12 @@
 
   <section class="section" aria-labelledby="components">
     <div class="section-head"><span class="section-num">03</span><h2 id="components">Components and interaction</h2><span class="reading-time">system-first</span></div>
-    <div class="table-scroll"><table><caption>Component contract</caption><thead><tr><th scope="col">Component</th><th scope="col">Use</th><th scope="col">Do not add</th></tr></thead><tbody>
-      <tr><td>Status banner</td><td>Global written state, environment, refresh time</td><td>Color-only state</td></tr>
-      <tr><td>Queue card</td><td>Lag, depth, shed, last event, written trend</td><td>Custom charts or hidden hover facts</td></tr>
-      <tr><td>Runbook link</td><td>Primary recovery action</td><td>Inline operational controls</td></tr>
-      <tr><td>Incident link</td><td>Visible only when an active incident exists</td><td>Automatic incident creation</td></tr>
-    </tbody></table></div>
+    <ul class="component-spec" aria-label="Component contract">
+      <li><strong>Status banner</strong><span><small>Use</small>Global written state, environment, refresh time</span><span><small>Do not add</small>Color-only state</span></li>
+      <li><strong>Queue card</strong><span><small>Use</small>Lag, depth, shed, last event, written trend</span><span><small>Do not add</small>Custom charts or hidden hover facts</span></li>
+      <li><strong>Runbook link</strong><span><small>Use</small>Primary recovery action</span><span><small>Do not add</small>Inline operational controls</span></li>
+      <li><strong>Incident link</strong><span><small>Use</small>Visible only when an active incident exists</span><span><small>Do not add</small>Automatic incident creation</span></li>
+    </ul>
     <p>Refresh every 15 seconds. Preserve keyboard focus across refresh. The tab order follows global status, queue cards, runbook, then incident link.</p>
   </section>
 
