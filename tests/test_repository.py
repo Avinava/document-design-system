@@ -948,6 +948,7 @@ class TestToolchainValidation(unittest.TestCase):
                 dest = tmp / "skills" / skill.name
                 shutil.copytree(skill / "references", dest / "references")
                 shutil.copy2(skill / "SKILL.md", dest / "SKILL.md")
+            shutil.copytree(ROOT / "docs", tmp / "docs", ignore=shutil.ignore_patterns("screenshots"))
             if mutate:
                 mutate(tmp)
             vr.errors.clear()
@@ -1007,6 +1008,16 @@ class TestToolchainValidation(unittest.TestCase):
             "is not pinned in package.json",
             self.edit("CONTRIBUTING.md", "## Tooling", "## Tooling\n\n`npm i left-pad@1.3.0`"),
         )
+
+    def test_scans_the_design_doc_and_adrs_for_stale_pins(self):
+        for rel in ("docs/DESIGN.md", "docs/adr/adr-001.md"):
+            with self.subTest(rel=rel):
+                self.assert_rejects(
+                    "disagrees with package.json",
+                    lambda tmp, rel=rel: (tmp / rel).write_text(
+                        (tmp / rel).read_text(encoding="utf-8") + "\nnpm i jsdom@29.0.0\n", encoding="utf-8"
+                    ),
+                )
 
     def test_rejects_an_unlisted_node_import(self):
         self.assert_rejects(
