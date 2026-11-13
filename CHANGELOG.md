@@ -5,6 +5,8 @@ All notable changes to this project are documented here. Versions refer to the
 
 ## Unreleased
 
+## 0.6.0
+
 A redesign so that different documents look and read differently, not only in
 colour. The facts, the evidence states and the plugin's commands are unchanged.
 

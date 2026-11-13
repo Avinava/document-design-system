@@ -1166,7 +1166,7 @@ def check_built(dest: Path) -> None:
         if not title or f'<title id="{title.group(1)}"' not in home:
             fail(f"homepage does not inline figure {slug}")
     version = json.loads(PLUGIN_JSON.read_text(encoding="utf-8"))["version"]
-    shown = re.search(r"What's new since ([0-9][0-9.]*)", home)
+    shown = re.search(r"What's new in ([0-9][0-9.]*)", home)
     if not shown or shown.group(1) != version:
         fail(f"homepage describes {shown.group(1) if shown else 'no version'}; plugin.json is {version}")
     for skill in sorted(p.name for p in (ROOT / "skills").iterdir() if p.is_dir()):
