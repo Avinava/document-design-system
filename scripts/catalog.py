@@ -58,7 +58,7 @@ PROFILE_BASE = {"mulesoft": "service-docs"}
 # {slug: (theme, pattern)}. The body lives in templates/composed/<slug>.html and
 # the Markdown in examples/<slug>.md declares `type: custom`.
 COMPOSED: dict[str, tuple[str, str]] = {
-    "platform-primer": ("field-notes", "learning"),
+    "platform-primer": ("serif-editorial", "learning"),
 }
 COMPOSED_DIR = Path("templates/composed")
 TYPE_BODY_DIR = Path("templates/types")

@@ -74,7 +74,7 @@ every panel; only `data-theme` differs, and no section moves.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/themes-dark.png">
-  <img alt="The same content block rendered under editorial-coral, executive-navy, field-notes, console-violet and horizon" src="docs/screenshots/themes-light.png">
+  <img alt="The same content block rendered under editorial-coral, executive-navy, field-notes, serif-editorial, condensed-report, console-violet and horizon" src="docs/screenshots/themes-light.png">
 </picture>
 
 <sub>Follows your GitHub theme · [source](examples/themes-light.html)</sub>
@@ -84,6 +84,8 @@ every panel; only `data-theme` differs, and no section moves.
 | `editorial-coral` | Analysis for a wider review — the default |
 | `executive-navy` | Leadership deciding and funding |
 | `field-notes` | Internal working documents, research, audit |
+| `serif-editorial` | Reading and deciding: essays, records, explanations, discovery |
+| `condensed-report` | Scanning status reports, plans, estimates and registers |
 | `console-violet` | Engineers on the incident, the gate and the pager — the dark theme |
 | `horizon` | A client's brand, produced by `brand-theme-design` |
 | `brand-template` | Your own brand: copy it, fill every TODO, rename it |

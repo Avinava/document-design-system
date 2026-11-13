@@ -117,15 +117,15 @@ STORY = (
     Stop("understand", "discovery.html", "Platform, before funding the build", TYPE_QUESTIONS["discovery"],
          "decision", "Decision pattern",
          "It ends on a next move: go, stop or reframe RFC 014, with the one-queue-down test that decides.",
-         "field-notes", "thumbs/discovery.png", "2026-08-18", "Window closed", "examples/discovery.md"),
+         "serif-editorial", "thumbs/discovery.png", "2026-08-18", "Window closed", "examples/discovery.md"),
     Stop("decide", "design-doc.html", "the Platform director, with Reliability and the producer teams reviewing",
          TYPE_QUESTIONS["design-doc"], "decision", "Decision pattern",
          "The ask and its deadline come first, then options on the same criteria and a change view of one queue becoming two.",
-         "field-notes", "thumbs/design-doc.png", "2026-09-01", "Decide by", "examples/design-doc.md"),
+         "serif-editorial", "thumbs/design-doc.png", "2026-09-01", "Decide by", "examples/design-doc.md"),
     Stop("decide", "estimate.html", "the Platform director", TYPE_QUESTIONS["estimate"],
          "decision", "Decision pattern",
          "The number and its confidence lead; a waterfall adds up to 24 engineer-weeks and draws CR-003 without counting it.",
-         "executive-navy", "thumbs/estimate.png", "2026-08-26", "As of", "examples/estimate.md"),
+         "condensed-report", "thumbs/estimate.png", "2026-08-26", "As of", "examples/estimate.md"),
     Stop("decide", "capacity-deck.html", "the Platform director, in the room", "What are you asking me for, and by when?",
          None, "Deck",
          "The same decision in another medium: one claim per slide, and the options compared on the same criteria.",
@@ -133,15 +133,15 @@ STORY = (
     Stop("deliver", "delivery-plan.html", "Platform, Reliability and the producer teams", TYPE_QUESTIONS["delivery-plan"],
          "plan", "Plan pattern",
          "Baseline, workstreams, dependencies, then five gates; the critical path is the one accent in the dependency graph.",
-         "executive-navy", "thumbs/delivery-plan.png", "2026-08-31", "Baseline from", "examples/delivery-plan.md"),
+         "condensed-report", "thumbs/delivery-plan.png", "2026-08-31", "Baseline from", "examples/delivery-plan.md"),
     Stop("deliver", "status-report.html", "the Platform director, Platform and Reliability", TYPE_QUESTIONS["status-report"],
          "brief", "Brief pattern",
          "Amber first, then what moved, then the one action each reader owns before the next report.",
-         "executive-navy", "thumbs/status-report.png", "2026-08-26", "Period ending", "examples/status-report.md"),
+         "condensed-report", "thumbs/status-report.png", "2026-08-26", "Period ending", "examples/status-report.md"),
     Stop("deliver", "readiness-review.html", "Reliability, which approves the gate", TYPE_QUESTIONS["readiness-review"],
          "assurance", "Assurance pattern",
          "The verdict comes first with its evidence beside it: conditional go until chaos and rollback evidence close.",
-         "console-violet", "thumbs/readiness-review.png", "2026-10-28", "Review", "examples/readiness-review.md"),
+         "condensed-report", "thumbs/readiness-review.png", "2026-10-28", "Review", "examples/readiness-review.md"),
     Stop("deliver", "migration-plan.html", "Platform, running the cutover", TYPE_QUESTIONS["migration-plan"],
          "plan", "Plan pattern",
          "Rehearsal, sequence and gates, one partition at a time, with the original queue kept until hypercare closes.",
@@ -154,7 +154,7 @@ STORY = (
          COMPOSED_GALLERY["platform-primer"][1], "learning", "Learning pattern, composed",
          "No preset answers it. The question picks the learning pattern, and the page is composed from that "
          "pattern's modules: a scope strip, a learning goal, a crosswalk and takeaways.",
-         "field-notes", "thumbs/platform-primer.png"),
+         "serif-editorial", "thumbs/platform-primer.png"),
 )
 
 # Who each voice is for, in the examples' own theme rules (WORLD.md).
@@ -162,6 +162,8 @@ THEME_AUDIENCE = {
     "console-violet": "Engineers on the incident, the gate and the pager",
     "executive-navy": "Leadership deciding and funding",
     "field-notes": "Internal working documents",
+    "serif-editorial": "Reading and deciding: essays, records and explanations",
+    "condensed-report": "Scanning status, plans, estimates and registers",
     "editorial-coral": "Analysis for a wider review",
 }
 
@@ -351,9 +353,17 @@ def render_voice_rows() -> str:
     rows = []
     for theme, audience in THEME_AUDIENCE.items():
         stops = [s for s in STORY if s.theme == theme]
-        if not stops:
-            sys.exit(f"THEME_AUDIENCE names {theme}, which no story stop wears")
-        used = ", ".join(f'<a href="{s.page}">{esc(stop_title(s))}</a>' for s in stops)
+        links = [(s.page, stop_title(s)) for s in stops]
+        if not links:
+            # A voice the story's own documents do not wear: show its types.
+            links = [
+                (f"{slug}.html", t.title.lower())
+                for slug, t in sorted(catalog.TYPES.items())
+                if t.default_theme == theme
+            ][:3]
+        if not links:
+            sys.exit(f"THEME_AUDIENCE names {theme}, which no document wears")
+        used = ", ".join(f'<a href="{page}">{esc(title)}</a>' for page, title in links)
         rows.append(
             f'<li><span class="who">{esc(audience)}<span class="used">{used}</span></span>'
             f'<span class="maps" aria-hidden="true"></span><span class="to">{esc(theme)}</span></li>'

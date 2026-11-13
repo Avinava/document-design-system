@@ -7,7 +7,7 @@ aliases: [implementation-plan, project-plan, work-plan, roadmap]
 example: examples/delivery-plan.html
 command: /document-design-system:delivery-plan
 pattern: plan
-default-theme: executive-navy
+default-theme: condensed-report
 default-format: markdown
 path: docs/delivery-plan.md
 ```
@@ -26,4 +26,4 @@ a runbook or migration plan.
 
 ## Output
 
-Markdown at `docs/delivery-plan.md`; pattern `plan`, theme `executive-navy`.
+Markdown at `docs/delivery-plan.md`; pattern `plan`, theme `condensed-report`.

@@ -7,7 +7,7 @@ aliases: [basis-of-estimate, effort-estimate, cost-estimate]
 example: examples/estimate.html
 command: /document-design-system:estimate
 pattern: decision
-default-theme: executive-navy
+default-theme: condensed-report
 default-format: markdown
 path: docs/estimates/
 ```
@@ -24,4 +24,4 @@ a new estimate or version.
 
 ## Output
 
-Markdown in `docs/estimates/`; pattern `decision`, theme `executive-navy`.
+Markdown in `docs/estimates/`; pattern `decision`, theme `condensed-report`.

@@ -7,7 +7,7 @@ aliases: [design-discovery, research-synthesis]
 example: examples/discovery.html
 command: /document-design-system:discovery
 pattern: decision
-default-theme: field-notes
+default-theme: serif-editorial
 default-format: markdown
 path: docs/discovery.md
 ```
@@ -49,4 +49,4 @@ A PRD in disguise. Solutions before opportunities. Uncounted "users said". Skipp
 
 ## Output
 
-Markdown at `docs/discovery.md`. HTML when the brief leaves git. Theme `field-notes`.
+Markdown at `docs/discovery.md`. HTML when the brief leaves git. Theme `serif-editorial`.

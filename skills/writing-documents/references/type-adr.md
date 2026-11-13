@@ -7,7 +7,7 @@ aliases: [architecture-decision]
 example: examples/adr.html
 command: /document-design-system:adr
 pattern: record
-default-theme: field-notes
+default-theme: serif-editorial
 default-format: markdown
 path: docs/adr/adr-NNN.md
 ```
@@ -47,4 +47,4 @@ ADRs written after the fact to justify a decision already made. They read as rea
 
 ## Output
 
-Markdown is primary. HTML optional. Theme `field-notes`.
+Markdown is primary. HTML optional. Theme `serif-editorial`.

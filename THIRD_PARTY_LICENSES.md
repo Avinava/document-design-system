@@ -29,7 +29,7 @@ Referenced by the skills as alternatives for cases the defaults do not cover. No
 
 ## Fonts
 
-The themes reference Manrope, Inter, Geist, Geist Mono, IBM Plex Mono, Source Sans 3, and Source Code Pro. All are open-licensed (SIL OFL 1.1 or Apache-2.0) and are loaded from Google Fonts or embedded as subsets by `scripts/inline_fonts.py`. No font files are committed to this repository.
+The themes reference Manrope, Inter, Geist, Geist Mono, IBM Plex Sans, IBM Plex Mono, Source Sans 3, Source Code Pro, Source Serif 4, Newsreader, Barlow, and Barlow Condensed. All are open-licensed (SIL OFL 1.1 or Apache-2.0) and are loaded from Google Fonts or embedded as subsets by `scripts/inline_fonts.py`. No font files are committed to this repository.
 
 Every token stack ends in a system fallback, so a document remains usable when web fonts fail to load.
 

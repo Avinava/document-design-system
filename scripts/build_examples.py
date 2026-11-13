@@ -104,6 +104,14 @@ FONTS = {
         "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700"
         "&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
     ),
+    "serif-editorial": (
+        "https://fonts.googleapis.com/css2?family=Newsreader:wght@400;500;600;700"
+        "&family=Source+Serif+4:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    ),
+    "condensed-report": (
+        "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700"
+        "&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    ),
     "horizon": (
         "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700"
         "&family=IBM+Plex+Mono:wght@400;500;600&display=swap"

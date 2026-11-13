@@ -18,11 +18,13 @@
 <!-- @@FAVICON -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500&family=Newsreader:wght@400;500;600;700&family=Source+Serif+4:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* editorial-coral also selects :root, so the site's own theme comes last. */
 /* @@INLINE core/themes/editorial-coral.css @@ */
 /* @@INLINE core/themes/field-notes.css @@ */
+/* @@INLINE core/themes/serif-editorial.css @@ */
+/* @@INLINE core/themes/condensed-report.css @@ */
 /* @@INLINE core/themes/console-violet.css @@ */
 /* @@INLINE core/themes/horizon.css @@ */
 /* @@INLINE core/themes/${THEME}.css @@ */
@@ -32,9 +34,9 @@
 
 .page-hero { padding: 64px 0 0; }
 .themes { margin-top: 40px; }
-/* Five voices in one row on a wide screen, so no panel is left on its own. */
+/* Four voices to a row on a wide screen, so no panel is squeezed narrow. */
 @media (min-width: 1000px) {
-  .themes { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+  .themes { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
   .panel { padding: 16px; }
   .panel .big { font-size: 1.875rem; }
   .panel table { font-size: .75rem; }

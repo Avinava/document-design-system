@@ -7,7 +7,7 @@ aliases: [prr, orr, operational-readiness-review, go-live-review]
 example: examples/readiness-review.html
 command: /document-design-system:readiness-review
 pattern: assurance
-default-theme: console-violet
+default-theme: condensed-report
 default-format: markdown
 path: docs/readiness/
 ```
@@ -25,4 +25,4 @@ without evidence is not readiness. Name waiver owner and expiry.
 
 ## Output
 
-Markdown in `docs/readiness/`; pattern `assurance`, theme `console-violet`.
+Markdown in `docs/readiness/`; pattern `assurance`, theme `condensed-report`.
