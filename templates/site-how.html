@@ -1,0 +1,269 @@
+<!doctype html>
+<!--
+  The How it works page: the front door for someone who has never heard of a
+  Claude Code skill. What the plugin is, what you type, the path a request takes
+  (one hand-drawn figure and seven steps), the two choices shown on real
+  documents, a glossary and the install block.
+
+  Assembled by scripts/build_site.py (assemble_how). The figure is
+  examples/diagrams/request-flow.svg, the evidence states are read from the
+  writing-documents skill, the openings from core/document-patterns.md, and the
+  counts from the catalog, so none of them can drift from the repository.
+-->
+<html lang="en" data-theme="executive-navy">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How it works — document-design-system</title>
+<!-- @@META -->
+<!-- @@FAVICON -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* @@INLINE core/themes/${THEME}.css @@ */
+/* @@INLINE core/base.css @@ */
+/* @@SITE_CSS */
+
+/* ---------------------------------------------------------------- hero */
+.hero { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 3.5rem; align-items: end; padding: 72px 0 0; }
+.hero .site-title { max-width: 14ch; }
+.hero-links { display: flex; flex-wrap: wrap; gap: .6rem 1.5rem; margin: 1.5rem 0 0; font-weight: 600; }
+.hero-links a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: 4px; }
+.short { margin: 0; padding: 0; list-style: none; border-top: 2px solid var(--ink); }
+.short li { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--rule); }
+.short .k { font: 600 .8125rem/1.5 var(--mono); color: var(--accent); text-transform: uppercase; letter-spacing: .06em; }
+.short .v { font: 500 1.0625rem/1.45 var(--display); color: var(--ink); letter-spacing: -.01em; }
+.short .v span { display: block; margin-top: .15rem; font: 400 .9375rem/1.45 var(--sans); color: var(--muted); letter-spacing: 0; }
+
+/* ----------------------------------------------------------- what you type */
+.ways { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.25rem; }
+.way { padding: 1.5rem 1.6rem 1.35rem; background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius-md); min-width: 0; }
+.way h3 { margin: 0 0 .35rem; font: 600 1.25rem/1.2 var(--display); letter-spacing: -.015em; }
+.way > p { margin: 0 0 1rem; color: var(--muted); font-size: .9375rem; max-width: 52ch; }
+.way pre { margin: 0 0 .9rem; padding: .85rem 1rem; background: var(--paper); border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-sm); overflow-x: auto; font: .8125rem/1.7 var(--mono); }
+.way .note { margin: 0; color: var(--soft); font-size: .875rem; }
+.way ul { list-style: none; margin: 0; padding: 0; }
+.way li { padding: .7rem 0; border-top: 1px solid var(--rule); }
+.way li a { display: block; text-decoration: none; color: inherit; }
+.way q { display: block; font: 500 1.0625rem/1.4 var(--display); color: var(--ink); quotes: "\201C" "\201D"; letter-spacing: -.005em; }
+.way li a:hover q { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 3px; }
+.way .becomes { display: block; margin-top: .15rem; color: var(--muted); font-size: .875rem; }
+
+/* ------------------------------------------------------------- the flow */
+.flow-frame { margin: 0 0 3rem; padding: 1.25rem 1.25rem 1rem; background: var(--surface); border: 1px solid var(--rule);
+  border-radius: var(--radius-md); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.flow-frame svg { display: block; width: 100%; height: auto; min-width: 0; }
+.steps { list-style: none; margin: 0; padding: 0; counter-reset: step; position: relative; }
+.steps::before { content: ""; position: absolute; left: 1.4rem; top: 1.5rem; bottom: 1.5rem; width: 2px; background: var(--rule-strong); }
+.step { display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: 0 1.5rem; padding: 0 0 2.25rem; position: relative; }
+.step:last-child { padding-bottom: 0; }
+.step-num { position: relative; z-index: 1; display: grid; place-items: center; width: 2.8rem; height: 2.8rem; border-radius: 999px;
+  background: var(--paper); border: 2px solid var(--rule-strong); font: 600 1rem/1 var(--mono); color: var(--ink); }
+.step.is-key .step-num { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.step h3 { margin: .35rem 0 .35rem; font: 600 clamp(1.2rem, 2.2vw, 1.5rem)/1.2 var(--display); letter-spacing: -.02em; }
+.step p { margin: 0 0 .5rem; color: var(--muted); max-width: 66ch; }
+.step p.sees { color: var(--ink); font-size: .9375rem; }
+.step p.sees strong { font-weight: 600; }
+.step .more { font-size: .9375rem; font-weight: 600; }
+.step .more a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: 3px; }
+
+/* ------------------------------------------------------- evidence states */
+.states { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1rem; }
+.states li { padding: .1rem 0 .1rem .85rem; border-left: 3px solid var(--rule-strong); }
+.states li.state-verified { border-left-color: var(--positive); }
+.states li.state-recommended { border-left-color: var(--accent); }
+.states li.state-unresolved { border-left-color: var(--warning); }
+.states strong { display: block; font: 600 .9375rem/1.3 var(--sans); color: var(--ink); }
+.states span { display: block; margin-top: .2rem; color: var(--muted); font-size: .8125rem; line-height: 1.45; }
+
+/* ------------------------------------------------------ the two choices */
+.axis { margin: 0 0 3.25rem; }
+.axis-head { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: 1.5rem; align-items: baseline; padding-top: 1rem; border-top: 2px solid var(--ink); }
+.axis-head h3 { margin: 0; font: 600 1.25rem/1.2 var(--display); letter-spacing: -.015em; }
+.axis-head h3 small { display: block; margin-bottom: .25rem; font: 600 .75rem/1.3 var(--mono); color: var(--accent); text-transform: uppercase; letter-spacing: .08em; }
+.axis-head p { margin: 0; color: var(--muted); max-width: 66ch; }
+.specimens { display: grid; gap: 1.25rem; list-style: none; margin: 1.5rem 0 0; padding: 0; }
+.specimens.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.specimens.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.specimens a { display: block; text-decoration: none; color: inherit; }
+.specimens img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; object-position: top;
+  border: 1px solid var(--rule); border-radius: var(--radius-sm); background: var(--surface); }
+.specimens a:hover img { border-color: var(--accent); }
+.specimens .tag { display: inline-block; margin-top: .7rem; padding: .15rem .55rem; border-radius: 999px; background: var(--accent-tint);
+  color: var(--ink); font: 600 .8125rem/1.3 var(--sans); }
+.specimens strong { display: block; margin-top: .4rem; font: 600 1.0625rem/1.3 var(--display); color: var(--ink); letter-spacing: -.01em; }
+.specimens .opens { display: block; margin-top: .2rem; color: var(--muted); font-size: .875rem; line-height: 1.45; }
+.specimens .with { display: block; margin-top: .3rem; color: var(--soft); font: .75rem/1.3 var(--mono); overflow-wrap: anywhere; }
+
+/* ------------------------------------------------------------- glossary */
+.gloss { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 3rem; margin: 0; }
+.gloss div { padding: 1.1rem 0 1.2rem; border-top: 1px solid var(--rule-strong); }
+.gloss dt { font: 600 1.25rem/1.2 var(--display); letter-spacing: -.015em; color: var(--ink); }
+.gloss dt code { margin-left: .5rem; font-size: .75rem; color: var(--soft); font-weight: 400; background: none; padding: 0; }
+.gloss dd { margin: .35rem 0 0; color: var(--muted); max-width: 52ch; }
+.gloss dd a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: 3px; }
+
+/* -------------------------------------------------------------- install */
+.install-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 3rem; align-items: start; }
+.install { margin: 0 0 .75rem; padding: 1rem 1.15rem; background: var(--surface); border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md); overflow-x: auto; font: .8125rem/1.65 var(--mono); }
+.install-grid p { margin: 0 0 .75rem; color: var(--muted); max-width: 56ch; }
+.install-grid h3 { margin: 0 0 .6rem; font: 600 1.125rem/1.3 var(--display); letter-spacing: -.01em; }
+.next { list-style: none; margin: 0; padding: 0; }
+.next li { padding: .6rem 0; border-top: 1px solid var(--rule); }
+.next a { color: var(--ink); font-weight: 600; text-decoration-color: var(--accent); text-underline-offset: 3px; }
+.next span { display: block; color: var(--muted); font-size: .9375rem; }
+
+@media (max-width: 960px) {
+  .hero { grid-template-columns: minmax(0, 1fr); gap: 2.5rem; align-items: start; }
+  .ways, .install-grid { grid-template-columns: minmax(0, 1fr); }
+  .install-grid { gap: 2rem; }
+  .states { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .specimens.four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .axis-head { grid-template-columns: minmax(0, 1fr); gap: .5rem; }
+}
+@media (max-width: 760px) {
+  .hero { padding-top: 40px; }
+  .short li { grid-template-columns: 4.5rem minmax(0, 1fr); }
+  .way { padding: 1.25rem 1rem; }
+  .flow-frame { padding: 1rem .75rem .75rem; }
+  /* The figure scrolls inside its frame at a size its labels can be read at. */
+  .flow-frame svg { min-width: 880px; }
+  .steps::before { left: 1.15rem; }
+  .step { grid-template-columns: 2.4rem minmax(0, 1fr); gap: 0 1rem; }
+  .step-num { width: 2.4rem; height: 2.4rem; font-size: .9375rem; }
+  .specimens.three { grid-template-columns: minmax(0, 1fr); }
+  .specimens.three img { max-width: 26rem; }
+  .gloss { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .states { grid-template-columns: minmax(0, 1fr); }
+  .specimens.four { grid-template-columns: minmax(0, 1fr); }
+  .specimens.four img { max-width: 26rem; }
+}
+/* @@DARK */
+/* @@INLINE core/print.css @@ */
+</style>
+</head>
+<body>
+<a class="skip-link" href="#flow">Skip to how a request flows</a>
+<div class="shell">
+<!-- @@NAV -->
+
+<header class="hero">
+  <div>
+    <h1 class="site-title">From a question to a document</h1>
+    <p class="site-lead">document-design-system is a plugin for Claude Code. A plugin adds commands to it; this one adds commands for writing documents: decision papers, runbooks, postmortems, status reports and @@MORE_WORD more kinds.</p>
+    <p class="site-lead">You say who will read the document and what they need to decide or do. The plugin picks the document's shape, writes it from facts that can be checked, and, if you want a designed page, gives it a voice that suits the audience.</p>
+    <p class="hero-links"><a href="#flow">See how a request flows</a><a href="#install">Install it</a><a href="index.html">Read the story</a></p>
+  </div>
+  <ol class="short" aria-label="The short version">
+    <li><span class="k">You type</span><span class="v">A command or a sentence<span>"Write the cutover plan for RFC 014."</span></span></li>
+    <li><span class="k">It chooses</span><span class="v">A shape and a voice<span>The reader's question picks the first, the audience picks the second.</span></span></li>
+    <li><span class="k">You get</span><span class="v">A document in your repository<span>Markdown by default; designed HTML or PDF when you ask.</span></span></li>
+  </ol>
+</header>
+
+<main>
+<section class="site-section" id="type" aria-labelledby="type-title">
+  <h2 id="type-title">What you type</h2>
+  <p class="site-lead">There are two ways in, and they end in the same place. Neither needs you to know the vocabulary on this page.</p>
+  <div class="ways">
+    <div class="way">
+      <h3>A command</h3>
+      <p>One command per kind of document, named for it. Use compose when no kind fits.</p>
+      <pre><code>/document-design-system:runbook
+/document-design-system:postmortem
+/document-design-system:compose</code></pre>
+      <p class="note">@@TYPES_WORD_CAP commands, one per preset, plus compose. The <a href="types.html#common-names">common names</a> such as HLD, PRD or RAID route to the right one.</p>
+    </div>
+    <div class="way">
+      <h3>Plain words</h3>
+      <p>Describe the document and who it is for. The plugin finds the kind that answers the question.</p>
+      <ul>
+        <!-- @@ASKS -->
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="site-section" id="flow" aria-labelledby="flow-title">
+  <h2 id="flow-title">What happens to a request</h2>
+  <p class="site-lead">Seven steps, in this order. The only step that depends on you is the first; the choice that matters most is the third, and it comes from the reader's question.</p>
+  <div class="flow-frame"><!-- @@FLOW --></div>
+  <ol class="steps">
+    <!-- @@STEPS -->
+  </ol>
+</section>
+
+<section class="site-section" id="evidence" aria-labelledby="evidence-title">
+  <h2 id="evidence-title">Every claim says how sure it is</h2>
+  <p class="site-lead">A document is only as good as the facts under it. The plugin marks each claim a reader might not be able to check with one of five evidence states, and a fact it does not have stays an open question instead of becoming a guess.</p>
+  <ul class="states">
+    <!-- @@EVIDENCE -->
+  </ul>
+</section>
+
+<section class="site-section" id="axes" aria-labelledby="axes-title">
+  <h2 id="axes-title">Two choices, kept apart</h2>
+  <p class="site-lead">A document's shape and its voice are decided separately. Change one and the other stays put, which is why a postmortem can be re-skinned without moving a section, and why two documents with the same look can still read in different orders.</p>
+
+  <div class="axis" id="axis-pattern">
+    <div class="axis-head">
+      <h3><small>Axis one</small>Pattern</h3>
+      <p>Four documents, four reading orders. Each opens differently because its reader arrives with a different question. The thumbnail is the first screen.</p>
+    </div>
+    <ul class="specimens four">
+      <!-- @@PATTERN_SPECS -->
+    </ul>
+  </div>
+
+  <div class="axis" id="axis-theme">
+    <div class="axis-head">
+      <h3><small>Axis two</small>Theme</h3>
+      <p>One proposal, written once, in three voices. The sections, the order and the facts are identical; type, colour and density are not. The third is a client's own brand, turned into a theme.</p>
+    </div>
+    <ul class="specimens three">
+      <!-- @@THEME_SPECS -->
+    </ul>
+  </div>
+</section>
+
+<section class="site-section" id="glossary" aria-labelledby="glossary-title">
+  <h2 id="glossary-title">Six words, plainly</h2>
+  <p class="site-lead">These are the only terms you need. Each links to a page that shows the thing itself.</p>
+  <dl class="gloss">
+    <!-- @@GLOSSARY -->
+  </dl>
+</section>
+
+<section class="site-section" id="install" aria-labelledby="install-title">
+  <h2 id="install-title">Install it</h2>
+  <p class="site-lead">You need Claude Code. Inside it, add the catalog and install the plugin; the name appears twice because the @ reads "from".</p>
+  <div class="install-grid">
+    <div>
+      <pre class="install"><code>/plugin marketplace add Avinava/document-design-system
+/plugin install document-design-system@document-design-system</code></pre>
+      <p>Then type one of the commands above, or just describe the document you need. Prefer plain skills without the plugin system? Each of the @@SKILLS_WORD skills installs on its own with <code>npx skills add Avinava/document-design-system</code>.</p>
+    </div>
+    <div>
+      <h3>Where to go next</h3>
+      <ul class="next">
+        <li><a href="index.html">The story</a><span>One engagement, @@STOPS_WORD documents, in four acts.</span></li>
+        <li><a href="types.html">The Patterns page</a><span>Start from the reader's question and land on a preset.</span></li>
+        <li><a href="themes.html">The themes</a><span>The same content in every voice.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-foot">
+  <p>MIT licence. <a href="@@REPO">Source on GitHub</a>.</p>
+  <p>Northwind Ingestion, the company in every example, is fictional. Every fact comes from one ledger, <a href="@@REPO/blob/main/examples/WORLD.md">examples/WORLD.md</a>.</p>
+</footer>
+</div>
+</body>
+</html>

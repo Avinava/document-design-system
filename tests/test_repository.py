@@ -2126,6 +2126,57 @@ class TestSiteNavigation(unittest.TestCase):
                     self.assertIn(f'href="{href}" aria-current="page"', html)
 
 
+class TestHowItWorksPage(unittest.TestCase):
+    """The plain-language page: seven steps, the evidence states read from the
+    skill, a figure that passes the diagram checks, and no colour of its own."""
+
+    @classmethod
+    def setUpClass(cls):
+        import build_site
+
+        cls.build_site = build_site
+        cls.tmp = tempfile.TemporaryDirectory()
+        cls.dest = Path(cls.tmp.name)
+        with contextlib.redirect_stdout(io.StringIO()):
+            build_site.populate(cls.dest)
+        cls.html = (cls.dest / "how-it-works.html").read_text(encoding="utf-8")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def test_in_the_navigation_and_the_site_pages(self):
+        import site_parts
+
+        self.assertIn(("How it works", "how-it-works.html"), site_parts.NAV)
+        self.assertIn("how-it-works.html", self.build_site.SITE_PAGES)
+
+    def test_walks_seven_steps_and_six_terms(self):
+        self.assertEqual(len(re.findall(r'<li class="step[ "]', self.html)), 7)
+        self.assertEqual(self.html.count("<dt>"), 6)
+
+    def test_evidence_states_come_from_the_skill(self):
+        states = [s for s, _ in self.build_site.evidence_states()]
+        self.assertEqual(states, ["Verified", "Provided", "Inferred", "Unresolved", "Recommended"])
+        for state in states:
+            self.assertIn(f'class="state-{state.lower()}"', self.html)
+
+    def test_request_flow_figure_passes_the_diagram_rules(self):
+        import check_diagrams
+
+        findings = check_diagrams.check_paths([self.build_site.REQUEST_FLOW])
+        self.assertEqual([str(f) for f in findings], [])
+
+    def test_every_screenshot_it_shows_exists(self):
+        for rel in self.build_site.how_shots():
+            self.assertTrue((self.build_site.SHOTS / rel).is_file(), rel)
+
+    def test_page_has_no_colour_literals_and_no_upstream_credit(self):
+        raw = (ROOT / "templates" / "site-how.html").read_text(encoding="utf-8")
+        self.assertNotRegex(raw, r"#[0-9a-fA-F]{3,8}\b")
+        self.assertNotRegex(self.html, r"Lavery|cathrynlavery")
+
+
 @unittest.skipUnless(
     __import__("importlib.util").util.find_spec("PIL"),
     "Pillow is not installed (uv pip install -r requirements-authoring.txt)",

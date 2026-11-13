@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Pieces every GitHub Pages page shares: navigation, meta tags, dark mode.
 
-Imported by scripts/build_site.py (index, modules, figures, themes) and
+Imported by scripts/build_site.py (index, how it works, modules, figures, themes) and
 scripts/build_examples.py (the Patterns page, which is also built locally as
 examples/index.html). Standard library only. Repository-only.
 """
@@ -53,6 +53,7 @@ DARK_KEEP = re.compile(
 # (label, href). The order is the site's reading order.
 NAV = (
     ("Story", "index.html"),
+    ("How it works", "how-it-works.html"),
     ("Patterns", "types.html"),
     ("Modules", "modules.html"),
     ("Figures", "figures.html"),
