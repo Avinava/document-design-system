@@ -62,7 +62,7 @@ them in [`type-index.md`](skills/writing-documents/references/type-index.md). A 
 filename never becomes a second type.
 
 **When no preset fits, compose.** Pick the pattern by the reader's question, then build
-from the [modules](core/document-patterns.md#modules) that pattern allows — 51 are
+from the [modules](core/document-patterns.md#modules) that pattern allows — 78 are
 registered, each one CSS class with one reading job — borrowing the nearest preset's
 section discipline. A shape composed three times becomes a preset; that is the only way
 the catalog grows. `/document-design-system:compose` runs it directly.

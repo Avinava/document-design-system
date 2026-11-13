@@ -155,6 +155,33 @@ module serves every pattern.
 | brief grid | `brief-grid` | `brief` | Update cards for what changed and what needs attention |
 | next checkpoint | `next-checkpoint` | `brief` | When and where the next update lands |
 | action required | `action-required` | `brief` | The one action a reader must take |
+| range bar | `range-bar` | `decision` | An estimate's expected value inside its range, with confidence |
+| delta ledger | `delta-ledger` | `decision` | What a change request alters against the baseline: added, moved, held, pending |
+| rollout strip | `rollout-strip` | `decision` | Rollout phases in order, each a stop on one bar |
+| go-stop criteria | `go-stop` | `decision` | The tests that send a discovery to go, reframe, or stop |
+| roster | `roster` | `decision` | Who holds which part of an agreement |
+| cost ledger | `cost-ledger` | `decision` | What the ask costs, what it displaces, and what it leaves running |
+| conformance | `conformance` | `contract` | Each requirement's keyword level, proof, and gate |
+| error catalog | `error-catalog` | `contract` | Stable error codes with retry and the caller's action |
+| config keys | `config-keys` | `contract` | Configuration keys with required or optional, meaning, and default |
+| unchanged list | `unchanged-list` | `contract` | The surfaces a requirement set leaves untouched |
+| deliverable ledger | `deliverable-ledger` | `contract` | Deliverables by acceptance gate date and owner |
+| priority ladder | `priority-ladder` | `contract` | Priorities from most to least urgent with the first owner |
+| check list | `check-list` | `procedure` | Items to tick off, each a box |
+| result check | `result-check` | `procedure` | The observable result that proves the task is done |
+| term list | `term-list` | `learning` | The words an explanation leans on, defined once |
+| lesson path | `lesson-path` | `learning` | The whole lesson as stops on a trail, each with its time |
+| component spec | `component-spec` | `system` | Each component with what it is for and what stays out |
+| freshness | `freshness` | `suite` | How each kind of document in a set keeps its evidence current |
+| dependency flags | `dependency-flags` | `plan` | The dependencies that can move a gate |
+| preflight | `preflight` | `plan` | Preconditions that must hold before a gate opens |
+| layer stack | `layer-stack` | `plan` | Layers of test evidence, each with what it proves and who owns it |
+| RAG strip | `rag-strip` | `brief` | The red, amber, green scale with the current state marked |
+| change ledger | `change-ledger` | `brief` | Each change under the word that classifies it |
+| agreements | `agreements` | `brief` | What a meeting settled and what it left open |
+| update clock | `update-clock` | `brief` | Start, this update, and the next update on one line |
+| exposure board | `exposure-board` | `assurance` | Register items grouped by exposure rating |
+| threat matrix | `threat-matrix` | `assurance` | Each threat, its control, and the residual state |
 
 The section takeaway is the `takeaway` class used at the end of a section; it
 is not a second class. Shell classes (`doc`, `doc-hero`, `lede`, `doc-meta`,
@@ -163,7 +190,11 @@ every page and are not modules. Parts live inside one module and are not used
 alone: `recommended` (comparison grid), `requirement-id` (requirement),
 `http-method` (endpoint), `impact-value` and `impact-label` (impact strip),
 `crosswalk-legend` (crosswalk). A crosswalk marks fit on its cell with
-`data-fit="holds|partial|breaks"` and always writes the word.
+`data-fit="holds|partial|breaks"` and always writes the word. The ledger and
+strip modules mark status with `<b data-tone="positive|warning|critical|accent">`
+and write the word there too; the attribute is not a class and not a part.
+Every type's body carries at least one module no other type uses, so documents
+of one pattern differ below the hero as well as in it.
 `scripts/catalog.py` declares the same shell and part lists for the checks.
 
 Allowed patterns record intended reuse, not only the pattern a module was

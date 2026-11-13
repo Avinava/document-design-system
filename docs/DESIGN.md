@@ -116,7 +116,9 @@ Everything else (the example build, the Pages site, the validator, the tests)
 imports from it. `python3 scripts/catalog.py` prints the types grouped by
 pattern and reports disagreements, for example a type whose pattern's families
 row does not list it, a `default-theme` that is not a file in `core/themes/`, or
-a module the stylesheet does not define.
+a module the stylesheet does not define. A test also requires every type's body
+to use at least one module that no other type uses, so two documents in one
+pattern differ below the hero, not only in it.
 
 Two things live in `catalog.py` itself: `COMPOSED`, the composed examples
 (`{slug: (theme, pattern)}`, bodies in `templates/composed/`), and the shell

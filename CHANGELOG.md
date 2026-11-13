@@ -5,6 +5,13 @@ All notable changes to this project are documented here. Versions refer to the
 
 ## Unreleased
 
+### Added
+
+- One module of its own for each of the 27 types that only reused generic ones
+  (for example the estimate's range bar, the risk register's exposure board and
+  the threat model's matrix), registered in `core/document-patterns.md`, and a
+  test that every type body uses at least one module no other type uses.
+
 ## 0.5.0
 
 Compose, don't enumerate. The writing skill now composes a document from a
