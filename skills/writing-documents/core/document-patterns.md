@@ -89,6 +89,11 @@ Do not collapse every page back to a centred stack of headings and cards.
 Prose remains readable at 62–72 characters, while tables, maps, timelines,
 comparisons, and action registers may use the wider document shell.
 
+A reader who asks for a full-width page gets `<html data-width="full">` (build
+flag `--width full`). The shell then fills the viewport on wide screens while
+prose keeps its measure. Width is not a pattern and not a theme, and no pattern
+or module may depend on it.
+
 ## Modules
 
 A module is a class in `core/document-patterns.css` that carries one reading

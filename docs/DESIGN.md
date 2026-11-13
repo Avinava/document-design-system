@@ -29,6 +29,12 @@ A pattern constrains reading movement; it is not a page template. Prose stays at
 62 to 72 characters while maps, tables, timelines and registers may use the
 wider shell.
 
+Width is a third, smaller switch on the same root element. Absent, a document
+uses its pattern's reading column; `data-width="full"` (build flag
+`--width full`) lets the shell use the whole viewport on screens wider than
+860px. It changes neither pattern nor theme, and `architecture-wide` renders the
+`architecture` body both ways to prove it.
+
 ## The token contract
 
 Components name roles, never colours. `core/base.css` and

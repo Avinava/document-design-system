@@ -238,12 +238,12 @@ class TestWritingTypes(unittest.TestCase):
                 self.assertIn("Markdown", body)
 
     def test_proposal_variants_share_a_body(self):
-        from build_examples import LONGFORM_VARIANTS
+        from build_examples import FULL_WIDTH, LONGFORM_VARIANTS
 
         self.assertIn("proposal-horizon", LONGFORM_VARIANTS)
         self.assertIn("proposal-coral", LONGFORM_VARIANTS)
         for out_slug, (body_slug, theme, _) in LONGFORM_VARIANTS.items():
-            if out_slug in COMPATIBILITY_PROFILES:
+            if out_slug in COMPATIBILITY_PROFILES or out_slug in FULL_WIDTH:
                 continue
             with self.subTest(out=out_slug):
                 self.assertEqual(body_slug, "proposal")
@@ -253,6 +253,37 @@ class TestWritingTypes(unittest.TestCase):
                 self.assertIn(f'data-theme="{theme}"', html)
                 self.assertIn('data-pattern="decision"', html)
                 self.assertIn("Two engineers for one quarter", html)
+
+    def test_full_width_is_a_root_attribute_and_changes_nothing_else(self):
+        from build_examples import FULL_WIDTH, LONGFORM_VARIANTS
+
+        self.assertTrue(FULL_WIDTH)
+        for out_slug in FULL_WIDTH:
+            body_slug = LONGFORM_VARIANTS[out_slug][0]
+            wide = (ROOT / "examples" / f"{out_slug}.html").read_text(encoding="utf-8")
+            narrow = (ROOT / "examples" / f"{body_slug}.html").read_text(encoding="utf-8")
+            with self.subTest(out=out_slug):
+                self.assertIn('<html data-width="full"', wide)
+                self.assertNotRegex(narrow, r"<html[^>]*data-width")
+                # Same document: only the root attribute differs.
+                self.assertEqual(wide.replace(' data-width="full"', "", 1), narrow)
+
+    def test_width_flag_builds_and_rejects_unknown_values(self):
+        from build_document import build
+
+        template = ROOT / "templates" / "longform.html"
+        full = build(template, "field-notes", "full")
+        self.assertEqual(len(re.findall(r'<html[^>]*data-width="full"', full)), 1)
+        self.assertNotRegex(build(template, "field-notes"), r"<html[^>]*data-width")
+        self.assertNotRegex(build(template, "field-notes", "reading"), r"<html[^>]*data-width")
+        with self.assertRaises(SystemExit):
+            build(template, "field-notes", "wide")
+
+    def test_full_width_css_follows_the_pattern_widths(self):
+        css = strip_comments((CORE / "document-patterns.css").read_text(encoding="utf-8"))
+        rule = css.index('html[data-width="full"] .doc')
+        for pattern in re.finditer(r'html\[data-pattern="[a-z]+"\] \.doc \{ --doc-max', css):
+            self.assertLess(pattern.start(), rule, "pattern widths must come before the full-width rule")
 
     def test_catalog_size_and_patterns_are_intended(self):
         self.assertEqual(len(catalog.TYPES), EXPECTED_TYPE_COUNT)

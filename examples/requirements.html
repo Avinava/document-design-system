@@ -1460,6 +1460,22 @@ html[data-pattern="brief"] .section { margin-top: var(--space-6); }
 
 /* ------------------------------------------------------------ responsive */
 
+/* ---------------------------------------------------------------- width */
+
+/* <html> lets the shell use the whole viewport, for maps,
+ * wide tables and side-by-side comparisons on a large screen. Prose keeps its
+ * own measure (--content-measure, and p in base.css), so lines stay readable
+ * while the modules around them spread out. It follows the pattern sections
+ * above so it wins at equal specificity, and applies only where the pattern
+ * widths can matter; the narrow-screen rules below already fill the viewport. */
+@media (min-width: 861px) {
+  html[data-width="full"] .doc {
+    --doc-max: none;
+    max-width: none;
+    padding-inline: clamp(32px, 5vw, 96px);
+  }
+}
+
 /* Hero placement for the two-column openings; narrower than this the hero is
  * one column and reading order is source order. */
 @media (min-width: 861px) {

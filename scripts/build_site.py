@@ -257,6 +257,7 @@ HTML_KEEP = {
     "proposal-coral.html": back_to_site_page("themes.html", "Themes"),
     "brand.html": back_to_site_page("themes.html", "Themes"),
     "mulesoft.html": ("types.html#profiles", "← Patterns", "Back to the compatibility profiles"),
+    "architecture-wide.html": back_to_pattern(catalog.TYPES["architecture"].pattern),
 }
 
 
