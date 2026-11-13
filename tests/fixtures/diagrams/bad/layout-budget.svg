@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="fx-title fx-desc" viewBox="0 0 720 220" width="100%">
+  <title id="fx-title">Fixture: over the node budget</title>
+  <desc id="fx-desc">Fifteen unconnected boxes, one more than a doc-inline figure's node budget. Used by the check_diagrams tests.</desc>
+  <g class="node"><rect x="24" y="24" width="104" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)"/><text x="76" y="48" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Box 1</text></g>
+  <g class="node"><rect x="160" y="24" width="104" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)"/><text x="212" y="48" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Box 2</text></g>
+  <g class="node"><rect x="296" y="24" width="104" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)"/><text x="348" y="48" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Box 3</text></g>
+  <g class="node"><rect x="432" y="24" width="104" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)"/><text x="484" y="48" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Box 4</text></g>
+  <g class="node"><rect x="568" y="24" width="104" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)"/><text x="620" y="48" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Box 5</text></g>
+  <g class="node"><rect x="24" y="88" width="104" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)"/><text x="76" y="112" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Box 6</text></g>
+  <g class="node"><rect x="160" y="88" width="104" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)"/><text x="212" y="112" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Box 7</text></g>
+  <g class="node"><rect x="296" y="88" width="104" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)"/><text x="348" y="112" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Box 8</text></g>
+  <g class="node"><rect x="432" y="88" width="104" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)"/><text x="484" y="112" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Box 9</text></g>
+  <g class="node"><rect x="568" y="88" width="104" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)"/><text x="620" y="112" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Box 10</text></g>
+  <g class="node"><rect x="24" y="152" width="104" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)"/><text x="76" y="176" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Box 11</text></g>
+  <g class="node"><rect x="160" y="152" width="104" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)"/><text x="212" y="176" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Box 12</text></g>
+  <g class="node"><rect x="296" y="152" width="104" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)"/><text x="348" y="176" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Box 13</text></g>
+  <g class="node"><rect x="432" y="152" width="104" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)"/><text x="484" y="176" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Box 14</text></g>
+  <g class="node"><rect x="568" y="152" width="104" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)"/><text x="620" y="176" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Box 15</text></g>
+</svg>
