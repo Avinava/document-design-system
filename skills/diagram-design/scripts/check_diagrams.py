@@ -906,7 +906,11 @@ def title_id(text: str) -> str | None:
 
 
 def default_inputs(root: Path) -> list[Path]:
-    paths = sorted((root / "examples").glob("*.svg")) + sorted((root / "examples").glob("*.html"))
+    paths = (
+        sorted((root / "examples").glob("*.svg"))
+        + sorted((root / "examples" / "diagrams").glob("*.svg"))
+        + sorted((root / "examples").glob("*.html"))
+    )
     template = root / "templates" / "diagram.svg"
     if template.is_file():
         paths.append(template)

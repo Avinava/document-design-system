@@ -232,7 +232,7 @@ Print is checked by exporting the PDF and looking at it, not by the presence of
 |---|---|---|---|
 | **[writing-documents](skills/writing-documents/SKILL.md)** | 34 presets in 11 patterns, composition when none fits, evidence states; Markdown by default | Metric-led reports, casual edits, unrequested restyling | [Patterns page](examples/index.html) |
 | **[analytical-document-design](skills/analytical-document-design/SKILL.md)** | Evidence models, control totals, metric and cohort semantics, methodology | Prose-first documents, slides | [Inventory report](examples/inventory-report.html) |
-| **[diagram-design](skills/diagram-design/SKILL.md)** | When a diagram earns its place; 15 forms; layout and label rules; Mermaid and draw.io import | Quantitative charts, UI mockups | [Figure gallery](examples/gallery-light.html) |
+| **[diagram-design](skills/diagram-design/SKILL.md)** | When a diagram earns its place; 21 forms; layout and label rules; Mermaid and draw.io import | Quantitative charts, UI mockups | [Figure gallery](examples/gallery-light.html) |
 | **[chart-design](skills/chart-design/SKILL.md)** | Chart choice, axis honesty, token palettes, a waterfall that checks its totals | Narrative, dashboards as applications | [Estimate](examples/estimate.html) |
 | **[presentation-design](skills/presentation-design/SKILL.md)** | 16:9 HTML slides, claim titles, one idea per slide, PDF one slide per page | Documents meant to be read; `.pptx` | [Deck](examples/capacity-deck.html) |
 | **[brand-theme-design](skills/brand-theme-design/SKILL.md)** | A brand turned into a theme: extraction with provenance, role mapping, contrast audit | Choosing between shipped themes | [Brand exhibit](examples/brand.html) |

@@ -1,0 +1,77 @@
+<svg role="img" aria-labelledby="sm-title sm-desc" viewBox="0 0 720 348" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+  <title id="sm-title">Story map for a first integration</title>
+  <desc id="sm-desc">Four activities run left to right: connect, send, watch, act. Beneath each, user stories are stacked by release. Release 1 is one thin working path across every activity; release 2 makes each activity safer. The accent marks sending one event, the story the whole first release hinges on.</desc>
+
+  <defs>
+    <marker id="sm-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerUnits="userSpaceOnUse"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <path class="edge" d="M172 68 H 204" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#sm-arrow)"/>
+  <path class="edge" d="M344 68 H 376" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#sm-arrow)"/>
+  <path class="edge" d="M516 68 H 548" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#sm-arrow)"/>
+  <g class="boundary">
+    <rect x="16" y="112" width="688" height="88" rx="6" fill="none" stroke="var(--rule-strong)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="28" y="132" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">RELEASE 1 · THIN PATH</text>
+  </g>
+  <g class="boundary">
+    <rect x="16" y="216" width="688" height="88" rx="6" fill="none" stroke="var(--rule-strong)" stroke-width="1" stroke-dasharray="4 3"/>
+    <text x="28" y="236" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">RELEASE 2 · SAFER</text>
+  </g>
+  <g class="node">
+    <rect x="32" y="48" width="140" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="102" y="72" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Connect</text>
+  </g>
+  <g class="node node-focal">
+    <rect x="204" y="48" width="140" height="40" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="274" y="72" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Send</text>
+  </g>
+  <g class="node">
+    <rect x="376" y="48" width="140" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="446" y="72" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Watch</text>
+  </g>
+  <g class="node">
+    <rect x="548" y="48" width="140" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="618" y="72" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Act</text>
+  </g>
+  <g class="node">
+    <rect x="32" y="144" width="140" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="102" y="168" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Create API key</text>
+  </g>
+  <g class="node node-muted">
+    <rect x="32" y="248" width="140" height="40" rx="6" fill="var(--surface)" stroke="var(--rule)" stroke-width="1"/>
+    <text x="102" y="272" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--muted)">Rotate keys</text>
+  </g>
+  <g class="node node-focal">
+    <rect x="204" y="144" width="140" height="40" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="274" y="168" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Send one event</text>
+  </g>
+  <g class="node node-muted">
+    <rect x="204" y="248" width="140" height="40" rx="6" fill="var(--surface)" stroke="var(--rule)" stroke-width="1"/>
+    <text x="274" y="272" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--muted)">Batch upload</text>
+  </g>
+  <g class="node">
+    <rect x="376" y="144" width="140" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="446" y="168" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">See last event</text>
+  </g>
+  <g class="node node-muted">
+    <rect x="376" y="248" width="140" height="40" rx="6" fill="var(--surface)" stroke="var(--rule)" stroke-width="1"/>
+    <text x="446" y="272" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--muted)">Alert on lag</text>
+  </g>
+  <g class="node">
+    <rect x="548" y="144" width="140" height="40" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="618" y="168" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Acknowledge</text>
+  </g>
+  <g class="node node-muted">
+    <rect x="548" y="248" width="140" height="40" rx="6" fill="var(--surface)" stroke="var(--rule)" stroke-width="1"/>
+    <text x="618" y="272" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--muted)">Replay failures</text>
+  </g>
+  <g class="annotation">
+    <text x="28" y="36" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">ACTIVITIES, IN ORDER OF USE</text>
+  </g>
+  <g class="legend">
+    <text x="28" y="332" font-family="var(--sans)" font-size="11" fill="var(--muted)">Columns are activities in the order a user meets them. Rows are releases, cheapest working slice first.</text>
+  </g>
+</svg>

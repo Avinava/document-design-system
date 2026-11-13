@@ -1,0 +1,81 @@
+<svg role="img" aria-labelledby="em-title em-desc" viewBox="0 0 720 412" width="100%" style="max-width:720px" xmlns="http://www.w3.org/2000/svg">
+  <title id="em-title">Event model of alerting</title>
+  <desc id="em-desc">Three slices run left to right on four lanes: screen, command, event and read model. Connecting a source records SourceConnected, which automatically triggers RaiseAlert. The AlertRaised event, marked with the accent, updates the alert inbox read model, and that inbox is the screen where the user acknowledges the alert.</desc>
+
+  <defs>
+    <marker id="em-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerUnits="userSpaceOnUse"
+            markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <g class="annotation">
+    <text x="28" y="96" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">SCREEN</text>
+    <text x="28" y="184" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">COMMAND</text>
+    <text x="28" y="272" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">EVENT</text>
+    <text x="28" y="360" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">READ MODEL</text>
+    <path d="M24 136 H 696" stroke="var(--rule)" stroke-width="1"/>
+    <path d="M24 224 H 696" stroke="var(--rule)" stroke-width="1"/>
+    <path d="M24 312 H 696" stroke="var(--rule)" stroke-width="1"/>
+    <text x="140" y="36" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">CONNECT SOURCE</text>
+    <text x="324" y="36" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">RAISE ALERT</text>
+    <text x="508" y="36" font-family="var(--sans)" font-size="11" fill="var(--soft)" letter-spacing="0.06em">ACKNOWLEDGE</text>
+  </g>
+  <path class="edge" d="M204 116 V 156" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#em-arrow)"/>
+  <path class="edge" d="M204 204 V 244" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#em-arrow)"/>
+  <path class="edge" d="M204 292 V 332" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#em-arrow)"/>
+  <path class="edge" d="M388 204 V 244" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#em-arrow)"/>
+  <path class="edge" d="M388 292 V 332" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#em-arrow)"/>
+  <path class="edge" d="M572 116 V 156" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#em-arrow)"/>
+  <path class="edge" d="M572 204 V 244" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#em-arrow)"/>
+  <path class="edge" d="M572 292 V 332" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#em-arrow)"/>
+  <path class="edge" d="M268 268 H 288 Q 296 268 296 260 V 188 Q 296 180 304 180 H 324" fill="none" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#em-arrow)"/>
+  <path class="edge" d="M452 356 H 472 Q 480 356 480 348 V 100 Q 480 92 488 92 H 508" fill="none" stroke="var(--muted)" stroke-width="1" marker-end="url(#em-arrow)"/>
+  <g class="node">
+    <rect x="140" y="68" width="128" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="204" y="96" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Connect form</text>
+  </g>
+  <g class="node">
+    <rect x="140" y="156" width="128" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="204" y="184" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--ink)">ConnectSource</text>
+  </g>
+  <g class="node">
+    <rect x="140" y="244" width="128" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="204" y="272" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--ink)">SourceConnected</text>
+  </g>
+  <g class="node">
+    <rect x="140" y="332" width="128" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="204" y="360" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Sources</text>
+  </g>
+  <g class="node">
+    <rect x="324" y="156" width="128" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="388" y="184" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--ink)">RaiseAlert</text>
+  </g>
+  <g class="node node-focal">
+    <rect x="324" y="244" width="128" height="48" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+    <text x="388" y="272" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--ink)">AlertRaised</text>
+  </g>
+  <g class="node">
+    <rect x="324" y="332" width="128" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="388" y="360" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Alert inbox</text>
+  </g>
+  <g class="node">
+    <rect x="508" y="68" width="128" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="572" y="96" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Alert inbox</text>
+  </g>
+  <g class="node">
+    <rect x="508" y="156" width="128" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="572" y="184" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--ink)">Acknowledge</text>
+  </g>
+  <g class="node">
+    <rect x="508" y="244" width="128" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="572" y="272" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--ink)">AlertAcked</text>
+  </g>
+  <g class="node">
+    <rect x="508" y="332" width="128" height="48" rx="6" fill="var(--surface)" stroke="var(--rule-strong)" stroke-width="1"/>
+    <text x="572" y="360" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink)">Alert status</text>
+  </g>
+  <g class="legend">
+    <text x="28" y="396" font-family="var(--sans)" font-size="11" fill="var(--muted)">Dashed: an automation raises the command with no screen. Time runs left to right.</text>
+  </g>
+</svg>
