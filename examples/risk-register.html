@@ -1476,6 +1476,15 @@ html[data-pattern="brief"] .section { margin-top: var(--space-6); }
     max-width: none;
     padding-inline: clamp(32px, 5vw, 96px);
   }
+
+  /* Figures are authored at 720 units with an inline max-width of 720px, so a
+   * wide page would leave them small in the corner of a large frame. Let them
+   * grow to 1100px, centred. !important is needed only to beat that inline
+   * style; the viewBox keeps the proportions. */
+  html[data-width="full"] .diagram-scroll > svg {
+    max-width: min(100%, 1100px) !important;
+    margin-inline: auto;
+  }
 }
 
 /* Hero placement for the two-column openings; narrower than this the hero is
