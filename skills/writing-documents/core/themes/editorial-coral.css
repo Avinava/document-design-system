@@ -8,7 +8,7 @@
 
 :root,
 [data-theme="editorial-coral"] {
-  --paper: #f5f5f5;
+  --paper: #f8f4ef;
   --surface: #ffffff;
   --surface-muted: #eeeeef;
 
@@ -45,15 +45,15 @@
   --radius-md: 6px;
 
   --text-base: 1rem;
-  --scale-ratio: 1.18;
-  --display-weight: 600;
-  --display-tracking: -0.01em;
-  --display-leading: 1.2;
+  --scale-ratio: 1.25;
+  --display-weight: 800;
+  --display-tracking: -0.03em;
+  --display-leading: 1.1;
   --display-transform: none;
 
-  --density: 1;
+  --density: 1.05;
   --hero-rule-width: 3px;
   --section-rule-width: 1px;
-  --eyebrow-tracking: 0.06em;
+  --eyebrow-tracking: 0.08em;
   --eyebrow-transform: uppercase;
 }
